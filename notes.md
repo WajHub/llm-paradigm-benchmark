@@ -1,0 +1,1 @@
+ - Czy powinnismy modelowi pokazywać testy (jeśli tak, to w którym momencie)
