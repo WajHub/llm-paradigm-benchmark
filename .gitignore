@@ -107,3 +107,70 @@ callgrind.out.*
 cachegrind.out.*
 *.tar
 *.tar.gz
+
+# =========================
+# Pascal
+# =========================
+# Free Pascal / Lazarus
+*.ppu
+*.tci
+*.tds
+*.ppu*
+
+# =========================
+# Java
+# =========================
+# Compiled class files
+*.class
+# Package files
+*.jar
+*.war
+*.ear
+# Maven / Gradle
+/target/
+/.gradle/
+build/
+# IntelliJ
+.idea/
+
+# =========================
+# Smalltalk
+# =========================
+# Image and changes files for Smalltalk VMs
+*.image
+*.changes
+*.sources
+
+# =========================
+# Haskell
+# =========================
+# Stack / Cabal
+/.stack-work/
+dist/
+dist-newstyle/
+*.hi
+
+# =========================
+# C# / .NET
+# =========================
+bin/
+obj/
+*.user
+*.suo
+*.ncb
+*.pidb
+
+# =========================
+# Prolog
+# =========================
+# SWI-Prolog compiled files
+*.qlf
+
+# =========================
+# Scala
+# =========================
+# sbt / mill
+/target/
+*.class
+.metals/
+.bloop/

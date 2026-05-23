@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  evaluator:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: ["/bin/sh", "/app/run-tests.sh"]
