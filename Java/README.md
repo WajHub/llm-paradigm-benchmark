@@ -11,8 +11,8 @@ You are a Java programming expert. Your task is to implement the required method
 
 General Requirements:
 - Use idiomatic Java.
+- Use object-oriented design and model the domain with classes.
 - Prefer standard library collections and utilities where appropriate.
-- Manage resources safely and avoid unnecessary object allocation.
 - Return ONLY raw Java code (no Markdown tags, no ```java blocks, no side text). Your code will be directly saved to a .java file and compiled. Do not provide a main() method or test code.
 
 [INSERT CLASS OR INTERFACE CONTENT HERE]
