@@ -3,7 +3,7 @@ DIR ?= .
 FPC = fpc
 FPCFLAGS = -Mobjfpc -Sh -O1 -g
 
-test: $(DIR)/tests.pas $(DIR)/spatial_logic.pas
+test:
 	$(FPC) $(FPCFLAGS) -Fu$(DIR) -otest_runner $(DIR)/tests.pas
 
 clean:

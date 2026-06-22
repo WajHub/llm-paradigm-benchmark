@@ -5,4 +5,4 @@ services:
     volumes:
       - ..:/workspace
     working_dir: /workspace
-    command: ["sh", "./Scala/run-tests.sh"]
+    entrypoint: ["sh", "-c", "sed -i 's/\\r$//' /workspace/Scala/run-tests.sh /workspace/Scala/Makefile; exec sh /workspace/Scala/run-tests.sh \"$${1:-test-1}\"", "--"]

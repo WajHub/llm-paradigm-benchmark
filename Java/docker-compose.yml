@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   evaluator:
     build: .
     volumes:
       - .:/app
     working_dir: /app
-    entrypoint: ["/bin/sh", "/app/run-tests.sh"]
+    entrypoint: ["sh", "-c", "sed -i 's/\\r$//' /app/run-tests.sh /app/Makefile; exec sh /app/run-tests.sh \"$${1:-test-1}\"", "--"]

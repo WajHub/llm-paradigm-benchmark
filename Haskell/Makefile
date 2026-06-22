@@ -3,7 +3,7 @@ DIR ?= .
 GHC = ghc
 GHCFLAGS = -Wall -Wextra -g
 
-test: $(DIR)/Tests.hs $(DIR)/SpatialLogic.hs
+test:
 	$(GHC) $(GHCFLAGS) -i$(DIR) -o test_runner $(DIR)/Tests.hs
 
 clean:
