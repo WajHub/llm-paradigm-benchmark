@@ -1,0 +1,14 @@
+FROM swipl:9.2.9
+
+RUN apt-get update && apt-get install -y \
+    make \
+    valgrind \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY . /app
+RUN chmod +x /app/run-tests.sh || true
+
+ENTRYPOINT ["/bin/sh", "/app/run-tests.sh"]
