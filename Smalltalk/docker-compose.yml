@@ -1,0 +1,7 @@
+services:
+  evaluator:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: ["sh", "-c", "dos2unix /app/run-tests.sh /app/Makefile /app/*/*.st 2>/dev/null; exec sh /app/run-tests.sh \"$${1:-test-1}\"", "--"]
