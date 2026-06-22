@@ -7,4 +7,12 @@ echo "=== Running benchmark for folder: $FOLDER_NAME ==="
 
 make DIR="$FOLDER_NAME" clean
 make DIR="$FOLDER_NAME" test
-gst -Q "$FOLDER_NAME/SpatialLogic.st" "$FOLDER_NAME/SpatialLogicImpl.st" "$FOLDER_NAME/Tests.st"
+
+DEPS=""
+for f in "$FOLDER_NAME"/*.st; do
+    case "$(basename "$f")" in
+        Tests.st) ;;
+        *) DEPS="$DEPS $f" ;;
+    esac
+done
+gst -Q $DEPS "$FOLDER_NAME/Tests.st"

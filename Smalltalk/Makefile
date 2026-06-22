@@ -2,7 +2,7 @@ DIR ?= .
 GST = gst
 
 test:
-	$(GST) -g -f $(DIR)/SpatialLogic.st -f $(DIR)/SpatialLogicImpl.st
+	$(GST) -g `ls $(DIR)/*.st 2>/dev/null | grep -v Tests.st | sort`
 
 clean:
 	@true
