@@ -1,95 +1,74 @@
+import java.util.Arrays;
+
 public final class Tests {
     private static final Knapsack KS = new KnapsackImpl();
 
-    private Tests() {}
+    private Tests() {
+    }
 
     private static int referenceDp(int[] weights, int[] values, int capacity) {
-        int n = weights.length;
-        if (n == 0 || capacity <= 0) {
+        if (weights.length == 0 || capacity <= 0) {
             return 0;
         }
-        int[][] dp = new int[n + 1][capacity + 1];
-        for (int i = 1; i <= n; i++) {
-            for (int c = 0; c <= capacity; c++) {
-                dp[i][c] = dp[i - 1][c];
-                if (weights[i - 1] <= c) {
-                    int take = dp[i - 1][c - weights[i - 1]] + values[i - 1];
-                    if (take > dp[i][c]) {
-                        dp[i][c] = take;
-                    }
+        int[] dp = new int[capacity + 1];
+        for (int i = 0; i < weights.length; i++) {
+            for (int c = capacity; c >= weights[i]; c--) {
+                int cand = dp[c - weights[i]] + values[i];
+                if (cand > dp[c]) {
+                    dp[c] = cand;
                 }
             }
         }
-        return dp[n][capacity];
+        return dp[capacity];
     }
 
-    private static boolean selectedMatches(int[] actual, int[] expected) {
-        if (actual == null || actual.length != expected.length) {
-            return false;
-        }
-        for (int i = 0; i < expected.length; i++) {
-            if (actual[i] != expected[i]) {
-                return false;
-            }
-        }
-        return true;
+    private static boolean selectedEquals(int[] actual, int[] expected) {
+        return actual != null && Arrays.equals(actual, expected);
     }
 
-    private static boolean testAlgoA01EmptyArrays() {
+    private static boolean testAlgoA01Empty() {
         try {
-            int[] w = new int[0];
-            int[] v = new int[0];
-            return KS.maxValue(w, v, 10) == 0;
+            return KS.maxValue(new int[0], new int[0], 10) == 0;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA02SingleFits() {
+    private static boolean testAlgoA02SingleFit() {
         try {
-            int[] w = {5};
-            int[] v = {10};
-            return KS.maxValue(w, v, 10) == 10;
+            return KS.maxValue(new int[]{5}, new int[]{10}, 10) == 10;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA03SingleTooHeavy() {
+    private static boolean testAlgoA03TooHeavy() {
         try {
-            int[] w = {15};
-            int[] v = {10};
-            return KS.maxValue(w, v, 10) == 0;
+            return KS.maxValue(new int[]{15}, new int[]{10}, 10) == 0;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA04ZeroCapacity() {
+    private static boolean testAlgoA04CapZero() {
         try {
-            int[] w = {1, 2, 3};
-            int[] v = {10, 20, 30};
-            return KS.maxValue(w, v, 0) == 0;
+            return KS.maxValue(new int[]{1, 2, 3}, new int[]{10, 20, 30}, 0) == 0;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA05PickBetterSingle() {
+    private static boolean testAlgoA05ChooseBetter() {
         try {
-            int[] w = {5, 6};
-            int[] v = {10, 11};
-            return KS.maxValue(w, v, 10) == 11;
+            return KS.maxValue(new int[]{5, 6}, new int[]{10, 11}, 10) == 11;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA06ClassicSmall() {
+    private static boolean testAlgoA06Textbook() {
         try {
-            int[] w = {2, 3, 4, 5};
-            int[] v = {3, 4, 5, 6};
-            return KS.maxValue(w, v, 5) == 7;
+            return KS.maxValue(new int[]{2, 3, 4, 5}, new int[]{3, 4, 5, 6}, 5) == 7;
         } catch (Exception e) {
             return false;
         }
@@ -97,35 +76,29 @@ public final class Tests {
 
     private static boolean testAlgoA07GreedyTrap() {
         try {
-            int[] w = {10, 20, 30};
-            int[] v = {60, 100, 120};
-            return KS.maxValue(w, v, 50) == 220;
+            return KS.maxValue(new int[]{10, 20, 30}, new int[]{60, 100, 120}, 50) == 220;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA08IdenticalItems() {
+    private static boolean testAlgoA08SameItems() {
         try {
-            int[] w = {3, 3, 3, 3};
-            int[] v = {5, 5, 5, 5};
-            return KS.maxValue(w, v, 10) == 15;
+            return KS.maxValue(new int[]{3, 3, 3, 3}, new int[]{5, 5, 5, 5}, 10) == 15;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA09NontrivialChoice() {
+    private static boolean testAlgoA09TightFit() {
         try {
-            int[] w = {3, 4, 5, 6};
-            int[] v = {2, 3, 4, 5};
-            return KS.maxValue(w, v, 10) == 8;
+            return KS.maxValue(new int[]{3, 4, 5, 6}, new int[]{2, 3, 4, 5}, 10) == 8;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoA10StressMaxValue() {
+    private static boolean testAlgoA10Stress() {
         try {
             int n = 50;
             int[] w = new int[n];
@@ -134,126 +107,94 @@ public final class Tests {
                 w[i] = i + 1;
                 v[i] = (i + 1) * 2;
             }
-            int capacity = 100;
-            int expected = referenceDp(w, v, capacity);
-            return KS.maxValue(w, v, capacity) == expected;
+            int expected = referenceDp(w, v, 100);
+            return KS.maxValue(w, v, 100) == expected;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB01SelectSingle() {
+    private static boolean testAlgoB01SingleSelection() {
         try {
-            int[] w = {5};
-            int[] v = {10};
-            Knapsack.Result r = KS.solve(w, v, 10);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 10 && r.totalWeight == 5 && selectedMatches(r.selected, new int[]{1});
+            Knapsack.Result r = KS.solve(new int[]{5}, new int[]{10}, 10);
+            return r != null && r.maxValue == 10 && r.totalWeight == 5
+                    && selectedEquals(r.selected, new int[]{1});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB02SelectBetterSingle() {
+    private static boolean testAlgoB02ChooseBetterSelection() {
         try {
-            int[] w = {5, 6};
-            int[] v = {10, 11};
-            Knapsack.Result r = KS.solve(w, v, 10);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 11 && r.totalWeight == 6 && selectedMatches(r.selected, new int[]{0, 1});
+            Knapsack.Result r = KS.solve(new int[]{5, 6}, new int[]{10, 11}, 10);
+            return r != null && r.maxValue == 11 && r.totalWeight == 6
+                    && selectedEquals(r.selected, new int[]{0, 1});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB03SelectClassicSmall() {
+    private static boolean testAlgoB03TextbookSelection() {
         try {
-            int[] w = {2, 3, 4, 5};
-            int[] v = {3, 4, 5, 6};
-            Knapsack.Result r = KS.solve(w, v, 5);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 7 && r.totalWeight == 5 && selectedMatches(r.selected, new int[]{1, 1, 0, 0});
+            Knapsack.Result r = KS.solve(new int[]{2, 3, 4, 5}, new int[]{3, 4, 5, 6}, 5);
+            return r != null && r.maxValue == 7 && r.totalWeight == 5
+                    && selectedEquals(r.selected, new int[]{1, 1, 0, 0});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB04SelectGreedyTrap() {
+    private static boolean testAlgoB04GreedyTrapSelection() {
         try {
-            int[] w = {10, 20, 30};
-            int[] v = {60, 100, 120};
-            Knapsack.Result r = KS.solve(w, v, 50);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 220 && r.totalWeight == 50 && selectedMatches(r.selected, new int[]{0, 1, 1});
+            Knapsack.Result r = KS.solve(new int[]{10, 20, 30}, new int[]{60, 100, 120}, 50);
+            return r != null && r.maxValue == 220 && r.totalWeight == 50
+                    && selectedEquals(r.selected, new int[]{0, 1, 1});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB05SelectZeroCapacity() {
+    private static boolean testAlgoB05CapZeroSelection() {
         try {
-            int[] w = {1, 2, 3};
-            int[] v = {10, 20, 30};
-            Knapsack.Result r = KS.solve(w, v, 0);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 0 && r.totalWeight == 0 && selectedMatches(r.selected, new int[]{0, 0, 0});
+            Knapsack.Result r = KS.solve(new int[]{1, 2, 3}, new int[]{10, 20, 30}, 0);
+            return r != null && r.maxValue == 0 && r.totalWeight == 0
+                    && selectedEquals(r.selected, new int[]{0, 0, 0});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB06SelectTooHeavy() {
+    private static boolean testAlgoB06TooHeavySelection() {
         try {
-            int[] w = {15};
-            int[] v = {10};
-            Knapsack.Result r = KS.solve(w, v, 10);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 0 && r.totalWeight == 0 && selectedMatches(r.selected, new int[]{0});
+            Knapsack.Result r = KS.solve(new int[]{15}, new int[]{10}, 10);
+            return r != null && r.maxValue == 0 && r.totalWeight == 0
+                    && selectedEquals(r.selected, new int[]{0});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB07SelectAllFit() {
+    private static boolean testAlgoB07AllFit() {
         try {
-            int[] w = {1, 2, 3};
-            int[] v = {10, 20, 30};
-            Knapsack.Result r = KS.solve(w, v, 10);
-            if (r == null || r.selected == null) {
-                return false;
-            }
-            return r.maxValue == 60 && r.totalWeight == 6 && selectedMatches(r.selected, new int[]{1, 1, 1});
+            Knapsack.Result r = KS.solve(new int[]{1, 2, 3}, new int[]{10, 20, 30}, 10);
+            return r != null && r.maxValue == 60 && r.totalWeight == 6
+                    && selectedEquals(r.selected, new int[]{1, 1, 1});
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean testAlgoB08WeightInvariantGreedyTrap() {
+    private static boolean testAlgoB08WeightInvariant() {
         try {
             int[] w = {10, 20, 30};
             int[] v = {60, 100, 120};
             int capacity = 50;
             Knapsack.Result r = KS.solve(w, v, capacity);
-            if (r == null || r.selected == null || r.selected.length != w.length) {
+            if (r == null || r.selected == null) {
                 return false;
             }
             int sumW = 0;
             for (int i = 0; i < w.length; i++) {
-                if (r.selected[i] != 0 && r.selected[i] != 1) {
-                    return false;
-                }
                 sumW += r.selected[i] * w[i];
             }
             return sumW <= capacity && sumW == r.totalWeight;
@@ -262,20 +203,16 @@ public final class Tests {
         }
     }
 
-    private static boolean testAlgoB09ValueInvariantGreedyTrap() {
+    private static boolean testAlgoB09ValueInvariant() {
         try {
             int[] w = {10, 20, 30};
             int[] v = {60, 100, 120};
-            int capacity = 50;
-            Knapsack.Result r = KS.solve(w, v, capacity);
-            if (r == null || r.selected == null || r.selected.length != w.length) {
+            Knapsack.Result r = KS.solve(w, v, 50);
+            if (r == null || r.selected == null) {
                 return false;
             }
             int sumV = 0;
-            for (int i = 0; i < w.length; i++) {
-                if (r.selected[i] != 0 && r.selected[i] != 1) {
-                    return false;
-                }
+            for (int i = 0; i < v.length; i++) {
                 sumV += r.selected[i] * v[i];
             }
             return sumV == r.maxValue;
@@ -287,13 +224,13 @@ public final class Tests {
     private static boolean testAlgoB10StressInvariants() {
         try {
             int n = 50;
+            int capacity = 100;
             int[] w = new int[n];
             int[] v = new int[n];
             for (int i = 0; i < n; i++) {
                 w[i] = i + 1;
                 v[i] = (i + 1) * 2;
             }
-            int capacity = 100;
             int expected = referenceDp(w, v, capacity);
             Knapsack.Result r = KS.solve(w, v, capacity);
             if (r == null || r.selected == null || r.selected.length != n) {
@@ -308,180 +245,70 @@ public final class Tests {
                 sumW += r.selected[i] * w[i];
                 sumV += r.selected[i] * v[i];
             }
-            if (sumW > capacity) return false;
-            if (sumW != r.totalWeight) return false;
-            if (sumV != r.maxValue) return false;
-            return r.maxValue == expected;
+            return r.maxValue == expected
+                    && sumW <= capacity
+                    && sumW == r.totalWeight
+                    && sumV == r.maxValue;
         } catch (Exception e) {
             return false;
         }
     }
 
+    private static void runTest(String name, boolean passed, java.util.List<String> failed) {
+        if (passed) {
+            System.out.println("[PASS] " + name);
+        } else {
+            System.out.println("[FAIL] " + name);
+            failed.add(name);
+        }
+    }
+
     public static void main(String[] args) {
-        int failedCount = 0;
-        String[] failedTests = new String[50];
-        int totalTests = 0;
+        java.util.List<String> failed = new java.util.ArrayList<>();
+        int total = 0;
 
         System.out.println("=== START ===");
         System.out.println();
-        System.out.println("--- Algorithm A: Max Value ---");
-        totalTests++;
-        if (testAlgoA01EmptyArrays()) {
-            System.out.println("[PASS] Test A01 (Empty Arrays)");
-        } else {
-            System.out.println("[FAIL] Test A01 (Empty Arrays)");
-            failedTests[failedCount++] = "Test A01 (Empty Arrays)";
-        }
-        totalTests++;
-        if (testAlgoA02SingleFits()) {
-            System.out.println("[PASS] Test A02 (Single Item Fits)");
-        } else {
-            System.out.println("[FAIL] Test A02 (Single Item Fits)");
-            failedTests[failedCount++] = "Test A02 (Single Item Fits)";
-        }
-        totalTests++;
-        if (testAlgoA03SingleTooHeavy()) {
-            System.out.println("[PASS] Test A03 (Single Item Too Heavy)");
-        } else {
-            System.out.println("[FAIL] Test A03 (Single Item Too Heavy)");
-            failedTests[failedCount++] = "Test A03 (Single Item Too Heavy)";
-        }
-        totalTests++;
-        if (testAlgoA04ZeroCapacity()) {
-            System.out.println("[PASS] Test A04 (Zero Capacity)");
-        } else {
-            System.out.println("[FAIL] Test A04 (Zero Capacity)");
-            failedTests[failedCount++] = "Test A04 (Zero Capacity)";
-        }
-        totalTests++;
-        if (testAlgoA05PickBetterSingle()) {
-            System.out.println("[PASS] Test A05 (Pick Better Single)");
-        } else {
-            System.out.println("[FAIL] Test A05 (Pick Better Single)");
-            failedTests[failedCount++] = "Test A05 (Pick Better Single)";
-        }
-        totalTests++;
-        if (testAlgoA06ClassicSmall()) {
-            System.out.println("[PASS] Test A06 (Classic Small)");
-        } else {
-            System.out.println("[FAIL] Test A06 (Classic Small)");
-            failedTests[failedCount++] = "Test A06 (Classic Small)";
-        }
-        totalTests++;
-        if (testAlgoA07GreedyTrap()) {
-            System.out.println("[PASS] Test A07 (Greedy Trap)");
-        } else {
-            System.out.println("[FAIL] Test A07 (Greedy Trap)");
-            failedTests[failedCount++] = "Test A07 (Greedy Trap)";
-        }
-        totalTests++;
-        if (testAlgoA08IdenticalItems()) {
-            System.out.println("[PASS] Test A08 (Identical Items)");
-        } else {
-            System.out.println("[FAIL] Test A08 (Identical Items)");
-            failedTests[failedCount++] = "Test A08 (Identical Items)";
-        }
-        totalTests++;
-        if (testAlgoA09NontrivialChoice()) {
-            System.out.println("[PASS] Test A09 (Non-trivial Choice)");
-        } else {
-            System.out.println("[FAIL] Test A09 (Non-trivial Choice)");
-            failedTests[failedCount++] = "Test A09 (Non-trivial Choice)";
-        }
-        totalTests++;
-        if (testAlgoA10StressMaxValue()) {
-            System.out.println("[PASS] Test A10 (Stress Max Value 50 items)");
-        } else {
-            System.out.println("[FAIL] Test A10 (Stress Max Value 50 items)");
-            failedTests[failedCount++] = "Test A10 (Stress Max Value 50 items)";
-        }
+        System.out.println("--- Algorithm A: Maximum Value ---");
+
+        total++; runTest("Test A01 (Empty)", testAlgoA01Empty(), failed);
+        total++; runTest("Test A02 (Single Fit)", testAlgoA02SingleFit(), failed);
+        total++; runTest("Test A03 (Too Heavy)", testAlgoA03TooHeavy(), failed);
+        total++; runTest("Test A04 (Capacity Zero)", testAlgoA04CapZero(), failed);
+        total++; runTest("Test A05 (Choose Better)", testAlgoA05ChooseBetter(), failed);
+        total++; runTest("Test A06 (Textbook)", testAlgoA06Textbook(), failed);
+        total++; runTest("Test A07 (Greedy Trap)", testAlgoA07GreedyTrap(), failed);
+        total++; runTest("Test A08 (Same Items)", testAlgoA08SameItems(), failed);
+        total++; runTest("Test A09 (Tight Fit)", testAlgoA09TightFit(), failed);
+        total++; runTest("Test A10 (Stress 50 Items)", testAlgoA10Stress(), failed);
 
         System.out.println();
         System.out.println("--- Algorithm B: Item Selection ---");
-        totalTests++;
-        if (testAlgoB01SelectSingle()) {
-            System.out.println("[PASS] Test B01 (Selection: Single Item)");
-        } else {
-            System.out.println("[FAIL] Test B01 (Selection: Single Item)");
-            failedTests[failedCount++] = "Test B01 (Selection: Single Item)";
-        }
-        totalTests++;
-        if (testAlgoB02SelectBetterSingle()) {
-            System.out.println("[PASS] Test B02 (Selection: Pick Better Single)");
-        } else {
-            System.out.println("[FAIL] Test B02 (Selection: Pick Better Single)");
-            failedTests[failedCount++] = "Test B02 (Selection: Pick Better Single)";
-        }
-        totalTests++;
-        if (testAlgoB03SelectClassicSmall()) {
-            System.out.println("[PASS] Test B03 (Selection: Classic Small)");
-        } else {
-            System.out.println("[FAIL] Test B03 (Selection: Classic Small)");
-            failedTests[failedCount++] = "Test B03 (Selection: Classic Small)";
-        }
-        totalTests++;
-        if (testAlgoB04SelectGreedyTrap()) {
-            System.out.println("[PASS] Test B04 (Selection: Greedy Trap)");
-        } else {
-            System.out.println("[FAIL] Test B04 (Selection: Greedy Trap)");
-            failedTests[failedCount++] = "Test B04 (Selection: Greedy Trap)";
-        }
-        totalTests++;
-        if (testAlgoB05SelectZeroCapacity()) {
-            System.out.println("[PASS] Test B05 (Selection: Zero Capacity)");
-        } else {
-            System.out.println("[FAIL] Test B05 (Selection: Zero Capacity)");
-            failedTests[failedCount++] = "Test B05 (Selection: Zero Capacity)";
-        }
-        totalTests++;
-        if (testAlgoB06SelectTooHeavy()) {
-            System.out.println("[PASS] Test B06 (Selection: Single Too Heavy)");
-        } else {
-            System.out.println("[FAIL] Test B06 (Selection: Single Too Heavy)");
-            failedTests[failedCount++] = "Test B06 (Selection: Single Too Heavy)";
-        }
-        totalTests++;
-        if (testAlgoB07SelectAllFit()) {
-            System.out.println("[PASS] Test B07 (Selection: All Items Fit)");
-        } else {
-            System.out.println("[FAIL] Test B07 (Selection: All Items Fit)");
-            failedTests[failedCount++] = "Test B07 (Selection: All Items Fit)";
-        }
-        totalTests++;
-        if (testAlgoB08WeightInvariantGreedyTrap()) {
-            System.out.println("[PASS] Test B08 (Invariant: Weight <= Capacity)");
-        } else {
-            System.out.println("[FAIL] Test B08 (Invariant: Weight <= Capacity)");
-            failedTests[failedCount++] = "Test B08 (Invariant: Weight <= Capacity)";
-        }
-        totalTests++;
-        if (testAlgoB09ValueInvariantGreedyTrap()) {
-            System.out.println("[PASS] Test B09 (Invariant: Value == maxValue)");
-        } else {
-            System.out.println("[FAIL] Test B09 (Invariant: Value == maxValue)");
-            failedTests[failedCount++] = "Test B09 (Invariant: Value == maxValue)";
-        }
-        totalTests++;
-        if (testAlgoB10StressInvariants()) {
-            System.out.println("[PASS] Test B10 (Stress Invariants 50 items)");
-        } else {
-            System.out.println("[FAIL] Test B10 (Stress Invariants 50 items)");
-            failedTests[failedCount++] = "Test B10 (Stress Invariants 50 items)";
-        }
+
+        total++; runTest("Test B01 (Single Selection)", testAlgoB01SingleSelection(), failed);
+        total++; runTest("Test B02 (Choose Better Selection)", testAlgoB02ChooseBetterSelection(), failed);
+        total++; runTest("Test B03 (Textbook Selection)", testAlgoB03TextbookSelection(), failed);
+        total++; runTest("Test B04 (Greedy Trap Selection)", testAlgoB04GreedyTrapSelection(), failed);
+        total++; runTest("Test B05 (Capacity Zero Selection)", testAlgoB05CapZeroSelection(), failed);
+        total++; runTest("Test B06 (Too Heavy Selection)", testAlgoB06TooHeavySelection(), failed);
+        total++; runTest("Test B07 (All Fit)", testAlgoB07AllFit(), failed);
+        total++; runTest("Test B08 (Weight Invariant)", testAlgoB08WeightInvariant(), failed);
+        total++; runTest("Test B09 (Value Invariant)", testAlgoB09ValueInvariant(), failed);
+        total++; runTest("Test B10 (Stress Invariants)", testAlgoB10StressInvariants(), failed);
 
         System.out.println();
         System.out.println("=== BENCHMARK RESULTS ===");
-        System.out.println("Completed " + totalTests + " tests.");
+        System.out.println("Completed " + total + " tests.");
 
-        if (failedCount == 0) {
+        if (failed.isEmpty()) {
             System.out.println("All tests passed!");
             System.exit(0);
+        } else {
+            System.out.println("Tests that failed (" + failed.size() + "):");
+            for (String name : failed) {
+                System.out.println(" - " + name);
+            }
+            System.exit(1);
         }
-
-        System.out.println("Tests that failed (" + failedCount + "):");
-        for (int i = 0; i < failedCount; i++) {
-            System.out.println(" - " + failedTests[i]);
-        }
-        System.exit(1);
     }
 }

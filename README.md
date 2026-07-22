@@ -17,6 +17,8 @@ Benchmark for analyzing the impact of programming paradigms on the quality, corr
 |---|---|---|---|
 | `test-1/` | Spatial Logic | Minkowski sum + dynamic collision detection | All 7 |
 | `test-2/` | Dijkstra | Shortest path in a weighted graph + path reconstruction | All 7 |
+| `test-3/` | Expression Parser | Shunting-yard / recursive descent + AST evaluation | All 7 |
+| `test-4/` | 0/1 Knapsack | Dynamic programming knapsack (max value + selection) | All 7 |
 | `palindrom-tree/` | Eertree | Palindrome tree — distinct palindromic substrings | C only |
 
 Each test case contains **20 unit tests** (10 algorithm A + 10 algorithm B).
@@ -49,6 +51,12 @@ docker compose run --rm evaluator test-1
 
 # test-2 (Dijkstra):
 docker compose run --rm evaluator test-2
+
+# test-3 (Expression Parser):
+docker compose run --rm evaluator test-3
+
+# test-4 (0/1 Knapsack):
+docker compose run --rm evaluator test-4
 ```
 
 ## Prompts

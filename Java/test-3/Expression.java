@@ -8,7 +8,10 @@ public abstract class Expression {
     public static final class Variable {
         public final String name;
         public final double value;
-        public Variable(String name, double value) { this.name = name; this.value = value; }
+        public Variable(String name, double value) {
+            this.name = name;
+            this.value = value;
+        }
     }
 
     public enum EvalStatus {

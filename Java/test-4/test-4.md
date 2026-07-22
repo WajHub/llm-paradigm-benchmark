@@ -3,17 +3,12 @@
 ## Prompt - `TASK-SPECIFIC REQUIREMENTS`
 
 ```
-- Implement `maxValue`: return the maximum total value attainable by choosing a subset of items whose summed weight is at most `capacity`. Solve with classic 0/1 knapsack dynamic programming in O(n * capacity).
-- Implement `solve`: return a `Knapsack.Result` containing `maxValue`, a `selected` array of length `n` whose entries are `0` or `1` (1 = item taken, 0 = item left), and `totalWeight` = sum of weights of selected items.
-- `weights[i]` and `values[i]` describe the i-th item; `weights.length == values.length == n`.
-- Edge cases:
-  * If `weights.length == 0`, `maxValue` must return `0` and `solve` must return `new Result(0, new int[0], 0)`.
-  * If `capacity <= 0`, `maxValue` must return `0` and `solve` must return `new Result(0, new int[n], 0)`.
-- Each item may be taken at most once (0/1 knapsack); greedy/value-density heuristics are not acceptable, e.g. `weights = {10, 20, 30}`, `values = {60, 100, 120}`, `capacity = 50` must return `220` (taking items 2 and 3), not `160`.
-- Selection invariants for the returned `Result`:
-  * `sum(selected[i] * weights[i]) <= capacity`
-  * `sum(selected[i] * values[i]) == maxValue`
-- Use object-oriented Java and model the domain with classes.
-- Keep the contract in `Knapsack.java`; the concrete solution lives in `KnapsackImpl.java`.
-- Return only raw Java code.
+- Implement `maxValue`: Solve the 0/1 knapsack problem and return the maximum value attainable within the given capacity. Use dynamic programming (O(n * capacity)).
+  * Return 0 if weights.length == 0 or capacity <= 0.
+  * Each item may be selected at most once.
+- Implement `solve`: Return a Result containing maxValue, a 0/1 selected array of length n, and totalWeight of selected items.
+  * If n == 0 return Result(0, new int[0], 0). If capacity <= 0 return Result(0, new int[n], 0).
+- DO NOT use greedy heuristics — they fail on cases like w=[10,20,30], v=[60,100,120], cap=50 (optimum = 220, greedy by ratio = 160).
+- Selection must satisfy: sum(selected[i]*weights[i]) <= capacity; sum(selected[i]*values[i]) == maxValue.
+- Keep the contract in Knapsack.java; put the solution in KnapsackImpl.java.
 ```

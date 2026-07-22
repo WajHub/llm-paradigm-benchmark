@@ -3,7 +3,7 @@ public abstract class Knapsack {
 
     public static final class Result {
         public final int maxValue;
-        public final int[] selected;
+        public final int[] selected;      // length n; entries 0 or 1
         public final int totalWeight;
         public Result(int maxValue, int[] selected, int totalWeight) {
             this.maxValue = maxValue;
