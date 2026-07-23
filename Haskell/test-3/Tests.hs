@@ -208,8 +208,14 @@ tests =
 main :: IO ()
 main = do
   putStrLn "=== START ==="
-  results <- forM tests (uncurry check)
-  let totalTests = length tests
+  putStrLn ""
+  putStrLn "--- Algorithm A: Parsing & Evaluation Correctness ---"
+  resultsA <- forM (take 10 tests) (uncurry check)
+  putStrLn ""
+  putStrLn "--- Algorithm B: Advanced Features & Errors ---"
+  resultsB <- forM (drop 10 tests) (uncurry check)
+  let results = resultsA ++ resultsB
+      totalTests = length tests
       passedCount = length (filter id results)
       failedCount = totalTests - passedCount
       failedTests = [name | ((name, _), passed) <- zip tests results, not passed]

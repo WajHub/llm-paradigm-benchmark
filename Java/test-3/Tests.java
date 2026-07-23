@@ -366,10 +366,18 @@ public final class Tests {
         }
     }
 
+    private static void runTest(String name, boolean passed, java.util.List<String> failed) {
+        if (passed) {
+            System.out.println("[PASS] " + name);
+        } else {
+            System.out.println("[FAIL] " + name);
+            failed.add(name);
+        }
+    }
+
     public static void main(String[] args) {
-        int failedCount = 0;
-        String[] failedTests = new String[50];
-        int totalTests = 0;
+        java.util.List<String> failed = new java.util.ArrayList<>();
+        int total = 0;
 
         System.out.println("=== START ===");
         System.out.println();
@@ -520,17 +528,17 @@ public final class Tests {
 
         System.out.println();
         System.out.println("=== BENCHMARK RESULTS ===");
-        System.out.println("Completed " + totalTests + " tests.");
+        System.out.println("Completed " + total + " tests.");
 
-        if (failedCount == 0) {
+        if (failed.isEmpty()) {
             System.out.println("All tests passed!");
             System.exit(0);
+        } else {
+            System.out.println("Tests that failed (" + failed.size() + "):");
+            for (String name : failed) {
+                System.out.println(" - " + name);
+            }
+            System.exit(1);
         }
-
-        System.out.println("Tests that failed (" + failedCount + "):");
-        for (int i = 0; i < failedCount; i++) {
-            System.out.println(" - " + failedTests[i]);
-        }
-        System.exit(1);
     }
 }
