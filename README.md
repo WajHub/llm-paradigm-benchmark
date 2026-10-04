@@ -20,6 +20,7 @@ Benchmark for analyzing the impact of programming paradigms on the quality, corr
 | `test-3/` | Eertree | Palindrome tree — distinct palindromic substrings + occurrence counting | All 7 |
 | `test-4/` | 0/1 Knapsack | Dynamic programming knapsack (max value + selection) | All 7 |
 | `test-5/` | Expression Parser | Recursive descent + AST evaluation (arithmetic, variables, functions) | All 7 |
+| `test-6/` | Sudoku Solver | Board validation + candidates, MRV backtracking solver + solution counting | All 7 |
 
 Each test case contains **20 unit tests** (10 algorithm A + 10 algorithm B).
 
@@ -60,6 +61,9 @@ docker compose run --rm evaluator test-4
 
 # test-5 (Expression Parser):
 docker compose run --rm evaluator test-5
+
+# test-6 (Sudoku Solver):
+docker compose run --rm evaluator test-6
 ```
 
 ## Prompts
