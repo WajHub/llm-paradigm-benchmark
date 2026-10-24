@@ -31,6 +31,6 @@ Your previous Prolog implementation failed the evaluation. Your task is to analy
 Requirements for the fix:
 1. Identify and resolve the core logical issue causing the failure.
 2. Keep the solution idiomatic for Prolog.
-3. Return ONLY the complete, raw, fixed Prolog code for `spatial_logic.pl`.
+3. Return ONLY the complete, raw, fixed Prolog code for `[TARGET FILE NAME]`.
 4. Do NOT include Markdown formatting and do NOT write any explanations. Just the code.
 ```

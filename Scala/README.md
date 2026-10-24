@@ -31,6 +31,6 @@ Your previous Scala implementation failed the evaluation. Your task is to analyz
 Requirements for the fix:
 1. Identify and resolve the core logical issue causing the failure.
 2. Keep the solution idiomatic for Scala.
-3. Return ONLY the complete, raw, fixed Scala code for `SpatialLogic.scala`.
+3. Return ONLY the complete, raw, fixed Scala code for `[TARGET FILE NAME]`.
 4. Do NOT include Markdown formatting, do NOT include ```scala tags, and do NOT write any explanations. Just the code.
 ```

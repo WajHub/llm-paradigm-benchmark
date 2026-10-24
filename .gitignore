@@ -174,3 +174,9 @@ obj/
 *.class
 .metals/
 .bloop/
+
+# =========================
+# Benchmark build artefacts
+# =========================
+# Binary/dir produced by every <Language>/Makefile
+test_runner

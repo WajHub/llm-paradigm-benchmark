@@ -10,7 +10,7 @@ You are a C programming expert. Your task is to implement the required functions
 [TASK-SPECIFIC REQUIREMENTS]
 
 General Requirements:
-- Memory must be managed dynamically (malloc/calloc). Functions responsible for deallocation (like free_polygon) must safely free all nested pointers and structures to avoid memory leaks.
+- Memory must be managed dynamically (malloc/calloc). Functions responsible for deallocation (the `free_*` functions) must safely free all nested pointers and structures to avoid memory leaks.
 - Return ONLY raw C code (no Markdown tags, no ```c blocks, no side text). Your code will be directly saved to a .c file and compiled. Do not provide main() or test functions.
 
 [INSERT HEADER FILE CONTENT HERE]
@@ -28,7 +28,7 @@ Your previous C implementation failed the evaluation. Your task is to analyze th
 Requirements for the fix:
 1. Identify and resolve the core logical or memory issue causing the failure.
 2. Ensure memory is managed safely.
-3. Return ONLY the complete, raw, fixed C code for `spatial_logic.c`. 
+3. Return ONLY the complete, raw, fixed C code for `[TARGET FILE NAME]`.
 4. Do NOT include Markdown formatting, do NOT include ```c tags, and do NOT write any explanations. Just the code.
 
 ```

@@ -72,6 +72,8 @@ docker compose run --rm evaluator test-6
 2. **`<Language>/test-N/test-N.md`** — task-specific requirements (`TASK-SPECIFIC REQUIREMENTS`)
 
 Insert the interface file contents and `test-N.md` body into the README template.
+In the follow-up prompt, fill `[ERROR LOGS]` and `[FAILING TEST CASE]` from the test run and replace
+`[TARGET FILE NAME]` with the file the model writes (e.g. `knapsack.c`, `KnapsackImpl.java`, `Knapsack.hs`).
 
 ## Test Output Format
 

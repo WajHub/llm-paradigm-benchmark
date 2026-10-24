@@ -339,26 +339,26 @@ object Tests {
     }
 
   val tests: List[TestCase] = List(
-    ("test_algo_a_01_linear_chain", () => testAlgoA01LinearChain()),
-    ("test_algo_a_02_diamond", () => testAlgoA02Diamond()),
-    ("test_algo_a_03_disconnected", () => testAlgoA03Disconnected()),
-    ("test_algo_a_04_single_vertex", () => testAlgoA04SingleVertex()),
-    ("test_algo_a_05_parallel_edges", () => testAlgoA05ParallelEdges()),
-    ("test_algo_a_06_zero_weight_edges", () => testAlgoA06ZeroWeightEdges()),
-    ("test_algo_a_07_null_graph", () => testAlgoA07NullGraph()),
-    ("test_algo_a_08_invalid_source", () => testAlgoA08InvalidSource()),
-    ("test_algo_a_09_complex_graph", () => testAlgoA09ComplexGraph()),
-    ("test_algo_a_10_stress", () => testAlgoA10Stress()),
-    ("test_algo_b_01_simple_path", () => testAlgoB01SimplePath()),
-    ("test_algo_b_02_diamond_path", () => testAlgoB02DiamondPath()),
-    ("test_algo_b_03_self_path", () => testAlgoB03SelfPath()),
-    ("test_algo_b_04_unreachable", () => testAlgoB04Unreachable()),
-    ("test_algo_b_05_long_chain", () => testAlgoB05LongChain()),
-    ("test_algo_b_06_cycle", () => testAlgoB06Cycle()),
-    ("test_algo_b_07_star", () => testAlgoB07Star()),
-    ("test_algo_b_08_null_result", () => testAlgoB08NullResult()),
-    ("test_algo_b_09_bidirectional", () => testAlgoB09Bidirectional()),
-    ("test_algo_b_10_stress_path", () => testAlgoB10StressPath())
+    ("Test A01 (Linear Chain)", () => testAlgoA01LinearChain()),
+    ("Test A02 (Diamond)", () => testAlgoA02Diamond()),
+    ("Test A03 (Disconnected)", () => testAlgoA03Disconnected()),
+    ("Test A04 (Single Vertex)", () => testAlgoA04SingleVertex()),
+    ("Test A05 (Parallel Edges)", () => testAlgoA05ParallelEdges()),
+    ("Test A06 (Zero-Weight Edges)", () => testAlgoA06ZeroWeightEdges()),
+    ("Test A07 (Null Graph)", () => testAlgoA07NullGraph()),
+    ("Test A08 (Invalid Source)", () => testAlgoA08InvalidSource()),
+    ("Test A09 (Complex Graph)", () => testAlgoA09ComplexGraph()),
+    ("Test A10 (Stress 1000-Chain)", () => testAlgoA10Stress()),
+    ("Test B01 (Simple Path)", () => testAlgoB01SimplePath()),
+    ("Test B02 (Diamond Path)", () => testAlgoB02DiamondPath()),
+    ("Test B03 (Self Path)", () => testAlgoB03SelfPath()),
+    ("Test B04 (Unreachable)", () => testAlgoB04Unreachable()),
+    ("Test B05 (Long Chain)", () => testAlgoB05LongChain()),
+    ("Test B06 (Cycle)", () => testAlgoB06Cycle()),
+    ("Test B07 (Star)", () => testAlgoB07Star()),
+    ("Test B08 (Null Result)", () => testAlgoB08NullResult()),
+    ("Test B09 (Bidirectional)", () => testAlgoB09Bidirectional()),
+    ("Test B10 (Stress Path 1000-Chain)", () => testAlgoB10StressPath())
   )
 
   def main(args: Array[String]): Unit = {

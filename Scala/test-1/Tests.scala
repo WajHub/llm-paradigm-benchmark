@@ -244,26 +244,26 @@ object Tests {
   }
 
   val tests: List[TestCase] = List(
-    ("test_algo_a_01_basic_squares", () => testAlgoA01BasicSquares()),
-    ("test_algo_a_02_point_and_polygon", () => testAlgoA02PointAndPolygon()),
-    ("test_algo_a_03_collinear_simplification", () => testAlgoA03CollinearSimplification()),
-    ("test_algo_a_04_negative_coordinates", () => testAlgoA04NegativeCoordinates()),
-    ("test_algo_a_05_single_points", () => testAlgoA05SinglePoints()),
-    ("test_algo_a_06_empty_first_polygon", () => testAlgoA06EmptyFirstPolygon()),
-    ("test_algo_a_07_empty_second_polygon", () => testAlgoA07EmptySecondPolygon()),
-    ("test_algo_a_08_null_arguments", () => testAlgoA08NullArguments()),
-    ("test_algo_a_09_flat_polygon", () => testAlgoA09FlatPolygon()),
-    ("test_algo_a_10_stress_test", () => testAlgoA10StressTest()),
-    ("test_algo_b_01_tunneling_collision", () => testAlgoB01TunnelingCollision()),
-    ("test_algo_b_02_clear_miss", () => testAlgoB02ClearMiss()),
-    ("test_algo_b_03_static_overlap", () => testAlgoB03StaticOverlap()),
-    ("test_algo_b_04_static_miss", () => testAlgoB04StaticMiss()),
-    ("test_algo_b_05_moving_away", () => testAlgoB05MovingAway()),
-    ("test_algo_b_06_diagonal_tunneling", () => testAlgoB06DiagonalTunneling()),
-    ("test_algo_b_07_edge_grazing", () => testAlgoB07EdgeGrazing()),
-    ("test_algo_b_08_negative_velocity", () => testAlgoB08NegativeVelocity()),
-    ("test_algo_b_09_empty_polygons", () => testAlgoB09EmptyPolygons()),
-    ("test_algo_b_10_null_arguments", () => testAlgoB10NullArguments())
+    ("Test A01 (Basic Squares Hull)", () => testAlgoA01BasicSquares()),
+    ("Test A02 (Point and Polygon)", () => testAlgoA02PointAndPolygon()),
+    ("Test A03 (Collinear Simplification)", () => testAlgoA03CollinearSimplification()),
+    ("Test A04 (Negative Coordinates)", () => testAlgoA04NegativeCoordinates()),
+    ("Test A05 (Single Points)", () => testAlgoA05SinglePoints()),
+    ("Test A06 (Empty First Polygon)", () => testAlgoA06EmptyFirstPolygon()),
+    ("Test A07 (Empty Second Polygon)", () => testAlgoA07EmptySecondPolygon()),
+    ("Test A08 (Null Arguments)", () => testAlgoA08NullArguments()),
+    ("Test A09 (Flat Polygons / Lines)", () => testAlgoA09FlatPolygon()),
+    ("Test A10 (Stress Test 500x500)", () => testAlgoA10StressTest()),
+    ("Test B01 (Tunneling Collision)", () => testAlgoB01TunnelingCollision()),
+    ("Test B02 (Clear Miss)", () => testAlgoB02ClearMiss()),
+    ("Test B03 (Static Overlap)", () => testAlgoB03StaticOverlap()),
+    ("Test B04 (Static Miss)", () => testAlgoB04StaticMiss()),
+    ("Test B05 (Moving Away)", () => testAlgoB05MovingAway()),
+    ("Test B06 (Diagonal Tunneling)", () => testAlgoB06DiagonalTunneling()),
+    ("Test B07 (Edge Grazing)", () => testAlgoB07EdgeGrazing()),
+    ("Test B08 (Negative Velocity)", () => testAlgoB08NegativeVelocity()),
+    ("Test B09 (Empty Polygons)", () => testAlgoB09EmptyPolygons()),
+    ("Test B10 (NULL Arguments)", () => testAlgoB10NullArguments())
   )
 
   def main(args: Array[String]): Unit = {

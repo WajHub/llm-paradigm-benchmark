@@ -31,6 +31,6 @@ Your previous Haskell implementation failed the evaluation. Your task is to anal
 Requirements for the fix:
 1. Identify and resolve the core logical issue causing the failure.
 2. Keep the solution idiomatic for Haskell.
-3. Return ONLY the complete, raw, fixed Haskell code for `SpatialLogic.hs`.
+3. Return ONLY the complete, raw, fixed Haskell code for `[TARGET FILE NAME]`.
 4. Do NOT include Markdown formatting, do NOT include ```haskell tags, and do NOT write any explanations. Just the code.
 ```

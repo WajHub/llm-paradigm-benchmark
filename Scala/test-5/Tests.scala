@@ -70,26 +70,26 @@ object Tests {
     evalStr("x + 1 / (x - 2)", List(Variable("x", 2.0))).status == DivByZero
 
   val tests: List[TestCase] = List(
-    ("test_algo_a_01_single_number", () => testAlgoA01SingleNumber()),
-    ("test_algo_a_02_simple_binary", () => testAlgoA02SimpleBinary()),
-    ("test_algo_a_03_parentheses", () => testAlgoA03Parentheses()),
-    ("test_algo_a_04_function_call", () => testAlgoA04FunctionCall()),
-    ("test_algo_a_05_nested_and_unary", () => testAlgoA05NestedAndUnary()),
-    ("test_algo_a_06_dangling_operator", () => testAlgoA06DanglingOperator()),
-    ("test_algo_a_07_empty_string", () => testAlgoA07EmptyString()),
-    ("test_algo_a_08_unbalanced_parens", () => testAlgoA08UnbalancedParens()),
-    ("test_algo_a_09_trailing_garbage", () => testAlgoA09TrailingGarbage()),
-    ("test_algo_a_10_bad_function", () => testAlgoA10BadFunction()),
-    ("test_algo_b_01_precedence", () => testAlgoB01Precedence()),
-    ("test_algo_b_02_parens_override", () => testAlgoB02ParensOverride()),
-    ("test_algo_b_03_power_right_assoc", () => testAlgoB03PowerRightAssoc()),
-    ("test_algo_b_04_unary_vs_power", () => testAlgoB04UnaryVsPower()),
-    ("test_algo_b_05_variables", () => testAlgoB05Variables()),
-    ("test_algo_b_06_undefined_var", () => testAlgoB06UndefinedVar()),
-    ("test_algo_b_07_div_and_mod", () => testAlgoB07DivAndMod()),
-    ("test_algo_b_08_functions", () => testAlgoB08Functions()),
-    ("test_algo_b_09_domain_error", () => testAlgoB09DomainError()),
-    ("test_algo_b_10_error_propagation", () => testAlgoB10ErrorPropagation())
+    ("Test A01 (Single Number)", () => testAlgoA01SingleNumber()),
+    ("Test A02 (Binary + Precedence)", () => testAlgoA02SimpleBinary()),
+    ("Test A03 (Parentheses)", () => testAlgoA03Parentheses()),
+    ("Test A04 (Function Calls)", () => testAlgoA04FunctionCall()),
+    ("Test A05 (Nested + Unary)", () => testAlgoA05NestedAndUnary()),
+    ("Test A06 (Dangling Operator)", () => testAlgoA06DanglingOperator()),
+    ("Test A07 (Empty String)", () => testAlgoA07EmptyString()),
+    ("Test A08 (Unbalanced Parens)", () => testAlgoA08UnbalancedParens()),
+    ("Test A09 (Trailing Garbage)", () => testAlgoA09TrailingGarbage()),
+    ("Test A10 (Bad Function Call)", () => testAlgoA10BadFunction()),
+    ("Test B01 (Operator Precedence)", () => testAlgoB01Precedence()),
+    ("Test B02 (Parentheses Override)", () => testAlgoB02ParensOverride()),
+    ("Test B03 (Power Right-Assoc)", () => testAlgoB03PowerRightAssoc()),
+    ("Test B04 (Unary vs Power)", () => testAlgoB04UnaryVsPower()),
+    ("Test B05 (Variables)", () => testAlgoB05Variables()),
+    ("Test B06 (Undefined Variable)", () => testAlgoB06UndefinedVar()),
+    ("Test B07 (Division & Modulo)", () => testAlgoB07DivAndMod()),
+    ("Test B08 (Built-in Functions)", () => testAlgoB08Functions()),
+    ("Test B09 (Domain Error)", () => testAlgoB09DomainError()),
+    ("Test B10 (Error Propagation)", () => testAlgoB10ErrorPropagation())
   )
 
   def main(args: Array[String]): Unit = {
