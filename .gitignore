@@ -180,3 +180,12 @@ obj/
 # =========================
 # Binary/dir produced by every <Language>/Makefile
 test_runner
+
+# =========================
+# LLM evaluation harness
+# =========================
+# Per-run working copies used by harness/evaluator.py
+.work/
+# Local API key (template: harness/.env.example)
+harness/.env
+__pycache__/

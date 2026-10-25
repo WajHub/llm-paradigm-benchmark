@@ -86,3 +86,14 @@ In the follow-up prompt, fill `[ERROR LOGS]` and `[FAILING TEST CASE]` from the 
 ```
 
 Exit code: `0` = all tests passed, `1` = failures present.
+
+## Automated LLM Evaluation
+
+`harness/` runs the whole benchmark against Claude models through the API: prompts from the templates
+above, Docker evaluation, repair rounds, idiomaticity judge and a report in `results/<run-id>/`.
+Settings: [`harness/config.py`](harness/config.py). Usage: [`harness/README.md`](harness/README.md).
+
+```bash
+python harness/run.py --dry-run    # preview prompts (no API)
+python harness/run.py              # full run: generate -> evaluate -> judge -> report
+```

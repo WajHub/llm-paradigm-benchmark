@@ -1,7 +1,7 @@
 # Plan: ewaluacja benchmarków modelem Claude Haiku przez API
 
-> Status: plan zaakceptowany (2026-10-24). Implementacja (katalog `harness/`) jeszcze nie rozpoczęta,
-> następny krok to punkt 1 z sekcji „Kroki realizacji”.
+> Status (2026-10-24): harness zaimplementowany (`harness/`, instrukcja w `harness/README.md`).
+> Kroki 1–3 zrobione i zweryfikowane bez API. Następny krok: wpisać klucz w `harness/.env` i uruchomić pilota (krok 4).
 
 ## Kontekst
 
@@ -21,7 +21,7 @@ per paradygmat.
 | Protokół | one-shot + **maks. 3 rundy naprawcze** (prompt follow-up z README), rozmowa wieloturowa (append-only) |
 | Widoczność testów | testy **ukryte**; w poprawce model dostaje **nazwy oblanych testów + log** (kompilator / valgrind / wyjście testów) |
 | Powtórzenia | **1 próba** na parę (język, test); harness od razu obsługuje `--samples N` |
-| Metryki | poprawność + metryki automatyczne + **LLM-as-judge idiomatyczności** (`claude-opus-5-5`) |
+| Metryki | poprawność + metryki automatyczne + **LLM-as-judge idiomatyczności** (`claude-sonnet-5-5`) |
 | Infrastruktura | Python 3.12 + SDK `anthropic`; testy w istniejących obrazach Docker (lokalnie nie ma toolchainów, Docker jest) |
 | Wyniki | `results/<run_id>/` commitowane (małe pliki tekstowe, odtwarzalność); katalog roboczy `.work/` w `.gitignore` |
 
@@ -53,9 +53,14 @@ Poniższe problemy znalezione podczas przeglądu zostały **już naprawione w re
 8. ✔ **Obraz Smalltalka przestał się budować**: Debian 11 jest po końcu wsparcia, a mirror `bullseye-security`
    zwraca 404. `gnu-smalltalk` nie ma w nowszych Debianach, więc Dockerfile instaluje pakiety z głównego archiwum bullseye.
    Gdy bullseye zniknie z `deb.debian.org`, trzeba będzie przejść na `snapshot.debian.org`/`archive.debian.org`.
-9. ℹ **Testy zaliczane na stubie**: np. C/test-1 ma 6/20 PASS na stubie (oczekiwane `NULL`/`false`).
-   Harness zapisuje to w `baseline.json`, a raport musi to uwzględnić.
-10. ⚠ **Nadal aktualne** (cecha projektu, nie błąd): w językach jednoplikowych (Haskell, Scala, Prolog, Pascal)
+9. ✔ **Błędy wykryte przez `--baseline`** (krok 3):
+   - C/test-3 też miał gotowe rozwiązanie zamiast stuba (stub przechodził 20/20). Teraz jest stub, a stare
+     rozwiązanie (20/20) jest kolejnym wzorcem referencyjnym w harnessie.
+   - Java/test-3 `Tests.java` w ogóle się nie kompilował (niezadeklarowane `totalTests`/`failedTests`).
+   - test-1 w Haskell/Scala/Prolog nie wypisywał `=== START ===`. Teraz wypisuje.
+10. ℹ **Testy zaliczane na stubie**: C/test-1 (6), C/test-5 (5), C/test-2 (2), C/test-3 (1); w innych językach brak.
+   Wynik jest w `results/haiku-v1/baseline.json`, a raport (sekcja 7) liczy też wynik bez tych testów.
+11. ⚠ **Nadal aktualne** (cecha projektu, nie błąd): w językach jednoplikowych (Haskell, Scala, Prolog, Pascal)
    model zwraca **cały moduł z typami**, więc może „zepsuć” kontrakt. To uczciwa porażka (kompilacja),
    ale warto ją pamiętać przy interpretacji.
 
@@ -64,6 +69,7 @@ Poniższe problemy znalezione podczas przeglądu zostały **już naprawione w re
 ```
 harness/
 ├── requirements.txt     # anthropic
+├── config.py            # wszystkie ustawienia (modele, sędzia on/off, rundy, próbki, ceny)
 ├── tasks.py             # wykrywanie 42 zadań + manifest: pliki kontraktu, plik docelowy
 ├── prompts.py           # parsowanie szablonów z <Lang>/README.md i test-N.md, renderowanie promptów
 ├── llm.py               # wywołania Haiku (streaming), wyciąganie kodu, zapis usage
@@ -142,7 +148,7 @@ client.messages.stream(
 ```
 python harness/run.py --run-id haiku-v1 [--langs C,Haskell] [--tests 4,5] \
     [--samples 1] [--max-repairs 3] [--workers 4] [--model claude-haiku-5-5] [--effort medium]
-python harness/run.py --dry-run      # renderuje 42 prompty do results/<run>/…/prompt.md, bez API i Dockera
+python harness/run.py --dry-run      # renderuje 42 prompty do .work/dry-run/ (poza gitem), bez API i Dockera
 python harness/run.py --baseline     # ewaluacja stubów + implementacji test-1 z historii gita, bez API
 ```
 - Pętla na jednym zadaniu: attempt-0 (initial) → ewaluacja → jeśli nie `pass` i zostały rundy,
@@ -166,8 +172,8 @@ results/<run_id>/
 ```
 
 ### `judge.py`: LLM-as-judge idiomatyczności
-- Model `claude-opus-5-5`, `output_config={"effort": "high", "format": {"type": "json_schema", "schema": …}}`.
-  Zgodnie z zaleceniami dla Opus 5.5 włączamy server-side fallback (`fallbacks: "default"`).
+- Model `claude-sonnet-5-5`, `output_config={"effort": "high", "format": {"type": "json_schema", "schema": …}}`.
+  Włączamy server-side fallback (`fallbacks: "default"`), który Sonnet 5.5 obsługuje w Claude API.
 - Ocenia **kod z ostatniej próby** każdego zadania, o ile się kompiluje. Flaga `--which first|final|both`
   pozwoli później sprawdzić, czy poprawki psują idiomatyczność.
 - **Ślepa ocena**: sędzia widzi `test-N.md`, kontrakt, kod i nazwę języka. Nie widzi wyniku
@@ -195,15 +201,16 @@ results/<run_id>/
 ## Kroki realizacji (z punktami kontrolnymi)
 
 0. ~~Zapis planu w roocie jako `PLAN_EWALUACJI_HAIKU.md`.~~ ✔
-1. **Setup**: `pip install -r harness/requirements.txt`, ustawienie `ANTHROPIC_API_KEY`
-   (poza repo), dopisanie `.work/` do `.gitignore`.
-2. **`tasks.py` + `prompts.py` + `--dry-run`**. ✔ Kontrola: powstają 42 prompty, nie zostaje żaden
+1. ✔ **Setup**: `pip install -r harness/requirements.txt`, ustawienie `ANTHROPIC_API_KEY`
+   (poza repo, placeholder w `harness/.env`), dopisanie `.work/` do `.gitignore`.
+2. ✔ **`tasks.py` + `prompts.py` + `--dry-run`**. ✔ Kontrola: powstają 42 prompty, nie zostaje żaden
    placeholder. Przeglądamy po 1 prompcie z każdego języka.
-3. **`evaluator.py` + `--baseline`** (bez API). ✔ Kontrola:
+3. ✔ **`evaluator.py` + `--baseline`** (bez API). ✔ Kontrola:
    - każdy obraz się buduje;
    - na każdym stubie parser widzi 20 wyników, a exit = 1;
-   - implementacje test-1 z historii gita (`git show a9f0372:<plik>`) dają 20/20 dla C i Pascala
+   - implementacje z historii gita (`git show a9f0372:<plik>`) dają 20/20 dla C/test-1, C/test-3 i Pascal/test-1
      (Java 15/20 i Smalltalk 18/20 to znany stan tych rozwiązań).
+   - Pętla naprawcza, wznawianie i raport sprawdzone ze sztucznym modelem (bez API).
 
    Tu wychodzą ewentualne błędne testy, zanim wydamy cokolwiek na API.
 4. **`llm.py` + `run.py`, pilot**: `--langs C,Haskell --tests 4`. ✔ Kontrola: ręczny przegląd
@@ -216,7 +223,7 @@ results/<run_id>/
 
 - Haiku: maks. 168 wywołań (42 × 4). Nawet przy ~10k tokenów wejścia i ~10k wyjścia na wywołanie
   to ≈ 1,7M + 1,7M tokenów, czyli **≈ $1**.
-- Sędzia (Opus 5.5, $4 / $20): 42 × (~6k wejścia + ~2k wyjścia) ≈ **$3**.
+- Sędzia (Sonnet 5.5, $2 / $10): 42 × (~6k wejścia + ~2k wyjścia) ≈ **$1,5**.
 - Docker: 42–168 ewaluacji po 15–60 s (najwolniejsze to kompilacja Scali/Haskella i valgrind),
   przy 4 workerach ≈ **20–45 min**.
 - Batch API (−50%) nie ma tu sensu: koszt jest pomijalny, a pętla naprawcza potrzebuje szybkich odpowiedzi.
@@ -224,7 +231,7 @@ results/<run_id>/
 ## Weryfikacja end-to-end
 
 - `python harness/run.py --dry-run`: 42 prompty, zero placeholderów.
-- `python harness/run.py --baseline`: stuby dają exit 1 i 20 sparsowanych wyników, implementacje test-1 dla C i Pascala dają 20/20.
+- `python harness/run.py --baseline`: stuby dają exit 1 i 20 sparsowanych wyników, implementacje referencyjne (C/test-1, C/test-3, Pascal/test-1) dają 20/20.
 - Pilot (krok 4): `results/<run>/C/test-4/sample-1/` zawiera komplet plików prób, a ponowne uruchomienie tej samej
   komendy niczego nie powtarza (wznawianie).
 - Kontrola krzyżowa: dla 2–3 prób ręcznie podmieniamy plik w kopii i uruchamiamy

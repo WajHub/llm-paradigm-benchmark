@@ -1,0 +1,52 @@
+=== Running benchmark for folder: test-5 ===
+rm -f test-5/*.class *.class
+javac -g -d test-5 test-5/ExpressionImpl.java test-5/Expression.java test-5/Tests.java
+=== START ===
+
+--- Algorithm A: Parsing & AST Construction ---
+[FAIL] Test A01 (Single Number)
+[FAIL] Test A02 (Binary + Precedence)
+[FAIL] Test A03 (Parentheses)
+[FAIL] Test A04 (Function Calls)
+[FAIL] Test A05 (Nested + Unary)
+[FAIL] Test A06 (Dangling Operator)
+[FAIL] Test A07 (Empty String)
+[FAIL] Test A08 (Unbalanced Parens)
+[FAIL] Test A09 (Trailing Garbage)
+[FAIL] Test A10 (Bad Function Call)
+
+--- Algorithm B: Evaluation & Error Semantics ---
+[FAIL] Test B01 (Operator Precedence)
+[FAIL] Test B02 (Parentheses Override)
+[FAIL] Test B03 (Power Right-Assoc)
+[FAIL] Test B04 (Unary vs Power)
+[FAIL] Test B05 (Variables)
+[FAIL] Test B06 (Undefined Variable)
+[FAIL] Test B07 (Division & Modulo)
+[FAIL] Test B08 (Built-in Functions)
+[FAIL] Test B09 (Domain Error)
+[FAIL] Test B10 (Error Propagation)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Single Number)
+ - Test A02 (Binary + Precedence)
+ - Test A03 (Parentheses)
+ - Test A04 (Function Calls)
+ - Test A05 (Nested + Unary)
+ - Test A06 (Dangling Operator)
+ - Test A07 (Empty String)
+ - Test A08 (Unbalanced Parens)
+ - Test A09 (Trailing Garbage)
+ - Test A10 (Bad Function Call)
+ - Test B01 (Operator Precedence)
+ - Test B02 (Parentheses Override)
+ - Test B03 (Power Right-Assoc)
+ - Test B04 (Unary vs Power)
+ - Test B05 (Variables)
+ - Test B06 (Undefined Variable)
+ - Test B07 (Division & Modulo)
+ - Test B08 (Built-in Functions)
+ - Test B09 (Domain Error)
+ - Test B10 (Error Propagation)

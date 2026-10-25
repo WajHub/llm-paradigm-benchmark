@@ -257,6 +257,7 @@ tests =
 
 main :: IO ()
 main = do
+  putStrLn "=== START ==="
   results <- forM tests (uncurry check)
   let totalTests = length tests
       passedCount = length (filter id results)

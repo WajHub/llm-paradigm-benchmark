@@ -209,6 +209,7 @@ test_algo_b_10_null_arguments :-
     \+ check_dynamic_collision(none, none, point(5, 5)).
 
 main :-
+    writeln('=== START ==='),
     Tests = [
       'Test A01 (Basic Squares Hull)'-test_algo_a_01_basic_squares,
       'Test A02 (Point and Polygon)'-test_algo_a_02_point_and_polygon,

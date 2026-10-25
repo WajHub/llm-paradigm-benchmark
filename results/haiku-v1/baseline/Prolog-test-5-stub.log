@@ -1,0 +1,76 @@
+=== Running benchmark for folder: test-5 ===
+rm -f test_runner test_runner.exe *.qlf test-5/*.qlf
+cd test-5 && swipl -q -g halt -s tests.pl
+=== START ===
+
+--- Algorithm A: Parsing & AST Construction ---
+[FAIL] Test A01 (Single Number)
+[FAIL] Test A02 (Binary + Precedence)
+[FAIL] Test A03 (Parentheses)
+[FAIL] Test A04 (Function Calls)
+[FAIL] Test A05 (Nested + Unary)
+[FAIL] Test A06 (Dangling Operator)
+[FAIL] Test A07 (Empty String)
+[FAIL] Test A08 (Unbalanced Parens)
+[FAIL] Test A09 (Trailing Garbage)
+[FAIL] Test A10 (Bad Function Call)
+
+--- Algorithm B: Evaluation & Error Semantics ---
+[FAIL] Test B01 (Operator Precedence)
+[FAIL] Test B02 (Parentheses Override)
+[FAIL] Test B03 (Power Right-Assoc)
+[FAIL] Test B04 (Unary vs Power)
+[FAIL] Test B05 (Variables)
+[FAIL] Test B06 (Undefined Variable)
+[FAIL] Test B07 (Division & Modulo)
+[FAIL] Test B08 (Built-in Functions)
+[FAIL] Test B09 (Domain Error)
+[FAIL] Test B10 (Error Propagation)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 0
+Failed: 20
+Tests that failed:
+ - Test A01 (Single Number)
+ - Test A02 (Binary + Precedence)
+ - Test A03 (Parentheses)
+ - Test A04 (Function Calls)
+ - Test A05 (Nested + Unary)
+ - Test A06 (Dangling Operator)
+ - Test A07 (Empty String)
+ - Test A08 (Unbalanced Parens)
+ - Test A09 (Trailing Garbage)
+ - Test A10 (Bad Function Call)
+ - Test B01 (Operator Precedence)
+ - Test B02 (Parentheses Override)
+ - Test B03 (Power Right-Assoc)
+ - Test B04 (Unary vs Power)
+ - Test B05 (Variables)
+ - Test B06 (Undefined Variable)
+ - Test B07 (Division & Modulo)
+ - Test B08 (Built-in Functions)
+ - Test B09 (Domain Error)
+ - Test B10 (Error Propagation)
+==13== Memcheck, a memory error detector
+==13== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==13== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==13== Command: swipl --no-threads -q -g main -t halt tests.pl
+==13== 
+==13== 
+==13== HEAP SUMMARY:
+==13==     in use at exit: 3,608,512 bytes in 32,851 blocks
+==13==   total heap usage: 38,371 allocs, 5,520 frees, 6,570,393 bytes allocated
+==13== 
+==13== LEAK SUMMARY:
+==13==    definitely lost: 67,224 bytes in 19 blocks
+==13==    indirectly lost: 0 bytes in 0 blocks
+==13==      possibly lost: 115,708 bytes in 1,073 blocks
+==13==    still reachable: 3,425,580 bytes in 31,759 blocks
+==13==                       of which reachable via heuristic:
+==13==                         newarray           : 25,792 bytes in 946 blocks
+==13==         suppressed: 0 bytes in 0 blocks
+==13== Rerun with --leak-check=full to see details of leaked memory
+==13== 
+==13== For lists of detected and suppressed errors, rerun with: -s
+==13== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,0 +1,55 @@
+=== Running benchmark for folder: test-2 ===
+rm -rf test-2/test_runner test-2/*.class test-2/*.log
+mkdir -p test-2/test_runner
+scalac -deprecation -feature -unchecked -d test-2/test_runner test-2/ShortestPath.scala test-2/Tests.scala
+=== START ===
+
+--- Algorithm A: Shortest Distances ---
+[FAIL] Test A01 (Linear Chain)
+[FAIL] Test A02 (Diamond)
+[FAIL] Test A03 (Disconnected)
+[FAIL] Test A04 (Single Vertex)
+[FAIL] Test A05 (Parallel Edges)
+[FAIL] Test A06 (Zero-Weight Edges)
+[FAIL] Test A07 (Null Graph)
+[FAIL] Test A08 (Invalid Source)
+[FAIL] Test A09 (Complex Graph)
+[FAIL] Test A10 (Stress 1000-Chain)
+
+--- Algorithm B: Path Reconstruction ---
+[FAIL] Test B01 (Simple Path)
+[FAIL] Test B02 (Diamond Path)
+[FAIL] Test B03 (Self Path)
+[FAIL] Test B04 (Unreachable)
+[FAIL] Test B05 (Long Chain)
+[FAIL] Test B06 (Cycle)
+[FAIL] Test B07 (Star)
+[FAIL] Test B08 (Null Result)
+[FAIL] Test B09 (Bidirectional)
+[FAIL] Test B10 (Stress Path 1000-Chain)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 0
+Failed: 20
+Tests that failed:
+ - Test A01 (Linear Chain)
+ - Test A02 (Diamond)
+ - Test A03 (Disconnected)
+ - Test A04 (Single Vertex)
+ - Test A05 (Parallel Edges)
+ - Test A06 (Zero-Weight Edges)
+ - Test A07 (Null Graph)
+ - Test A08 (Invalid Source)
+ - Test A09 (Complex Graph)
+ - Test A10 (Stress 1000-Chain)
+ - Test B01 (Simple Path)
+ - Test B02 (Diamond Path)
+ - Test B03 (Self Path)
+ - Test B04 (Unreachable)
+ - Test B05 (Long Chain)
+ - Test B06 (Cycle)
+ - Test B07 (Star)
+ - Test B08 (Null Result)
+ - Test B09 (Bidirectional)
+ - Test B10 (Stress Path 1000-Chain)

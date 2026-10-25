@@ -267,6 +267,7 @@ object Tests {
   )
 
   def main(args: Array[String]): Unit = {
+    println("=== START ===")
     val results = tests.map { case (name, test) => check(name)(test()) }
     val totalTests = tests.length
     val passedCount = results.count(identity)
