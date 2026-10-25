@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "redundant intermediate ArrayList copy and manual loop to convert Deque<Integer> to int[] (could use stream or direct fill)",
+    "path.peekFirst() != result.source compares Integer to int via unboxing, subtle but works; overly defensive null checks on array fields",
+    "addEdge throws exceptions on invalid input although the contract does not specify error behavior"
+  ],
+  "justification": "The solution uses a private static nested QueueEntry class, a PriorityQueue with a comparator, and the lazy-deletion Dijkstra pattern, all of which are idiomatic Java and OO-consistent. Input validation is clear and methods are small. Weaknesses are the unnecessary conversion through an intermediate ArrayList in reconstructPath, the manual step-limit loop with defensive checks, and the excess null checks on result fields that the constructor always initialises. The comparator could use Comparator.comparingDouble, and reconstructPath could be split into helpers, but overall the design is clean.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3871,
+  "output_tokens": 372,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

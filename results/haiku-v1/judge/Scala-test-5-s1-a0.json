@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "status checks via if/else on r.status instead of for-comprehension or Either-based short-circuiting in evaluate",
+    "FunctionCall evaluates all args before short-circuiting, rather than stopping at first failure",
+    "string-typed operators and manual regex check in tokenizer"
+  ],
+  "justification": "The parser is a pure functional recursive-descent over an immutable token list, using Option and flatMap, with a reusable `leftAssoc` combinator for the left-associative levels. Tokenizer is tail-recursive with pattern matching, and AST evaluation is a clean match with helpers `applyBinary`, `applyFunction` and `power`. Evaluation propagates errors with repeated manual `if (status != Ok)` checks instead of modelling failure as Either or using a for-comprehension, which is more verbose and less idiomatic. Minor smells include char-range digit helpers, regex validation in the tokenizer, and a catch-all InvalidOp fallback for string-typed ops.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 6131,
+  "output_tokens": 370,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

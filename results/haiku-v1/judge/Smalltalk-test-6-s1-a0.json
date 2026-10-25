@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "peer indices recomputed on every isValid: and candidates: call instead of cached",
+    "manual copy loop instead of `copy` / `asArray copy`",
+    "index-based to:do: scan in searchOn: for the MRV cell instead of collection protocols",
+    "mutating shared board in place with a stop block carrying side effects"
+  ],
+  "justification": "The code is decomposed into small helper methods (peerIndicesOf:, candidatesFor:board:peers:, searchOn:peers:stop:), and the stop-block makes one search routine serve both solve: and countSolutions:limit:, which is a neat object-oriented, block-based reuse. It uses collection protocols (`reject:`, `collect:`, `do:`, `between:and:`) and early returns with `^` idiomatically. Weaknesses are the hand-written copy loops instead of `copy`, recomputing peers in isValid:/candidates: via Sets, and the stateful stop block with a counter side effect. The board is mutated and restored in place, which works but is somewhat procedural.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4414,
+  "output_tokens": 384,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "knapsack_solve is one long function mixing allocation, DP fill and reconstruction instead of static helpers",
+    "flattened 2D array index arithmetic repeated inline instead of a helper or macro",
+    "unnecessary casts on malloc/calloc return values in C",
+    "duplicated DP logic between knapsack_max_value and knapsack_solve"
+  ],
+  "justification": "The code uses standard C idioms: calloc with checks, cleanup on every error path, a rolling 1D DP array in knapsack_max_value, and a NULL-safe free_knapsack_result. The cost is that knapsack_solve does everything in one function, with repeated `(size_t)i * cols + c` expressions that hurt readability, and its DP fill duplicates the logic in knapsack_max_value. Splitting out static helpers for table building and reconstruction would improve the design, and the casts on malloc/calloc are unneeded in C. The negative-weight guards are slightly inconsistent with the reconstruction step, but that is a correctness concern rather than idiomaticity.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3257,
+  "output_tokens": 390,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

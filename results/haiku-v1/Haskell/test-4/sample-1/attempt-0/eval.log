@@ -1,0 +1,10 @@
+=== Running benchmark for folder: test-4 ===
+rm -f test_runner test_runner.exe test_runner.hi test_runner.o test-4/*.hi test-4/*.o
+ghc -Wall -Wextra -g -itest-4 -o test_runner test-4/Tests.hs
+[1 of 2] Compiling Knapsack         ( test-4/Knapsack.hs, test-4/Knapsack.o )
+
+test-4/Knapsack.hs:66:1: error: parse error on input `</'
+   |
+66 | </br>
+   | ^^
+make: *** [Makefile:7: test] Error 1

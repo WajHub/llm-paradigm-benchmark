@@ -1,0 +1,34 @@
+=== Running benchmark for folder: test-4 ===
+rm -rf test-4/test_runner test-4/*.class test-4/*.log
+mkdir -p test-4/test_runner
+scalac -deprecation -feature -unchecked -d test-4/test_runner test-4/Knapsack.scala test-4/Tests.scala
+=== START ===
+
+--- Algorithm A: Maximum Value ---
+[PASS] Test A01 (Empty)
+[PASS] Test A02 (Single Fit)
+[PASS] Test A03 (Too Heavy)
+[PASS] Test A04 (Capacity Zero)
+[PASS] Test A05 (Choose Better)
+[PASS] Test A06 (Textbook)
+[PASS] Test A07 (Greedy Trap)
+[PASS] Test A08 (Same Items)
+[PASS] Test A09 (Tight Fit)
+[PASS] Test A10 (Stress 50 Items)
+
+--- Algorithm B: Item Selection ---
+[PASS] Test B01 (Single Selection)
+[PASS] Test B02 (Choose Better Selection)
+[PASS] Test B03 (Textbook Selection)
+[PASS] Test B04 (Greedy Trap Selection)
+[PASS] Test B05 (Capacity Zero Selection)
+[PASS] Test B06 (Too Heavy Selection)
+[PASS] Test B07 (All Fit)
+[PASS] Test B08 (Weight Invariant)
+[PASS] Test B09 (Value Invariant)
+[PASS] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 20
+Failed: 0

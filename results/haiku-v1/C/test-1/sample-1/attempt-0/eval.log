@@ -1,0 +1,46 @@
+=== Running benchmark for folder: test-1 ===
+rm -f test_runner
+gcc -Wall -Wextra -g -o test_runner test-1/spatial_logic.c test-1/tests.c -lm
+=== START ===
+
+--- Algorithm A: Clean Minkowski Sum (Convex Hull) ---
+[PASS] Test A01 (Basic Squares Hull)
+[PASS] Test A02 (Point and Polygon)
+[PASS] Test A03 (Collinear Simplification)
+[PASS] Test A04 (Negative Coordinates)
+[PASS] Test A05 (Single Points)
+[PASS] Test A06 (Empty First Polygon)
+[PASS] Test A07 (Empty Second Polygon)
+[PASS] Test A08 (Null Arguments)
+[PASS] Test A09 (Flat Polygons / Lines)
+[PASS] Test A10 (Stress Test 500x500)
+
+--- Algorithm B: Dynamic Collision Detection ---
+[PASS] Test B01 (Tunneling Collision)
+[PASS] Test B02 (Clear Miss)
+[PASS] Test B03 (Static Overlap)
+[PASS] Test B04 (Static Miss)
+[PASS] Test B05 (Moving Away)
+[PASS] Test B06 (Diagonal Tunneling)
+[PASS] Test B07 (Edge Grazing)
+[PASS] Test B08 (Negative Velocity)
+[PASS] Test B09 (Empty Polygons)
+[PASS] Test B10 (NULL Arguments)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+All tests passed!
+==17== Memcheck, a memory error detector
+==17== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==17== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==17== Command: ./test_runner
+==17== 
+==17== 
+==17== HEAP SUMMARY:
+==17==     in use at exit: 0 bytes in 0 blocks
+==17==   total heap usage: 81 allocs, 81 frees, 12,030,544 bytes allocated
+==17== 
+==17== All heap blocks were freed -- no leaks are possible
+==17== 
+==17== For lists of detected and suppressed errors, rerun with: -s
+==17== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

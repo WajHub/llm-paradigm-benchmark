@@ -1,0 +1,40 @@
+{
+  "id": "msg_011CgNrrj2bLTAbcYXxSNHSJ",
+  "container": null,
+  "content": [
+    {
+      "signature": "CAQS/wgKEAgTGAI4AUIIdGhpbmtpbmcSDL4q38SUgf7Goi0l6RoMjTvzNG9VSIO9cH4wIjDVd9VOF6LdaRWunRYFBKsli0JxLJvX2DTpvrVcDIArZvQ7ld5dKSNyS7htqPqeIAIqnAghDzGxK27BlcnFaap9OP2Aevzg4y1lbjIDHtNg87XdwmQbe3Kb0H9a/cXO5fA0/c6Pq4J/tFAbDtHVVMTBEqEXHu7KpqhGHLS3ceHPKOn/INQAWIQaCPyH+wi/0JQbyhN4QpuDuEpLTHk5bpjyOruNRWK1ppnZcx6fAurlZihVLl1RHrNH1DXrUbZyd2jFXA31xmhtjVXVfehW7999N/P6w9o9vijEdywiudauubQ55MCAAMIDh0SstBcSYUVkfpI2mc3YJZkpBhhMnrqQVRC4R1boQJ+KxX9Q8oSdNPbj2U/XDMXDQW20BqKVQWRxk+PoKWcJyTIUBwUZCQmiEyXsGqqkY62Ysed13GYgofCh21KfUvSwChzMpfeECBE4jniAiOPshaQS/CXAvgl3t2r7Ewhdcbq6jDHe1i7usiJQitq3bfC8DotSJ16EXVsyiuFLruFTUz6qSCkPQm+ok6umLs74D5X1wewxvl0BDHc6cQh5CWb8baDC2u2oQJVlZs08KHS2pPLWOn+hJGZQlmjMf1nTxLnFifZxRNwx46xJef+DYfECVLfGAILHq0tuvr6snCRrhFP6Ksg59QS/3UNvhh4kNPdOSCRrrTqMt7QfMA2ry4pSOgOZiAogDwOfVq7X9NHM3kQe+K7fhgENIFj3O4I55MY8Dzvkwt6bELevCpHevpWjT5a9Rucqq3Qh384A2uQ/oocvEKbTS/CnhxRbUyFJqQTWpC8xcUDtvN9EmtH6e5wPPbqhBUD7GOArccrQJMwdHimhygfvQH0dXedi/vlTfP9/sL5NcczHFnt3DaWfyiGwFWhyjFN1s87hQRDCvb5xTBCN6mDeiv4ANU4rYUapu1jAMEA9SlKrkmCqnCrxfvX1DdF8rKDLUftuO7RU62nwJEF+RO4zSYn1CrlwFdpcUKA6itMGkV4LXyz48t3kSRXlw607MEopqk5qydk1QV/r1NEXlWVY47UqRmuEXS78osR+u2QKRJINXW89jRaR+JTLzf+hPhYp0Ga479a2RPS7gwVtZokMD9UE19N649CoNvEeK000IX98UdZ9EpTU9IEspR0l8znWbm+mT+cMFgE5NbzHHqyhGlqvR8Hbuzpd43ihQXTAAePUYnEOkG9LUEFRzvIye1truA8AeOPa6rne/+jNePpICVYsLtO71iOON7TP5BoLDkTLb7mqoM9ckHuPQGamEQoB6iAlhTha/RrA/uCFvO6jN89RkbJvkaLMg/frTEWXyL2v/iDRKHNUzVopG36zzHdg8AyGinaYM8twLuQRlRoNDLeG3zK55vPoAe15vh/tWsrV26ugcYgcuFrgu+/gUfkIaef5IK6V84wWGdUlBTWHImCkUW2OLuLLTEgjDh9PlT7IkGQt11K8jRUKb0JEL5zBqRgB",
+      "thinking": "",
+      "type": "thinking"
+    },
+    {
+      "citations": null,
+      "text": "module Knapsack\n  ( Result (..)\n  , maxValue\n  , solve\n  ) where\n\nimport Data.Array\n\ndata Result = Result\n  { resultMaxValue    :: Int\n  , resultSelected    :: [Int]\n  , resultTotalWeight :: Int\n  } deriving (Eq, Show)\n\n-- | DP table: row i holds best values for capacities 0..cap\n-- using only the first i items.\nbuildTable :: [(Int, Int)] -> Int -> [Array Int Int]\nbuildTable items cap = scanl step base items\n  where\n    base = listArray (0, cap) (replicate (cap + 1) 0)\n    step prev (w, v)\n      | w < 0 = prev\n      | otherwise = listArray (0, cap)\n          [ if w <= c then max (prev ! c) (prev ! (c - w) + v) else prev ! c\n          | c <- [0 .. cap]\n          ]\n\nmaxValue :: [Int] -> [Int] -> Int -> Int\nmaxValue [] _ _ = 0\nmaxValue _ _ cap | cap <= 0 = 0\nmaxValue weights values cap =\n  let n = length weights\n      vs = take n (values ++ repeat 0)\n      items = zip weights vs\n      rows = buildTable items cap\n  in last rows ! cap\n\nsolve :: [Int] -> [Int] -> Int -> Result\nsolve weights values cap\n  | null weights || cap <= 0 =\n      Result 0 (replicate n 0) 0\n  | otherwise =\n      Result best flags totalW\n  where\n    n = length weights\n    vs = take n (values ++ repeat 0)\n    items = zip weights vs\n    rows = buildTable items cap\n    tbl = listArray (0, n) rows :: Array Int (Array Int Int)\n    itemArr = listArray (1, n) items :: Array Int (Int, Int)\n    best = (tbl ! n) ! cap\n\n    -- Backtrack from the last item to the first, consing flags so the\n    -- final list is in ascending item order.\n    go :: Int -> Int -> [Int] -> [Int]\n    go i c acc\n      | i == 0 = acc\n      | otherwise =\n          let (w, _) = itemArr ! i\n              took = (tbl ! i) ! c /= (tbl ! (i - 1)) ! c\n              c' = if took then c - w else c\n          in go (i - 1) c' ((if took then 1 else 0) : acc)\n\n    flags = go n cap []\n    totalW = sum [w | (w, f) <- zip weights flags, f == 1]",
+      "type": "text"
+    }
+  ],
+  "diagnostics": null,
+  "model": "claude-haiku-5-5",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 3969,
+    "output_tokens": 1070,
+    "output_tokens_details": {
+      "thinking_tokens": 210
+    },
+    "server_tool_use": null,
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

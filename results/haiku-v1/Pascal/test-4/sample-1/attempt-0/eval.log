@@ -1,0 +1,55 @@
+=== Running benchmark for folder: test-4 ===
+rm -f test_runner test_runner.o *.o *.ppu test-4/*.o test-4/*.ppu
+fpc -Mobjfpc -Sh -O1 -g -Futest-4 -otest_runner test-4/tests.pas
+Free Pascal Compiler version 3.2.2+dfsg-20 [2023/03/30] for x86_64
+Copyright (c) 1993-2021 by Florian Klaempfl and others
+Target OS: Linux for x86-64
+Compiling test-4/tests.pas
+Compiling test-4/knapsack.pas
+tests.pas(20,19) Warning: function result variable of a managed type does not seem to be initialized
+Linking test-4/test_runner
+548 lines compiled, 0.4 sec
+1 warning(s) issued
+=== START ===
+
+--- Algorithm A: Maximum Value ---
+[PASS] Test A01 (Empty)
+[PASS] Test A02 (Single Fit)
+[PASS] Test A03 (Too Heavy)
+[PASS] Test A04 (Capacity Zero)
+[PASS] Test A05 (Choose Better)
+[PASS] Test A06 (Textbook)
+[PASS] Test A07 (Greedy Trap)
+[PASS] Test A08 (Same Items)
+[PASS] Test A09 (Tight Fit)
+[PASS] Test A10 (Stress 50 Items)
+
+--- Algorithm B: Item Selection ---
+[PASS] Test B01 (Single Selection)
+[PASS] Test B02 (Choose Better Selection)
+[PASS] Test B03 (Textbook Selection)
+[PASS] Test B04 (Greedy Trap Selection)
+[PASS] Test B05 (Capacity Zero Selection)
+[PASS] Test B06 (Too Heavy Selection)
+[PASS] Test B07 (All Fit)
+[PASS] Test B08 (Weight Invariant)
+[PASS] Test B09 (Value Invariant)
+[PASS] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+All tests passed!
+==14== Memcheck, a memory error detector
+==14== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==14== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==14== Command: test-4/test_runner
+==14== 
+==14== 
+==14== HEAP SUMMARY:
+==14==     in use at exit: 0 bytes in 0 blocks
+==14==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==14== 
+==14== All heap blocks were freed -- no leaks are possible
+==14== 
+==14== For lists of detected and suppressed errors, rerun with: -s
+==14== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

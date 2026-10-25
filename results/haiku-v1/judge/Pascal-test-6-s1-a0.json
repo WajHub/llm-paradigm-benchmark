@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "UsedMask recomputed by scanning row, column and box for every empty cell at each search node instead of maintaining incremental masks",
+    "PopCountMask hand-rolled loop instead of an RTL routine (PopCnt)",
+    "Search both reports success and leaves the board mutated, so the result depends on side effects through the var parameter and boolean return",
+    "unused Math/SysUtils-based facilities and no bounds guard on Row/Col in SudokuCandidates"
+  ],
+  "justification": "The code is clean structured procedural Pascal: bitmask helpers, a recursive MRV `Search` using a `var` board and a `var` counter, and `Exit` for early return. `SudokuIsValid` uses per-row, column and box masks with early exit, and results are managed dynamic arrays copied with `Copy`, so there is no manual memory handling. Weaknesses are efficiency and reinvention: `UsedMask` rescans 27 cells for every empty cell on each node, `PopCountMask` is hand-written, and `Search` conflates counting, early cutoff and leaving the solution in `B`. This is acceptable but not the most polished design.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5491,
+  "output_tokens": 418,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-3",
+  "sample": 1,
+  "attempt": 3,
+  "category": "test_failures",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "eertreeCountOccurrences does a linear scan over all nodes and uses list take/drop on the string instead of a lookup",
+    "eertreeBuild Nothing 0 is special-cased and length s is recomputed, minor redundancy",
+    "local findLink is a partial recursive loop that relies on the root sentinel to terminate",
+    "String indexing via take/drop is O(n) per match"
+  ],
+  "justification": "The build is a pure foldl' over the input with an explicit BState record. It uses IntMap for nodes and Map (Int, Char) for transitions, and it propagates counts with a fold over nodes sorted by decreasing length. The children lists required by the contract are derived at the end from the transition map, which keeps the algorithm clean and separate from the contract. Weaknesses: the query for occurrences scans every node with list take/drop instead of using a faster lookup, the sort is O(n log n) rather than the requested linear order, and findLink is a local recursion that depends on the roots for termination. Overall the code is idiomatic, well decomposed, and reads well.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5180,
+  "output_tokens": 391,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

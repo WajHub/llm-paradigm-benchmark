@@ -1,0 +1,29 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 3,
+  "category": "test_failures",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "global mutable parser state (GSrc, GPos) instead of passing a parser context or record",
+    "string comparison chains (if Op = '+' ... else if) instead of case on a char/enum",
+    "ParsePrimary is long, with deeply nested logic and many Exit calls",
+    "hand-rolled power by squaring and Exp/Ln instead of using Math.Power",
+    "manual fmod emulation instead of Math.FMod or a remainder routine",
+    "repeated pre-checks of status with early Exit duplicated across node kinds",
+    "unit header places {$mode} before the unit keyword (minor deviation from the stub)"
+  ],
+  "justification": "The solution is a clean procedural recursive-descent parser with one function per grammar rule, careful memory cleanup on every failure path, and a short-circuiting Evaluate. However, it relies on unit-level global state (GSrc/GPos), which makes it non-reentrant. It reimplements power-by-squaring and the remainder instead of using Math.Power/FMod, and dispatches operators and function names through long if/else string-comparison chains rather than a case on a char. ParsePrimary is oversized and mixes number lexing, identifier lexing, and argument parsing, which would be better split into helper routines.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 8790,
+  "output_tokens": 445,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

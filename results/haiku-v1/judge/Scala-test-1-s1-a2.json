@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 2,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "Option for-comprehension mixes `=` bindings, which is slightly unusual and hurts clarity",
+    "Degenerate hulls (fewer than 3 points) are not handled explicitly in collision checks",
+    "Edge construction uses index-based access with modulo instead of zip/sliding"
+  ],
+  "justification": "The solution is mostly pure and immutable. The Minkowski sum is built from the vertex cross-product, then reduced with a monotone-chain hull implemented as `foldLeft` over a recursive `pushHull` on a List stack. Option is handled with a for-comprehension and pattern matching, and the collision check uses the Minkowski difference with a segment-versus-polygon test. Small weaknesses: `edgesOf` indexes with modulo (could use `zip` with a rotated vector), the `sums = ...` and `hull = ...` bindings in the for-comprehension are slightly awkward, and there are no `@tailrec` annotations. Helpers are well decomposed and private, with sensible names, and the epsilon tolerance is handled consistently via `sign`.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3938,
+  "output_tokens": 400,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,53 @@
+{
+  "category": "test_failures",
+  "passed": [
+    "A01",
+    "A02",
+    "A03",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A09",
+    "A10",
+    "B10"
+  ],
+  "failed": [
+    "A08",
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B09"
+  ],
+  "names": {
+    "A01": "Test A01 (Basic Squares Hull)",
+    "A02": "Test A02 (Point and Polygon)",
+    "A03": "Test A03 (Collinear Simplification)",
+    "A04": "Test A04 (Negative Coordinates)",
+    "A05": "Test A05 (Single Points)",
+    "A06": "Test A06 (Empty First Polygon)",
+    "A07": "Test A07 (Empty Second Polygon)",
+    "A08": "Test A08 (Null Arguments)",
+    "A09": "Test A09 (Flat Polygons / Lines)",
+    "A10": "Test A10 (Stress Test 500x500)",
+    "B01": "Test B01 (Tunneling Collision)",
+    "B02": "Test B02 (Clear Miss)",
+    "B03": "Test B03 (Static Overlap)",
+    "B04": "Test B04 (Static Miss)",
+    "B05": "Test B05 (Moving Away)",
+    "B06": "Test B06 (Diagonal Tunneling)",
+    "B07": "Test B07 (Edge Grazing)",
+    "B08": "Test B08 (Negative Velocity)",
+    "B09": "Test B09 (Empty Polygons)",
+    "B10": "Test B10 (NULL Arguments)"
+  },
+  "exit_code": 1,
+  "duration_s": 29.4,
+  "timed_out": false,
+  "n_pass": 10
+}

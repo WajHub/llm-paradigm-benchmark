@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "Result := nil immediately before New(Result) in CreateGraph is redundant",
+    "Redundant loop initializing dynamic array elements to nil after SetLength",
+    "Edge array grows by one element per insertion (SetLength(Len+1)) rather than amortized capacity",
+    "Manual nil assignment of dynamic arrays before Dispose is unnecessary since Dispose finalizes managed fields"
+  ],
+  "justification": "x",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5776,
+  "output_tokens": 187,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

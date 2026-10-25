@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 1,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "duplicated setup logic (padding values, zipping items, building table) in maxValue and solve",
+    "w < 0 silently skipped in buildTable, a special case without clear handling",
+    "maxValue could reuse solve or a shared helper rather than repeating the table-building preamble",
+    "padding values with `values ++ repeat 0` silently masks mismatched input lengths"
+  ],
+  "justification": "The DP is expressed purely with `scanl` over items and immutable `Array` rows built from list comprehensions, which is a clean functional formulation. Backtracking is a tail-recursive helper that conses flags, with a type signature and a clear comment. Weaknesses are the duplicated preamble in `maxValue` and `solve` (padding, zipping, table building), the odd `w < 0` handling, and the use of `last rows` with an `Array` of arrays rebuilt from the list; a shared helper would improve the design. Totality is mostly kept, and the use of `!` is safe given the construction.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 2968,
+  "output_tokens": 365,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

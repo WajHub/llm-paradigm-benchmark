@@ -1,0 +1,30 @@
+=== Running benchmark for folder: test-1 ===
+rm -rf test-1/test_runner test-1/*.class test-1/*.log
+mkdir -p test-1/test_runner
+scalac -deprecation -feature -unchecked -d test-1/test_runner test-1/SpatialLogic.scala test-1/Tests.scala
+=== START ===
+[PASS] Test A01 (Basic Squares Hull)
+[PASS] Test A02 (Point and Polygon)
+[PASS] Test A03 (Collinear Simplification)
+[PASS] Test A04 (Negative Coordinates)
+[PASS] Test A05 (Single Points)
+[PASS] Test A06 (Empty First Polygon)
+[PASS] Test A07 (Empty Second Polygon)
+[PASS] Test A08 (Null Arguments)
+[PASS] Test A09 (Flat Polygons / Lines)
+[PASS] Test A10 (Stress Test 500x500)
+[PASS] Test B01 (Tunneling Collision)
+[PASS] Test B02 (Clear Miss)
+[PASS] Test B03 (Static Overlap)
+[PASS] Test B04 (Static Miss)
+[PASS] Test B05 (Moving Away)
+[PASS] Test B06 (Diagonal Tunneling)
+[PASS] Test B07 (Edge Grazing)
+[PASS] Test B08 (Negative Velocity)
+[PASS] Test B09 (Empty Polygons)
+[PASS] Test B10 (NULL Arguments)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 20
+Failed: 0

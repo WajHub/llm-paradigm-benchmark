@@ -1,0 +1,27 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 1,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "partial function `head` used in `map head . groupBy` (safe here, but partial)",
+    "`step` defined with a fall-through clause relying on guard fallthrough, which is subtle",
+    "`length` used for size checks instead of pattern matching",
+    "Degenerate hulls (1 or 2 points) produce a polygon with fewer than 3 vertices instead of Nothing, and `containsPoint` returns False for them",
+    "Parameter name `as` shadows a keyword-like identifier"
+  ],
+  "justification": "The solution is pure and decomposed into small, composable helpers (`cross`, `convexHull`, `minkowskiCloud`, `segmentsIntersect`) with type signatures and `Maybe` pattern matching. The monotone-chain hull is expressed as folds with a guard-based `step`, though it relies on guard fallthrough and `map head . groupBy` for deduplication, which is less idiomatic than pattern matching or `map NE.head`/`nub`. The Minkowski sum uses an O(nm) cloud plus a hull rather than an edge merge, which is simple and clear. The collision test via configuration-space point-in-polygon plus segment intersection is well structured, but degenerate cases are handled loosely and `length` checks are used where pattern matching would be cleaner.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4558,
+  "output_tokens": 466,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}
