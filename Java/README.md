@@ -1,5 +1,19 @@
 # Java
 
+Prompt templates for Java solutions. [`harness/prompts.py`](../harness/prompts.py) sends the first code
+block under **Initial prompt** and under **Follow-up prompt** to the model, with the placeholders filled in
+([how](../docs/01-how-it-works.md#prompts)). Editing a template changes what the model sees, so evaluate
+the change in a new run (`RUN_ID`).
+
+| | |
+|---|---|
+| Toolchain | JDK (Eclipse Temurin), see [`Dockerfile`](Dockerfile) |
+| Tests under valgrind | no ([`run-tests.sh`](run-tests.sh)) |
+| Shown to the model | `test-N.md`; `<Name>.java` (abstract class) |
+| Replaced by the model's code | `<Name>Impl.java` (stub) |
+| Never shown to the model | `Tests.java` |
+| Run one test by hand | `docker compose run --rm evaluator test-N` (from this folder) |
+
 ## Prompt
 
 ### Initial prompt

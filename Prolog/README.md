@@ -1,5 +1,19 @@
 # Prolog
 
+Prompt templates for Prolog solutions. [`harness/prompts.py`](../harness/prompts.py) sends the first code
+block under **Initial prompt** and under **Follow-up prompt** to the model, with the placeholders filled in
+([how](../docs/01-how-it-works.md#prompts)). Editing a template changes what the model sees, so evaluate
+the change in a new run (`RUN_ID`).
+
+| | |
+|---|---|
+| Toolchain | SWI-Prolog, see [`Dockerfile`](Dockerfile) |
+| Tests under valgrind | yes, without leak checking ([`run-tests.sh`](run-tests.sh)) |
+| Shown to the model | `test-N.md`; `<name>.pl`: the module, documented predicates + stubs |
+| Replaced by the model's code | the same module, returned in full |
+| Never shown to the model | `tests.pl` |
+| Run one test by hand | `docker compose run --rm evaluator test-N` (from this folder) |
+
 ## Prompt
 
 ### Initial prompt

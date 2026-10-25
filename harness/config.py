@@ -11,7 +11,7 @@ The API key does not belong here: put it in harness/.env (git-ignored).
 # GENERATOR_MAX_TOKENS or MAX_REPAIRS: an existing run refuses to continue with different ones.
 RUN_ID = "haiku-v1"
 
-LANGUAGES = None        # None = all 7, or a subset, e.g. ["C", "Haskell"]
+LANGUAGES = None        # None = every language in tasks.py, or a subset, e.g. ["C", "Haskell"]
 TESTS = None            # None = all, or test numbers, e.g. [4, 5]
 SAMPLES = 1             # independent attempts per task (more = statistics, pass@k)
 MAX_REPAIRS = 3         # follow-up rounds after a failed evaluation (0 = one-shot only)

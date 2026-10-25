@@ -1,5 +1,19 @@
 # Smalltalk
 
+Prompt templates for Smalltalk solutions. [`harness/prompts.py`](../harness/prompts.py) sends the first code
+block under **Initial prompt** and under **Follow-up prompt** to the model, with the placeholders filled in
+([how](../docs/01-how-it-works.md#prompts)). Editing a template changes what the model sees, so evaluate
+the change in a new run (`RUN_ID`).
+
+| | |
+|---|---|
+| Toolchain | GNU Smalltalk (`gst`), see [`Dockerfile`](Dockerfile) |
+| Tests under valgrind | no ([`run-tests.sh`](run-tests.sh)) |
+| Shown to the model | `test-N.md`; `<Name>.st` (domain classes, abstract base) |
+| Replaced by the model's code | `<Name>Impl.st` (stub) |
+| Never shown to the model | `Tests.st` |
+| Run one test by hand | `docker compose run --rm evaluator test-N` (from this folder) |
+
 ## Prompt
 
 ### Initial prompt

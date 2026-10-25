@@ -1,5 +1,19 @@
 # Scala
 
+Prompt templates for Scala solutions. [`harness/prompts.py`](../harness/prompts.py) sends the first code
+block under **Initial prompt** and under **Follow-up prompt** to the model, with the placeholders filled in
+([how](../docs/01-how-it-works.md#prompts)). Editing a template changes what the model sees, so evaluate
+the change in a new run (`RUN_ID`).
+
+| | |
+|---|---|
+| Toolchain | Scala (`scalac`), see [`Dockerfile`](Dockerfile) |
+| Tests under valgrind | no ([`run-tests.sh`](run-tests.sh)) |
+| Shown to the model | `test-N.md`; `<Name>.scala`: the object, types + stub methods |
+| Replaced by the model's code | the same file, returned in full |
+| Never shown to the model | `Tests.scala` |
+| Run one test by hand | `docker compose run --rm evaluator test-N` (from this folder) |
+
 ## Prompt
 
 ### Initial prompt

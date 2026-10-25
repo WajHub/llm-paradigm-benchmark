@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+
+# Test name as the runners print it: "Test A01 (Title)" -> ID "A01"; the letter is the algorithm.
+TEST_ID = re.compile(r"Test ([A-Z]\d+)")
 
 PARADIGMS = {
     "C": "imperative",
@@ -47,6 +51,7 @@ class Task:
     dir: Path            # <repo>/<lang>/test-4
     contract: Path       # file whose content is inserted into the prompt
     target: str          # file name the model writes (overwritten in the work copy)
+    test_ids: tuple[str, ...]  # IDs of the task's tests, read from the test runner source
 
     @property
     def id(self) -> str:
@@ -74,6 +79,13 @@ def _one(paths: list[Path], what: str, test_dir: Path) -> Path:
     return paths[0]
 
 
+def _test_ids(test_file: Path) -> tuple[str, ...]:
+    ids = TEST_ID.findall(test_file.read_text(encoding="utf-8", errors="replace"))
+    if not ids:
+        raise ValueError(f"{test_file}: no test names like 'Test A01 (Title)' found")
+    return tuple(dict.fromkeys(ids))
+
+
 def load_task(lang: str, test: str, repo: Path = REPO) -> Task:
     test_dir = repo / lang / test
     sources = _sources(test_dir, lang)
@@ -89,7 +101,8 @@ def load_task(lang: str, test: str, repo: Path = REPO) -> Task:
     else:
         # Haskell, Scala, Prolog, Pascal: one module holding the contract and the stubs.
         contract = target = _one(sources, f"module ({EXTENSIONS[lang]})", test_dir)
-    return Task(lang=lang, test=test, dir=test_dir, contract=contract, target=target.name)
+    return Task(lang=lang, test=test, dir=test_dir, contract=contract, target=target.name,
+                test_ids=_test_ids(test_dir / TEST_FILES[lang]))
 
 
 # Solutions that were committed in place of stubs, kept only in git history; used to validate
@@ -102,7 +115,7 @@ REFERENCE_FILES = {
     ("Java", "test-1"): "SpatialLogicImpl.java",
     ("Smalltalk", "test-1"): "SpatialLogicImpl.st",
 }
-# References known to pass 20/20 (Java 15/20 and Smalltalk 18/20 are known-imperfect).
+# References known to pass all tests (the Java and Smalltalk ones fail a few and are not used as proof).
 REFERENCE_EXPECTED_PASS = {("C", "test-1"), ("C", "test-3"), ("Pascal", "test-1")}
 
 

@@ -51,7 +51,7 @@ def dry_run(task_list: list[Task]) -> int:
     sizes = []
     for task in task_list:
         initial = prompts.render_initial(task)
-        followup = prompts.render_followup(task, "<test output excerpt>", ["Test A01 (Example)"])
+        followup = prompts.render_followup(task, "<test output excerpt>", [f"Test {task.test_ids[0]} (Example)"])
         d = out / task.lang / task.test
         d.mkdir(parents=True)
         (d / "prompt-initial.md").write_text(initial, encoding="utf-8")
@@ -89,7 +89,7 @@ def baseline(task_list: list[Task], run_dir: Path, args) -> int:
             task, kind, res = fut.result()
             report.setdefault(task.id, {})[kind] = res
             log(f"[baseline] {task.id:<18} {kind:<9} {res['category']:<14} "
-                f"{res['n_pass']:>2}/20 parsed={res['parsed_results']} exit={res['exit_code']} "
+                f"{res['n_pass']:>2}/{res['n_tests']} parsed={res['parsed_results']} exit={res['exit_code']} "
                 f"({res['duration_s']}s)")
     path = run_dir / "baseline.json"
     merged = (store.read_json(path) if path.exists() else {}) | report  # a subset run updates its tasks only
@@ -99,8 +99,10 @@ def baseline(task_list: list[Task], run_dir: Path, args) -> int:
     for task in task_list:
         entry = report[task.id]
         stub = entry["stub"]
-        if stub["parsed_results"] != 20 or stub["category"] not in ("test_failures", "memory_error"):
-            problems.append(f"{task.id}: stub run {stub['category']}, {stub['parsed_results']} parsed results")
+        if (stub["parsed_results"] != len(task.test_ids)
+                or stub["category"] not in ("test_failures", "memory_error")):
+            problems.append(f"{task.id}: stub run {stub['category']}, "
+                            f"{stub['parsed_results']}/{len(task.test_ids)} parsed results")
         if (task.lang, task.test) in tasks.REFERENCE_EXPECTED_PASS and entry["reference"]["category"] != "pass":
             problems.append(f"{task.id}: reference expected to pass, got {entry['reference']['category']}")
     stub_passes = {tid: e["stub"]["passed"] for tid, e in report.items() if e["stub"]["passed"]}
@@ -109,7 +111,8 @@ def baseline(task_list: list[Task], run_dir: Path, args) -> int:
     if problems:
         log("PROBLEMS:\n  " + "\n  ".join(problems))
         return 1
-    log("All checks OK: every stub yields 20 parsed results and fails; references pass where expected.")
+    log("All checks OK: every stub prints a result for each of its tests and fails; "
+        "references pass where expected.")
     return 0
 
 
@@ -183,8 +186,9 @@ def run_sample(task: Task, sample: int, run_dir: Path, cfg: dict, client, args) 
             "attempt": attempt,
             "category": category,
             "n_pass": result.n_pass if result else 0,
+            "n_tests": result.n_tests if result else len(task.test_ids),
             "passed": result.passed if result else [],
-            "failed": result.failed if result else evaluator.TEST_IDS,
+            "failed": result.failed if result else list(task.test_ids),
             "exit_code": result.exit_code if result else None,
             "eval_s": result.duration_s if result else 0.0,
             "llm_s": gen.duration_s,
@@ -196,7 +200,7 @@ def run_sample(task: Task, sample: int, run_dir: Path, cfg: dict, client, args) 
         }
         store.write_json(adir / "attempt.json", row)
         attempts.append(row)
-        log(f"{tag} attempt {attempt}: {category:<14} {row['n_pass']:>2}/20  "
+        log(f"{tag} attempt {attempt}: {category:<14} {row['n_pass']:>2}/{row['n_tests']}  "
             f"(llm {gen.duration_s}s, eval {row['eval_s']}s, out {gen.usage['output_tokens']} tok)")
         if category in ("pass", "refusal"):
             break
@@ -208,6 +212,7 @@ def run_sample(task: Task, sample: int, run_dir: Path, cfg: dict, client, args) 
         "solved": solved_at is not None,
         "solved_at_attempt": solved_at,
         "attempts_used": len(attempts),
+        "n_tests": max(a["n_tests"] for a in attempts),
         "first_category": first["category"],
         "first_n_pass": first["n_pass"],
         "first_passed": first["passed"],

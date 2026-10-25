@@ -19,6 +19,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import config
+import evaluator
 import llm
 import prompts
 import store
@@ -40,8 +41,6 @@ SCHEMA = {
     "required": [*CRITERIA, "anti_patterns", "justification"],
     "additionalProperties": False,
 }
-# Attempt outcomes whose code compiled/loaded and is therefore worth judging.
-COMPILED = {"pass", "test_failures", "memory_error", "runtime_crash", "timeout"}
 
 FENCE_TAGS = {"C": "c", "Pascal": "pascal", "Java": "java", "Smalltalk": "smalltalk",
               "Haskell": "haskell", "Scala": "scala", "Prolog": "prolog"}
@@ -124,7 +123,7 @@ def judge_items(run_dir: Path, which: str) -> list[dict]:
             adir = sdir / f"attempt-{attempt}"
             row = store.read_json(adir / "attempt.json")
             code_path = adir / f"solution{tasks.EXTENSIONS[task.lang]}"
-            if row["category"] in COMPILED and code_path.exists():
+            if row["category"] in evaluator.COMPILED and code_path.exists():
                 items.append({"task": task, "sample": final["sample"], "attempt": attempt,
                               "category": row["category"], "code_path": code_path})
     return items

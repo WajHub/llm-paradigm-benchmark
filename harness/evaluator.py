@@ -11,16 +11,16 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from tasks import REPO, Task
+from tasks import REPO, TEST_ID, Task
 
-TEST_IDS = [f"{ab}{n:02d}" for ab in "AB" for n in range(1, 11)]
+# Outcomes whose code compiled/loaded: the judge scores only these.
+COMPILED = {"pass", "test_failures", "memory_error", "runtime_crash", "timeout"}
 
 # Same artefact list as .claude/skills/new-benchmark/scripts/verify.sh.
 _ARTEFACT_SUFFIXES = {".o", ".ppu", ".hi", ".class"}
 _ARTEFACT_NAMES = {"test_runner"}
 
 _RESULT_LINE = re.compile(r"^\[(PASS|FAIL)\] (.*?)\s*$", re.MULTILINE)
-_TEST_ID = re.compile(r"Test ([AB]\d{2})")
 _VALGRIND = re.compile(r"^==\d+==.*$", re.MULTILINE)
 _VALGRIND_PROBLEM = re.compile(
     r"Invalid (read|write|free)|uninitialised|Mismatched|definitely lost|indirectly lost|"
@@ -74,11 +74,15 @@ class EvalResult:
     def n_pass(self) -> int:
         return len(self.passed)
 
+    @property
+    def n_tests(self) -> int:
+        return len(self.passed) + len(self.failed)
+
     def failing_names(self) -> list[str]:
         return [self.names.get(i, f"Test {i}") for i in self.failed]
 
     def to_dict(self) -> dict:
-        return asdict(self) | {"n_pass": self.n_pass}
+        return asdict(self) | {"n_pass": self.n_pass, "n_tests": self.n_tests}
 
 
 def _copy_normalized(src: Path, dst: Path) -> None:
@@ -126,21 +130,24 @@ def run_tests(task: Task, mount_dir: Path, timeout_s: int) -> tuple[EvalResult, 
         subprocess.run([docker_bin(), "kill", name], capture_output=True, env=env)
         output = ((exc.stdout or b"") + (exc.stderr or b"")).decode("utf-8", errors="replace")
         exit_code, timed_out = None, True
-    result = parse_output(output, exit_code, timed_out)
+    result = parse_output(output, exit_code, task.test_ids, timed_out)
     result.duration_s = round(time.monotonic() - start, 1)
     return result, output
 
 
-def parse_output(output: str, exit_code: int | None, timed_out: bool = False) -> EvalResult:
+def parse_output(output: str, exit_code: int | None, test_ids: tuple[str, ...],
+                 timed_out: bool = False) -> EvalResult:
+    """`test_ids` are the task's tests; a test missing from the output counts as failed."""
     names: dict[str, str] = {}
     status: dict[str, str] = {}
     for verdict, name in _RESULT_LINE.findall(output):
-        match = _TEST_ID.search(name)
+        match = TEST_ID.search(name)
         if match:
             names[match.group(1)] = name
             status[match.group(1)] = verdict
-    passed = [i for i in TEST_IDS if status.get(i) == "PASS"]
-    failed = [i for i in TEST_IDS if status.get(i) != "PASS"]
+    ids = [*test_ids, *(i for i in status if i not in test_ids)]
+    passed = [i for i in ids if status.get(i) == "PASS"]
+    failed = [i for i in ids if status.get(i) != "PASS"]
 
     if timed_out:
         category = "timeout"
