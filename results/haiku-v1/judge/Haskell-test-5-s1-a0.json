@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "Hand-rolled parser type as a bare function alias instead of a newtype with Functor/Applicative/Monad instances, causing repeated state threading",
+    "Use of partial `tail` in parsePrimary (guarded but avoidable)",
+    "Operators represented as Strings built via [c] and a catch-all InvalidOp branch (required by the given AST)",
+    "Association-list lookup of variables rebuilt on each lookup"
+  ],
+  "justification": "The solution is a clean recursive-descent parser in the Maybe monad, with a reusable `binChain` for left-associative levels and Either-based evaluation that short-circuits via do-notation and `mapM`. Pattern matching, guards, and small helper functions with signatures are used well. Minor departures: the parser is a plain function type alias instead of a newtype with monad instances, whitespace skipping is scattered, `tail` is used, and variable lookup builds an association list; these are small blemishes in otherwise idiomatic code.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5720,
+  "output_tokens": 363,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

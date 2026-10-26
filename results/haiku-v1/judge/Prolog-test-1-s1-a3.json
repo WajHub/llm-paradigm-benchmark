@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 3,
+  "category": "test_failures",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "create_polygon accepts both argument orders via an is_list/cut dispatch, which makes the predicate's mode ambiguous",
+    "cut in create_polygon and velocity_data used as if-then-else instead of ->",
+    "polygon_data uses =.. with a generic term shape and a fallback clause that can leave a choicepoint",
+    "chain/push_pt hand-rolls a fold instead of using foldl/4"
+  ],
+  "justification": "The code is mostly declarative: convex_hull uses Andrew's monotone chain with accumulators, and it builds the point cloud with findall/member. It uses forall/\\+ for universal checks and maplist for validation. The weaker parts are the ambiguous-mode create_polygon with a cut, the loose polygon_data parsing with =.., and a hand-written chain recursion where foldl would do. Decomposition into orient, in_convex, edges_of and seg_intersect is clean and readable, and the Minkowski configuration-space approach follows the task.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5119,
+  "output_tokens": 369,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,8 @@
+=== Running benchmark for folder: test-2 ===
+gst -g `ls test-2/*.st 2>/dev/null | grep -v Tests.st | sort`
+Object: nil error: did not understand #new
+MessageNotUnderstood(Exception)>>signal (ExcHandling.st:254)
+UndefinedObject(Object)>>doesNotUnderstand: #new (SysExcept.st:1448)
+Tests>>init (test-2/Tests.st:9)
+Tests class>>new (test-2/Tests.st:5)
+UndefinedObject>>executeStatements (test-2/Tests.st:512)

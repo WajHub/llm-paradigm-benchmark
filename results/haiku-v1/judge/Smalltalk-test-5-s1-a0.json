@@ -1,0 +1,29 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "AST node kind dispatched via chains of symbol/string comparisons instead of polymorphism",
+    "operators stored as strings and dispatched with if-chains rather than a dictionary of blocks or node classes",
+    "parser state mixed into the evaluator class (ExpressionImpl does parsing, evaluation and holds input/pos)",
+    "arity table Dictionary rebuilt on every call",
+    "exceptions used for parse control flow, with a generic Error caught",
+    "evalCall computes optional second arg through a nil temp and size check",
+    "uses `^self parseError` and `^Error new signal` as value-returning idiom"
+  ],
+  "justification": "The recursive-descent parser follows the grammar closely with small, clearly named methods (parseExpr, parseTerm, parsePower), and uses detect:ifNone: and blocks reasonably. However, the evaluator is a procedural if-chain on kind symbols and operator strings rather than polymorphic node classes or dispatch tables, so object-oriented decomposition is weak. Parser and evaluator are fused in one class that creates a new instance for parser state, and the arity table is rebuilt on each call, which shows design shortcomings. Catching a generic Error to signal parse failure works but is blunt.</br>",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 6903,
+  "output_tokens": 449,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

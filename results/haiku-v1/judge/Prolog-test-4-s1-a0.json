@@ -1,0 +1,29 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "DP table as list shifted via length/append padding, emulating array operations on lists",
+    "sentinel atom `none` mixed with best/2 terms in the shifted list",
+    "if-then-else chains in combine/4 instead of clause-head pattern matching",
+    "special-case branch duplicating result construction instead of letting the general case handle it",
+    "fold_items/4 hand-rolled instead of foldl/4 or a more direct recursion",
+    "knapsack_max_value computes the full selection just to discard it",
+    "negative or zero weight not handled (length(Pad, W) with W<0 errors)"
+  ],
+  "justification": "The solution uses a bottom-up DP over capacity indexed lists, which is an imperative array-style DP forced onto lists via padding with `none`, appending, and truncating with `append(Shifted,_,Ext)`. It does use maplist, last, reverse and a clean fold over items, and tracks selection with reversed lists, which is reasonable. However, `combine/4` relies on nested if-then-else and a `none` sentinel rather than clause-head matching, and the shifting trick is obscure. Decomposition into fold_items, step, combine and sum_weights is clear, but a simple recursive include/exclude or tabled approach would be more idiomatic Prolog.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3223,
+  "output_tokens": 455,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

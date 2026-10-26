@@ -1,6 +1,10 @@
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install -y \
+# gnu-smalltalk is not packaged for newer Debian releases. Bullseye is past end of life and its
+# security mirror no longer serves every package in its index (unzip -> 404), so install from
+# the main bullseye archive only.
+RUN sed -i '/bullseye-security/d' /etc/apt/sources.list \
+    && apt-get update && apt-get install -y \
     gnu-smalltalk \
     make \
     dos2unix \

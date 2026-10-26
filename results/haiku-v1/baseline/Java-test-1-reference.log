@@ -1,0 +1,37 @@
+=== Running benchmark for folder: test-1 ===
+rm -f test-1/*.class *.class
+javac -g -d test-1 test-1/SpatialLogicImpl.java test-1/SpatialLogic.java test-1/Tests.java
+=== START ===
+
+--- Algorithm A: Clean Minkowski Sum (Convex Hull) ---
+[PASS] Test A01 (Basic Squares Hull)
+[FAIL] Test A02 (Point and Polygon)
+[PASS] Test A03 (Collinear Simplification)
+[PASS] Test A04 (Negative Coordinates)
+[FAIL] Test A05 (Single Points)
+[PASS] Test A06 (Empty First Polygon)
+[PASS] Test A07 (Empty Second Polygon)
+[FAIL] Test A08 (Null Arguments)
+[FAIL] Test A09 (Flat Polygons / Lines)
+[PASS] Test A10 (Stress Test 500x500)
+
+--- Algorithm B: Dynamic Collision Detection ---
+[PASS] Test B01 (Tunneling Collision)
+[PASS] Test B02 (Clear Miss)
+[FAIL] Test B03 (Static Overlap)
+[PASS] Test B04 (Static Miss)
+[PASS] Test B05 (Moving Away)
+[PASS] Test B06 (Diagonal Tunneling)
+[PASS] Test B07 (Edge Grazing)
+[PASS] Test B08 (Negative Velocity)
+[PASS] Test B09 (Empty Polygons)
+[PASS] Test B10 (NULL Arguments)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (5):
+ - Test A02 (Point and Polygon)
+ - Test A05 (Single Points)
+ - Test A08 (Null Arguments)
+ - Test A09 (Flat Polygons / Lines)
+ - Test B03 (Static Overlap)

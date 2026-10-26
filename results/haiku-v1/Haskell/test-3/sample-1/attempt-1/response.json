@@ -1,0 +1,40 @@
+{
+  "id": "msg_011CgNsfntaHJnXZT2dQuVQU",
+  "container": null,
+  "content": [
+    {
+      "signature": "CAQSvgYKEAgTGAI4AUIIdGhpbmtpbmcSDCel2yRAd6kCqNIeSRoMkd6iA1CusOU/scB7IjC14VNfAnV9IBL0VSqAPXzIwY7cJF2MQLVaakBKXjYoMXvdbde+aPOGsCbBaJIEAesq2wXpkkDSTieoxsWNPY4mylA/m1MlrmVTwZRM4cbxdh6MExeEmF6SFJbD0sCk0cUj43t8DXpV7k45cb2k3FiuI8jXDUWIEmKTy1SLPnfsauydGcbg/0y67VkQVwQr4+fMLRV+ntwdvKNRQ1rMeALjrK96Y5CAVPeyxLAwexoN+9ZuycO9YMRrXpYM8hVwava7FmkmEIOhFxVHj5PnR8/XtUHRvl9RPb3VZlzUiHpoP2D5JvxtKxhJG3I4QkCPR2QSMUJQvXAvaiXF3xyvtJpFXxnJG0JRVY2yRYghyiW0ABiVYPMDDLF0PXEdCclF8WriuuW4sF7AwBrnozOrsJ3vWO0lxOAY8NOs2Sf4duBLWZT0VM8YvMxGkrUugbEDJqxTOFRkTvEtBaWXkB8UHXBH7vHnqv2wtu77oyptm9qZHMT3SZ6nKvx5f9Zd0SaK/GsFyzJM2GBVOwSsqxjcfgP11g64WiOOarqqpnji+in6SQyemY0DbDpB4QpoodDg3lVEio5fvB0Jnt70yT4VV3OsO0zW0cEruqTebbZJqlvtk37eDLYdOm+4h4vS9//zokAfmd+ox/MctsV5cN+I3XoiSkuGPLKrIzb25TtMHRbR2fGDfyQCgCBXT7dMgAgwtzxZQ8abmYFgyWlrvpSB5AcTjHC3ZwU2cjj6qegAjFTye1OF33hiMr16O4gDi9EIfOPM1Sf/gWUY44oRyl6GIZiDKduwEoYohDMDZZMfle3MEJL8XN7r8RNMa7Fi+7Eq9p35dlQNSCN+eo8hlRdQLvBnFRhcb+ACimlj8qF3Ag0qoKHB9FDMs6EnRx3y5D6BB/FuKSeZHXoJ4FWwJatjKXP7b8X1dYJnXnDcgeAD1qx9/Tq1wR4gNzIfVEH4fXetFDXW58iV6VDWeTC1WxckPf0uGC1nTMq1yOR4eCx3916W4p3wU4NWxKRSyt3N9dNwlppAlktm6WwKEtnopvUgUhgB",
+      "thinking": "",
+      "type": "thinking"
+    },
+    {
+      "citations": null,
+      "text": "module PalindromeTree\n  ( EertreeNode (..)\n  , Eertree (..)\n  , eertreeAlpha\n  , eertreeBuild\n  , eertreeCountDistinct\n  , eertreeCountOccurrences\n  , eertreeLongestLength\n  ) where\n\nimport qualified Data.IntMap.Strict as IM\nimport qualified Data.Map.Strict as M\nimport Data.Array (Array, listArray, (!))\nimport Data.List (foldl', sortBy)\nimport Data.Ord (Down (..), comparing)\n\neertreeAlpha :: Int\neertreeAlpha = 26\n\ndata EertreeNode = EertreeNode\n  { nodeLen        :: Int\n  , nodeSuffixLink :: Int\n  , nodeChildren   :: [Int]\n  , nodeCnt        :: Int\n  , nodeEndPos     :: Int\n  } deriving (Eq, Show)\n\ndata Eertree = Eertree\n  { eertreeNodes  :: [EertreeNode]\n  , eertreeSize   :: Int\n  , eertreeLast   :: Int\n  , eertreeStr    :: String\n  , eertreeStrLen :: Int\n  } deriving (Eq, Show)\n\n-- Internal build state\ndata BState = BState\n  { bNodes :: IM.IntMap EertreeNode\n  , bTrans :: M.Map (Int, Char) Int\n  , bSize  :: Int\n  , bLast  :: Int\n  }\n\ninitState :: BState\ninitState = BState\n  { bNodes = IM.fromList\n      [ (0, EertreeNode (-1) 0 [] 0 (-1))\n      , (1, EertreeNode 0 0 [] 0 (-1))\n      ]\n  , bTrans = M.empty\n  , bSize  = 2\n  , bLast  = 1\n  }\n\nstepBuild :: Array Int Char -> BState -> (Int, Char) -> BState\nstepBuild arr st (i, c) =\n  let nodes = bNodes st\n      lenOf v = nodeLen (nodes IM.! v)\n      linkOf v = nodeSuffixLink (nodes IM.! v)\n      findLink v =\n        let j = i - lenOf v - 1\n        in if j >= 0 && arr ! j == c then v else findLink (linkOf v)\n      cur = findLink (bLast st)\n  in case M.lookup (cur, c) (bTrans st) of\n       Just w ->\n         st { bNodes = IM.adjust bump w nodes\n            , bLast  = w\n            }\n       Nothing ->\n         let newLen = lenOf cur + 2\n             newId  = bSize st\n             lnk\n               | newLen == 1 = 1\n               | otherwise   =\n                   M.findWithDefault 1 (findLink (linkOf cur), c) (bTrans st)\n             node   = EertreeNode newLen lnk [] 1 i\n         in st { bNodes = IM.insert newId node nodes\n               , bTrans = M.insert (cur, c) newId (bTrans st)\n               , bSize  = newId + 1\n               , bLast  = newId\n               }\n  where\n    bump nd = nd { nodeCnt = nodeCnt nd + 1 }\n\nbuildTree :: String -> Eertree\nbuildTree s =\n  Eertree\n    { eertreeNodes  = IM.elems finalNodes\n    , eertreeSize   = bSize st\n    , eertreeLast   = bLast st\n    , eertreeStr    = s\n    , eertreeStrLen = n\n    }\n  where\n    n   = length s\n    arr = listArray (0, n - 1) s :: Array Int Char\n    st  = foldl' (stepBuild arr) initState (zip [0 ..] s)\n\n    order = map fst\n          $ sortBy (comparing (Down . nodeLen . snd))\n          [ (v, nd) | (v, nd) <- IM.toList (bNodes st), v >= 2 ]\n\n    propagate m v =\n      let nd  = m IM.! v\n          c   = nodeCnt nd\n          l   = nodeSuffixLink nd\n      in IM.adjust (\\x -> x { nodeCnt = nodeCnt x + c }) l m\n\n    propagated = foldl' propagate (bNodes st) order\n\n    childMap = IM.fromListWith (++)\n      [ (p, [w]) | ((p, _), w) <- M.toList (bTrans st) ]\n\n    finalNodes = IM.mapWithKey\n      (\\k nd -> nd { nodeChildren = IM.findWithDefault [] k childMap })\n      propagated\n\neertreeBuild :: Maybe String -> Int -> Maybe Eertree\neertreeBuild Nothing n\n  | n == 0    = Just (buildTree \"\")\n  | otherwise = Nothing\neertreeBuild (Just s) n\n  | n < 0     = Nothing\n  | length s >= n = Just (buildTree (take n s))\n  | otherwise = Nothing\n\neertreeCountDistinct :: Maybe Eertree -> Int\neertreeCountDistinct Nothing = 0\neertreeCountDistinct (Just t) = max 0 (eertreeSize t - 2)\n\neertreeCountOccurrences :: Maybe Eertree -> Maybe String -> Int -> Int\neertreeCountOccurrences (Just t) (Just p) _\n  | pl == 0 = 0\n  | otherwise =\n      case [ nodeCnt nd\n           | nd <- drop 2 (eertreeNodes t)\n           , nodeLen nd == pl\n           , matches nd\n           ] of\n        (x : _) -> x\n        []      -> 0\n  where\n    pl = length p\n    matches nd =\n      let start = nodeEndPos nd - pl + 1\n      in start >= 0 && take pl (drop start (eertreeStr t)) == p\neertreeCountOccurrences _ _ _ = 0\n\neertreeLongestLength :: Maybe Eertree -> Int\neertreeLongestLength Nothing = 0\neertreeLongestLength (Just t) =\n  maximum (0 : [ nodeLen nd | nd <- drop 2 (eertreeNodes t) ])",
+      "type": "text"
+    }
+  ],
+  "diagnostics": null,
+  "model": "claude-haiku-5-5",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 8822,
+    "output_tokens": 2158,
+    "output_tokens_details": {
+      "thinking_tokens": 64
+    },
+    "server_tool_use": null,
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

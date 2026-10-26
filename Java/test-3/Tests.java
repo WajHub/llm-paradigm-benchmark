@@ -382,148 +382,148 @@ public final class Tests {
         System.out.println("=== START ===");
         System.out.println();
         System.out.println("--- Algorithm A: Palindrome Tree Construction & Structural Queries ---");
-        totalTests++;
+        total++;
         if (testAlgoA01BasicAabaa()) {
             System.out.println("[PASS] Test A01 (Basic - aabaa)");
         } else {
             System.out.println("[FAIL] Test A01 (Basic - aabaa)");
-            failedTests[failedCount++] = "Test A01 (Basic - aabaa)";
+            failed.add("Test A01 (Basic - aabaa)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA02SingleChar()) {
             System.out.println("[PASS] Test A02 (Single Char)");
         } else {
             System.out.println("[FAIL] Test A02 (Single Char)");
-            failedTests[failedCount++] = "Test A02 (Single Char)";
+            failed.add("Test A02 (Single Char)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA03AllSameChars()) {
             System.out.println("[PASS] Test A03 (All Same Chars - aaaa)");
         } else {
             System.out.println("[FAIL] Test A03 (All Same Chars - aaaa)");
-            failedTests[failedCount++] = "Test A03 (All Same Chars - aaaa)";
+            failed.add("Test A03 (All Same Chars - aaaa)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA04NoInternalPalindromes()) {
             System.out.println("[PASS] Test A04 (No Internal Palindromes)");
         } else {
             System.out.println("[FAIL] Test A04 (No Internal Palindromes)");
-            failedTests[failedCount++] = "Test A04 (No Internal Palindromes)";
+            failed.add("Test A04 (No Internal Palindromes)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA05EmptyString()) {
             System.out.println("[PASS] Test A05 (Empty String)");
         } else {
             System.out.println("[FAIL] Test A05 (Empty String)");
-            failedTests[failedCount++] = "Test A05 (Empty String)";
+            failed.add("Test A05 (Empty String)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA06NullInput()) {
             System.out.println("[PASS] Test A06 (NULL Input)");
         } else {
             System.out.println("[FAIL] Test A06 (NULL Input)");
-            failedTests[failedCount++] = "Test A06 (NULL Input)";
+            failed.add("Test A06 (NULL Input)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA07TwoCharPalindrome()) {
             System.out.println("[PASS] Test A07 (Two-Char Palindrome - aa)");
         } else {
             System.out.println("[FAIL] Test A07 (Two-Char Palindrome - aa)");
-            failedTests[failedCount++] = "Test A07 (Two-Char Palindrome - aa)";
+            failed.add("Test A07 (Two-Char Palindrome - aa)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA08Abacaba()) {
             System.out.println("[PASS] Test A08 (Classic - abacaba)");
         } else {
             System.out.println("[FAIL] Test A08 (Classic - abacaba)");
-            failedTests[failedCount++] = "Test A08 (Classic - abacaba)";
+            failed.add("Test A08 (Classic - abacaba)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA09Abba()) {
             System.out.println("[PASS] Test A09 (Even Palindrome - abba)");
         } else {
             System.out.println("[FAIL] Test A09 (Even Palindrome - abba)");
-            failedTests[failedCount++] = "Test A09 (Even Palindrome - abba)";
+            failed.add("Test A09 (Even Palindrome - abba)");
         }
-        totalTests++;
+        total++;
         if (testAlgoA10NodeCountInvariant()) {
             System.out.println("[PASS] Test A10 (Node Count Invariant)");
         } else {
             System.out.println("[FAIL] Test A10 (Node Count Invariant)");
-            failedTests[failedCount++] = "Test A10 (Node Count Invariant)";
+            failed.add("Test A10 (Node Count Invariant)");
         }
 
         System.out.println();
         System.out.println("--- Algorithm B: Occurrence Counting ---");
-        totalTests++;
+        total++;
         if (testAlgoB01SingleCharOccurrences()) {
             System.out.println("[PASS] Test B01 (Single Char Count)");
         } else {
             System.out.println("[FAIL] Test B01 (Single Char Count)");
-            failedTests[failedCount++] = "Test B01 (Single Char Count)";
+            failed.add("Test B01 (Single Char Count)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB02EvenPalindromeOccurrences()) {
             System.out.println("[PASS] Test B02 (Even Palindrome Count)");
         } else {
             System.out.println("[FAIL] Test B02 (Even Palindrome Count)");
-            failedTests[failedCount++] = "Test B02 (Even Palindrome Count)";
+            failed.add("Test B02 (Even Palindrome Count)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB03FullStringPalindrome()) {
             System.out.println("[PASS] Test B03 (Full String Palindrome)");
         } else {
             System.out.println("[FAIL] Test B03 (Full String Palindrome)");
-            failedTests[failedCount++] = "Test B03 (Full String Palindrome)";
+            failed.add("Test B03 (Full String Palindrome)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB04PatternNotInString()) {
             System.out.println("[PASS] Test B04 (Pattern Not In String)");
         } else {
             System.out.println("[FAIL] Test B04 (Pattern Not In String)");
-            failedTests[failedCount++] = "Test B04 (Pattern Not In String)";
+            failed.add("Test B04 (Pattern Not In String)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB05PatternNotAPalindrome()) {
             System.out.println("[PASS] Test B05 (Pattern Not A Palindrome)");
         } else {
             System.out.println("[FAIL] Test B05 (Pattern Not A Palindrome)");
-            failedTests[failedCount++] = "Test B05 (Pattern Not A Palindrome)";
+            failed.add("Test B05 (Pattern Not A Palindrome)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB06OverlappingEvenPalindromes()) {
             System.out.println("[PASS] Test B06 (Overlapping Even Palindromes)");
         } else {
             System.out.println("[FAIL] Test B06 (Overlapping Even Palindromes)");
-            failedTests[failedCount++] = "Test B06 (Overlapping Even Palindromes)";
+            failed.add("Test B06 (Overlapping Even Palindromes)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB07AllSameSingleChar()) {
             System.out.println("[PASS] Test B07 (All Same - Single Char)");
         } else {
             System.out.println("[FAIL] Test B07 (All Same - Single Char)");
-            failedTests[failedCount++] = "Test B07 (All Same - Single Char)";
+            failed.add("Test B07 (All Same - Single Char)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB08RepeatedPalindrome()) {
             System.out.println("[PASS] Test B08 (Repeated Palindrome - aba)");
         } else {
             System.out.println("[FAIL] Test B08 (Repeated Palindrome - aba)");
-            failedTests[failedCount++] = "Test B08 (Repeated Palindrome - aba)";
+            failed.add("Test B08 (Repeated Palindrome - aba)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB09NullArguments()) {
             System.out.println("[PASS] Test B09 (NULL Arguments)");
         } else {
             System.out.println("[FAIL] Test B09 (NULL Arguments)");
-            failedTests[failedCount++] = "Test B09 (NULL Arguments)";
+            failed.add("Test B09 (NULL Arguments)");
         }
-        totalTests++;
+        total++;
         if (testAlgoB10StressTest()) {
             System.out.println("[PASS] Test B10 (Stress Test 50k chars)");
         } else {
             System.out.println("[FAIL] Test B10 (Stress Test 50k chars)");
-            failedTests[failedCount++] = "Test B10 (Stress Test 50k chars)";
+            failed.add("Test B10 (Stress Test 50k chars)");
         }
 
         System.out.println();

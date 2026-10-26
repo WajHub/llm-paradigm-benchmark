@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "hand-written quicksort instead of a library sort routine",
+    "redundant manual clearing of managed fields (Vertices := nil, ZoneName := '') before Dispose",
+    "O(n*m) cartesian point cloud plus hull instead of merging edges for convex Minkowski sum",
+    "exact floating-point equality in PointLess and duplicate removal alongside epsilon comparisons elsewhere"
+  ],
+  "justification": "The code is a clean procedural decomposition: small helpers (Cross, PointLess, ConvexHull with monotone chain, MinkowskiPoints, SegmentsIntersect, PointInConvex) are kept in the implementation section and reused by both public routines. Free Pascal facilities are used well (SetLength, Copy, High, Exit, Min/Max, Result), and memory handling in create/free polygon and layer is consistent, with ownership documented. Minor weaknesses are the hand-rolled quicksort, brute-force pairwise sums instead of an edge-merge, redundant clearing of managed fields before Dispose, and mixed exact and epsilon float comparisons.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 6679,
+  "output_tokens": 409,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

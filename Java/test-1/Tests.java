@@ -4,6 +4,14 @@ public final class Tests {
     private Tests() {
     }
 
+    private static boolean passes(java.util.function.BooleanSupplier test) {
+        try {
+            return test.getAsBoolean();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private static boolean containsPoint(SpatialLogic.Polygon polygon, double x, double y) {
         if (polygon == null || polygon.vertices == null) {
             return false;
@@ -520,70 +528,70 @@ public final class Tests {
         System.out.println();
         System.out.println("--- Algorithm A: Clean Minkowski Sum (Convex Hull) ---");
         totalTests++;
-        if (testAlgoA01BasicSquares()) {
+        if (passes(Tests::testAlgoA01BasicSquares)) {
             System.out.println("[PASS] Test A01 (Basic Squares Hull)");
         } else {
             System.out.println("[FAIL] Test A01 (Basic Squares Hull)");
             failedTests[failedCount++] = "Test A01 (Basic Squares Hull)";
         }
         totalTests++;
-        if (testAlgoA02PointAndPolygon()) {
+        if (passes(Tests::testAlgoA02PointAndPolygon)) {
             System.out.println("[PASS] Test A02 (Point and Polygon)");
         } else {
             System.out.println("[FAIL] Test A02 (Point and Polygon)");
             failedTests[failedCount++] = "Test A02 (Point and Polygon)";
         }
         totalTests++;
-        if (testAlgoA03CollinearSimplification()) {
+        if (passes(Tests::testAlgoA03CollinearSimplification)) {
             System.out.println("[PASS] Test A03 (Collinear Simplification)");
         } else {
             System.out.println("[FAIL] Test A03 (Collinear Simplification)");
             failedTests[failedCount++] = "Test A03 (Collinear Simplification)";
         }
         totalTests++;
-        if (testAlgoA04NegativeCoordinates()) {
+        if (passes(Tests::testAlgoA04NegativeCoordinates)) {
             System.out.println("[PASS] Test A04 (Negative Coordinates)");
         } else {
             System.out.println("[FAIL] Test A04 (Negative Coordinates)");
             failedTests[failedCount++] = "Test A04 (Negative Coordinates)";
         }
         totalTests++;
-        if (testAlgoA05SinglePoints()) {
+        if (passes(Tests::testAlgoA05SinglePoints)) {
             System.out.println("[PASS] Test A05 (Single Points)");
         } else {
             System.out.println("[FAIL] Test A05 (Single Points)");
             failedTests[failedCount++] = "Test A05 (Single Points)";
         }
         totalTests++;
-        if (testAlgoA06EmptyFirstPolygon()) {
+        if (passes(Tests::testAlgoA06EmptyFirstPolygon)) {
             System.out.println("[PASS] Test A06 (Empty First Polygon)");
         } else {
             System.out.println("[FAIL] Test A06 (Empty First Polygon)");
             failedTests[failedCount++] = "Test A06 (Empty First Polygon)";
         }
         totalTests++;
-        if (testAlgoA07EmptySecondPolygon()) {
+        if (passes(Tests::testAlgoA07EmptySecondPolygon)) {
             System.out.println("[PASS] Test A07 (Empty Second Polygon)");
         } else {
             System.out.println("[FAIL] Test A07 (Empty Second Polygon)");
             failedTests[failedCount++] = "Test A07 (Empty Second Polygon)";
         }
         totalTests++;
-        if (testAlgoA08NullArguments()) {
+        if (passes(Tests::testAlgoA08NullArguments)) {
             System.out.println("[PASS] Test A08 (Null Arguments)");
         } else {
             System.out.println("[FAIL] Test A08 (Null Arguments)");
             failedTests[failedCount++] = "Test A08 (Null Arguments)";
         }
         totalTests++;
-        if (testAlgoA09FlatPolygon()) {
+        if (passes(Tests::testAlgoA09FlatPolygon)) {
             System.out.println("[PASS] Test A09 (Flat Polygons / Lines)");
         } else {
             System.out.println("[FAIL] Test A09 (Flat Polygons / Lines)");
             failedTests[failedCount++] = "Test A09 (Flat Polygons / Lines)";
         }
         totalTests++;
-        if (testAlgoA10StressTest()) {
+        if (passes(Tests::testAlgoA10StressTest)) {
             System.out.println("[PASS] Test A10 (Stress Test 500x500)");
         } else {
             System.out.println("[FAIL] Test A10 (Stress Test 500x500)");
@@ -593,70 +601,70 @@ public final class Tests {
         System.out.println();
         System.out.println("--- Algorithm B: Dynamic Collision Detection ---");
         totalTests++;
-        if (testAlgoB01TunnelingCollision()) {
+        if (passes(Tests::testAlgoB01TunnelingCollision)) {
             System.out.println("[PASS] Test B01 (Tunneling Collision)");
         } else {
             System.out.println("[FAIL] Test B01 (Tunneling Collision)");
             failedTests[failedCount++] = "Test B01 (Tunneling Collision)";
         }
         totalTests++;
-        if (testAlgoB02ClearMiss()) {
+        if (passes(Tests::testAlgoB02ClearMiss)) {
             System.out.println("[PASS] Test B02 (Clear Miss)");
         } else {
             System.out.println("[FAIL] Test B02 (Clear Miss)");
             failedTests[failedCount++] = "Test B02 (Clear Miss)";
         }
         totalTests++;
-        if (testAlgoB03StaticOverlap()) {
+        if (passes(Tests::testAlgoB03StaticOverlap)) {
             System.out.println("[PASS] Test B03 (Static Overlap)");
         } else {
             System.out.println("[FAIL] Test B03 (Static Overlap)");
             failedTests[failedCount++] = "Test B03 (Static Overlap)";
         }
         totalTests++;
-        if (testAlgoB04StaticMiss()) {
+        if (passes(Tests::testAlgoB04StaticMiss)) {
             System.out.println("[PASS] Test B04 (Static Miss)");
         } else {
             System.out.println("[FAIL] Test B04 (Static Miss)");
             failedTests[failedCount++] = "Test B04 (Static Miss)";
         }
         totalTests++;
-        if (testAlgoB05MovingAway()) {
+        if (passes(Tests::testAlgoB05MovingAway)) {
             System.out.println("[PASS] Test B05 (Moving Away)");
         } else {
             System.out.println("[FAIL] Test B05 (Moving Away)");
             failedTests[failedCount++] = "Test B05 (Moving Away)";
         }
         totalTests++;
-        if (testAlgoB06DiagonalTunneling()) {
+        if (passes(Tests::testAlgoB06DiagonalTunneling)) {
             System.out.println("[PASS] Test B06 (Diagonal Tunneling)");
         } else {
             System.out.println("[FAIL] Test B06 (Diagonal Tunneling)");
             failedTests[failedCount++] = "Test B06 (Diagonal Tunneling)";
         }
         totalTests++;
-        if (testAlgoB07EdgeGrazing()) {
+        if (passes(Tests::testAlgoB07EdgeGrazing)) {
             System.out.println("[PASS] Test B07 (Edge Grazing)");
         } else {
             System.out.println("[FAIL] Test B07 (Edge Grazing)");
             failedTests[failedCount++] = "Test B07 (Edge Grazing)";
         }
         totalTests++;
-        if (testAlgoB08NegativeVelocity()) {
+        if (passes(Tests::testAlgoB08NegativeVelocity)) {
             System.out.println("[PASS] Test B08 (Negative Velocity)");
         } else {
             System.out.println("[FAIL] Test B08 (Negative Velocity)");
             failedTests[failedCount++] = "Test B08 (Negative Velocity)";
         }
         totalTests++;
-        if (testAlgoB09EmptyPolygons()) {
+        if (passes(Tests::testAlgoB09EmptyPolygons)) {
             System.out.println("[PASS] Test B09 (Empty Polygons)");
         } else {
             System.out.println("[FAIL] Test B09 (Empty Polygons)");
             failedTests[failedCount++] = "Test B09 (Empty Polygons)";
         }
         totalTests++;
-        if (testAlgoB10NullArguments()) {
+        if (passes(Tests::testAlgoB10NullArguments)) {
             System.out.println("[PASS] Test B10 (NULL Arguments)");
         } else {
             System.out.println("[FAIL] Test B10 (NULL Arguments)");

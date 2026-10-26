@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "redundant re-initialization of calloc'd adjacency fields in create_graph",
+    "silent failure in heap_push when capacity is exceeded and in graph_add_edge on realloc failure",
+    "mixed C89 declarations with C99 inline declarations (for int i, mid-block HeapItem tmp)",
+    "heap sized to total edges + 1 up front rather than growing dynamically"
+  ],
+  "justification": "The code is cleanly procedural: static heap helpers with a single responsibility, a lazy-deletion Dijkstra, and allocation failure handled with cleanup on each path. It uses size_t casts, calloc, and static for internals, and the ownership of each allocation is clear. Small blemishes include the redundant field zeroing after calloc, silent drops on heap overflow or realloc failure, the repeated cleanup block in dijkstra instead of a goto-cleanup, and the inconsistent declaration style. Missing `const` on a few spots is not an issue, and the heap is correctly sized so the defensive guard never fires.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5123,
+  "output_tokens": 383,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

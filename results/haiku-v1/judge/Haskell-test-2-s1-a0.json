@@ -1,0 +1,28 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "addEdge uses splitAt and list append (lst ++ [Edge v w]) which is O(n+deg) per insertion",
+    "list-based adjacency indexed via drop/!! instead of an array or Map",
+    "lazy foldl used for relaxation instead of foldl'",
+    "fuel counter in reconstructPath plus unchecked !! after a bounds check",
+    "relax is a nested tuple-threading let inside go, making it dense and hard to read",
+    "adjacency list rebuilt into a Map on each dijkstra call"
+  ],
+  "justification": "Dijkstra uses Set as a priority queue with Map for distances and predecessors, a pure and idiomatic approach with lazy deletion, and absence is handled via Maybe. However, the code is awkward in places: addEdge does splitAt and append on lists, getShortestDistance and reconstructPath index lists with drop and !!, and the relax step threads a triple accumulator with lazy foldl inside a deeply nested go. The fuel parameter for cycle protection is a defensive, slightly clumsy design, and the helper functions could be split out for clarity.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4040,
+  "output_tokens": 404,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

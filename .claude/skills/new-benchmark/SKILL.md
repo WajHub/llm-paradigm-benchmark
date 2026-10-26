@@ -140,8 +140,9 @@ stub and which), any deviation from the spec and why.
 
 ### Step 5 — Finish
 
-- Update root `README.md`: add a row to "Test Cases" (`` `test-N/` | <Algorithm> | <one-line description> | All 7 ``)
-  and a `docker compose run --rm evaluator test-N` line under "Running Tests".
+- Update root `README.md`: add a row to "Test Cases" (`` `test-N/` | <Algorithm> | <one-line description> | All ``).
+- Run `python harness/run.py --baseline --tests N` (no API, uses Docker): every stub must fail and print a
+  result for each test. Report the tests that pass on the stub.
 - Delete `$WS/ref/` and `$WS/verify/`. Check `git status`: only new `*/test-N/` files and `README.md`
   changed, no build artefacts (`test_runner`, `*.o`, `*.ppu`, `*.hi`, `*.class`), no reference code.
 - Report to the user: table language × (ref result, stub result, verification mode), any UNVERIFIED

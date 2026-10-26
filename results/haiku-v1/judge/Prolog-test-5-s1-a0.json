@@ -1,0 +1,29 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "hand-written tokenizer and parser with explicit token-list threading instead of DCG notation",
+    "cuts and if-then-else used for dispatch where first-argument clause indexing would do",
+    "binop/4 has a catch-all clause after the specific ones, so it leaves choicepoints and can add an invalid_op solution on backtracking",
+    "evaluate/3 leaves choicepoints because of the nondeterministic combine/binop clauses",
+    "member/2 inside an if-then-else condition to scan for a non-ok status",
+    "explicit recursion in eval_all/3 instead of maplist",
+    "memberchk/2 on operator atoms for dispatch instead of separate clauses"
+  ],
+  "justification": "The recursive-descent parser follows the grammar closely and threads token lists as difference-list-like pairs. It does not use DCG notation, which is the idiomatic Prolog tool for this task, and it relies on cuts and if-then-else more than necessary. The evaluator uses head pattern matching for AST nodes and short-circuits statuses reasonably. However, the catch-all `binop(_, _, _, invalid_op)` clause is reachable on backtracking, `eval_all` reimplements `maplist`, and the `member`-based status check is clumsy. Decomposition into tokenizer, parser, and evaluator is clear and readable, but the design is somewhat repetitive (expr_rest and term_rest are near duplicates)..",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 6782,
+  "output_tokens": 508,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

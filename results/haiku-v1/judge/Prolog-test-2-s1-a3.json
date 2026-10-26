@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 3,
+  "category": "test_failures",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "findall used to build lists where maplist/pairs_keys_values would be simpler",
+    "nested if-then-else for control flow in run_dijkstra and relax instead of clause-head matching",
+    "Heap1-Dist0-Pred0 tuple state threaded through foldl",
+    "nth0 on a list for repeated Target lookups, which is O(n)"
+  ],
+  "justification": "The solution uses library(assoc), library(heaps), foldl/4, and numlist/3 rather than reimplementing them. It threads state explicitly with no assert/retract. The first dijkstra clause uses a cut after its guards to pick the success case, with a catch-all clause returning `none`; this is an acceptable red cut. Some parts could be cleaner: init_dist_pred uses findall with member where maplist would do, run_dijkstra and relax rely on nested if-then-else, and the foldl state is packed into a `H-D-P` term. The decomposition into small predicates (build_adjacency, relax, walk_back) is clear.}",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4106,
+  "output_tokens": 376,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}
