@@ -509,9 +509,9 @@ Object subclass: Tests [
 
         totalTests := totalTests + 1.
         ([self testAlgoA08NilArguments] on: Error do: [:e | false])
-            ifTrue:  [Transcript show: '[PASS] Test A08 (Nil Arguments)'; cr]
-            ifFalse: [Transcript show: '[FAIL] Test A08 (Nil Arguments)'; cr.
-                      failedTests add: 'Test A08 (Nil Arguments)'.
+            ifTrue:  [Transcript show: '[PASS] Test A08 (Null Arguments)'; cr]
+            ifFalse: [Transcript show: '[FAIL] Test A08 (Null Arguments)'; cr.
+                      failedTests add: 'Test A08 (Null Arguments)'.
                       failedCount := failedCount + 1].
 
         totalTests := totalTests + 1.
@@ -596,9 +596,9 @@ Object subclass: Tests [
 
         totalTests := totalTests + 1.
         ([self testAlgoB10NilArguments] on: Error do: [:e | false])
-            ifTrue:  [Transcript show: '[PASS] Test B10 (Nil Arguments)'; cr]
-            ifFalse: [Transcript show: '[FAIL] Test B10 (Nil Arguments)'; cr.
-                      failedTests add: 'Test B10 (Nil Arguments)'.
+            ifTrue:  [Transcript show: '[PASS] Test B10 (NULL Arguments)'; cr]
+            ifFalse: [Transcript show: '[FAIL] Test B10 (NULL Arguments)'; cr.
+                      failedTests add: 'Test B10 (NULL Arguments)'.
                       failedCount := failedCount + 1].
 
         Transcript cr.

@@ -1,0 +1,32 @@
+=== Running benchmark for folder: test-3 ===
+rm -f test-3/*.class *.class
+javac -g -d test-3 test-3/PalindromeTreeImpl.java test-3/PalindromeTree.java test-3/Tests.java
+=== START ===
+
+--- Algorithm A: Palindrome Tree Construction & Structural Queries ---
+[PASS] Test A01 (Basic - aabaa)
+[PASS] Test A02 (Single Char)
+[PASS] Test A03 (All Same Chars - aaaa)
+[PASS] Test A04 (No Internal Palindromes)
+[PASS] Test A05 (Empty String)
+[PASS] Test A06 (NULL Input)
+[PASS] Test A07 (Two-Char Palindrome - aa)
+[PASS] Test A08 (Classic - abacaba)
+[PASS] Test A09 (Even Palindrome - abba)
+[PASS] Test A10 (Node Count Invariant)
+
+--- Algorithm B: Occurrence Counting ---
+[PASS] Test B01 (Single Char Count)
+[PASS] Test B02 (Even Palindrome Count)
+[PASS] Test B03 (Full String Palindrome)
+[PASS] Test B04 (Pattern Not In String)
+[PASS] Test B05 (Pattern Not A Palindrome)
+[PASS] Test B06 (Overlapping Even Palindromes)
+[PASS] Test B07 (All Same - Single Char)
+[PASS] Test B08 (Repeated Palindrome - aba)
+[PASS] Test B09 (NULL Arguments)
+[PASS] Test B10 (Stress Test 50k chars)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+All tests passed!

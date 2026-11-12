@@ -519,9 +519,16 @@ begin
 end;
 
 procedure run_test(TestFunc: TTestFunc; const Name: AnsiString);
+var
+  Passed: Boolean;
 begin
   Inc(TotalTests);
-  if TestFunc() then
+  try
+    Passed := TestFunc();
+  except
+    Passed := False;
+  end;
+  if Passed then
   begin
     WriteLn('[PASS] ', Name);
   end

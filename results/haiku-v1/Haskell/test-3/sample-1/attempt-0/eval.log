@@ -1,0 +1,11 @@
+=== Running benchmark for folder: test-3 ===
+rm -f test_runner test_runner.exe test_runner.hi test_runner.o test-3/*.hi test-3/*.o
+ghc -Wall -Wextra -g -itest-3 -o test_runner test-3/Tests.hs
+[1 of 2] Compiling PalindromeTree   ( test-3/PalindromeTree.hs, test-3/PalindromeTree.o )
+
+test-3/PalindromeTree.hs:143:5: error:
+    Not in scope: data constructor `L'
+    |
+143 |     L = length p
+    |     ^
+make: *** [Makefile:7: test] Error 1

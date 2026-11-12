@@ -1,0 +1,77 @@
+=== Running benchmark for folder: test-3 ===
+rm -f test_runner
+gcc -Wall -Wextra -g -o test_runner test-3/palindrome_tree.c test-3/tests.c -lm
+=== START ===
+
+--- Algorithm A: Palindrome Tree Construction & Structural Queries ---
+[FAIL] Test A01 (Basic - aabaa)
+[FAIL] Test A02 (Single Char)
+[FAIL] Test A03 (All Same Chars - aaaa)
+[FAIL] Test A04 (No Internal Palindromes)
+[FAIL] Test A05 (Empty String)
+[PASS] Test A06 (NULL Input)
+[FAIL] Test A07 (Two-Char Palindrome - aa)
+[FAIL] Test A08 (Classic - abacaba)
+[FAIL] Test A09 (Even Palindrome - abba)
+[FAIL] Test A10 (Node Count Invariant)
+
+--- Algorithm B: Occurrence Counting ---
+[FAIL] Test B01 (Single Char Count)
+[FAIL] Test B02 (Even Palindrome Count)
+[FAIL] Test B03 (Full String Palindrome)
+[FAIL] Test B04 (Pattern Not In String)
+[FAIL] Test B05 (Pattern Not A Palindrome)
+[FAIL] Test B06 (Overlapping Even Palindromes)
+[FAIL] Test B07 (All Same - Single Char)
+[FAIL] Test B08 (Repeated Palindrome - aba)
+[FAIL] Test B09 (NULL Arguments)
+[FAIL] Test B10 (Stress Test 50k chars)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (19):
+ - Test A01 (Basic - aabaa)
+ - Test A02 (Single Char)
+ - Test A03 (All Same Chars - aaaa)
+ - Test A04 (No Internal Palindromes)
+ - Test A05 (Empty String)
+ - Test A07 (Two-Char Palindrome - aa)
+ - Test A08 (Classic - abacaba)
+ - Test A09 (Even Palindrome - abba)
+ - Test A10 (Node Count Invariant)
+ - Test B01 (Single Char Count)
+ - Test B02 (Even Palindrome Count)
+ - Test B03 (Full String Palindrome)
+ - Test B04 (Pattern Not In String)
+ - Test B05 (Pattern Not A Palindrome)
+ - Test B06 (Overlapping Even Palindromes)
+ - Test B07 (All Same - Single Char)
+ - Test B08 (Repeated Palindrome - aba)
+ - Test B09 (NULL Arguments)
+ - Test B10 (Stress Test 50k chars)
+test-3/tests.c: In function 'test_algo_b_10_stress_test':
+test-3/tests.c:241:5: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+  241 |     memset(s, 'a', n);
+      |     ^~~~~~
+test-3/tests.c:5:1: note: include '<string.h>' or provide a declaration of 'memset'
+    4 | #include "palindrome_tree.h"
+  +++ |+#include <string.h>
+    5 | 
+test-3/tests.c:241:5: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+  241 |     memset(s, 'a', n);
+      |     ^~~~~~
+test-3/tests.c:241:5: note: include '<string.h>' or provide a declaration of 'memset'
+==17== Memcheck, a memory error detector
+==17== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==17== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==17== Command: ./test_runner
+==17== 
+==17== 
+==17== HEAP SUMMARY:
+==17==     in use at exit: 0 bytes in 0 blocks
+==17==   total heap usage: 2 allocs, 2 frees, 54,097 bytes allocated
+==17== 
+==17== All heap blocks were freed -- no leaks are possible
+==17== 
+==17== For lists of detected and suppressed errors, rerun with: -s
+==17== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "Minkowski sum via O(n·m) all-pairs point cloud plus hull instead of an edge-merge, which is more than the task needs",
+    "Temporary Polygon allocated just to negate the robot, adding heap allocation where a plain array would do",
+    "Duplicate-removal pass compares x and y independently with epsilon, mixing in an extra tolerance check on top of an already sorted array",
+    "Return false on allocation failure in check_dynamic_collision conflates error with no collision"
+  ],
+  "justification": "The code follows procedural C well: static helpers with a `geo_` prefix, `qsort` with a comparator, a monotone-chain hull, NULL and size checks, and cleanup of `pts` and `hull` on every path. The allocation and free functions are clear and safe, and `geo_copy_name` guarantees null termination. Weaknesses are the brute-force n·m point cloud instead of an edge-merge, the heap-allocated temporary polygon for negation, and error paths that report false collision on malloc failure. `geo_on_segment` and the intersection routine are reasonable, but the code is somewhat verbose and could be split further, for example a separate point-in-convex-polygon helper.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5661,
+  "output_tokens": 437,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

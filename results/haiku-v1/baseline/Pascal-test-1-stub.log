@@ -1,0 +1,75 @@
+=== Running benchmark for folder: test-1 ===
+rm -f test_runner test_runner.o *.o *.ppu test-1/*.o test-1/*.ppu
+fpc -Mobjfpc -Sh -O1 -g -Futest-1 -otest_runner test-1/tests.pas
+Free Pascal Compiler version 3.2.2+dfsg-20 [2023/03/30] for x86_64
+Copyright (c) 1993-2021 by Florian Klaempfl and others
+Target OS: Linux for x86-64
+Compiling test-1/tests.pas
+Compiling test-1/spatial_logic.pas
+tests.pas(114,19) Warning: function result variable of a managed type does not seem to be initialized
+Linking test-1/test_runner
+670 lines compiled, 0.6 sec
+1 warning(s) issued
+=== START ===
+
+--- Algorithm A: Clean Minkowski Sum (Convex Hull) ---
+[FAIL] Test A01 (Basic Squares Hull)
+[FAIL] Test A02 (Point and Polygon)
+[FAIL] Test A03 (Collinear Simplification)
+[FAIL] Test A04 (Negative Coordinates)
+[FAIL] Test A05 (Single Points)
+[FAIL] Test A06 (Empty First Polygon)
+[FAIL] Test A07 (Empty Second Polygon)
+[FAIL] Test A08 (Null Arguments)
+[FAIL] Test A09 (Flat Polygons / Lines)
+[FAIL] Test A10 (Stress Test 500x500)
+
+--- Algorithm B: Dynamic Collision Detection ---
+[FAIL] Test B01 (Tunneling Collision)
+[FAIL] Test B02 (Clear Miss)
+[FAIL] Test B03 (Static Overlap)
+[FAIL] Test B04 (Static Miss)
+[FAIL] Test B05 (Moving Away)
+[FAIL] Test B06 (Diagonal Tunneling)
+[FAIL] Test B07 (Edge Grazing)
+[FAIL] Test B08 (Negative Velocity)
+[FAIL] Test B09 (Empty Polygons)
+[FAIL] Test B10 (NULL Arguments)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Basic Squares Hull)
+ - Test A02 (Point and Polygon)
+ - Test A03 (Collinear Simplification)
+ - Test A04 (Negative Coordinates)
+ - Test A05 (Single Points)
+ - Test A06 (Empty First Polygon)
+ - Test A07 (Empty Second Polygon)
+ - Test A08 (Null Arguments)
+ - Test A09 (Flat Polygons / Lines)
+ - Test A10 (Stress Test 500x500)
+ - Test B01 (Tunneling Collision)
+ - Test B02 (Clear Miss)
+ - Test B03 (Static Overlap)
+ - Test B04 (Static Miss)
+ - Test B05 (Moving Away)
+ - Test B06 (Diagonal Tunneling)
+ - Test B07 (Edge Grazing)
+ - Test B08 (Negative Velocity)
+ - Test B09 (Empty Polygons)
+ - Test B10 (NULL Arguments)
+==14== Memcheck, a memory error detector
+==14== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==14== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==14== Command: test-1/test_runner
+==14== 
+==14== 
+==14== HEAP SUMMARY:
+==14==     in use at exit: 0 bytes in 0 blocks
+==14==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==14== 
+==14== All heap blocks were freed -- no leaks are possible
+==14== 
+==14== For lists of detected and suppressed errors, rerun with: -s
+==14== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

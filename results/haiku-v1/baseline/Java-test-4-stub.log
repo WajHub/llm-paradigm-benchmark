@@ -1,0 +1,52 @@
+=== Running benchmark for folder: test-4 ===
+rm -f test-4/*.class *.class
+javac -g -d test-4 test-4/KnapsackImpl.java test-4/Knapsack.java test-4/Tests.java
+=== START ===
+
+--- Algorithm A: Maximum Value ---
+[FAIL] Test A01 (Empty)
+[FAIL] Test A02 (Single Fit)
+[FAIL] Test A03 (Too Heavy)
+[FAIL] Test A04 (Capacity Zero)
+[FAIL] Test A05 (Choose Better)
+[FAIL] Test A06 (Textbook)
+[FAIL] Test A07 (Greedy Trap)
+[FAIL] Test A08 (Same Items)
+[FAIL] Test A09 (Tight Fit)
+[FAIL] Test A10 (Stress 50 Items)
+
+--- Algorithm B: Item Selection ---
+[FAIL] Test B01 (Single Selection)
+[FAIL] Test B02 (Choose Better Selection)
+[FAIL] Test B03 (Textbook Selection)
+[FAIL] Test B04 (Greedy Trap Selection)
+[FAIL] Test B05 (Capacity Zero Selection)
+[FAIL] Test B06 (Too Heavy Selection)
+[FAIL] Test B07 (All Fit)
+[FAIL] Test B08 (Weight Invariant)
+[FAIL] Test B09 (Value Invariant)
+[FAIL] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Empty)
+ - Test A02 (Single Fit)
+ - Test A03 (Too Heavy)
+ - Test A04 (Capacity Zero)
+ - Test A05 (Choose Better)
+ - Test A06 (Textbook)
+ - Test A07 (Greedy Trap)
+ - Test A08 (Same Items)
+ - Test A09 (Tight Fit)
+ - Test A10 (Stress 50 Items)
+ - Test B01 (Single Selection)
+ - Test B02 (Choose Better Selection)
+ - Test B03 (Textbook Selection)
+ - Test B04 (Greedy Trap Selection)
+ - Test B05 (Capacity Zero Selection)
+ - Test B06 (Too Heavy Selection)
+ - Test B07 (All Fit)
+ - Test B08 (Weight Invariant)
+ - Test B09 (Value Invariant)
+ - Test B10 (Stress Invariants)

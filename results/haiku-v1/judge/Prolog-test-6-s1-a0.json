@@ -1,0 +1,29 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "setarg/3 with duplicate_term/2 for destructive board updates instead of pure state passing",
+    "imperative-style scan loop with an accumulator in mrv_/4 (index counter, running best)",
+    "nested if-then-else chains in mrv_ and count_sol instead of clause-head dispatch",
+    "O(81) generate-and-test peer scan via between/3 and arithmetic instead of explicit row/column/box lists",
+    "validity check done by a double between/3 loop over cell pairs",
+    "sudoku_candidates does not check that the grid is a valid 81-element list (to_board with =.. on arbitrary input)",
+    "board conversion through =.. and compound b/81 rather than list or library(clpfd)"
+  ],
+  "justification": "The code does the job with a sensible MRV and branching structure, and the top-level predicates are cleanly separated. However, it leans on imperative techniques: a compound term mutated with setarg/3 after duplicate_term/2, an index-driven scan with a running best in mrv_/4, and nested if-then-else blocks. The peer test recomputes row/column/box arithmetic for all 81 cells on every candidate query, and validity is a pairwise between/3 scan; this is not the declarative style of rows/columns/boxes lists, maplist, or clpfd/all_distinct. The comment on peer/2 is also confusing. It is readable and reasonably modular, but only moderately idiomatic for Prolog.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5483,
+  "output_tokens": 512,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

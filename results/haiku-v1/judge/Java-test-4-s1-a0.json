@@ -1,0 +1,24 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 5,
+  "design": 4,
+  "anti_patterns": [
+    "index-based loops with primitive arrays for DP table (common but C-style)",
+    "DP table fill logic not shared between maxValue and solve"
+  ],
+  "justification": "The class extends the abstract contract, uses @Override, is final, and extracts a private static validate helper using Objects.requireNonNull and IllegalArgumentException. The DP is clear: a rolling 1D array in maxValue and a full 2D table in solve with a clean backtrack. Minor shortcomings are the primitive-array index loops, which are natural for DP, and the two separate DP implementations, which duplicate some of the recurrence logic rather than sharing it. Names are good and the code is compact and easy to follow.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3041,
+  "output_tokens": 270,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

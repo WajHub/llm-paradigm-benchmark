@@ -1,0 +1,28 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-3",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "EertreeBuild is one long monolithic procedure that mixes validation, construction, and count propagation",
+    "Pattern lookup is a linear scan over all nodes instead of walking the tree's children",
+    "Redundant FillChar/Cnt := 0 initialization after the whole array was already zeroed",
+    "Verbose repeated T^.Nodes[...] indexing instead of local variables or pointers",
+    "Variable named maxIdx holds a node length, which is misleading",
+    "Unneeded explicit T^.Nodes := nil / Str := '' before Dispose, and T^.Nodes := nil before SetLength"
+  ],
+  "justification": "The code is clean structured procedural Pascal. It uses SetLength, Move, FillChar, Exit and a counting sort for the O(n) propagation, with a small helper (EertreeCanExtend) kept in the implementation section. Weaknesses are the monolithic EertreeBuild (validation, build and propagation are not split into helpers) and the O(nodes) scan in EertreeCountOccurrences, which could descend the children instead. There is also some redundant re-zeroing and heavy repeated T^.Nodes[..] indexing, and the misnamed maxIdx variable hurts readability slightly. Memory handling is consistent and sound, as managed arrays are released before Dispose.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5790,
+  "output_tokens": 476,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

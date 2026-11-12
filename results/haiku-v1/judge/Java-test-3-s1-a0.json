@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-3",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "static helper methods operating on the passed-in Eertree instead of behaviour living in the object (partly forced by the contract)",
+    "manual counting sort with parallel int arrays where Arrays.sort or a stream would be shorter",
+    "linear scan over all nodes in eertreeCountOccurrences instead of walking children",
+    "unbounded while(true) in getLink relies on the sentinel root for termination"
+  ],
+  "justification": "The algorithm is decomposed into small, well-named private helpers (addCharacter, getLink, charIndex, propagateCounts, isPalindrome), and the code uses standard APIs such as regionMatches, Math.max/min, and substring. Null and edge cases are handled cleanly according to the contract, and invalid characters raise IllegalArgumentException. The weaker points are that the helpers are static functions over the contract's public-field data holders, so the object model is thin (largely forced by the contract). The hand-written counting sort is also somewhat C-like, and the occurrence query scans all nodes instead of traversing the tree, though that is acceptable given the spec's endPos hint.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4424,
+  "output_tokens": 403,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

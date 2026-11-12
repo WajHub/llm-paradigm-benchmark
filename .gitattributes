@@ -1,0 +1,2 @@
+# Normalize line endings: shell scripts, Makefiles and sources run inside Linux containers.
+* text=auto eol=lf

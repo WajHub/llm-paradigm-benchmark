@@ -1,0 +1,32 @@
+=== Running benchmark for folder: test-1 ===
+rm -f test-1/*.class *.class
+javac -g -d test-1 test-1/SpatialLogicImpl.java test-1/SpatialLogic.java test-1/Tests.java
+test-1/SpatialLogicImpl.java:1: error: class, interface, enum, or record expected
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                  ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                             ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                                                        ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                                                             ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                                                                                                                                              ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                                                                                                                                                   ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                                                                                                                                                                      ^
+test-1/SpatialLogicImpl.java:1: error: illegal character: '`'
+The failure is in `calculateCleanMinkowskiSum`. When either argument is `null`, the method returned an empty polygon instead of signalling invalid input with `null`. The fix returns `null` for null arguments and keeps returning an empty polygon for valid but empty inputs, which test A06 and A07 already pass.
+                                                                                                                                                                                           ^
+9 errors
+make: *** [Makefile:10: test] Error 1

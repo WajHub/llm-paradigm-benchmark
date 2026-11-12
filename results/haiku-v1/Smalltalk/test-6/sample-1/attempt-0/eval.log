@@ -1,0 +1,31 @@
+=== Running benchmark for folder: test-6 ===
+gst -g `ls test-6/*.st 2>/dev/null | grep -v Tests.st | sort`
+=== START ===
+
+--- Algorithm A: Validation and Candidates ---
+[PASS] Test A01 (Empty Grid Valid)
+[PASS] Test A02 (Solved Grid Valid)
+[PASS] Test A03 (Row Conflict)
+[PASS] Test A04 (Column Conflict)
+[PASS] Test A05 (Box Only Conflict)
+[PASS] Test A06 (Wrong Length)
+[PASS] Test A07 (Value Out Of Range)
+[PASS] Test A08 (Candidates Basic)
+[PASS] Test A09 (Candidates Edge Cells)
+[PASS] Test A10 (Candidates Sweep)
+
+--- Algorithm B: Solving ---
+[PASS] Test B01 (Already Solved)
+[PASS] Test B02 (Classic Puzzle)
+[PASS] Test B03 (Invalid Grid)
+[PASS] Test B04 (Dead Cell)
+[PASS] Test B05 (Hidden Contradiction)
+[PASS] Test B06 (Backtracking Required)
+[PASS] Test B07 (Count Unique)
+[PASS] Test B08 (Count Multiple)
+[PASS] Test B09 (Count Empty Grid Limit)
+[PASS] Test B10 (Stress Anti Brute Force)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+All tests passed!

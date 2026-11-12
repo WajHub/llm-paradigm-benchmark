@@ -1,0 +1,27 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "duplicated setup code (mask init and empties count) in sudoku_solve and sudoku_count_solutions",
+    "unused variable `b` silenced with (void)b in sudoku_candidates",
+    "redundant check_valid wrapper in sudoku_is_valid",
+    "solve copies the grid into a malloc'd buffer, frees it, then mallocs again for the result instead of reusing a stack buffer or returning g",
+    "magic numbers (81, 9, 0x3FE) repeated rather than named constants"
+  ],
+  "justification": "The code uses bitmask row/col/box tracking, a static SearchCtx struct, and a recursive MRV search with proper undo and early termination via the limit, which is a solid imperative-C approach. The weaknesses are duplicated setup in solve and count_solutions, a dead variable `b` suppressed with `(void)b`, a trivial wrapper around check_valid, and a wasteful double allocation in sudoku_solve. Magic constants like 81 and 0x3FE are not named, and the helpers are correctly static, though `const` could be used on some parameters like the init_masks input.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5528,
+  "output_tokens": 407,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

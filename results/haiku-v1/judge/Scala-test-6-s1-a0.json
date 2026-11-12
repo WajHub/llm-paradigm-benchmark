@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 5,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "mrv recomputes candidates for every empty cell at each step, which is inefficient",
+    "mrv returns an Option of tuple with overloaded meaning (Some((idx, Nil)) as dead end) instead of a dedicated ADT",
+    "foldLeft with an acc >= remaining guard to emulate early exit"
+  ],
+  "justification": "The code is purely functional: immutable Vectors, a recursive search that returns Option, `collectFirst` over a lazy iterator for short-circuiting, and pattern matching on the `mrv` result. The precomputed `units` table keeps `isValid` concise, and `countSolutions` threads the remaining limit through the recursion without mutable state. Minor weaknesses: the tuple-in-Option encoding of MRV results is a bit implicit, `candidates` is recomputed for every empty cell on each step, and the `foldLeft` with a guard is a slightly awkward early-exit idiom. `candidates` also builds the set with `flatMap` over lists, which is slightly clumsy but clear.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4012,
+  "output_tokens": 386,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "index-based to:do: loops with early returns in pointInside:convex: and segmentFrom:to:intersectsConvex: where a collection iteration (allSatisfy / anySatisfy / detect:ifNone:) would do",
+    "geometry helpers placed on SpatialLogicImpl instead of in a Polygon/Point-like domain object, so the objects stay passive data holders",
+    "repeated nil-to-empty-string copying logic in createPolygon/createLayer instead of a shared helper",
+    "Polygon creation uses `(poly1 zoneName ifNil: ['']) copy` — keyword message precedence is fine, but the copy applies to the whole expression and name choice from poly1 is arbitrary"
+  ],
+  "justification": "The solution decomposes the work into small, intention-revealing private helpers (validVerticesOf:, minkowskiHullOf:with:, convexHullOf:, orient:to:point:, segment:to:intersects:to:) and uses collection protocols such as collect:, reject:, do:, reverseDo: and asSortedCollection:. It applies the configuration-space approach for the collision check cleanly by negating the robot's points, using the Minkowski hull, and testing the segment 0->velocity against it. Weaknesses are the index-based to:do: loops with early returns where collection iteration would read more naturally, and that all geometry lives in the service class rather than in domain objects, though the contract largely forces that. The nil handling is thorough, and the monotone chain hull is compact and well commented.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4960,
+  "output_tokens": 543,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

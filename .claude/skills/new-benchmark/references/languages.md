@@ -86,7 +86,7 @@ Every test file must:
 | Files | `<snake>.pas` (unit: `interface` = contract, `implementation` = stubs), `tests.pas` (program) |
 | Toolchain | Debian bookworm `fpc` 3.2.2, `-Mobjfpc -Sh -O1 -g -Fu<dir>`; binary is placed in `<dir>/test_runner`; run under valgrind |
 
-- Use the single-unit layout of tests 2–5. **Do not** copy `Pascal/test-1` (legacy extra `_impl.pas`).
+- Use the single-unit layout (one `<snake>.pas` unit holding the contract and the stubs), as in every existing test.
 - Every file starts with `{$mode objfpc}{$H+}`; unit name = file name; `uses Math, SysUtils;`.
 - Declare array types in the unit (`TIntArray = array of LongInt;`), records, pointer types
   (`PFooResult = ^TFooResult;`), enums with prefixes (`esOk, esDivByZero`).
@@ -107,7 +107,7 @@ Every test file must:
 | | |
 |---|---|
 | Files | `<snake>.pl` (module = contract + stubs), `tests.pl` |
-| Toolchain | Docker `swipl:9.2.9` (local may differ). Load check `swipl -q -g halt -s tests.pl`, run `swipl -q -g main -t halt tests.pl` from the test folder, under valgrind |
+| Toolchain | Docker `swipl:9.2.9` (local may differ). Load check `swipl -q -g halt -s tests.pl`, run `swipl --no-threads -q -g main -t halt tests.pl` from the test folder, under valgrind without `--leak-check` (the interpreter's own allocations would fail every run) |
 
 - Module header `:- module(<snake>, [pred/arity, ...]).`, then comments documenting modes
   (`% foo(+In, -Out)`) and **exact term shapes** of inputs/outputs (`result(MaxValue, Selected, TotalWeight)`).

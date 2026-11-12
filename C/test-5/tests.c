@@ -62,8 +62,11 @@ bool test_algo_a_05_nested_and_unary() {
     return passed;
 }
 
-bool test_algo_a_06_null_input() {
-    return parse_expression(NULL) == NULL;
+bool test_algo_a_06_dangling_operator() {
+    AstNode* ast = parse_expression("1 +");
+    bool passed = (ast == NULL);
+    free_ast(ast);
+    return passed;
 }
 
 bool test_algo_a_07_empty_string() {
@@ -167,7 +170,7 @@ int main() {
     RUN_TEST(test_algo_a_03_parentheses,       "Test A03 (Parentheses)");
     RUN_TEST(test_algo_a_04_function_call,     "Test A04 (Function Calls)");
     RUN_TEST(test_algo_a_05_nested_and_unary,  "Test A05 (Nested + Unary)");
-    RUN_TEST(test_algo_a_06_null_input,        "Test A06 (NULL Input)");
+    RUN_TEST(test_algo_a_06_dangling_operator, "Test A06 (Dangling Operator)");
     RUN_TEST(test_algo_a_07_empty_string,      "Test A07 (Empty String)");
     RUN_TEST(test_algo_a_08_unbalanced_parens, "Test A08 (Unbalanced Parens)");
     RUN_TEST(test_algo_a_09_trailing_garbage,  "Test A09 (Trailing Garbage)");

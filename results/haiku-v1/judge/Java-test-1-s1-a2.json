@@ -1,0 +1,27 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-1",
+  "sample": 1,
+  "attempt": 2,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "all geometry logic in private static helpers rather than domain objects",
+    "Minkowski sum computed by O(n*m) pairwise sums plus hull instead of edge merging",
+    "duplicate cross and orient methods with identical bodies",
+    "Point and Polygon used as passive data holders with no behaviour of their own",
+    "mixed handling of degenerate cases (size 1 and 2) via special branches inside collision method"
+  ],
+  "justification": "The class correctly extends the contract and uses the collections framework (ArrayList, Comparator chaining, Arrays.asList.subList), with clear helper names and a final EPS constant. However, the OO decomposition is thin: geometry lives in private static helpers operating on the passive contract types, and `cross` and `orient` are duplicates. The Minkowski sum builds all pairwise sums then runs a monotone chain hull, which is simple and readable but not the idiomatic edge-merge approach. The collision method is somewhat long, mixing degenerate-case branches with the main edge-intersection loop, though the configuration-space idea is clear.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 5063,
+  "output_tokens": 394,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

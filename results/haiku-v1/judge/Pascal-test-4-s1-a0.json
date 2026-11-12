@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "duplicated DP recurrence logic between KnapsackMaxValue and KnapsackSolve instead of sharing a helper",
+    "redundant initialization (SetLength then zero-fill; dynamic arrays are already zero-initialized; double initialization of res^.N and Selected)",
+    "single-letter variable names w and v, and lowercase `res` alongside Result"
+  ],
+  "justification": "The code uses a standard procedural DP: a 1D rolling array for the value-only version and a 2D table with backtracking for the selection. It makes good use of Free Pascal facilities such as Min, SetLength with two dimensions, Exit, Continue, and New/Dispose with a nil-safe free routine. Weaknesses are the redundant zero-filling after SetLength, the repeated initialization of res fields, and duplicated recurrence logic across the two functions. The early-exit paths and the backtracking are clear and well structured.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3834,
+  "output_tokens": 346,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

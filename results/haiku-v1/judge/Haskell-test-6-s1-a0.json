@@ -1,0 +1,27 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 5,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "candidates uses grid !! j on lists instead of an array",
+    "peerTable built with O(n^3) any/elem scan over units",
+    "candidates duplicates candA logic instead of sharing it",
+    "concat of list comprehension instead of concatMap or list monad",
+    "nub for uniqueness check on a small list"
+  ],
+  "justification": "The search is purely functional: `solutions` lazily enumerates all completions as a list, so `solve` uses `take 1` and `countSolutions` uses `take limit`, which gives early termination with no mutable state. Code is split into `units`, `peerTable`, `candA` and `solutions`, with MRV expressed via `minimumBy (comparing (length . snd))`. Small blemishes remain: `candidates` duplicates `candA` and indexes lists with `!!`, `peerTable` is built by a naive scan, and `nub`/`concat` are used where something slightly more refined would be typical. The layout is clean and well documented overall.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4028,
+  "output_tokens": 358,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

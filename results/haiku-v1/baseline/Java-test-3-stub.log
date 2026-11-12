@@ -1,0 +1,52 @@
+=== Running benchmark for folder: test-3 ===
+rm -f test-3/*.class *.class
+javac -g -d test-3 test-3/PalindromeTreeImpl.java test-3/PalindromeTree.java test-3/Tests.java
+=== START ===
+
+--- Algorithm A: Palindrome Tree Construction & Structural Queries ---
+[FAIL] Test A01 (Basic - aabaa)
+[FAIL] Test A02 (Single Char)
+[FAIL] Test A03 (All Same Chars - aaaa)
+[FAIL] Test A04 (No Internal Palindromes)
+[FAIL] Test A05 (Empty String)
+[FAIL] Test A06 (NULL Input)
+[FAIL] Test A07 (Two-Char Palindrome - aa)
+[FAIL] Test A08 (Classic - abacaba)
+[FAIL] Test A09 (Even Palindrome - abba)
+[FAIL] Test A10 (Node Count Invariant)
+
+--- Algorithm B: Occurrence Counting ---
+[FAIL] Test B01 (Single Char Count)
+[FAIL] Test B02 (Even Palindrome Count)
+[FAIL] Test B03 (Full String Palindrome)
+[FAIL] Test B04 (Pattern Not In String)
+[FAIL] Test B05 (Pattern Not A Palindrome)
+[FAIL] Test B06 (Overlapping Even Palindromes)
+[FAIL] Test B07 (All Same - Single Char)
+[FAIL] Test B08 (Repeated Palindrome - aba)
+[FAIL] Test B09 (NULL Arguments)
+[FAIL] Test B10 (Stress Test 50k chars)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Basic - aabaa)
+ - Test A02 (Single Char)
+ - Test A03 (All Same Chars - aaaa)
+ - Test A04 (No Internal Palindromes)
+ - Test A05 (Empty String)
+ - Test A06 (NULL Input)
+ - Test A07 (Two-Char Palindrome - aa)
+ - Test A08 (Classic - abacaba)
+ - Test A09 (Even Palindrome - abba)
+ - Test A10 (Node Count Invariant)
+ - Test B01 (Single Char Count)
+ - Test B02 (Even Palindrome Count)
+ - Test B03 (Full String Palindrome)
+ - Test B04 (Pattern Not In String)
+ - Test B05 (Pattern Not A Palindrome)
+ - Test B06 (Overlapping Even Palindromes)
+ - Test B07 (All Same - Single Char)
+ - Test B08 (Repeated Palindrome - aba)
+ - Test B09 (NULL Arguments)
+ - Test B10 (Stress Test 50k chars)

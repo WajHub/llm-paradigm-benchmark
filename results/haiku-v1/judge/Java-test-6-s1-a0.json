@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-6",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "bitmask and index arithmetic where small abstractions could read better",
+    "candidates() does not reuse Search or shared mask-computation logic, so the used-digit calculation is duplicated",
+    "run() is a trivial wrapper around dfs(), and the stateful Search with public-ish fields (found) is accessed directly from the outer class"
+  ],
+  "justification": "Search state is encapsulated in a private static nested class with final mask arrays, apply/undo methods, and a recursive dfs that implements MRV and early stopping; solve and countSolutions are thin and defensive-copy the input. Bitmasks are standard efficient Java and the code is clean. Minor weaknesses: the used-digit logic is duplicated between candidates, isValid and Search, the outer class reads search.found directly, and the run() wrapper adds nothing. Overall, the design is good and idiomatic.}",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4776,
+  "output_tokens": 331,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

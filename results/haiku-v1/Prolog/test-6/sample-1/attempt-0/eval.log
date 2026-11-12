@@ -1,0 +1,56 @@
+=== Running benchmark for folder: test-6 ===
+rm -f test_runner test_runner.exe *.qlf test-6/*.qlf
+cd test-6 && swipl -q -g halt -s tests.pl
+=== START ===
+
+--- Algorithm A: Validation and Candidates ---
+[PASS] Test A01 (Empty Grid Valid)
+[PASS] Test A02 (Solved Grid Valid)
+[PASS] Test A03 (Row Conflict)
+[PASS] Test A04 (Column Conflict)
+[PASS] Test A05 (Box Only Conflict)
+[PASS] Test A06 (Wrong Length)
+[PASS] Test A07 (Value Out Of Range)
+[PASS] Test A08 (Candidates Basic)
+[PASS] Test A09 (Candidates Edge Cells)
+[PASS] Test A10 (Candidates Sweep)
+
+--- Algorithm B: Solving ---
+[PASS] Test B01 (Already Solved)
+[PASS] Test B02 (Classic Puzzle)
+[PASS] Test B03 (Invalid Grid)
+[PASS] Test B04 (Dead Cell)
+[PASS] Test B05 (Hidden Contradiction)
+[PASS] Test B06 (Backtracking Required)
+[PASS] Test B07 (Count Unique)
+[PASS] Test B08 (Count Multiple)
+[PASS] Test B09 (Count Empty Grid Limit)
+[PASS] Test B10 (Stress Anti Brute Force)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 20
+Failed: 0
+All tests passed!
+==13== Memcheck, a memory error detector
+==13== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==13== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==13== Command: swipl --no-threads -q -g main -t halt tests.pl
+==13== 
+==13== 
+==13== HEAP SUMMARY:
+==13==     in use at exit: 3,827,036 bytes in 35,720 blocks
+==13==   total heap usage: 280,216 allocs, 244,496 frees, 56,976,653 bytes allocated
+==13== 
+==13== LEAK SUMMARY:
+==13==    definitely lost: 67,480 bytes in 20 blocks
+==13==    indirectly lost: 0 bytes in 0 blocks
+==13==      possibly lost: 374,292 bytes in 3,404 blocks
+==13==    still reachable: 3,385,264 bytes in 32,296 blocks
+==13==                       of which reachable via heuristic:
+==13==                         newarray           : 27,320 bytes in 1,004 blocks
+==13==         suppressed: 0 bytes in 0 blocks
+==13== Rerun with --leak-check=full to see details of leaked memory
+==13== 
+==13== For lists of detected and suppressed errors, rerun with: -s
+==13== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,5 +1,19 @@
 # Java
 
+Prompt templates for Java solutions. [`harness/prompts.py`](../harness/prompts.py) sends the first code
+block under **Initial prompt** and under **Follow-up prompt** to the model, with the placeholders filled in
+([how](../docs/01-how-it-works.md#prompts)). Editing a template changes what the model sees, so evaluate
+the change in a new run (`RUN_ID`).
+
+| | |
+|---|---|
+| Toolchain | JDK (Eclipse Temurin), see [`Dockerfile`](Dockerfile) |
+| Tests under valgrind | no ([`run-tests.sh`](run-tests.sh)) |
+| Shown to the model | `test-N.md`; `<Name>.java` (abstract class) |
+| Replaced by the model's code | `<Name>Impl.java` (stub) |
+| Never shown to the model | `Tests.java` |
+| Run one test by hand | `docker compose run --rm evaluator test-N` (from this folder) |
+
 ## Prompt
 
 ### Initial prompt
@@ -30,6 +44,6 @@ Your previous Java implementation failed the evaluation. Your task is to analyze
 Requirements for the fix:
 1. Identify and resolve the core logical or resource-management issue causing the failure.
 2. Ensure resources are handled safely.
-3. Return ONLY the complete, raw, fixed Java code for the target source file.
+3. Return ONLY the complete, raw, fixed Java code for `[TARGET FILE NAME]`.
 4. Do NOT include Markdown formatting, do NOT include ```java blocks, and do NOT write any explanations. Just the code.
 ```

@@ -1,0 +1,66 @@
+=== Running benchmark for folder: test-4 ===
+rm -f test_runner test_runner.exe test_runner.hi test_runner.o test-4/*.hi test-4/*.o
+ghc -Wall -Wextra -g -itest-4 -o test_runner test-4/Tests.hs
+[1 of 2] Compiling Knapsack         ( test-4/Knapsack.hs, test-4/Knapsack.o )
+[2 of 2] Compiling Main             ( test-4/Tests.hs, test-4/Tests.o )
+Linking test_runner ...
+=== START ===
+
+--- Algorithm A: Maximum Value ---
+[PASS] Test A01 (Empty)
+[PASS] Test A02 (Single Fit)
+[PASS] Test A03 (Too Heavy)
+[PASS] Test A04 (Capacity Zero)
+[PASS] Test A05 (Choose Better)
+[PASS] Test A06 (Textbook)
+[PASS] Test A07 (Greedy Trap)
+[PASS] Test A08 (Same Items)
+[PASS] Test A09 (Tight Fit)
+[PASS] Test A10 (Stress 50 Items)
+
+--- Algorithm B: Item Selection ---
+[PASS] Test B01 (Single Selection)
+[PASS] Test B02 (Choose Better Selection)
+[PASS] Test B03 (Textbook Selection)
+[PASS] Test B04 (Greedy Trap Selection)
+[PASS] Test B05 (Capacity Zero Selection)
+[PASS] Test B06 (Too Heavy Selection)
+[PASS] Test B07 (All Fit)
+[PASS] Test B08 (Weight Invariant)
+[PASS] Test B09 (Value Invariant)
+[PASS] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 20
+Failed: 0
+
+test-4/Tests.hs:5:1: warning: [-Wunused-imports]
+    The import of `Data.List' is redundant
+      except perhaps to import instances from `Data.List'
+    To import instances alone, use: import Data.List()
+  |
+5 | import Data.List (zipWith)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+==32== Memcheck, a memory error detector
+==32== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==32== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==32== Command: ./test_runner
+==32== 
+==32== Warning: set address range perms: large range [0x4200000000, 0x14200100000) (noaccess)
+==32== 
+==32== HEAP SUMMARY:
+==32==     in use at exit: 248 bytes in 6 blocks
+==32==   total heap usage: 31 allocs, 25 frees, 56,460 bytes allocated
+==32== 
+==32== LEAK SUMMARY:
+==32==    definitely lost: 0 bytes in 0 blocks
+==32==    indirectly lost: 0 bytes in 0 blocks
+==32==      possibly lost: 0 bytes in 0 blocks
+==32==    still reachable: 248 bytes in 6 blocks
+==32==         suppressed: 0 bytes in 0 blocks
+==32== Reachable blocks (those to which a pointer was found) are not shown.
+==32== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==32== 
+==32== For lists of detected and suppressed errors, rerun with: -s
+==32== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

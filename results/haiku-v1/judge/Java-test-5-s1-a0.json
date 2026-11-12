@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "switch on operator char / function name string inside eval instead of polymorphic operator objects or enum with behavior",
+    "static HashMap initialised in static block rather than Map.of",
+    "Token carries op as String then converted to char via charAt(0)",
+    "runtime-checked arity after parsing arguments rather than encoded in function definitions"
+  ],
+  "justification": "The solution uses a clear tokenizer, a recursive-descent Parser class mirroring the grammar, and a polymorphic Node hierarchy where each node implements eval, which is good OO decomposition with private nested classes and encapsulated state. Weaknesses: BinaryNode and CallNode dispatch on a char/String via switch rather than using an operator/function enum with behavior, and the FUNCTIONS map is built in a static block. Overall it is clean, readable, and uses standard collections and a lightweight exception for parse failures, with minor departures from the most idiomatic modern Java.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 7141,
+  "output_tokens": 350,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

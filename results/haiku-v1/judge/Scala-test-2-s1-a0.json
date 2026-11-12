@@ -1,0 +1,25 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 5,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "appending to a List with :+ is O(n) per edge",
+    "TreeSet of (Double, Int) as priority queue silently dedups equal pairs (acceptable here) rather than a PriorityQueue",
+    "dijkstra function is long with nested loop and fold; could be split into a relax helper"
+  ],
+  "justification": "The solution is purely functional: a @tailrec loop threads an immutable frontier (TreeSet), distance and predecessor vectors, and a foldLeft relaxes edges. Option/flatMap and pattern matching handle invalid input and absence cleanly, and path reconstruction uses a tail-recursive walk returning Option. Minor blemishes are the O(n) `:+` on a List for edge insertion, a nested relaxation fold inside the loop that could be extracted into a named helper, and using TreeSet in place of a priority queue, which works well functionally in immutable form.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3438,
+  "output_tokens": 338,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

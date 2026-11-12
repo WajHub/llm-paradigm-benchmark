@@ -1,0 +1,28 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-3",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "one long procedural eertreeBuild method mixing construction, traversal and count propagation",
+    "duplicated suffix-link search loop instead of an extracted helper method",
+    "index-based 0 to: len - 1 loop with manual +1 offsets instead of keysAndValuesDo: or doWithIndex:",
+    "linear detect: over all nodes in eertreeCountOccurrences instead of a tree walk or lookup",
+    "manual size counter and preallocated Array rather than OrderedCollection",
+    "redundant nil and size checks plus a needless tree temporary"
+  ],
+  "justification": "The build method is one long procedural block: the duplicated suffix-walk `whileFalse:` loops are inline rather than extracted into something like `findSuffixFrom:at:char:`, and it uses manual counters with a preallocated Array. Collection protocols appear in the right places (`detect:ifNone:`, `conform:`, `asSortedCollection:`, `do:`), and small helpers like `newNodeLen:link:endPos:` and `matchPattern:...` are reasonable. However, occurrence lookup scans every node linearly instead of walking the tree from the roots, and there is some defensive redundancy. Overall it works in Smalltalk style but is more procedural than an expert would write.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4765,
+  "output_tokens": 459,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

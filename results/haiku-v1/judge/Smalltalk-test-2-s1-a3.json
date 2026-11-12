@@ -1,0 +1,28 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-2",
+  "sample": 1,
+  "attempt": 3,
+  "category": "test_failures",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "O(V^2) linear-scan selection of the minimum vertex inside a whileTrue: loop instead of a priority queue/SortedCollection",
+    "block with side effects in the loop condition that assigns outer temporaries (current, currentDist)",
+    "parallel arrays (visited, distances, predecessors) instead of encapsulating the algorithm or state in objects",
+    "repeated bounds-check expression duplicated across methods instead of a helper method",
+    "logic in one long dijkstra:source: method rather than small helper methods",
+    "1 to: n do: index loop for min search where inject:into: or detect-style protocols could be used"
+  ],
+  "justification": "The code works in a message-passing style and uses blocks, early returns with ^ and addFirst: for path building, but dijkstra:source: is a long procedural method with a condition block that mutates temporaries and an index-based min scan. The repeated validation `isInteger and: [>= 0 and: [< n]]` is duplicated in five methods instead of being factored into a helper such as isValidVertex:. Domain logic is not pushed into the graph or result objects, though the contract design somewhat dictates this. The O(V^2) selection with a visited array is simple and readable, but a priority queue would be more idiomatic.}}}",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3802,
+  "output_tokens": 452,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,27 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "index-based to:do: loops for the DP where inject/collection protocols could be used in part",
+    "duplicated guard clause (empty/capacity<=0) in both public methods",
+    "helper buildTableWeights:values:capacity: is public rather than private-categorized",
+    "mutable accumulators (selected, totalWeight, c) updated inside a loop during reconstruction",
+    "magic index offsets (+1) instead of an abstraction for the table"
+  ],
+  "justification": "The solution factors the DP table construction into a shared helper `buildTableWeights:values:capacity:`, which both public methods reuse, and it uses a clean backtrack to reconstruct the selection. However, it is largely procedural: nested `to:do:` loops with mutable temporaries, 1-based offset arithmetic (`c - wi`, `n + 1`), and no domain objects beyond the provided result class. The guard clause is duplicated and the helper is not marked private, but the names are intention-revealing and the methods are reasonably small, so it reads well.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 3012,
+  "output_tokens": 373,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,58 @@
+=== Running benchmark for folder: test-3 ===
+rm -f test_runner
+gcc -Wall -Wextra -g -o test_runner test-3/palindrome_tree.c test-3/tests.c -lm
+=== START ===
+
+--- Algorithm A: Palindrome Tree Construction & Structural Queries ---
+[PASS] Test A01 (Basic - aabaa)
+[PASS] Test A02 (Single Char)
+[PASS] Test A03 (All Same Chars - aaaa)
+[PASS] Test A04 (No Internal Palindromes)
+[PASS] Test A05 (Empty String)
+[PASS] Test A06 (NULL Input)
+[PASS] Test A07 (Two-Char Palindrome - aa)
+[PASS] Test A08 (Classic - abacaba)
+[PASS] Test A09 (Even Palindrome - abba)
+[PASS] Test A10 (Node Count Invariant)
+
+--- Algorithm B: Occurrence Counting ---
+[PASS] Test B01 (Single Char Count)
+[PASS] Test B02 (Even Palindrome Count)
+[PASS] Test B03 (Full String Palindrome)
+[PASS] Test B04 (Pattern Not In String)
+[PASS] Test B05 (Pattern Not A Palindrome)
+[PASS] Test B06 (Overlapping Even Palindromes)
+[PASS] Test B07 (All Same - Single Char)
+[PASS] Test B08 (Repeated Palindrome - aba)
+[PASS] Test B09 (NULL Arguments)
+[PASS] Test B10 (Stress Test 50k chars)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+All tests passed!
+test-3/tests.c: In function 'test_algo_b_10_stress_test':
+test-3/tests.c:241:5: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+  241 |     memset(s, 'a', n);
+      |     ^~~~~~
+test-3/tests.c:5:1: note: include '<string.h>' or provide a declaration of 'memset'
+    4 | #include "palindrome_tree.h"
+  +++ |+#include <string.h>
+    5 | 
+test-3/tests.c:241:5: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+  241 |     memset(s, 'a', n);
+      |     ^~~~~~
+test-3/tests.c:241:5: note: include '<string.h>' or provide a declaration of 'memset'
+==18== Memcheck, a memory error detector
+==18== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==18== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==18== Command: ./test_runner
+==18== 
+==18== 
+==18== HEAP SUMMARY:
+==18==     in use at exit: 0 bytes in 0 blocks
+==18==   total heap usage: 71 allocs, 71 frees, 6,528,320 bytes allocated
+==18== 
+==18== All heap blocks were freed -- no leaks are possible
+==18== 
+==18== For lists of detected and suppressed errors, rerun with: -s
+==18== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

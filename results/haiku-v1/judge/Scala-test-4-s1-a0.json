@@ -1,0 +1,24 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-4",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 5,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "variable named selectedRev is misleading, since prepending during a backward fold already yields forward order",
+    "full 2D table stored when only the last row is needed for maxValue"
+  ],
+  "justification": "The DP table is built with foldLeft and Vector.tabulate, and backtracking is a foldLeft over a reversed range, so there are no vars or mutation. The shared private `table` helper avoids duplication, and the comments are helpful. Minor issues: `selectedRev` is misnamed because prepending while walking backward already yields forward order. `maxValue` also builds the full 2D table when a rolling row would suffice. Tuple accumulators are slightly dense, and `rows.last` and `dp.last.last` are a little cryptic.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 2696,
+  "output_tokens": 284,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

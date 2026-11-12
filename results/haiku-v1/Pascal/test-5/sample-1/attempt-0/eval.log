@@ -1,0 +1,13 @@
+=== Running benchmark for folder: test-5 ===
+rm -f test_runner test_runner.o *.o *.ppu test-5/*.o test-5/*.ppu
+fpc -Mobjfpc -Sh -O1 -g -Futest-5 -otest_runner test-5/tests.pas
+Free Pascal Compiler version 3.2.2+dfsg-20 [2023/03/30] for x86_64
+Copyright (c) 1993-2021 by Florian Klaempfl and others
+Target OS: Linux for x86-64
+Compiling test-5/tests.pas
+Compiling test-5/expression.pas
+expression.pas(310,30) Error: Identifier not found "IsInfinity"
+expression.pas(473) Fatal: There were 1 errors compiling module, stopping
+Fatal: Compilation aborted
+Error: /usr/bin/ppcx64 returned an error exitcode
+make: *** [Makefile:7: test] Error 1

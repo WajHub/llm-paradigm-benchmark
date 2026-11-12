@@ -1,0 +1,28 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-5",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "parse_primary is one very long function that mixes number scanning, identifier scanning, function-call parsing and parenthesised expressions",
+    "function lookup is a hand-rolled strcmp if-else chain rather than a static table of name/id/arity",
+    "AstNode uses a fat struct with unused fields (num, name, op, func) instead of a union",
+    "func field stored as int rather than FuncId",
+    "unnecessary malloc/copy of the number and identifier text before strtod/strcmp",
+    "manual ok-flag error handling with duplicated cleanup paths"
+  ],
+  "justification": "The code is a clear procedural recursive-descent parser that mirrors the grammar. It uses static helpers, calloc/NULL checks, and a recursive free_ast. Error paths mostly free partial results correctly. However, parse_primary is far too long, with number, identifier, call-argument and paren logic inlined, and it uses temporary malloc buffers where strtod or a fixed table lookup would work directly. A table-driven function lookup, a union for node payloads, and splitting parse_primary into helpers would make it more idiomatic and better structured. The evaluator is reasonably clean, but the NODE_CALL branch dispatches on nchild rather than on function identity, and the make_result helper is slightly redundant.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 7554,
+  "output_tokens": 463,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

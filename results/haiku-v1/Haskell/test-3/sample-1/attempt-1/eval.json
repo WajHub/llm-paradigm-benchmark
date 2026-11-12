@@ -1,0 +1,53 @@
+{
+  "category": "test_failures",
+  "passed": [
+    "A01",
+    "A02",
+    "A03",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A08",
+    "A09",
+    "A10",
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B10"
+  ],
+  "failed": [
+    "B09"
+  ],
+  "names": {
+    "A01": "Test A01 (Basic - aabaa)",
+    "A02": "Test A02 (Single Char)",
+    "A03": "Test A03 (All Same Chars - aaaa)",
+    "A04": "Test A04 (No Internal Palindromes)",
+    "A05": "Test A05 (Empty String)",
+    "A06": "Test A06 (NULL Input)",
+    "A07": "Test A07 (Two-Char Palindrome - aa)",
+    "A08": "Test A08 (Classic - abacaba)",
+    "A09": "Test A09 (Even Palindrome - abba)",
+    "A10": "Test A10 (Node Count Invariant)",
+    "B01": "Test B01 (Single Char Count)",
+    "B02": "Test B02 (Even Palindrome Count)",
+    "B03": "Test B03 (Full String Palindrome)",
+    "B04": "Test B04 (Pattern Not In String)",
+    "B05": "Test B05 (Pattern Not A Palindrome)",
+    "B06": "Test B06 (Overlapping Even Palindromes)",
+    "B07": "Test B07 (All Same - Single Char)",
+    "B08": "Test B08 (Repeated Palindrome - aba)",
+    "B09": "Test B09 (NULL Arguments)",
+    "B10": "Test B10 (Stress Test 50k chars)"
+  },
+  "exit_code": 1,
+  "duration_s": 36.8,
+  "timed_out": false,
+  "n_pass": 19
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-3",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "linear scan over all nodes to look up a pattern instead of walking the tree via children",
+    "per-node Vector.fill(26) allocation and repeated Vector.updated copying (inefficient, though dictated by contract)",
+    "sortBy over nodes instead of a counting or reverse-creation order",
+    "eertreeLongestLength uses foldLeft with max instead of maxOption or map(_.len).max"
+  ],
+  "justification": "The build is a pure foldLeft over indices with an immutable BuildState, and suffix-link traversal is a @tailrec function, so the code is functional and clear. Option is handled through pattern matching and map/getOrElse, and propagation uses a foldLeft over nodes sorted by length. Weaknesses are that pattern lookup scans all nodes instead of descending the children, that propagate sorts when creation order reversed would suffice, and that longest length uses a verbose fold. The separation into findExtendable, insert, propagate and buildFrom is good.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "input_tokens": 4496,
+  "output_tokens": 363,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}
