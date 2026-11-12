@@ -21,6 +21,10 @@ Benchmark for analyzing the impact of programming paradigms on the quality, corr
 | `test-4/` | 0/1 Knapsack | Dynamic programming knapsack (max value + selection) | All 7 |
 | `test-5/` | Expression Parser | Recursive descent + AST evaluation (arithmetic, variables, functions) | All 7 |
 | `test-6/` | Sudoku Solver | Board validation + candidates, MRV backtracking solver + solution counting | All 7 |
+| `test-7/` | Sequence Alignment | Gotoh DP: global alignment score with affine gaps + alignment traceback | All 7 |
+| `test-8/` | Metric TSP Approximation | MST double-tree 2-approximation + Christofides (exact matching, Euler circuit) | All 7 |
+| `test-9/` | B-Tree Index | CLRS B-tree: top-down insertion + deletion (borrow/merge), exact tree shape | All 7 |
+| `test-10/` | Order Statistics | BFPRT selection with pivot trace + median of two sorted arrays under a read budget | All 7 |
 
 Each test case contains **20 unit tests** (10 algorithm A + 10 algorithm B).
 
@@ -64,6 +68,18 @@ docker compose run --rm evaluator test-5
 
 # test-6 (Sudoku Solver):
 docker compose run --rm evaluator test-6
+
+# test-7 (Sequence Alignment):
+docker compose run --rm evaluator test-7
+
+# test-8 (Metric TSP Approximation):
+docker compose run --rm evaluator test-8
+
+# test-9 (B-Tree Index):
+docker compose run --rm evaluator test-9
+
+# test-10 (Order Statistics):
+docker compose run --rm evaluator test-10
 ```
 
 ## Prompts
