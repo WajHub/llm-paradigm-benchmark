@@ -1,0 +1,83 @@
+% =============================================================================
+\chapter{Wprowadzenie}
+\label{ch:introduction}
+% =============================================================================
+
+Duże modele językowe (LLM) stały się codziennym narzędziem programistów. Uzupełniają kod
+w edytorach, odpowiadają na pytania o biblioteki i coraz częściej piszą całe funkcje lub moduły na
+podstawie krótkiego opisu. Ocena tych umiejętności podążała tą samą drogą. Wczesne benchmarki, takie
+jak HumanEval~\cite{chen2021codex} i MBPP~\cite{austin2021mbpp}, mierzą, jak często model tworzy
+funkcję w Pythonie, która przechodzi kilka testów jednostkowych. Późniejsze prace przetłumaczyły te
+problemy na inne języki~\cite{cassano2023multiple,zheng2023codegeex,athiwaratkun2023mbxp}, dodały
+mocniejsze testy~\cite{liu2023evalplus} lub przeszły do zadań na poziomie całych
+repozytoriów~\cite{jimenez2024swebench}.
+
+Niemal wszystkie te prace traktują język programowania jako szczegół powierzchniowy: zadanie
+pozostaje takie samo, zmienia się tylko składnia. Języki różnią się jednak nie tylko składnią.
+\emph{Paradygmat programowania}~\cite{floyd1979paradigms,vanroy2004ctm}, czy to imperatywny,
+obiektowy, funkcyjny czy logiczny, określa, jak rozkłada się rozwiązanie na części, jak wyraża się
+stan i przepływ danych, jak reprezentuje się brak wartości i błędy oraz kto zarządza pamięcią.
+Algorytm Dijkstry napisany z modyfikowalnym kopcem binarnym w C, z niemodyfikowalnymi mapami
+i zwinięciami (ang.~\emph{folds}) w Haskellu albo z relacjami i nawracaniem w Prologu to trzy różne
+ćwiczenia. Dane treningowe modeli LLM są ponadto silnie przesunięte w stronę kilku popularnych
+języków~\cite{kocetkov2022stack}, a modele radzą sobie wyraźnie gorzej z językami o małych zasobach
+danych~\cite{cassano2023multiple,cassano2024knowledge}. Smalltalk, Pascal i Prolog są takimi
+językami pod każdym względem.
+
+W niniejszym raporcie pytamy, czy te różnice mają znaczenie dla kodu generowanego przez LLM.
+Utrzymujemy stałe \emph{zadanie} i \emph{testy}, a zmieniamy tylko język, a wraz z nim paradygmat.
+Następnie mierzymy poprawność funkcjonalną, zdolność modelu do naprawy własnych błędów na podstawie
+informacji zwrotnej z kompilatora i testów oraz idiomatyczność kodu końcowego. Idiomatyczność jest
+istotna, ponieważ rozwiązanie może przejść wszystkie testy, a mimo to być „C napisanym
+w Haskellu”, czyli kodem, który programista utrzymujący kod w tym języku by odrzucił.
+
+\section{Pytania badawcze}
+\label{sec:rqs}
+
+\begin{rqbox}
+\begin{description}[leftmargin=3.2em,labelwidth=2.8em,itemsep=3pt]
+  \item[\RQ{1}] \textbf{Poprawność.} Jak różni się poprawność funkcjonalna kodu generowanego przez
+    LLM za pierwszym podejściem między językami i paradygmatami, gdy zadanie i testy pozostają
+    stałe?
+  \item[\RQ{2}] \textbf{Samonaprawa.} W jakim stopniu luka ta się zmniejsza, gdy model otrzymuje
+    komunikaty kompilatora, logi testów i nazwy niezaliczonych testów, i czy ta zdolność zależy od
+    paradygmatu?
+  \item[\RQ{3}] \textbf{Idiomatyczność.} Czy wygenerowany kod jest idiomatyczny dla docelowego
+    języka i paradygmatu w ocenie zaślepionego sędziego LLM posługującego się stałą rubryką?
+  \item[\RQ{4}] \textbf{Praktyczność.} Ile kosztuje taka ewaluacja i jakie przeszkody praktyczne
+    (wykonywanie instrukcji, format odpowiedzi, sposób hostowania modelu) wpływają na jej
+    trafność?
+\end{description}
+\end{rqbox}
+
+\section{Wkład}
+
+\begin{enumerate}
+  \item \textbf{Benchmark obejmujący wiele paradygmatów.} Dziesięć zadań algorytmicznych, każde
+    z dwoma algorytmami i 20 testami jednostkowymi, zaimplementowanych w siedmiu językach
+    reprezentujących cztery paradygmaty (łącznie 1\,400 przypadków testowych). Każde zadanie zawiera
+    specyfikację, kontrakt, szkielet (ang.~\emph{stub}) i ukryty zestaw testów. Każdy język ma
+    własny obraz Docker, a błędy pamięci są sprawdzane Valgrindem tam, gdzie język na to pozwala
+    (\cref{ch:benchmark}).
+  \item \textbf{System ewaluacyjny.} Program w Pythonie, który generuje prompty z szablonów dla
+    poszczególnych języków, wywołuje model, ocenia odpowiedź w kontenerach, klasyfikuje wynik do
+    jednej z dziewięciu kategorii, prowadzi pętlę samonaprawy, ocenia idiomatyczność za pomocą
+    zaślepionego sędziego LLM i agreguje raport. Przebiegi można wznawiać, są w pełni śledzone,
+    a ich koszt jest kontrolowany (\cref{ch:harness}).
+  \item \textbf{Badanie empiryczne.} Pełny przebieg modelu \haiku{} na wszystkich 70 parach
+    język--zadanie, oceniony przez \sonnet{}, wraz z analizą poprawności, rodzajów błędów,
+    samonaprawy, idiomatyczności i kosztów (\cref{ch:results,ch:discussion}).
+  \item \textbf{Wyniki negatywne i wnioski.} Zadania w stylu HumanEval okazały się zbyt łatwe, by
+    rozróżnić paradygmaty, a lokalne modele o otwartych wagach były niepraktyczne ze względu na
+    szybkość i format odpowiedzi (\cref{ch:preliminary}). Przebieg ujawnił też dwa defekty
+    w zestawie testów dla Prologu (\cref{sec:benchmark-defects}).
+\end{enumerate}
+
+\section{Struktura raportu}
+
+\Cref{ch:background} przedstawia paradygmaty oraz prace pokrewne dotyczące benchmarków generowania
+kodu, samonaprawy i sędziów LLM. \Cref{ch:preliminary} opisuje nasze eksperymenty pilotażowe
+i wyciągnięte z nich wnioski. \Cref{ch:benchmark} prezentuje benchmark, a \cref{ch:harness} system
+ewaluacyjny, w tym konstrukcję promptów. \Cref{ch:results} zawiera wyniki, \cref{ch:discussion}
+ich omówienie wraz z zagrożeniami dla trafności, a \cref{ch:conclusions} podsumowanie. Dodatki
+zawierają pełne prompty, rubrykę sędziego i wyniki dla poszczególnych zadań.

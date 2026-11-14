@@ -1,0 +1,46 @@
+% Pipeline of the evaluation harness (used in chapters/05-harness.tex)
+\begin{tikzpicture}[
+  font=\footnotesize,
+  node distance=12mm and 7mm,
+  box/.style={draw=inksec, rounded corners=2pt, fill=white, align=center,
+              minimum height=11mm, text width=25mm, inner sep=3pt},
+  llm/.style={box, draw=seq600, fill=seq050, line width=0.7pt},
+  store/.style={box, draw=inkmuted, fill=neutralbg},
+  dec/.style={draw=inksec, diamond, aspect=2, fill=white, align=center, inner sep=0.5pt,
+              font=\scriptsize, minimum width=22mm},
+  arr/.style={-{Stealth[length=2.2mm]}, draw=inksec, line width=0.6pt},
+  lbl/.style={font=\scriptsize, text=inksec, fill=white, inner sep=1pt},
+]
+  % row 1: task -> prompt -> generator -> extraction
+  \node[store] (task) {Katalog zadania\\[-1pt] \scriptsize specyfikacja + kontrakt};
+  \node[box, right=of task] (prompt) {Generator promptów\\[-1pt] \scriptsize szablony, symbole zastępcze};
+  \node[llm, right=of prompt] (gen) {LLM-generator\\[-1pt] \scriptsize \haiku};
+  \node[box, right=of gen] (extract) {Wycinanie kodu\\[-1pt] \scriptsize kontrola formatu};
+  \node[store, right=of extract, text width=19mm] (tests) {Ukryte testy\\[-1pt] \scriptsize nigdy niepokazywane};
+
+  % row 2 (flows right to left): evaluator -> classifier -> decision -> repair prompt
+  \node[box, below=of extract] (docker) {Ewaluator Docker\\[-1pt] \scriptsize budowanie, testy, Valgrind};
+  \node[box, below=of gen] (classify) {Klasyfikator wyniku\\[-1pt] \scriptsize 9 kategorii};
+  \node[dec, below=of prompt] (passq) {rozwiązane?};
+  \node[box, below=of task] (repair) {Prompt naprawczy\\[-1pt] \scriptsize fragment logu +\\[-2pt] niezaliczone testy};
+
+  % row 3: judge and report
+  \node[llm, below=of classify] (judge) {Sędzia LLM\\[-1pt] \scriptsize Sonnet 5.5, zaślepiony};
+  \node[store] (final) at (passq |- judge) {Zapis próbki\\[-1pt] \scriptsize każda próba zapisana};
+  \node[box, below=of docker] (report) {Raport\\[-1pt] \scriptsize tabele, CSV, koszty};
+
+  % arrows
+  \draw[arr] (task) -- (prompt);
+  \draw[arr] (prompt) -- (gen);
+  \draw[arr] (gen) -- (extract);
+  \draw[arr] (extract) -- (docker);
+  \draw[arr, dashed, draw=inkmuted] (tests.south) |- (docker.east);
+  \draw[arr] (docker) -- (classify);
+  \draw[arr] (classify) -- (passq);
+  \draw[arr] (passq) -- node[lbl, above] {nie} (repair);
+  \draw[arr] (repair.north) |- ($(prompt.south)+(-4mm,-5mm)$) -- ($(prompt.south)+(-4mm,0)$);
+  \node[lbl, anchor=south west] at ($(repair.north)+(1mm,1.5mm)$) {$\le 3$ rundy, ta sama konwersacja};
+  \draw[arr] (passq) -- node[lbl, right, align=left] {tak lub brak\\[-2pt]kolejnych rund} (final);
+  \draw[arr] (final) -- (judge);
+  \draw[arr] (judge) -- (report);
+\end{tikzpicture}

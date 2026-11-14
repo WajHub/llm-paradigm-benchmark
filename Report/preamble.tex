@@ -1,0 +1,208 @@
+% =============================================================================
+%  preamble.tex -- packages, colours, code styles and macros of the report
+% =============================================================================
+
+\PassOptionsToPackage{table}{xcolor}
+
+% ---------------------------------------------------------------- fonts & text
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,polish]{babel}      % Polish is the main language
+\usepackage{icomma}                       % decimal comma in maths: $0,05$
+\usepackage{newtxtext,newtxmath}          % Times-like text and maths
+\usepackage[varqu,varl,scaled=0.94]{zi4}  % Inconsolata for code
+\usepackage[a4paper,margin=2.5cm,headheight=14pt]{geometry}
+\usepackage{microtype}
+\usepackage{setspace}
+\setstretch{1.08}
+\usepackage{pifont}                       % check / cross marks
+\usepackage{csquotes}
+
+% ---------------------------------------------------------------- floats & tables
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,multirow,makecell,longtable,array}
+\usepackage{threeparttable}
+\usepackage[detect-all]{siunitx}
+\usepackage{enumitem}
+\usepackage[font=small,labelfont=bf,skip=6pt]{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\setlist{itemsep=2pt,topsep=4pt}
+\renewcommand{\arraystretch}{1.12}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% ---------------------------------------------------------------- figures
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,shapes.geometric,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---------------------------------------------------------------- headings & page style
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]{\normalfont\LARGE\bfseries}{\thechapter}{0.7em}{}
+\titlespacing*{\chapter}{0pt}{-12pt}{16pt}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{0.7em}{}
+\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries}{}{0pt}{}[.]
+\titlespacing*{\paragraph}{0pt}{6pt plus 2pt}{0.6em}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape\ShortTitle}
+\fancyhead[R]{\small\itshape\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ---------------------------------------------------------------- colours
+% Chart palette: categorical slots 1-4 of the validated reference palette (adjacent-pair
+% CVD-safe in this order) and the single-hue blue ramp for ordinal/sequential encodings.
+\definecolor{ink}{HTML}{0B0B0B}
+\definecolor{inksec}{HTML}{52514E}
+\definecolor{inkmuted}{HTML}{8A8984}
+\definecolor{gridline}{HTML}{E4E3DF}
+\definecolor{neutral}{HTML}{C3C2B7}
+\definecolor{neutralbg}{HTML}{F0EFEC}
+\definecolor{cat1}{HTML}{2A78D6}   % blue    -- imperative
+\definecolor{cat2}{HTML}{EB6834}   % orange  -- object-oriented
+\definecolor{cat3}{HTML}{1BAF7A}   % aqua    -- functional
+\definecolor{cat4}{HTML}{EDA100}   % yellow  -- logic
+\definecolor{seq050}{HTML}{E6F0FC}
+\definecolor{seq150}{HTML}{B7D3F6}
+\definecolor{seq250}{HTML}{86B6EF}
+\definecolor{seq300}{HTML}{6DA7EC}
+\definecolor{seq400}{HTML}{3987E5}
+\definecolor{seq500}{HTML}{256ABF}
+\definecolor{seq550}{HTML}{1C5CAB}
+\definecolor{seq600}{HTML}{184F95}
+\definecolor{seq650}{HTML}{104281}
+% code highlighting
+\definecolor{codebg}{HTML}{F7F7F5}
+\definecolor{coderule}{HTML}{C9C8C2}
+\definecolor{codekw}{HTML}{1C5CAB}
+\definecolor{codecm}{HTML}{5F7A5F}
+\definecolor{codestr}{HTML}{9A3E12}
+\definecolor{todo}{HTML}{B3261E}
+
+% ---------------------------------------------------------------- code listings
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible, keepspaces=true,
+  breaklines=true, breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{inkmuted}{$\hookrightarrow$}\space},
+  frame=lines, framesep=4pt, rulecolor=\color{coderule},
+  backgroundcolor=\color{codebg},
+  numbers=left, numberstyle=\tiny\color{inkmuted}, numbersep=6pt, xleftmargin=1.6em,
+  keywordstyle=\color{codekw}\bfseries,
+  commentstyle=\color{codecm},          % Inconsolata has no italic shape
+  stringstyle=\color{codestr},
+  showstringspaces=false, upquote=true, tabsize=4,
+  captionpos=t, aboveskip=8pt, belowskip=6pt,
+  extendedchars=true, inputencoding=utf8,
+  literate={≤}{{$\le$}}1 {≥}{{$\ge$}}1 {—}{{---}}1 {–}{{--}}1 {→}{{$\rightarrow$}}1
+           {×}{{$\times$}}1 {…}{{\ldots}}1,
+}
+\lstdefinestyle{prompt}{
+  language={}, numbers=none, xleftmargin=0pt,
+  basicstyle=\ttfamily\footnotesize, backgroundcolor=\color{codebg},
+  keywordstyle={}, commentstyle={}, stringstyle={},
+}
+\lstdefinestyle{plain}{language={}, keywordstyle={}, commentstyle={}, stringstyle={}}
+\lstdefinelanguage{Smalltalk}{
+  morekeywords={self,super,nil,true,false,thisContext},
+  morecomment=[s]{"}{"}, morestring=[b]',
+  sensitive=true,
+}
+\lstdefinelanguage{JSON}{
+  morestring=[b]", stringstyle=\color{codestr},
+  literate={:}{{\textcolor{inksec}{:}}}1 {,}{{\textcolor{inksec}{,}}}1,
+}
+\renewcommand{\lstlistingname}{Listing}
+\renewcommand{\lstlistlistingname}{Spis listingów}
+
+% ---------------------------------------------------------------- references
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[pdfusetitle,bookmarksnumbered]{hyperref}
+\hypersetup{colorlinks=true,linkcolor=seq600,citecolor=seq600,urlcolor=seq600}
+\usepackage[nameinlink]{cleveref}
+% cleveref has no Polish definitions; abbreviated forms avoid Polish declension in running text.
+\crefname{chapter}{rozdz.}{rozdz.}             \Crefname{chapter}{Rozdz.}{Rozdz.}
+\crefname{appendix}{dod.}{dod.}                \Crefname{appendix}{Dod.}{Dod.}
+\crefname{section}{podrozdz.}{podrozdz.}       \Crefname{section}{Podrozdz.}{Podrozdz.}
+\crefname{subsection}{podrozdz.}{podrozdz.}    \Crefname{subsection}{Podrozdz.}{Podrozdz.}
+\crefname{subappendix}{dod.}{dod.}             \Crefname{subappendix}{Dod.}{Dod.}
+\crefname{table}{tab.}{tab.}                   \Crefname{table}{Tab.}{Tab.}
+\crefname{figure}{rys.}{rys.}                  \Crefname{figure}{Rys.}{Rys.}
+\crefname{subfigure}{rys.}{rys.}               \Crefname{subfigure}{Rys.}{Rys.}
+\crefname{lstlisting}{list.}{list.}            \Crefname{lstlisting}{List.}{List.}
+\crefname{enumi}{pkt}{pkt}                     \Crefname{enumi}{Pkt}{Pkt}
+\crefname{rq}{RQ}{RQ}
+\newcommand{\crefrangeconjunction}{--}
+\newcommand{\crefpairconjunction}{ i }
+\newcommand{\crefmiddleconjunction}{, }
+\newcommand{\creflastconjunction}{ i }
+\newcommand{\crefpairgroupconjunction}{ oraz }
+\newcommand{\crefmiddlegroupconjunction}{, }
+\newcommand{\creflastgroupconjunction}{ oraz }
+\urlstyle{same}
+
+% ---------------------------------------------------------------- macros
+% Expandable input for generated table bodies: LaTeX's \input is not expandable and breaks
+% when the included rows are followed by a rule (Misplaced \noalign).
+\makeatletter
+\newcommand*{\tabinput}[1]{\@@input #1.tex }
+\makeatother
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}       % inline identifiers (no # inside)
+\newcommand{\file}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\haiku}{Claude Haiku~5.5}
+\newcommand{\sonnet}{Claude Sonnet~5.5}
+\newcommand{\RQ}[1]{\textbf{RQ#1}}
+\newcommand{\usd}[1]{\$#1}
+
+% Result cells of the language x task matrix (tables/matrix.tex):
+%   \resfirst{final}           solved at the first attempt
+%   \resrep{first}{final}{k}   solved in repair round k
+%   \resfail{first}{final}     not solved after all repair rounds
+\newcommand{\resfirst}[1]{#1\,\textcolor{seq600}{\cmark}}
+\newcommand{\resrep}[3]{#1$\to$#2\,\textcolor{seq600}{\cmark}\textsuperscript{#3}}
+\newcommand{\resfail}[2]{\cellcolor{neutralbg}#1$\to$#2\,\textcolor{todo}{\xmark}}
+
+% Visible notes for information the authors still have to supply.
+% Set \showtodosfalse in main.tex to hide them in a final build.
+\newif\ifshowtodos
+\showtodostrue
+\newcommand{\todo}[1]{\ifshowtodos{\color{todo}\sffamily\small[\textbf{TODO:} #1]}\fi}
+
+% Research-question box
+\usepackage[most]{tcolorbox}
+\newtcolorbox{rqbox}{colback=seq050,colframe=seq500,boxrule=0.5pt,arc=1pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fontupper=\small}
+\newtcolorbox{findingbox}[1][]{colback=neutralbg,colframe=inksec,boxrule=0.4pt,arc=1pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fontupper=\small,title={#1},
+  coltitle=ink,colbacktitle=neutralbg,fonttitle=\bfseries\small,attach title to upper={\ }}
+
+% pgfplots defaults shared by all charts
+\pgfplotsset{
+  reportchart/.style={
+    axis line style={draw=inkmuted},
+    tick style={draw=inkmuted},
+    every tick label/.append style={font=\footnotesize, text=inksec},
+    label style={font=\footnotesize, text=inksec},
+    legend style={font=\footnotesize, draw=none, fill=none, text=ink},
+    legend cell align=left,
+    grid style={draw=gridline, line width=0.4pt},
+    major grid style={draw=gridline},
+    /pgf/number format/use comma,
+    /pgf/number format/1000 sep={\,},
+  },
+}

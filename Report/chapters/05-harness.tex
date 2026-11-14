@@ -1,0 +1,375 @@
+% =============================================================================
+\chapter{System ewaluacyjny}
+\label{ch:harness}
+% =============================================================================
+
+System ewaluacyjny (ang.~\emph{harness}) to program w Pythonie (około 1\,900 linii, \file{harness/}),
+który przeprowadza całą ewaluację: generuje prompty, wywołuje model, ocenia odpowiedzi w Dockerze,
+steruje pętlą naprawy, wywołuje sędziego i zapisuje raport. Ten rozdział opisuje jego architekturę,
+a następnie każdy etap, ze szczególnym uwzględnieniem konstrukcji promptów.
+
+\section{Architektura}
+\label{sec:architecture}
+
+\Cref{fig:pipeline} przedstawia potok przetwarzania, a \cref{tab:modules} moduły. Wszystkie
+ustawienia znajdują się w jednym pliku, \file{config.py}, a flagi wiersza poleceń nadpisują je dla
+pojedynczego przebiegu. Program ma trzy tryby: \texttt{-{}-dry-run} generuje wszystkie prompty bez
+wywoływania API i Dockera, \texttt{-{}-baseline} waliduje zestawy testów
+(\cref{sec:benchmark-validation}), a tryb domyślny wykonuje płatny przebieg po wyświetleniu
+szacunku kosztów i prośbie o potwierdzenie.
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/pipeline}
+  \caption{Potok systemu dla jednego zadania. Generator odpowiada w ramach jednej konwersacji; po
+    nieudanej ewaluacji otrzymuje prompt naprawczy z fragmentem logu i nazwami niezaliczonych
+    testów, przez co najwyżej trzy rundy. Kod testów nigdy nie jest pokazywany żadnemu z modeli.}
+  \label{fig:pipeline}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Moduły systemu ewaluacyjnego.}
+  \label{tab:modules}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lY@{}}
+    \toprule
+    Moduł & Odpowiedzialność \\
+    \midrule
+    \file{config.py}    & Wszystkie ustawienia: identyfikator przebiegu, modele, poziom wysiłku, rundy naprawy, liczba wątków, limity czasu, sędzia, ceny \\
+    \file{run.py}       & Punkt wejścia i trzy tryby; pętla generowanie $\to$ ewaluacja $\to$ naprawa \\
+    \file{tasks.py}     & Wyszukiwanie katalogów zadań, tabele języków i paradygmatów, pliki kontraktu i celu, identyfikatory testów \\
+    \file{prompts.py}   & Generowanie promptów początkowych i naprawczych z szablonów \\
+    \file{llm.py}       & Klient API, wywołanie generujące, wycinanie kodu, szacunek kosztów i potwierdzenie \\
+    \file{evaluator.py} & Obrazy Docker, kopie robocze, uruchamianie testów, parsowanie wyjścia, klasyfikacja wyniku, fragmenty logów \\
+    \file{judge.py}, \file{rubrics.md} & LLM jako sędzia idiomatyczności, rubryka, tryb kalibracji \\
+    \file{tracing.py}   & Rejestrowanie każdego wywołania API (żądanie, odpowiedź, podsumowanie rozumowania, identyfikator żądania, czas, tokeny) \\
+    \file{report.py}, \file{store.py} & Agregacja do \file{report.md}, \file{summary.csv} i plików JSONL; ścieżki wyników \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Konstrukcja promptów}
+\label{sec:prompts}
+
+\paragraph{Szablony} Katalog każdego języka zawiera plik \file{README.md} z dwoma szablonami
+promptów: \emph{początkowym} i \emph{naprawczym} (ang.~\emph{follow-up}). System pobiera pierwszy blok
+kodu pod nagłówkami \emph{Initial prompt} i \emph{Follow-up prompt} i wypełnia symbole zastępcze
+z \cref{tab:placeholders}. Trzymanie szablonów obok narzędzi danego języka ułatwia ich przegląd.
+Ich umiejscowienie wymusza też regułę: każda zmiana szablonu zmienia to, co widzi model, więc wyniki
+sprzed zmiany i po niej muszą należeć do różnych przebiegów.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Symbole zastępcze szablonów promptów. Generowanie kończy się błędem, jeśli którykolwiek
+    symbol pozostanie niewypełniony.}
+  \label{tab:placeholders}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lY@{}}
+    \toprule
+    Symbol zastępczy & Wypełniany przez \\
+    \midrule
+    \code{[TASK-SPECIFIC REQUIREMENTS]}      & blok pod nagłówkiem \texttt{\#\# Prompt} w \file{test-N.md} \\
+    \code{[INSERT ... HERE]}                 & plik kontraktu w dosłownym brzmieniu (nagłówek, klasa abstrakcyjna, interfejs lub moduł-szkielet) \\
+    \code{[ERROR LOGS ...]}                  & fragment logu nieudanej ewaluacji (tylko prompt naprawczy, \cref{sec:repair-loop}) \\
+    \code{[FAILING TEST CASE ...]}           & nazwy niezaliczonych testów albo informacja, że żaden test nie dał wyniku (tylko prompt naprawczy) \\
+    \code{[TARGET FILE NAME]}                & plik zapisywany przez model, np.\ \file{knapsack.c} (tylko prompt naprawczy) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Struktura promptu początkowego} Każdy prompt początkowy składa się z tych samych czterech
+części (\cref{lst:prompt-initial}):
+\begin{enumerate}
+  \item zdania określającego \emph{rolę} („You are a C programming expert”) i cel (implementacja
+    kontraktu);
+  \item \emph{wymagań specyficznych dla zadania}, tj.\ specyfikacji obu algorytmów z przypadkami
+    brzegowymi, wartościami błędów oraz, w razie potrzeby, wymaganiami dotyczącymi złożoności
+    i algorytmu;
+  \item \emph{wymagań ogólnych} danego języka: wskazówek dotyczących paradygmatu i stylu oraz
+    formatu odpowiedzi (wyłącznie surowy kod, bez Markdownu, bez kodu testów);
+  \item \emph{kontraktu}, dołączonego w dosłownym brzmieniu.
+\end{enumerate}
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego dla C (\file{C/README.md}).},label={lst:prompt-initial}]
+You are a C programming expert. Your task is to implement the required functions in accordance with the provided header file.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Memory must be managed dynamically (malloc/calloc). Functions responsible for deallocation (the `free_*` functions) must safely free all nested pointers and structures to avoid memory leaks.
+- Return ONLY raw C code (no Markdown tags, no ```c blocks, no side text). Your code will be directly saved to a .c file and compiled. Do not provide main() or test functions.
+
+[INSERT HEADER FILE CONTENT HERE]
+\end{lstlisting}
+
+\paragraph{Wskazówki dotyczące paradygmatu} Wymagania ogólne to miejsce, w którym szablony różnią się
+między językami (\cref{tab:guidance}). W kilku słowach określają oczekiwania paradygmatu:
+modelowanie obiektowe dla Javy i Smalltalka; czystość, niemodyfikowalność i
+\code{Maybe}/\code{Option} dla Haskella i Scali; styl relacyjny i porażkę zamiast wyjątków dla
+Prologu; dyscyplinę zarządzania pamięcią dla C i Pascala. Wskazówki są celowo krótkie. Chcemy
+mierzyć, jakich idiomów model używa samodzielnie, a nie to, jak dobrze stosuje się do przewodnika
+stylu. \Cref{app:prompts} zawiera wszystkie szablony i jeden kompletny wygenerowany prompt.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Specyficzne dla języka „General Requirements” promptów początkowych (pominięto
+    instrukcje dotyczące formatu odpowiedzi, wspólne dla wszystkich języków).}
+  \label{tab:guidance}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lY@{}}
+    \toprule
+    Język & Wskazówki \\
+    \midrule
+    C         & Pamięć dynamiczna (\code{malloc}/\code{calloc}); funkcje \code{free_*} muszą zwalniać wszystkie zagnieżdżone struktury \\
+    Pascal    & Idiomatyczny proceduralny Pascal; bezpieczne zarządzanie dynamicznie alokowanymi strukturami \\
+    Java      & Idiomatyczna Java; projekt obiektowy, modelowanie dziedziny klasami; preferowane standardowe kolekcje \\
+    Smalltalk & Idiomatyczny GNU Smalltalk; klasy i przekazywanie komunikatów; bez redefiniowania klas wbudowanych (\code{Point}, \code{Set}, \ldots); standardowe kolekcje \\
+    Haskell   & Idiomatyczny, czysty Haskell; dane niemodyfikowalne, algebraiczne typy danych, funkcje totalne; \code{Maybe} zamiast null \\
+    Scala     & Idiomatyczna Scala; niemodyfikowalne struktury danych i czyste funkcje; \code{Option} zamiast null \\
+    Prolog    & Idiomatyczny SWI-Prolog; czyste predykaty i styl relacyjny; porażka zamiast wyjątków \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Prompt naprawczy} Po nieudanej ewaluacji prompt naprawczy (\cref{lst:prompt-followup}) jest
+dołączany do \emph{tej samej} konwersacji. Model widzi więc swoją wcześniejszą odpowiedź razem
+z informacją zwrotną, podobnie jak programista czytający wyniki CI dla własnego commita. Informacją
+zwrotną jest fragment logu i lista niezaliczonych testów (\cref{sec:repair-loop}). Prompt ponownie
+wymaga kompletnego pliku i wyłącznie surowego kodu.
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu naprawczego dla C.},label={lst:prompt-followup}]
+Your previous C implementation failed the evaluation. Your task is to analyze the error and provide a corrected version of the code.
+
+[ERROR LOGS / VALGRIND OUTPUT]
+
+[FAILING TEST CASE (Code or name of the test case)]
+
+Requirements for the fix:
+1. Identify and resolve the core logical or memory issue causing the failure.
+2. Ensure memory is managed safely.
+3. Return ONLY the complete, raw, fixed C code for `[TARGET FILE NAME]`.
+4. Do NOT include Markdown formatting, do NOT include ```c tags, and do NOT write any explanations. Just the code.
+\end{lstlisting}
+
+\paragraph{Zasady projektowe} Projekt promptów opiera się na kilku zasadach. (i) \emph{Testy
+pozostają ukryte}, więc model nie może napisać kodu dopasowanego wyłącznie do testów. W rundzie
+naprawy widzi nazwy testów i ich wyjście, ale nie ich kod. (ii) \emph{Specyfikacja jest kompletna}:
+każde zachowanie sprawdzane przez test jest opisane w wymaganiach lub wynika z kontraktu.
+(iii) Prompty są \emph{równoległe między językami}: ta sama struktura, to samo sformułowanie
+z wyjątkiem języka i wskazówek dla niego, tak aby różnice w wynikach wynikały z języka, a nie
+z promptu. (iv) \emph{Odpowiedź jest plikiem}: model zwraca kompletny plik docelowy, który jest
+zapisywany na dysk bez zmian, z wyjątkiem usunięcia znaczników bloków kodu. (v) \emph{Generowanie
+jest ścisłe}: szablon z niewypełnionym symbolem zastępczym powoduje błąd zamiast wysłania wadliwego
+promptu.
+
+\section{Generowanie i wycinanie kodu}
+\label{sec:extraction}
+
+Generator jest wywoływany przez strumieniowe Messages API~\cite{anthropic2026docs} z \emph{adaptacyjnym
+myśleniem} i określonym poziomem \emph{wysiłku} (ang.~\emph{effort}; \cref{lst:generate}). Adaptacyjne
+myślenie pozwala modelowi samodzielnie zdecydować, ile rozumować przed udzieleniem odpowiedzi.
+Rozumowanie jest zwracane w osobnych blokach thinking, które przechowujemy w formie podsumowań do
+późniejszej analizy. Obecne modele Claude nie przyjmują parametru \code{temperature}, więc odpowiedzi
+różnią się między przebiegami. Z tego powodu system obsługuje wielokrotne \emph{próbki} na zadanie;
+raportowany tu przebieg używa jednej próbki (\cref{sec:threats}). Cała odpowiedź, łącznie z blokami
+thinking, jest dołączana do konwersacji bez zmian, aby rundy naprawy kontynuowały tok rozumowania
+samego modelu.
+
+\begin{lstlisting}[language=Python,caption={Żądanie generowania (\file{harness/llm.py}, w skrócie).},label={lst:generate}]
+request = dict(
+    model=model,                 # "claude-haiku-5-5"
+    max_tokens=max_tokens,       # 32000 per response; thinking counts toward it
+    thinking={"type": "adaptive", "display": "summarized"},
+    output_config={"effort": effort},   # "medium"
+    messages=list(messages),     # the whole conversation so far
+)
+response, request_id, duration = tracing.stream_message(client.messages.stream, request, trace_ctx)
+code, violation = extract_code(response_text(response))  # text blocks only, never thinking
+\end{lstlisting}
+
+Prompty wymagają surowego kodu, ale odpowiedź i tak jest sprawdzana (\cref{lst:extract}). Jeśli
+zawiera znaczniki bloków Markdown, wybierany jest największy blok. Jeśli brakuje znacznika
+zamykającego, np.\ z powodu ucięcia odpowiedzi, wybierane jest wszystko po pierwszym znaczniku. Taka
+odpowiedź jest oznaczana jako \emph{naruszenie formatu}. Naruszenie nie powoduje niezaliczenia
+zadania, ale jest raportowane jako miara wykonywania instrukcji (\cref{sec:cost}). Gdy znaczników
+nie ma wcale, tekst spoza kodu nie jest usuwany. Proza wpleciona w kod bez znaczników trafia więc do
+kompilatora i powoduje niepowodzenie próby, co pokazują dwie odpowiedzi z naszego przebiegu
+(\cref{sec:failure-analysis}).
+
+\begin{lstlisting}[language=Python,caption={Wycinanie kodu i wykrywanie naruszeń formatu (\file{harness/llm.py}).},label={lst:extract}]
+def extract_code(text: str) -> tuple[str, bool]:
+    """Returns (code, format_violation). The prompts ask for raw code without Markdown fences."""
+    stripped = text.strip()
+    if not _FENCE_LINE.search(stripped):
+        return (stripped + "\n" if stripped else ""), False
+    blocks = _FENCED.findall(stripped)
+    if blocks:
+        return max(blocks, key=len).strip("\n") + "\n", True
+    # Closing fence glued to the last code line, or missing (output cut off): take everything
+    # between the first fence line and the last ``` (or the end), dropping prose before it.
+    body = stripped[_FENCE_LINE.search(stripped).start():].split("\n", 1)
+    body = body[1] if len(body) > 1 else ""
+    end = body.rfind("```")
+    if end >= 0:
+        body = body[:end]
+    return body.strip("\n") + "\n", True
+\end{lstlisting}
+
+\section{Ewaluacja i kategorie wyników}
+\label{sec:outcomes}
+
+Dla każdej próby katalog zadania jest kopiowany do katalogu roboczego ze znormalizowanymi końcami
+linii i bez artefaktów budowania, a szkielet jest nadpisywany kodem modelu. Następnie
+\file{run-tests.sh} uruchamia się w świeżym kontenerze z obrazem danego języka, z limitem czasu
+300\,s. Wyjście jest przeszukiwane pod kątem linii \code{[PASS]} i \code{[FAIL]}; test, który nie
+wypisał wyniku, liczy się jako niezaliczony. Każda próba otrzymuje dokładnie jedną kategorię wyniku
+(\cref{tab:outcomes}). O pierwszych sześciu rozstrzygają znaczniki protokołu wyjścia, kod wyjścia
+i limit czasu; ostatnie trzy oznaczają, że nie było kodu do oceny.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kategorie wyniku próby. Zadanie jest \emph{rozwiązane}, gdy któraś próba osiąga
+    \code{pass}.}
+  \label{tab:outcomes}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lY@{}}
+    \toprule
+    Kategoria & Znaczenie (reguła) \\
+    \midrule
+    \code{pass}          & wszystkie testy przeszły, a przebieg zakończył się kodem 0 \\
+    \code{test_failures} & co najmniej jeden test nie przeszedł lub nie wypisał wyniku \\
+    \code{memory_error}  & wszystkie testy przeszły, ale kod wyjścia jest niezerowy (Valgrind wykrył wycieki lub niepoprawne dostępy) \\
+    \code{compile_error} & brak znacznika \code{=== START ===}: kod się nie skompilował lub nie załadował, żaden test nie został uruchomiony \\
+    \code{runtime_crash} & brak znacznika \code{=== BENCHMARK RESULTS ===}: program testowy uległ awarii w trakcie testów \\
+    \code{timeout}       & przebieg przekroczył limit czasu i kontener został zabity \\
+    \code{truncated}     & odpowiedź osiągnęła limit tokenów wyjściowych, zanim kod był kompletny \\
+    \code{refusal}       & model odmówił odpowiedzi \\
+    \code{empty_output}  & odpowiedź nie zawierała kodu \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Pętla samonaprawy}
+\label{sec:repair-loop}
+
+Jeśli próba nie rozwiązała zadania, a pozostały rundy naprawy (co najwyżej trzy), system tworzy
+\emph{fragment logu} dopasowany do kategorii wyniku i wysyła prompt naprawczy. Fragment zawiera
+informacje, na które programista spojrzałby najpierw, ograniczone do 6\,000 znaków:
+\begin{itemize}
+  \item \code{compile_error}: początek wyjścia kompilatora lub programu ładującego, bez szumu
+    budowania, np.\ linii \code{make clean};
+  \item \code{test_failures}: ostrzeżenia kompilatora i diagnostykę ładowania, wszystkie linie
+    \code{[PASS]}/\code{[FAIL]} wraz z komunikatami wypisanymi przez program testowy oraz linie
+    z problemami zgłoszonymi przez Valgrind, jeśli takie są;
+  \item \code{memory_error}: raport Valgrinda;
+  \item \code{runtime_crash} i \code{timeout}: wyjaśnienie i końcówkę wyjścia.
+\end{itemize}
+Pętla (\cref{lst:loop}) kończy się przy pierwszym \code{pass}, przy odmowie lub po wyczerpaniu rund.
+Każda próba jest zapisywana wraz z promptem, surową odpowiedzią, podsumowaniem rozumowania,
+wyciętym kodem, logiem testów i wynikiem, a próbka jest podsumowywana w pliku \file{final.json}.
+
+\begin{lstlisting}[language=Python,caption={Pętla generowanie--ewaluacja--naprawa (\file{harness/run.py}, w uproszczeniu).},label={lst:loop}]
+messages, excerpt, failing = [], "", []
+for attempt in range(cfg["max_repairs"] + 1):
+    prompt = (prompts.render_initial(task) if attempt == 0
+              else prompts.render_followup(task, excerpt, failing))
+    messages.append({"role": "user", "content": prompt})
+    gen = llm.generate(client, cfg["model"], cfg["effort"], messages, cfg["max_tokens"])
+    messages.append({"role": "assistant", "content": gen.content})   # thinking included
+
+    if gen.stop_reason == "refusal":    category = "refusal"
+    elif not gen.code.strip():          category = "empty_output"
+    elif gen.stop_reason == "max_tokens": category = "truncated"
+    else:
+        mount = evaluator.prepare_workdir(task, work, {task.target: gen.code})
+        result, output = evaluator.run_tests(task, mount, timeout_s)
+        category = result.category
+        excerpt = evaluator.log_excerpt(result, output, timeout_s)
+        failing = result.failing_names() if result.names else []
+    save_attempt(...)
+    if category in ("pass", "refusal"):
+        break
+\end{lstlisting}
+
+\section{LLM jako sędzia idiomatyczności}
+\label{sec:judge}
+
+Testy mierzą poprawność; idiomatyczność wymaga czytelnika. Po zakończeniu generowania system wysyła
+kod \emph{ostatniej} próby każdego zadania do drugiego modelu, \sonnet{} z wysokim poziomem
+wysiłku, razem ze specyfikacją zadania, kontraktem i sekcją rubryki dla danego języka. Oceniany jest
+tylko kod, który się skompilował.
+
+\paragraph{Zaślepienie} Sędzia nie widzi wyników testów, liczby prób ani nazwy modelu, który napisał
+kod. Prompt systemowy czyni go ekspertem recenzującym kod w danym języku i paradygmacie i poleca mu
+oceniać styl, a nie poprawność (\cref{app:judge}).
+
+\paragraph{Rubryka} Rubryka (\file{harness/rubrics.md}, przytoczona w \cref{app:judge}) definiuje
+pięciostopniową skalę od 1 („walczy z językiem”) do 5 („tak napisałby to doświadczony praktyk”)
+oraz cztery kryteria:
+\begin{itemize}
+  \item \emph{idiomatyczność paradygmatu}: dekompozycja, przepływ danych i struktury sterujące
+    preferowane przez paradygmat;
+  \item \emph{idiomatyczność języka}: wykorzystanie cech języka, jego biblioteki standardowej
+    i konwencji;
+  \item \emph{czytelność}: nazwy, rozmiar funkcji, struktura, przydatne komentarze;
+  \item \emph{projekt}: dekompozycja, struktury danych, rozdzielenie odpowiedzialności, brak
+    powtórzeń.
+\end{itemize}
+Sekcja dla każdego języka wymienia konkretne oczekiwania, np.\ sprawdzanie wyników alokacji
+i funkcje pomocnicze \code{static} w C, protokoły kolekcji (\code{collect:}, \code{inject:into:})
+w Smalltalku, funkcje totalne i \code{foldl'} w Haskellu, „zielone” odcięcia i akumulatory
+w Prologu. Reguły ogólne zabraniają nagradzania długości, karania za wymagania wynikające z zadania
+(struktury wynikowe w stylu C, atomy \code{none}, kolekcje Smalltalka indeksowane od 1) oraz
+oceniania tego, co zostało dane w kontrakcie.
+
+\paragraph{Ustrukturyzowana odpowiedź} Odpowiedź musi być zgodna ze schematem JSON
+(\cref{lst:schema}). Kolejność właściwości ma znaczenie: model najpierw pisze \emph{uzasadnienie
+dla każdego kryterium}, wskazując konkretny kod stojący za oceną i to, co dałoby jeden punkt więcej,
+a dopiero potem oceny. Czytelnik może więc zweryfikować każdą ocenę względem kodu. Ocena zawiera
+też listę antywzorców i krótkie uzasadnienie ogólne.
+
+\begin{lstlisting}[language=JSON,caption={Schemat JSON oceny (w skrócie; \file{harness/judge.py}).},label={lst:schema}]
+{ "type": "object",
+  "properties": {
+    "rationale": { "type": "object",            // written first, one entry per criterion
+      "properties": { "paradigm_idiomaticity": {"type": "string"},
+                      "language_idiomaticity": {"type": "string"},
+                      "readability": {"type": "string"}, "design": {"type": "string"} } },
+    "paradigm_idiomaticity": {"type": "integer", "enum": [1, 2, 3, 4, 5]},
+    "language_idiomaticity": {"type": "integer", "enum": [1, 2, 3, 4, 5]},
+    "readability":           {"type": "integer", "enum": [1, 2, 3, 4, 5]},
+    "design":                {"type": "integer", "enum": [1, 2, 3, 4, 5]},
+    "anti_patterns": {"type": "array", "items": {"type": "string"}},
+    "justification": {"type": "string"} },
+  "required": ["rationale", "paradigm_idiomaticity", "language_idiomaticity",
+               "readability", "design", "anti_patterns", "justification"],
+  "additionalProperties": false }
+\end{lstlisting}
+
+\paragraph{Kalibracja} Tryb \code{judge.py --calibrate} wielokrotnie ocenia ten sam kod (rozwiązania
+wzorcowe i kilka rozwiązań z przebiegu, każde dwukrotnie), aby sprawdzić stabilność sędziego.
+Wyniki znajdują się w \cref{sec:results-idiomaticity}.
+
+\section{Powtarzalność, śledzenie i kontrola kosztów}
+\label{sec:reproducibility}
+
+\begin{itemize}
+  \item \textbf{Wznawialne przebiegi.} Próbka z plikiem \file{final.json} jest pomijana przy
+    ponownym uruchomieniu polecenia, a przerwana próbka jest wykonywana od nowa. Wyniki sędziego
+    są pomijane w ten sam sposób. Pozwoliło to dodać zadania 7--10 do istniejącego przebiegu po ich
+    napisaniu.
+  \item \textbf{Ochrona konfiguracji.} Przebieg odmawia kontynuacji, jeśli model, poziom wysiłku,
+    liczba rund naprawy lub limit tokenów różnią się od zapisanych w jego \file{config.json}.
+    Zmiana ustawień wymaga nowego identyfikatora przebiegu.
+  \item \textbf{Pochodzenie danych.} \file{config.json} rejestruje commit gita i to, czy drzewo
+    robocze zawierało niezatwierdzone zmiany. Każde wywołanie API jest śledzone wraz z żądaniem,
+    odpowiedzią, podsumowaniem rozumowania, identyfikatorem żądania, czasem trwania i zużyciem
+    tokenów.
+  \item \textbf{Kontrola kosztów.} Przed pierwszym płatnym żądaniem system wypisuje maksymalną
+    liczbę wywołań i pesymistyczny szacunek kosztów oraz prosi o potwierdzenie.
+  \item \textbf{Równoległość i izolacja.} Cztery zadania działają równolegle, każde we własnym
+    kontenerze. Błędy krytyczne API (uwierzytelnianie, nieznany model, niepoprawne żądanie)
+    przerywają przebieg; błędy przejściowe pozostawiają próbkę niedokończoną do następnego
+    uruchomienia.
+\end{itemize}

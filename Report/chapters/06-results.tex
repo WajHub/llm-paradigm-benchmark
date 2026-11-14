@@ -1,0 +1,556 @@
+% =============================================================================
+\chapter{Wyniki}
+\label{ch:results}
+% =============================================================================
+
+Ten rozdział przedstawia wyniki przebiegu \code{haiku-v1}. Najpierw opisujemy konfigurację, a potem
+kolejno odpowiadamy na pytania badawcze: poprawność (\RQ{1}, \cref{sec:results-correctness}),
+rodzaje błędów i defekty benchmarku (\cref{sec:failure-analysis}), samonaprawa (\RQ{2},
+\cref{sec:results-repair}), idiomatyczność (\RQ{3}, \cref{sec:results-idiomaticity}) oraz koszty
+i wykonywanie instrukcji (\RQ{4}, \cref{sec:cost}).
+
+\section{Konfiguracja eksperymentu}
+\label{sec:setup}
+
+\Cref{tab:setup} podsumowuje konfigurację. Każdą z 70 par język--zadanie uruchomiono raz (jedna
+próbka). Zadania 1--6 uruchomiono 25~października~2026 na commicie \code{072ea49}. Zadania 7--10
+dodano do tego samego przebiegu 13~listopada~2026, po ich scaleniu (commit \code{dc7f1d4}). Ochrona
+konfiguracji (\cref{sec:reproducibility}) zapewniła identyczne ustawienia generatora. Wszystkie 70
+rozwiązań końcowych oceniono z tą samą konfiguracją sędziego (schemat z uzasadnieniem przed
+oceną).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Konfiguracja przebiegu \code{haiku-v1}.}
+  \label{tab:setup}
+  \small
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    & Ustawienie & Wartość \\
+    \midrule
+    \multirow{5}{*}{Generator}
+      & Model & \haiku{} (\code{claude-haiku-5-5}) \\
+      & Rozumowanie & adaptacyjne myślenie, wysiłek \code{medium}, podsumowania \\
+      & Maks.\ tokenów wyjściowych & 32\,000 na odpowiedź (łącznie z rozumowaniem) \\
+      & Rundy naprawy & do 3 (co najwyżej 4 próby na zadanie) \\
+      & Próbki na zadanie & 1 \\
+    \midrule
+    \multirow{4}{*}{Sędzia}
+      & Model & \sonnet{} (\code{claude-sonnet-5-5}) \\
+      & Rozumowanie & adaptacyjne myślenie, wysiłek \code{high} \\
+      & Oceniana próba & ostatnia próba każdego zadania (jeśli się skompilowała) \\
+      & Odpowiedź & schemat JSON, uzasadnienie przed ocenami (\cref{lst:schema}) \\
+    \midrule
+    \multirow{3}{*}{Ewaluacja}
+      & Limit czasu & 300\,s na przebieg testów, 4 zadania równolegle \\
+      & Skala & 7 języków $\times$ 10 zadań $=$ 70 zadań, 1\,400 testów \\
+      & Wywołania API & 98 wywołań generujących, 70 wywołań sędziego \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\section{RQ1: Poprawność funkcjonalna}
+\label{sec:results-correctness}
+
+\Cref{tab:matrix} pokazuje wynik każdego zadania, a \cref{tab:correctness} agreguje go według
+języka i paradygmatu. Łącznie model rozwiązał 56 z 70 zadań (80,0\,\%) pierwszą odpowiedzią
+i 65 (92,9\,\%) po samonaprawie. W ujęciu testów zaliczył 1\,229 z 1\,400 testów (87,8\,\%) za
+pierwszym podejściem i 1\,375 (98,2\,\%) na końcu. W odróżnieniu od pilotażu z HumanEval
+(\cref{sec:humaneval}) benchmark pozostawia więc miejsce na obserwację różnic.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Wyniki dla poszczególnych języków i zadań. Komórka pokazuje liczbę zaliczonych testów
+    (z 20) w pierwszej próbie oraz, jeśli jest inna, w próbie ostatniej. \cmark{} oznacza zadanie
+    rozwiązane, a indeks górny rundę naprawy, w której je rozwiązano; zacienione komórki z \xmark{}
+    nie zostały rozwiązane po trzech rundach naprawy.}
+  \label{tab:matrix}
+  \footnotesize
+  \setlength{\tabcolsep}{3.2pt}
+  \begin{tabular}{@{}l*{10}{c}c@{}}
+    \toprule
+    Język & Z1 & Z2 & Z3 & Z4 & Z5 & Z6 & Z7 & Z8 & Z9 & Z10 & Rozw. \\
+    \midrule
+    \tabinput{tables/matrix}
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Poprawność według języka i paradygmatu: odsetek zaliczonych testów i liczba
+    rozwiązanych zadań w pierwszej próbie i po samonaprawie (końcowo).}
+  \label{tab:correctness}
+  \small
+  \begin{tabular}{@{}llrrrr@{}}
+    \toprule
+    & & \multicolumn{2}{c}{Zaliczone testy (\%)} & \multicolumn{2}{c}{Rozwiązane zadania} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}
+    Język & Paradygmat & pierwsza & końcowo & pierwsza & końcowo \\
+    \midrule
+    C         & imperatywny & 100,0 & 100,0 & 10/10 & 10/10 \\
+    Pascal    & imperatywny &  90,0 &  98,0 &  9/10 &  9/10 \\
+    Java      & obiektowy   &  70,5 & 100,0 &  6/10 & 10/10 \\
+    Smalltalk & obiektowy   &  85,5 &  96,0 &  8/10 &  9/10 \\
+    Haskell   & funkcyjny   &  78,0 &  99,5 &  7/10 &  9/10 \\
+    Scala     & funkcyjny   &  99,0 & 100,0 &  9/10 & 10/10 \\
+    Prolog    & logiczny    &  91,5 &  94,0 &  7/10 &  8/10 \\
+    \midrule
+    \multicolumn{2}{@{}l}{Imperatywny (C, Pascal)}        & 95,0 & 99,0 & 19/20 & 19/20 \\
+    \multicolumn{2}{@{}l}{Obiektowy (Java, Smalltalk)}    & 78,0 & 98,0 & 14/20 & 19/20 \\
+    \multicolumn{2}{@{}l}{Funkcyjny (Haskell, Scala)}     & 88,5 & 99,8 & 16/20 & 19/20 \\
+    \multicolumn{2}{@{}l}{Logiczny (Prolog)}              & 91,5 & 94,0 &  7/10 &  8/10 \\
+    \midrule
+    \multicolumn{2}{@{}l}{Łącznie}                        & 87,8 & 98,2 & 56/70 & 65/70 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/passrate}
+  \caption{Odsetek z 200 testów na język zaliczonych w pierwszej próbie (jasne punkty) i po
+    samonaprawie (ciemne). Dla C oba punkty pokrywają się na poziomie 100\,\%.}
+  \label{fig:passrate}
+\end{figure}
+
+\paragraph{Języki} C jest jedynym językiem, w którym każde zadanie przeszło za pierwszym podejściem,
+łącznie ze wszystkimi kontrolami Valgrinda. Dotyczy to również wyniku bez 17 testów przechodzących
+na szkielecie (183/183). Następna jest Scala z 9 zadaniami i 99\,\% testów. Java ma najsłabszą
+pierwszą próbę: 6 zadań i 70,5\,\% testów (\cref{fig:passrate}). Jej błędy są jednak przeważnie
+tanie do naprawienia: dwa z nich to błędy kompilacji spowodowane wymyśloną przez model deklaracją
+\code{package} (\cref{sec:failure-analysis}), a wszystkie cztery nierozwiązane za pierwszym razem
+zadania w Javie zostały naprawione. Prolog kończy z najniższym wynikiem: 8 rozwiązanych zadań
+i 94,0\,\% testów, ale oba jego nierozwiązane zadania są dotknięte defektami w zestawach testów dla
+Prologu (\cref{sec:benchmark-defects}).
+
+\paragraph{Paradygmaty} Za pierwszym podejściem kolejność paradygmatów to: imperatywny (19/20 zadań),
+funkcyjny (16/20), obiektowy (14/20) i logiczny (7/10). Po samonaprawie paradygmaty imperatywny,
+obiektowy i funkcyjny osiągają po 19/20, a logiczny 8/10. Różnice \emph{wewnątrz} paradygmatu są
+równie duże jak różnice między paradygmatami. Java rozwiązała za pierwszym podejściem dwa zadania
+mniej niż Smalltalk, a Haskell dwa mniej niż Scala. Mniej popularny język z pary nie jest też
+konsekwentnie gorszy: Smalltalk wypadł lepiej niż Java, a Pascal niemal dorównał C.
+
+\paragraph{Ostrożność statystyczna} Przy jednej próbce dziesięciu zadań na język żadna z tych różnic
+nie jest istotna statystycznie. Największa różnica w pierwszej próbie między dwoma językami, C
+(10/10) wobec Javy (6/10), daje $p = 0,087$ w dwustronnym dokładnym teście Fishera. Paradygmat
+imperatywny wobec obiektowego (19/20 wobec 14/20) daje $p = 0,091$, a imperatywny wobec logicznego
+(19/20 wobec 7/10) $p = 0,095$. Wyniki należy traktować jako przesłanki uzasadniające powtórzone
+próbki, a nie jako ustalone efekty (\cref{sec:threats}).
+
+\paragraph{Zadania} Zadanie~1 (logika przestrzenna) okazało się najtrudniejsze: za pierwszym
+podejściem rozwiązały je tylko 3 z 7 języków, głównie z powodu danych zdegenerowanych (pojedyncze
+punkty, wielokąty puste i płaskie). Następne było zadanie~9 (B-drzewo, 4 z 7), ponieważ dokładny
+kształt drzewa nie zostawia miejsca na warianty algorytmu. Zadania~6 (Sudoku) i~8 (TSP) zostały
+rozwiązane za pierwszym podejściem we wszystkich siedmiu językach, z zaliczeniem wszystkich 140
+testów. Zadanie~2 (Dijkstra) jest jedynym, którego nie rozwiązały dwa języki.
+
+% -----------------------------------------------------------------------------
+\section{Analiza błędów}
+\label{sec:failure-analysis}
+
+\Cref{tab:outcomes-lang} klasyfikuje wszystkie 98 prób. Występują tylko trzy z dziewięciu kategorii:
+nie było żadnego błędu pamięci, awarii, przekroczenia limitu czasu, uciętej odpowiedzi, odmowy ani
+pustej odpowiedzi. Wszystkie 98 odpowiedzi zakończyło się normalnie (powód zatrzymania
+\code{end_turn}); najdłuższa wykorzystała 23\,034 z 32\,000 dostępnych tokenów wyjściowych.
+Najwięcej niezaliczonych testów przypada na Prolog (9 prób), a najwięcej błędów kompilacji na
+Javę (4).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kategorie wyników wszystkich prób, łącznie z rundami naprawy. Pominięto kategorie, które
+    nie wystąpiły (błąd pamięci, awaria w czasie wykonania, przekroczenie czasu, ucięcie, odmowa,
+    pusta odpowiedź).}
+  \label{tab:outcomes-lang}
+  \small
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    Język & \code{pass} & \code{test_failures} & \code{compile_error} & Próby \\
+    \midrule
+    C         & 10 & 0 & 0 & 10 \\
+    Pascal    &  9 & 3 & 1 & 13 \\
+    Java      & 10 & 2 & 4 & 16 \\
+    Smalltalk &  9 & 4 & 2 & 15 \\
+    Haskell   &  9 & 4 & 2 & 15 \\
+    Scala     & 10 & 1 & 1 & 12 \\
+    Prolog    &  8 & 9 & 0 & 17 \\
+    \midrule
+    Łącznie   & 65 & 23 & 10 & 98 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Błędy kompilacji} Przeanalizowaliśmy wszystkie dziesięć błędów kompilacji
+(\cref{tab:compile-errors}). \emph{Połowa z nich w ogóle nie jest błędami programistycznymi}:
+odpowiedź zawierała tekst niebędący kodem. W czterech rundach naprawy (Java, zadania 1 i 9; Scala,
+zadanie 1; Smalltalk, zadanie 9) model zaczął odpowiedź od zdania wyjaśniającego błąd
+(\cref{lst:leak}), mimo że prompt naprawczy mówi „do NOT write any explanations”. W jednej
+pierwszej próbie (Haskell, zadanie 4) kod kończył się zabłąkanym znacznikiem HTML \code{</br>}.
+Ponieważ te odpowiedzi nie miały znaczników bloków Markdown, mechanizm wycinania pozostawił je bez
+zmian, a kompilator je odrzucił (\cref{sec:extraction}). Pozostałe pięć błędów kompilacji to
+rzeczywiste pomyłki. Są to: deklaracja \code{package} niezgodna z domyślnym pakietem kontraktu
+(Java, zadania 9 i 10), lokalna zmienna \code{L} pisana wielką literą, którą Haskell interpretuje
+jako konstruktor danych (zadanie 3), wywołanie \code{IsInfinity} bez modułu \code{Math} (Pascal,
+zadanie 5) oraz rozwiązanie w Smalltalku, którego klasy się nie załadowały (zadanie 2).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Przyczyny dziesięciu błędów kompilacji.}
+  \label{tab:compile-errors}
+  \small
+  \begin{tabularx}{\textwidth}{@{}llcY@{}}
+    \toprule
+    Język & Zadanie & Próba & Przyczyna \\
+    \midrule
+    Java      & 1  & 1 & odpowiedź zaczyna się od wyjaśnienia prozą \\
+    Java      & 9  & 1 & odpowiedź zaczyna się od wyjaśnienia prozą \\
+    Scala     & 1  & 1 & odpowiedź zaczyna się od wyjaśnienia prozą \\
+    Smalltalk & 9  & 1 & odpowiedź zaczyna się od wyjaśnienia prozą \\
+    Haskell   & 4  & 0 & zabłąkany znacznik \code{</br>} po ostatniej linii kodu \\
+    \midrule
+    Java      & 9  & 0 & wymyślona deklaracja \code{package com.example.btree;} ukrywa klasę kontraktu \\
+    Java      & 10 & 0 & wymyślona deklaracja \code{package com.example;} ukrywa klasę kontraktu \\
+    Haskell   & 3  & 0 & lokalne wiązanie o nazwie \code{L}, interpretowane jako konstruktor danych \\
+    Pascal    & 5  & 0 & \code{IsInfinity} użyte bez modułu \code{Math} \\
+    Smalltalk & 2  & 0 & klasy nie załadowały się do obrazu (\texttt{nil doesNotUnderstand: \#new}) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{lstlisting}[style=prompt,caption={Początek dwóch odpowiedzi naprawczych, które zostały zapisane jako pliki źródłowe (Java, zadanie 9; Smalltalk, zadanie 9; linie skrócone).},label={lst:leak}]
+package com.example.btree is the root cause. BTree.java and Tests.java are in the default package, so BTreeImpl in a named package cannot see BTree and its inherited nested type Node. ...
+
+The failure is in the deletion path. Every test that removes a key fails, while insertion and the absent-key test pass. The likely cause is `OrderedCollection>>...
+\end{lstlisting}
+
+Jest to ten sam problem, który uczynił modele lokalne bezużytecznymi (\cref{sec:local-llms}), ale
+o znacznie mniejszej częstości: 4 z 28 odpowiedzi naprawczych (14\,\%) i 1 z 70 pierwszych
+odpowiedzi. Prompt naprawczy wydaje się skłaniać do wyjaśnień, ponieważ model właśnie usłyszał, że
+jego kod zawiódł. Te wycieki prozy zawyżają też liczbę błędów kompilacji w Javie, Scali i Smalltalku
+i kosztują każdy z tych języków jedną rundę naprawy.
+
+\paragraph{Zadania nierozwiązane} Pięć zadań pozostało nierozwiązanych:
+\begin{itemize}
+  \item \emph{Pascal, zadanie 5 (16/20).} Po dodaniu brakującego modułu cztery testy nadal nie
+    przechodziły: zagnieżdżone operatory jednoargumentowe, jednoargumentowy minus a potęgowanie
+    ($-2^2 = -(2^2)$), funkcje wbudowane i błędy dziedziny. Są to reguły priorytetów i semantyki
+    błędów ze specyfikacji.
+  \item \emph{Smalltalk, zadanie 2 (12/20).} Odtwarzanie ścieżki przechodzi, ale zapytania
+    o odległości nie. Program testowy w Smalltalku przechwytuje każdy wyjątek i wypisuje tylko
+    \code{[FAIL]}, więc prompty naprawcze nie zawierały żadnej diagnostyki poza nazwami testów.
+    Liczba zaliczonych testów wzrosła z 3 do 12, po czym przestała się zmieniać.
+  \item \emph{Haskell, zadanie 3 (19/20).} Jeden test, obsługa brakujących argumentów
+    (\code{NULL}), nadal nie przechodził po trzech rundach.
+  \item \emph{Prolog, zadania 1 i 2 (11/20 i 17/20).} Oba są dotknięte defektami w zestawach testów
+    dla Prologu, opisanymi poniżej.
+\end{itemize}
+
+\subsection{Defekty w zestawach testów dla Prologu}
+\label{sec:benchmark-defects}
+
+Analiza dwóch nierozwiązanych zadań w Prologu wykazała, że błędy są, przynajmniej częściowo,
+spowodowane przez benchmark, a nie przez model.
+
+\paragraph{Zadanie 2: błąd o jeden w funkcji pomocniczej testów} Testy obciążeniowe A10, B05 i B10
+budują łańcuch o 1\,000 wierzchołków za pomocą predykatu pomocniczego \code{create_linear_chain/3}.
+Wersja dla Prologu iteruje po wszystkich wierzchołkach $0,\dots,N{-}1$ i dodaje krawędź od każdego
+z nich do następnika, w tym krawędź $999 \to 1000$, która wskazuje poza graf o $N = 1000$
+wierzchołkach. Funkcja pomocnicza w C kończy o jeden wierzchołek wcześniej (\cref{lst:defect}).
+Specyfikacja dla Prologu nie mówi, co \code{add_edge/5} ma zrobić z wierzchołkiem spoza zakresu.
+Implementacja modelu go odrzuca, co jest rozsądnym wyborem, więc graf testowy nigdy nie zostaje
+zbudowany i wszystkie trzy testy nie przechodzą niezależnie od implementacji algorytmu Dijkstry.
+Prompty naprawcze pokazywały tylko nazwy testów, więc model nie mógł odkryć przyczyny. Liczba
+zaliczonych testów pozostała równa 17 we wszystkich czterech próbach. Pozostałe 17 testów przeszło
+za pierwszym podejściem; czy rozwiązanie przechodzi też testy obciążeniowe, będzie wiadomo dopiero
+po poprawieniu funkcji pomocniczej.
+
+\begin{lstlisting}[language=Prolog,caption={Predykat pomocniczy budujący łańcuch w testach dla Prologu (u góry) dodaje krawędź spoza zakresu $N{-}1 \to N$; funkcja pomocnicza w C (u dołu) tego nie robi.},label={lst:defect}]
+create_linear_chain(NumVertices, Weight, Graph) :-
+    create_graph(NumVertices, G0),
+    Max is NumVertices - 1,
+    numlist(0, Max, Indices),                     % 0 .. N-1
+    foldl(add_chain_edge(Weight), Indices, G0, Graph).
+add_chain_edge(Weight, I, GIn, GOut) :-
+    J is I + 1,                                   % for I = N-1: J = N (out of range)
+    add_edge(GIn, I, J, Weight, GOut).
+
+/* C: for (int i = 0; i < num_vertices - 1; i++) graph_add_edge(g, i, i + 1, weight); */
+\end{lstlisting}
+
+\paragraph{Zadanie 1: niedospecyfikowany kontrakt} W odróżnieniu od późniejszych kontraktów dla
+Prologu (\cref{lst:contract-pl}) szkielet zadania 1 nie dokumentuje ani nazw argumentów, ani ich
+trybów: \code{check_dynamic_collision(_, _, _)}. Jego komentarz zapisuje też strukturę termów
+z nazwami pisanymi wielką literą (\code{Polygon(...)}), które różnią się od termów używanych
+w testach (\code{polygon(...)}). Testy wywołują \code{check_dynamic_collision(Obstacle, Robot,
+Velocity)}, zgodnie z nagłówkiem w C, podczas gdy specyfikacja w języku naturalnym wymienia robota
+jako pierwszego. Model wybrał kolejność \code{(Robot, Obstacle, Velocity)}, która zamienia miejscami
+wielokąt ruchomy i nieruchomy, przez co wszystkie osiem nietrywialnych testów kolizji (B01--B08) nie
+przechodzi. Test A08 oczekuje ponadto, że argumenty \code{none} dadzą wynik \code{none}, o czym
+specyfikacja dla Prologu nie wspomina. W C, Javie, Haskellu i Scali nazwy lub typy parametrów
+rozstrzygają kolejność wywołania i żaden inny język nie oblał testów kolizji.
+
+\begin{findingbox}[Spostrzeżenie.]
+Oba nierozwiązane zadania w Prologu pochodzą z wczesnych, ręcznie napisanych zestawów testów;
+generowane zadania 6--10 nie mają takich problemów. Surowe liczby w tym rozdziale podajemy tak, jak
+zostały zmierzone, ale wyniki Prologu dla zadań 1 i 2 zaniżają możliwości modelu. Zestawy te należy
+poprawić przed kolejnymi przebiegami (\cref{ch:conclusions}).
+\end{findingbox}
+
+% -----------------------------------------------------------------------------
+\section{RQ2: Samonaprawa}
+\label{sec:results-repair}
+
+\Cref{tab:repair} i \cref{fig:repair} pokazują, kiedy rozwiązano każde zadanie. Spośród 14 zadań
+nierozwiązanych za pierwszym podejściem naprawiono 9 (64\,\%): 5 w pierwszej rundzie i 4 w drugiej.
+Trzecia runda nigdy nie pomogła. Naprawione zadanie wymagało średnio 1,4 rundy.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Samonaprawa według języka. „Naprawione” to zadania, które nie przeszły w próbie 0, ale
+    zostały rozwiązane później; trajektoria podaje liczbę zaliczonych testów w kolejnych próbach
+    (C = błąd kompilacji, P = zaliczone).}
+  \label{tab:repair}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lccccY@{}}
+    \toprule
+    Język & W próbie 0 & Naprawione & Nierozw. & Śr.\ runda & Trajektorie nieudanych zadań \\
+    \midrule
+    C         & 10 & --       & 0 & --  & -- \\
+    Pascal    &  9 & 0/1      & 1 & --  & Z5: 0C, 16, 16, 16 \\
+    Java      &  6 & 4/4      & 0 & 1,5 & Z1: 19, 0C, 20P; Z7: 2, 20P; Z9: 0C, 0C, 20P; Z10: 0C, 20P \\
+    Smalltalk &  8 & 1/2      & 1 & 2,0 & Z2: 0C, 3, 12, 12; Z9: 11, 0C, 20P \\
+    Haskell   &  7 & 2/3      & 1 & 1,0 & Z1: 16, 20P; Z3: 0C, 19, 19, 19; Z4: 0C, 20P \\
+    Scala     &  9 & 1/1      & 0 & 2,0 & Z1: 18, 0C, 20P \\
+    Prolog    &  7 & 1/3      & 2 & 1,0 & Z1: 10, 11, 11, 11; Z2: 17, 17, 17, 17; Z9: 16, 20P \\
+    \midrule
+    Łącznie   & 56 & 9/14     & 5 & 1,4 & \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/repair}
+  \caption{Próba, w której rozwiązano każde z dziesięciu zadań w danym języku.}
+  \label{fig:repair}
+\end{figure}
+
+\paragraph{Co udaje się naprawić} Naprawa działa najlepiej, gdy informacja zwrotna wskazuje
+bezpośrednio na defekt. Poza Prologiem wszystkie pięć zadań, które w pierwszej próbie oblały testy,
+zostało naprawionych w ciągu jednej lub dwóch rund na podstawie linii \code{[FAIL]}
+i komunikatów programu testowego; w Prologu udało się to w jednym przypadku na trzy. Z sześciu błędów
+kompilacji w pierwszej próbie pięć skompilowało się po jednej rundzie, ponieważ komunikat
+kompilatora nazywa problem; szósty (Java, zadanie 9) skompilował się po drugiej rundzie, gdyż
+pierwsza odpowiedź naprawcza zaczynała się od prozy. Tylko trzy z sześciu przeszły następnie
+wszystkie testy. Pozostałe błędy miały charakter semantyczny (reguły priorytetów w Pascalu) lub
+były niewidoczne w informacji zwrotnej.
+
+\paragraph{Kiedy naprawa utyka} We wszystkich pięciu nierozwiązanych zadaniach liczba zaliczonych
+testów przestała się zmieniać po co najwyżej dwóch rundach (\cref{tab:repair}). W każdym przypadku
+informacja zwrotna niosła niewiele treści. Defektów w Prologu nie da się dostrzec z nazw testów,
+program testowy w Smalltalku połyka wyjątki, a jedyny pozostały błąd w Haskellu dotyczy konwencji
+(brakujących argumentów), której log nie wyjaśnia. Jest to zgodne z ustaleniami
+\citet{olausson2024selfrepair}, którzy wskazali jakość informacji zwrotnej jako wąskie gardło
+samonaprawy. Dla twórców benchmarków oznacza to, że programy testowe powinny wypisywać wartość
+oczekiwaną i rzeczywistą dla niespełnionej asercji.
+
+\paragraph{Regresje} Trzy naprawy przeszły przez błąd kompilacji, zanim się powiodły (Java,
+zadanie 1; Scala, zadanie 1; Smalltalk, zadanie 9). W każdej z nich pierwsza odpowiedź naprawcza
+zaczynała się od prozy (\cref{tab:compile-errors}), a druga ją usunęła. Bez tych błędów formatu
+zadania te zostałyby prawdopodobnie naprawione o rundę wcześniej, a średnia runda naprawy byłaby
+niższa.
+
+\paragraph{Paradygmaty} Odsetki naprawy dla paradygmatów wynoszą 0/1 (imperatywny), 5/6 (obiektowy),
+3/4 (funkcyjny) i 1/3 (logiczny). Liczby są zbyt małe, by je porównywać. Niski wynik paradygmatu
+logicznego tłumaczą dwa defekty w zestawach testów, a wynik obiektowy jest zdominowany przez tanie
+poprawki błędów kompilacji w Javie.
+
+% -----------------------------------------------------------------------------
+\section{RQ3: Idiomatyczność}
+\label{sec:results-idiomaticity}
+
+\Cref{tab:judge} zestawia średnie oceny sędziego według języka i paradygmatu, a \cref{fig:judge}
+porównuje paradygmaty.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Średnie oceny idiomatyczności rozwiązań końcowych (1 = słabo, 5 = doskonale), wystawione
+    na ślepo przez \sonnet{}. $n$ = liczba ocenionych rozwiązań; AW = średnia liczba antywzorców
+    wskazanych na rozwiązanie. Najlepsza wartość w kolumnie spośród języków jest pogrubiona.}
+  \label{tab:judge}
+  \small
+  \begin{tabular}{@{}lrccccc r@{}}
+    \toprule
+    & $n$ & Paradygmat & Język & Czytelność & Projekt & Średnia & AW \\
+    \midrule
+    C         & 10 & 4,10 & 3,50 & 3,60 & 3,40 & 3,65 & 4,6 \\
+    Pascal    & 10 & 4,00 & 3,40 & 3,50 & 3,50 & 3,60 & 4,6 \\
+    Java      & 10 & 3,50 & 3,80 & 3,70 & 3,60 & 3,65 & 4,0 \\
+    Smalltalk & 10 & 3,00 & 3,30 & 3,50 & 3,20 & 3,25 & 4,8 \\
+    Haskell   & 10 & 4,20 & 3,70 & 3,70 & \textbf{3,70} & 3,83 & 3,9 \\
+    Scala     & 10 & \textbf{4,30} & \textbf{4,00} & \textbf{3,90} & \textbf{3,70} & \textbf{3,98} & \textbf{3,1} \\
+    Prolog    & 10 & 3,40 & 3,40 & 3,50 & 3,30 & 3,40 & 5,0 \\
+    \midrule
+    Imperatywny & 20 & 4,05 & 3,45 & 3,55 & 3,45 & 3,62 & 4,6 \\
+    Obiektowy   & 20 & 3,25 & 3,55 & 3,60 & 3,40 & 3,45 & 4,4 \\
+    Funkcyjny   & 20 & 4,25 & 3,85 & 3,80 & 3,70 & 3,90 & 3,5 \\
+    Logiczny    & 10 & 3,40 & 3,40 & 3,50 & 3,30 & 3,40 & 5,0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/judge}
+  \caption{Średnie oceny sędziego według paradygmatu i kryterium. Oś zaczyna się od 1, najniższej
+    oceny w rubryce.}
+  \label{fig:judge}
+\end{figure}
+
+\paragraph{Kod funkcyjny jest najbardziej idiomatyczny} Paradygmat funkcyjny prowadzi we wszystkich
+kryteriach (średnia 3,90), przy czym Scala jest najlepszym językiem (3,98) i ma najmniej
+antywzorców na rozwiązanie (3,1). Dalej plasuje się paradygmat imperatywny (3,62), następnie
+obiektowy (3,45) i logiczny (3,40). Smalltalk ma najniższą ocenę spośród wszystkich języków (3,25).
+
+\paragraph{Idiomatyczność paradygmatu najsilniej różnicuje paradygmaty} Kryterium mierzące sam
+paradygmat ma największy rozrzut, od 3,00 (Smalltalk) do 4,30 (Scala). Kod imperatywny (4,05)
+i funkcyjny (4,25) uzyskuje wysokie oceny, obiektowy (3,25) i logiczny (3,40) niskie. Smalltalk
+otrzymał za paradygmat dokładnie 3 we wszystkich dziesięciu zadaniach (\cref{tab:paradigm-scores}
+w \cref{app:results}). Antywzorce wskazane przez sędziego (\cref{tab:antipatterns}) pokazują
+dlaczego. W językach obiektowych model pisze kod proceduralny w klasach: statyczne metody pomocnicze
+zamiast obiektów dziedzinowych w Javie oraz funkcje geometryczne w klasie usługowej z jawnymi
+sprawdzeniami \code{isNil ifTrue:ifFalse:} w Smalltalku. W Prologu emuluje konstrukcję
+if-then-else odcięciami, a nawet zgaduje kolejność argumentów za pomocą klauzul chronionych
+odcięciem. Mówiąc wprost, model najpierw pisze algorytm, a dopiero potem dopasowuje go do języka.
+Sprawdza się to w językach imperatywnych, gdzie algorytm \emph{jest} idiomem, oraz w językach
+funkcyjnych, gdzie zwinięcia i dopasowanie wzorców naturalnie odwzorowują te algorytmy. Sprawdza
+się gorzej tam, gdzie paradygmat wymaga innej dekompozycji (obiekty, relacje).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Antywzorce wskazane przez sędziego (po trzy przykłady na język z \file{report.md}).}
+  \label{tab:antipatterns}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lY@{}}
+    \toprule
+    Język & Antywzorce \\
+    \midrule
+    C         & ponowna implementacja \code{fabs} zamiast użycia \code{math.h}; jedna długa funkcja łącząca generowanie punktów, usuwanie duplikatów, budowę otoczki i kopiowanie; ręczna pętla kopiująca zamiast \code{memcpy} \\
+    Pascal    & własna implementacja quicksorta zamiast sortowania z RTL lub generycznego; zbędne ręczne czyszczenie pól zarządzanych przed \code{Dispose}; alokacja natychmiast zastępowana inną \\
+    Java      & statyczne metody pomocnicze zamiast obiektów dziedzinowych (brak typów otoczki/odcinka); zduplikowane prymitywy geometryczne; surowy bufor \code{Point[]} w stylu C z ręczną żonglerką indeksami \\
+    Smalltalk & zduplikowana budowa dolnej i górnej otoczki; funkcje geometryczne w klasie usługowej zamiast w obiektach dziedzinowych; \code{isNil ifTrue:ifFalse:} zamiast \code{ifNil:} \\
+    Haskell   & częściowa funkcja \code{head} w \code{map head . groupBy}; \code{length xs < 3} zamiast dopasowania wzorca; leniwe \code{foldl} zamiast \code{foldl'} \\
+    Scala     & krawędzie budowane arytmetyką indeksów i modulo zamiast złączenia (\code{zip}) z obróconym wektorem; niespójne użycie epsilona; modyfikowalne \code{var}/\code{while} w wyszukiwaniu binarnym zamiast rekursji ogonowej \\
+    Prolog    & odcięcie po warunku dla emulacji if-else; \code{append(A0,[_],A)} do usunięcia ostatniego elementu; pobłażliwe zgadywanie kolejności argumentów w \code{create_polygon/3} z użyciem odcięcia \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Poprawność i idiomatyczność są w dużej mierze niezależne} Java rozwiązała wszystkie
+dziesięć zadań, ale za idiomy paradygmatu uzyskała tylko 3,50. C i Scala są w pełni poprawne
+i oceniane wysoko, natomiast Smalltalk i Prolog wypadają nisko w obu wymiarach. Rozwiązania, które
+przeszły za pierwszym podejściem, uzyskują średnio 3,64, a te, które wymagały naprawy lub pozostały
+nierozwiązane, 3,55, co jest różnicą pomijalną. Poprawność i idiomatyczność trzeba zatem mierzyć
+osobno.
+
+\paragraph{Idiomatyczność języka podąża za jego popularnością} W kryterium języka prowadzą szeroko
+stosowane Scala (4,00), Java (3,80) i Haskell (3,70), a Smalltalk (3,30), Pascal (3,40) i Prolog
+(3,40) zamykają stawkę. Jest to spójne z mniejszą ilością danych treningowych dla tych
+języków~\cite{cassano2024knowledge}: model słabiej zna ich biblioteki standardowe i konwencje
+(\code{ifNil:}, sortowanie z RTL, predykaty biblioteczne).
+
+\paragraph{Wpływ zadania} Ściśle wyspecyfikowane zadania 7--10 uzyskują niższe oceny (3,39--3,50)
+niż zadania 1--6 (3,61--3,93; \cref{tab:judge-heatmap} w \cref{app:results}). Narzucają one
+dokładne procedury (operacje na B-drzewie według CLRS, reguły remisów w algorytmie Prima, stabilny
+podział trójdzielny), które pozostawiają mało miejsca na idiomatyczną przebudowę. Należy o tym
+pamiętać przy porównywaniu lub dodawaniu zadań.
+
+\paragraph{Rozdzielczość ocen} Sędzia korzystał z wąskiej części skali. Wszystkie 280 ocen mieści
+się między 3 a 5. Ocenę 5 wystawiono tylko siedem razy, zawsze za idiomatyczność paradygmatu (cztery
+w Scali, dwie w Haskellu, jedna w C), a żadne kryterium nigdy nie otrzymało 1 ani 2.
+Idiomatyczność języka, czytelność i projekt zawsze otrzymywały 3 lub 4. Przy dziesięciu
+rozwiązaniach na język zmiana jednej oceny przesuwa średnią kryterium dla języka o 0,1, więc różnic
+rzędu 0,1--0,2 nie należy nadinterpretowywać.
+
+\paragraph{Wiarygodność sędziego} W ramach kalibracji oceniono dwukrotnie pięć rozwiązań wzorcowych
+i trzy rozwiązania z przebiegu. Wszystkie 32 pary powtórzonych ocen były identyczne. Między
+kalibracją, która używała wcześniejszego schematu bez uzasadnień dla poszczególnych kryteriów,
+a ostatecznym sędzią z uzasadnieniem przed oceną trzy rozwiązania z przebiegu różniły się w 1 z 12
+ocen (czytelność rozwiązania zadania 3 w C, 5 wobec 4). Sędzia jest zatem stabilny. Czy jest
+\emph{trafny}, to osobna kwestia. Rozwiązania wzorcowe napisane na potrzeby walidacji zestawów
+testów uzyskały średnio 3,05, wyraźnie mniej niż własne rozwiązania modelu \haiku{} dla tych samych
+pięciu zadań (3,90). Może to po prostu oznaczać, że wzorce pisano w celu walidacji testów, a nie
+jako rozwiązania modelowe. Może to być też preferowanie własnych odpowiedzi: generator i sędzia
+pochodzą z tej samej rodziny modeli, a sędziowie LLM, jak wiadomo, faworyzują tekst podobny do
+własnego~\cite{panickssery2024selfpreference}. Bez ocen ludzkich nie potrafimy rozstrzygnąć między
+tymi wyjaśnieniami (\cref{sec:threats}).
+
+% -----------------------------------------------------------------------------
+\section{RQ4: Koszt, wydajność i wykonywanie instrukcji}
+\label{sec:cost}
+
+\Cref{tab:efficiency} i \cref{fig:size} podsumowują koszt przebiegu, rozmiar wygenerowanego kodu
+i zgodność modelu z wymaganym formatem odpowiedzi.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Wydajność i wykonywanie instrukcji według języka. LOC = mediana liczby linii kodu
+    pierwszej odpowiedzi; tokeny i czas generowania to średnie na wywołanie API (tokeny wyjściowe
+    obejmują rozumowanie); czas ewaluacji to średni czas jednego przebiegu testów w Dockerze;
+    naruszenia formatu to odpowiedzi ze znacznikami bloków Markdown.}
+  \label{tab:efficiency}
+  \small
+  \begin{tabular}{@{}lrrrrrrr@{}}
+    \toprule
+    Język & LOC & \makecell[r]{Tokeny\\wyjściowe} & \makecell[r]{Czas\\gen.\ (s)} & \makecell[r]{Czas\\ewal.\ (s)} & Wywołania & \makecell[r]{Koszt\\(USD)} & \makecell[r]{Naruszenia\\formatu} \\
+    \midrule
+    C         & 248,5 & 6\,014 & 24,1 &  2,2 & 10 & 0,032 &  5/10 \\
+    Pascal    & 273,5 & 9\,320 & 35,5 &  1,8 & 13 & 0,069 &  0/13 \\
+    Java      & 184,5 & 3\,791 & 14,0 &  2,6 & 16 & 0,037 &  9/16 \\
+    Smalltalk & 132,0 & 7\,166 & 29,8 &  1,2 & 15 & 0,062 &  6/15 \\
+    Haskell   & 127,0 & 4\,762 & 19,2 & 32,1 & 15 & 0,042 &  1/15 \\
+    Scala     & 104,5 & 4\,459 & 17,3 & 29,3 & 12 & 0,030 &  6/12 \\
+    Prolog    & 160,0 & 9\,463 & 39,2 & 26,2 & 17 & 0,095 & 10/17 \\
+    \midrule
+    Łącznie   & --    & 6\,482 & 25,9 & --   & 98 & 0,368 & 37/98 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/size}
+  \caption{Rozmiar wygenerowanych rozwiązań i nakład na generowanie według języka. Są to dwie
+    odrębne miary, stąd dwie odrębne skale.}
+  \label{fig:size}
+\end{figure}
+
+\paragraph{Zwięzłość} Rozwiązania funkcyjne są najkrótsze. Mediana rozwiązania w Scali ma 105 linii,
+a w Haskellu 127, wobec 249 w C i 274 w Pascalu, tj.\ rozwiązania imperatywne są 2--2,6 razy
+dłuższe przy tej samej funkcjonalności. Smalltalk (132) i Prolog (160) plasują się pośrodku.
+
+\paragraph{Nakład na generowanie} Liczba tokenów wyjściowych, łącznie z rozumowaniem, jest
+najwyższa dla Prologu (9\,463 na wywołanie) i Pascala (9\,320), a najniższa dla Javy (3\,791). Kod
+w Pascalu jest długi, ale w Prologu już nie, więc model poświęca więcej rozumowania mniej znanym
+językom. Prolog jest najdroższym językiem: 26\,\% kosztu generowania przy jednej siódmej zadań.
+Generowanie zajęło łącznie 42~minuty czasu pracy modelu (25,9\,s na wywołanie), a ewaluacja
+w Dockerze dodaje 26--32\,s na przebieg dla Haskella, Scali i Prologu z powodu kompilacji
+i uruchamiania.
+
+\paragraph{Koszt} 98 wywołań generujących zużyło 501\,231 tokenów wejściowych i 635\,269 wyjściowych
+i kosztowało \usd{0,368}. 70 wywołań sędziego zużyło 403\,703 tokeny wejściowe i 72\,482 wyjściowe
+i kosztowało \usd{1,532}, około czterokrotnie więcej niż generowanie, ponieważ sędzia jest większym
+modelem i czyta specyfikację, kontrakt oraz rubrykę. Cały przebieg kosztował około \usd{1,90}.
+Powtórzone próbki są więc w zasięgu: dziesięć próbek na zadanie kosztowałoby około \usd{19}.
+
+\paragraph{Wykonywanie instrukcji} Choć każdy prompt wymaga surowego kodu, 37 z 98 odpowiedzi
+(37,8\,\%) otaczało kod znacznikami bloków Markdown: 28 z 70 pierwszych odpowiedzi (40\,\%) i 9 z 28
+odpowiedzi naprawczych (32\,\%). Częstość ta silnie zależy od języka, od 0/13 dla Pascala i 1/15 dla
+Haskella do 10/17 dla Prologu i 9/16 dla Javy. Nie wynika ze sformułowań szablonów. Szablony dla
+Pascala i Prologu jako jedyne nie wymieniają wprost zakazanego znacznika (\code{no ```c blocks}),
+a mimo to jeden z nich ma najniższą częstość, a drugi najwyższą. Znaczniki są nieszkodliwe, bo system
+wycina kod. Pięć odpowiedzi z prozą bez znaczników (\cref{sec:failure-analysis}) już takie nie jest,
+a metryka oparta na znacznikach ich nie liczy. Zgodność z formatem odpowiedzi najlepiej więc mierzyć
+na dwa sposoby: przez znaczniki bloków i przez błędy kompilacji spowodowane tekstem niebędącym
+kodem.

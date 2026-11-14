@@ -1,0 +1,201 @@
+% =============================================================================
+\chapter{Prompty}
+\label{app:prompts}
+% =============================================================================
+
+Ten dodatek przytacza szablony promptów wszystkich języków (\file{<Language>/README.md}), jeden
+kompletny wygenerowany prompt początkowy oraz rzeczywisty prompt naprawczy z przebiegu. Prompty
+podajemy w oryginalnym brzmieniu angielskim, w jakim trafiały do modelu. \Cref{sec:prompts} opisuje,
+jak wypełniane są szablony.
+
+\section{Szablony promptów początkowych}
+\label{app:templates}
+
+Wszystkie szablony mają strukturę z \cref{lst:prompt-initial}: rola i cel, symbol zastępczy
+\code{[TASK-SPECIFIC REQUIREMENTS]}, wymagania ogólne języka i symbol zastępczy kontraktu. Szablon
+dla C pokazuje \cref{lst:prompt-initial}; pozostałe sześć przytaczamy poniżej.
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego: Pascal.}]
+You are a Pascal programming expert. Your task is to implement the required functions in accordance with the provided unit interface.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Use idiomatic procedural Pascal.
+- Manage dynamically allocated structures safely.
+- Return ONLY raw Pascal code (no Markdown tags, no side text).
+- Do not provide test runner code.
+
+[INSERT UNIT INTERFACE HERE]
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego: Java.}]
+You are a Java programming expert. Your task is to implement the required methods in accordance with the provided class or interface.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Use idiomatic Java.
+- Use object-oriented design and model the domain with classes.
+- Prefer standard library collections and utilities where appropriate.
+- Return ONLY raw Java code (no Markdown tags, no ```java blocks, no side text). Your code will be directly saved to a .java file and compiled. Do not provide a main() method or test code.
+
+[INSERT CLASS OR INTERFACE CONTENT HERE]
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego: Smalltalk.}]
+You are a GNU Smalltalk programming expert. Your task is to implement the required methods in accordance with the provided class hierarchy.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Use idiomatic GNU Smalltalk (gst) syntax.
+- Use object-oriented design and model the domain with classes and message passing.
+- Do not redefine built-in classes (e.g. Point, Set, Interval); use them as provided.
+- Prefer standard Smalltalk collections and idioms where appropriate.
+- Return ONLY raw Smalltalk code (no Markdown tags, no ```smalltalk blocks, no side text). Your code will be directly saved to a .st file and loaded by gst. Do not provide test code.
+
+[INSERT INTERFACE FILE CONTENT HERE]
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego: Haskell.}]
+You are a Haskell programming expert. Your task is to implement the required functions in accordance with the provided module interface.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Use idiomatic, pure Haskell.
+- Prefer immutable data, algebraic data types, and total functions where practical.
+- Model absence with `Maybe` instead of null pointers.
+- Return ONLY raw Haskell code (no Markdown tags, no ```haskell blocks, no side text). Your code will be directly saved to a .hs file and compiled.
+- Do not provide test runner code.
+
+[INSERT MODULE INTERFACE HERE]
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego: Scala.}]
+You are a Scala programming expert. Your task is to implement the required functions in accordance with the provided module interface.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Use idiomatic Scala.
+- Prefer immutable data structures and pure functions where practical.
+- Model absence with `Option` instead of null values.
+- Return ONLY raw Scala code (no Markdown tags, no ```scala blocks, no side text). Your code will be directly saved to a `.scala` file and compiled.
+- Do not provide test runner code.
+
+[INSERT MODULE INTERFACE HERE]
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt,caption={Szablon promptu początkowego: Prolog.}]
+You are a Prolog programming expert. Your task is to implement the required predicates in accordance with the provided module interface.
+
+[TASK-SPECIFIC REQUIREMENTS]
+
+General Requirements:
+- Use idiomatic SWI-Prolog.
+- Prefer pure predicates and relational style where practical.
+- Model failure through predicate failure rather than exceptions.
+- Return ONLY raw Prolog code (no Markdown tags, no side text). Your code will be directly saved to a .pl file and executed.
+- Do not provide test runner code.
+
+[INSERT MODULE INTERFACE HERE]
+\end{lstlisting}
+
+\section{Szablony promptów naprawczych}
+
+Szablony naprawcze wszystkich języków mają postać z \cref{lst:prompt-followup}. Różnią się tylko
+etykietą symbolu zastępczego logu i dwoma pierwszymi wymaganiami dotyczącymi poprawki
+(\cref{tab:followup}). Szablony imperatywne i obiektowe akcentują bezpieczeństwo pamięci i zasobów,
+a funkcyjne i logiczne powtarzają prośbę o idiomatyczny kod. Tę asymetrię należy mieć na uwadze
+przy porównywaniu idiomatyczności naprawionych rozwiązań.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Części szablonów naprawczych specyficzne dla języka.}
+  \label{tab:followup}
+  \small
+  \begin{tabularx}{\textwidth}{@{}llYY@{}}
+    \toprule
+    Język & Symbol zastępczy logu & Wymaganie 1 & Wymaganie 2 \\
+    \midrule
+    C         & \code{[ERROR LOGS / VALGRIND OUTPUT]} & usunąć główny problem logiczny lub pamięciowy & zapewnić bezpieczne zarządzanie pamięcią \\
+    Pascal    & \code{[ERROR LOGS]}                   & usunąć główny problem logiczny lub pamięciowy & zapewnić bezpieczne zarządzanie pamięcią \\
+    Java      & \code{[ERROR LOGS / COMPILER OUTPUT]} & usunąć główny problem logiczny lub problem zarządzania zasobami & zapewnić bezpieczną obsługę zasobów \\
+    Smalltalk & \code{[ERROR LOGS / GST OUTPUT]}      & usunąć główny problem logiczny & zapewnić bezpieczną obsługę argumentów nil i przypadków brzegowych \\
+    Haskell   & \code{[ERROR LOGS]}                   & usunąć główny problem logiczny & zachować idiomatyczność rozwiązania w Haskellu \\
+    Scala     & \code{[ERROR LOGS]}                   & usunąć główny problem logiczny & zachować idiomatyczność rozwiązania w Scali \\
+    Prolog    & \code{[ERROR LOGS]}                   & usunąć główny problem logiczny & zachować idiomatyczność rozwiązania w Prologu \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Kompletny wygenerowany prompt}
+
+\Cref{lst:rendered} przedstawia dokładny prompt początkowy, który \haiku{} otrzymał dla zadania 4
+(plecak) w Haskellu: szablon z wypełnionymi wymaganiami specyficznymi dla zadania i modułem-szkieletem.
+Można go odtworzyć poleceniem \code{python harness/run.py --dry-run}.
+
+\begin{lstlisting}[style=prompt,caption={Wygenerowany prompt początkowy, Haskell, zadanie 4.},label={lst:rendered}]
+You are a Haskell programming expert. Your task is to implement the required functions in accordance with the provided module interface.
+
+- Implement `maxValue weights values capacity`: Return the maximum value attainable with sum of selected weights ≤ capacity. Use DP. Return 0 if null weights or capacity <= 0.
+- Implement `solve weights values capacity`: Return Result with resultMaxValue, resultSelected (length n, entries 0/1), resultTotalWeight.
+- DO NOT use greedy heuristics — they fail on w=[10,20,30], v=[60,100,120], cap=50 (optimum=220, greedy=160).
+- Selection invariants: sum of selected weights ≤ capacity; sum of selected values = maxValue.
+- Use idiomatic Haskell (immutable lists / arrays).
+
+General Requirements:
+- Use idiomatic, pure Haskell.
+- Prefer immutable data, algebraic data types, and total functions where practical.
+- Model absence with `Maybe` instead of null pointers.
+- Return ONLY raw Haskell code (no Markdown tags, no ```haskell blocks, no side text). Your code will be directly saved to a .hs file and compiled.
+- Do not provide test runner code.
+
+module Knapsack
+  ( Result (..)
+  , maxValue
+  , solve
+  ) where
+
+data Result = Result
+  { resultMaxValue    :: Int
+  , resultSelected    :: [Int]
+  , resultTotalWeight :: Int
+  } deriving (Eq, Show)
+
+maxValue :: [Int] -> [Int] -> Int -> Int
+maxValue _ _ _ = error "Knapsack.maxValue not implemented"
+
+solve :: [Int] -> [Int] -> Int -> Result
+solve _ _ _ = error "Knapsack.solve not implemented"
+\end{lstlisting}
+
+\section{Rzeczywisty prompt naprawczy}
+
+Pierwsza odpowiedź na ten prompt kończyła się zabłąkanym znacznikiem \code{</br>}
+(\cref{tab:compile-errors}). \Cref{lst:followup-real} to prompt naprawczy, który odesłał system.
+Fragment logu to wyjście kompilatora, a ponieważ żaden test się nie uruchomił, linia z niezaliczonymi
+testami to odnotowuje. Następna odpowiedź przeszła wszystkie 20 testów.
+
+\begin{lstlisting}[style=prompt,caption={Prompt naprawczy wysłany po błędzie kompilacji w zadaniu 4 w Haskellu (próba 1).},label={lst:followup-real}]
+Your previous Haskell implementation failed the evaluation. Your task is to analyze the error and provide a corrected version of the code.
+
+ghc -Wall -Wextra -g -itest-4 -o test_runner test-4/Tests.hs
+[1 of 2] Compiling Knapsack         ( test-4/Knapsack.hs, test-4/Knapsack.o )
+
+test-4/Knapsack.hs:66:1: error: parse error on input `</'
+   |
+66 | </br>
+   | ^^
+make: *** [Makefile:7: test] Error 1
+
+Failing tests: all (no test results were produced, see above).
+
+Requirements for the fix:
+1. Identify and resolve the core logical issue causing the failure.
+2. Keep the solution idiomatic for Haskell.
+3. Return ONLY the complete, raw, fixed Haskell code for `Knapsack.hs`.
+4. Do NOT include Markdown formatting, do NOT include ```haskell tags, and do NOT write any explanations. Just the code.
+\end{lstlisting}

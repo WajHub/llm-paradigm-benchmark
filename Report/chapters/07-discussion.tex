@@ -1,0 +1,151 @@
+% =============================================================================
+\chapter{Dyskusja}
+\label{ch:discussion}
+% =============================================================================
+
+\section{Odpowiedzi na pytania badawcze}
+\label{sec:answers}
+
+\paragraph{RQ1: poprawność} Paradygmat ma co najwyżej umiarkowany wpływ na poprawność. Model osiągnął
+łącznie 80\,\% poprawności za pierwszym podejściem, z rozrzutem między językami od 6/10 (Java) do
+10/10 (C). Rozrzut wewnątrz paradygmatów jest równie duży jak między nimi i przy jednej próbce na
+zadanie żadna różnica nie jest istotna. Najwyraźniejszy sygnał jest negatywny: paradygmat logiczny
+(Prolog) ma najniższą poprawność. Nawet ten sygnał osłabiają jednak dwa defekty w zestawach testów
+dla Prologu.
+
+\paragraph{RQ2: samonaprawa} Informacja zwrotna z wykonania jest skuteczna, ale ograniczona.
+Pozwoliła naprawić 9 z 14 nieudanych zadań (64\,\%), wszystkie w ciągu dwóch rund; trzecia runda
+nigdy nie pomogła. Naprawa się udaje, gdy informacja zwrotna wskazuje defekt (błędy kompilatora,
+niespełnione asercje z komunikatami), i utyka, gdy tego nie robi (połknięte wyjątki, defekty ukryte
+w kodzie testów). Błędy formatu w odpowiedziach naprawczych zmarnowały rundy w trzech zadaniach.
+
+\paragraph{RQ3: idiomatyczność} Tu paradygmat ma największe znaczenie. Kod funkcyjny uzyskał
+najwyższe oceny (3,90), a obiektowy (3,45) i logiczny (3,40) najniższe, przy czym różnica jest
+największa w samym kryterium paradygmatu (4,25 wobec 3,25). Domyślny styl modelu jest algorytmiczny
+i proceduralny. Pasuje on do języków imperatywnych i dobrze przekłada się na zwinięcia
+i dopasowanie wzorców, ale nie modeluje dziedziny jako obiektów ani relacji, chyba że zostanie do
+tego zmuszony. Idiomatyczność języka natomiast podąża za popularnością języka, a nie za jego
+paradygmatem.
+
+\paragraph{RQ4: praktyczność} Hostowany mały model sprawia, że badanie jest tanie (około \usd{1,90}
+za pełny przebieg, z czego większość przypada na sędziego) i szybkie (42 minuty czasu pracy
+modelu). Główną przeszkodą praktyczną jest format odpowiedzi. Na nim poległy lokalne modele
+o otwartych wagach, a nawet model hostowany dodał znaczniki bloków do 38\,\% odpowiedzi i prozę do
+pięciu z nich, co spowodowało połowę wszystkich błędów kompilacji.
+
+\section{Paradygmat czy język?}
+\label{sec:paradigm-or-language}
+
+Projekt z dwoma językami na paradygmat miał rozdzielić te dwa efekty, a wyniki pokazują, dlaczego
+było to konieczne. Gdybyśmy dla paradygmatu obiektowego wybrali tylko Javę, wyglądałby on na
+najsłabszy pod względem poprawności za pierwszym podejściem. Przy samym Smalltalku wyglądałby
+przeciętnie. Haskell i Scala różnią się równie mocno. Przy tej skali każde twierdzenie
+o poprawności dla paradygmatu jest więc w istocie twierdzeniem o wybranych językach. Inaczej jest
+z idiomatycznością: Java i Smalltalk \emph{obie} uzyskują najniższe oceny za idiomy paradygmatu
+(3,50 i 3,00), a Haskell i Scala \emph{oba} najwyższe (4,20 i 4,30). Tutaj efekt paradygmatu jest
+spójny dla obu języków z każdej pary, co czyni go bardziej wiarygodnym ustaleniem.
+
+Popularność języka, a więc ilość jego danych treningowych, jest czynnikiem zakłócającym, który ten
+projekt ogranicza, ale nie eliminuje. Pascal, Smalltalk i Prolog to języki o małych zasobach.
+Pascal i Smalltalk nie są systematycznie gorsze pod względem poprawności, ale wszystkie trzy zajmują
+ostatnie miejsca w idiomatyczności języka, a Prolog i Pascal wymagały najwięcej tokenów
+rozumowania. Jest to zgodne z poglądem, że model łatwiej przenosi wiedzę algorytmiczną między
+językami niż konwencje konkretnego języka~\cite{cassano2024knowledge}.
+
+\section{Dlaczego wszędzie kod proceduralny?}
+\label{sec:procedural-bias}
+
+Do proceduralnego stylu domyślnego modelu przyczyniają się prawdopodobnie trzy czynniki.
+Po pierwsze, zadania są \emph{algorytmami}, a ich podręcznikowe opisy~\cite{cormen2009clrs} to
+imperatywny pseudokod. Im bardziej preskryptywna specyfikacja (zadania 7--10), tym niższe oceny
+idiomatyczności. Po drugie, kontrakty projektowano równolegle dla wszystkich języków, wychodząc od C.
+Struktury wynikowe, wartości statusu i atomy \code{none} są wierne zadaniu, ale nie zawsze naturalne
+dla paradygmatu. Po trzecie, dane treningowe języków obiektowych zawierają mnóstwo kodu w stylu klas
+narzędziowych, który model odtwarza. Benchmark, który miałby mierzyć \emph{projekt} obiektowy lub
+logiczny, potrzebowałby zadań, których naturalnym rozwiązaniem jest model obiektów lub relacji,
+na przykład symulacji, systemów regułowych czy problemów z ograniczeniami z kilkoma oddziałującymi
+na siebie bytami, a nie algorytmów z jednym punktem wejścia.
+
+\section{Zagrożenia dla trafności}
+\label{sec:threats}
+
+\paragraph{Trafność wewnętrzna}
+\begin{itemize}
+  \item \emph{Jedna próbka na zadanie.} Modele Claude nie przyjmują ustawienia temperatury, więc
+    każda odpowiedź jest losowaniem z rozkładu. Przy jednej próbce zmiana wyniku jednego zadania
+    zmienia wynik języka o 10 punktów procentowych. System obsługuje powtórzone próbki
+    (\code{SAMPLES}) i są one przystępne cenowo (\cref{sec:cost}).
+  \item \emph{Defekty benchmarku.} Dwa zestawy testów dla Prologu zawierają defekty
+    (\cref{sec:benchmark-defects}). Podajemy surowe liczby, więc poprawność Prologu jest zaniżona.
+    Nie można wykluczyć innych, nieodkrytych defektów, zwłaszcza w ręcznie napisanych zadaniach
+    1--5, których nie zweryfikowano względem rozwiązania wzorcowego w każdym języku.
+  \item \emph{Nierówne specyfikacje.} Specyfikacje zadań 1--5 dostosowywano ręcznie do każdego
+    języka i różnią się one długością i szczegółowością. Na przykład specyfikacja problemu
+    plecakowego dla Haskella jest krótsza niż dla C (\cref{app:prompts}). Zadania 6--10
+    wygenerowano ze wspólnej specyfikacji i są bardziej jednolite.
+  \item \emph{Nierówna informacja zwrotna.} Programy testowe różnią się ilością wypisywanej
+    diagnostyki. Program testowy w Smalltalku przechwytuje każdy wyjątek, więc samonaprawa
+    w Smalltalku jest trudniejsza z przyczyn niezwiązanych z modelem.
+  \item \emph{Testy przechodzące na szkielecie.} 17 testów w C przechodzi na niezaimplementowanym
+    szkielecie. Nie zmieniają one żadnego werdyktu rozwiązane/nierozwiązane, ale nieznacznie
+    zawyżają odsetki zaliczonych testów dla C.
+\end{itemize}
+
+\paragraph{Trafność teoretyczna}
+\begin{itemize}
+  \item \emph{Sędzia z tej samej rodziny.} Sędzia (\sonnet{}) i generator (\haiku{}) pochodzą
+    z tej samej rodziny modeli, a sędziowie LLM mogą preferować odpowiedzi podobne do
+    własnych~\cite{zheng2023judging,panickssery2024selfpreference}. Niskie oceny rozwiązań
+    wzorcowych (\cref{sec:results-idiomaticity}) są zgodne z takim obciążeniem, ale go nie
+    dowodzą.
+  \item \emph{Brak ludzkiego punktu odniesienia.} Wykazano, że sędzia jest \emph{stabilny}, ale
+    nie że jest \emph{trafny}. Próbkę rozwiązań powinni ocenić ludzcy eksperci w każdym języku.
+  \item \emph{Ściśnięta skala.} Sędzia używał tylko ocen 3--5, co ogranicza rozdzielczość. Oceny
+    porównawcze (szeregowanie dwóch rozwiązań) lub drobniejsza rubryka mogłyby lepiej rozróżniać
+    rozwiązania.
+  \item \emph{Format i poprawność są splecione.} Pięć błędów kompilacji spowodowała proza
+    w odpowiedzi. Liczą się one jako błędy poprawności, choć są błędami wykonywania instrukcji.
+\end{itemize}
+
+\paragraph{Trafność zewnętrzna}
+\begin{itemize}
+  \item \emph{Jeden generator.} Oceniliśmy jeden mały model na jednym poziomie wysiłku. Większe
+    modele, inne rodziny i modele o otwartych wagach mogą wykazywać inne wzorce; pilotaż z modelami
+    lokalnymi nie dał użytecznych danych (\cref{sec:local-llms}).
+  \item \emph{Dobór zadań.} Dziesięć zadań algorytmicznych to wąski wycinek programowania. Zadania
+    skupione na projektowaniu systemów, wejściu/wyjściu, współbieżności czy modelowaniu dziedziny
+    mogłyby faworyzować inne paradygmaty.
+  \item \emph{Wersje języków.} Narzędzia są ustalone (np.\ Scala 2.11, GNU Smalltalk 3.2.5,
+    \cref{tab:languages}), a idiomy nowszych wersji wykraczają poza zakres badania.
+\end{itemize}
+
+\paragraph{Trafność wnioskowania statystycznego} Podajemy statystyki opisowe i testy dokładne tylko
+dla największych różnic. Przy $n = 10$ zadaniach na język i jednej próbce żadne porównanie nie
+osiąga istotności na poziomie $\alpha = 0,05$. Właściwą analizą dla większego przebiegu byłyby
+powtórzone próbki (pass@$k$) i model efektów mieszanych z zadaniem i językiem jako czynnikami.
+
+\section{Wnioski dla twórców benchmarków międzyparadygmatowych}
+\label{sec:lessons}
+
+\begin{enumerate}
+  \item \textbf{Unikać nasyconych problemów.} Problemy, które rozwiązuje każdy model, nie mogą
+    ujawnić różnic (\cref{sec:humaneval}). Zadania z wieloma funkcjami, ścisłymi specyfikacjami
+    i testami obciążeniowymi to umożliwiły.
+  \item \textbf{Każdy kontrakt powinien sam się dokumentować.} Nazwy, kolejność i tryby argumentów
+    muszą być widoczne w kontrakcie każdego języka, a nie tylko w nagłówku C
+    (\cref{sec:benchmark-defects}).
+  \item \textbf{Generować zestawy testów z jednej specyfikacji.} Ręczne przenoszenie testów między
+    siedmioma językami wprowadza rozbieżności, takie jak błąd o jeden w Prologu. Umiejętność
+    oparta na specyfikacji, użyta dla zadań 6--10, pozwoliła tego uniknąć.
+  \item \textbf{Błędy powinny być informatywne.} Programy testowe powinny wypisywać wartości
+    oczekiwane i rzeczywiste i nie mogą połykać wyjątków, ponieważ jakość informacji zwrotnej
+    ogranicza samonaprawę.
+  \item \textbf{Mierzyć format odpowiedzi osobno.} Należy liczyć znaczniki bloków i tekst
+    niebędący kodem i oddzielać je od poprawności; inaczej porównanie mierzy wykonywanie
+    instrukcji.
+  \item \textbf{Walidować przed wydaniem pieniędzy.} Tryb bazowy (szkielety nie przechodzą,
+    wzorce przechodzą, testy przechodzące na szkielecie są rejestrowane) nic nie kosztuje
+    i wychwytuje zepsutą infrastrukturę testową przed pierwszym płatnym wywołaniem. Nie wychwyci
+    jednak testu, który jest błędny w ten sam sposób dla szkieletu i dla każdego rozwiązania,
+    więc rozwiązanie wzorcowe dla każdego języka pozostaje mocniejszą kontrolą.
+\end{enumerate}

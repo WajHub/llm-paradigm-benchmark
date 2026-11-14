@@ -192,3 +192,7 @@ __pycache__/
 
 # Python virtual environment
 .venv/
+
+# LaTeX build artefacts (keep only the PDF)
+Report/build/*
+!Report/build/main.pdf

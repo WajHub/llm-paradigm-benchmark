@@ -1,0 +1,120 @@
+% =============================================================================
+\chapter{Eksperymenty wstępne i wnioski}
+\label{ch:preliminary}
+% =============================================================================
+
+Benchmark i system ewaluacyjny opisane w kolejnych rozdziałach nie były naszym pierwszym projektem.
+Dwa kierunki pilotażowe zakończyły się niepowodzeniem, a przyczyny tych niepowodzeń ukształtowały
+ostateczną metodykę. Opisujemy je, ponieważ są to przydatne wyniki negatywne dla każdego, kto planuje
+podobne badanie.
+
+\section{Zadania w stylu HumanEval są zbyt łatwe}
+\label{sec:humaneval}
+
+\paragraph{Motywacja} Naturalnym punktem wyjścia był HumanEval~\cite{chen2021codex}. Jest to
+najczęściej raportowany benchmark generowania kodu, jego problemy są z założenia niezależne od
+języka, a MultiPL-E~\cite{cassano2023multiple} pokazał, jak przetłumaczyć je wraz z testami na inne
+języki. Planowaliśmy przenieść podzbiór jego problemów do siedmiu języków badania i porównać odsetki
+rozwiązań.
+
+\paragraph{Obserwacja} Problemy okazały się zdecydowanie zbyt łatwe. W naszym pilotażu modele
+rozwiązały praktycznie każdy problem za pierwszym podejściem w każdym języku, w tym w językach
+o małych zasobach. Wyniki wszystkich języków znalazły się na pułapie lub tuż pod nim, więc nie mogły
+wykazać żadnych różnic między paradygmatami. Nie dało się też badać samonaprawy ani
+idiomatyczności, ponieważ nie było czego naprawiać, a rozwiązania były zbyt krótkie, by ujawnić
+jakikolwiek projekt.
+\todo{dodać liczby z pilotażu: modele, liczba problemów i języków, odsetki rozwiązań}
+
+\paragraph{Przyczyny} Z perspektywy czasu efekt sufitowy był do przewidzenia, z czterech powodów.
+\begin{enumerate}
+  \item \emph{Rozmiar problemu.} Typowy problem HumanEval wymaga jednej krótkiej funkcji na
+    listach, napisach lub liczbach całkowitych. Taka funkcja ma kilka linii w dowolnym języku i nie
+    wymaga ani struktur danych, ani zarządzania własnością pamięci, więc nie zostawia miejsca na
+    dekompozycję specyficzną dla paradygmatu.
+  \item \emph{Nasycenie.} Obecne czołowe modele rozwiązują zdecydowaną większość problemów
+    HumanEval, dlatego społeczność przeszła do trudniejszych lub nowszych
+    benchmarków~\cite{liu2023evalplus,jain2024livecodebench,jimenez2024swebench}.
+  \item \emph{Kontaminacja.} Problemy i wiele rozwiązań są publiczne od 2021 roku i prawdopodobnie
+    znajdują się w danych treningowych obecnych modeli~\cite{riddell2024contamination}. Wysoki wynik
+    może wtedy świadczyć o zapamiętaniu, a nie o umiejętności programowania.
+  \item \emph{Słabe testy.} Przy niewielkiej liczbie testów na problem przechodzą rozwiązania
+    częściowo błędne~\cite{liu2023evalplus}. Przez to pułap wydaje się jeszcze wyższy, niż jest
+    w rzeczywistości.
+\end{enumerate}
+
+\paragraph{Konsekwencje dla projektu} Postanowiliśmy napisać własne zadania, spełniające poniższe
+wymagania, z których każde odpowiada na jeden z powyższych problemów:
+\begin{description}[leftmargin=2.4em,labelwidth=2em,itemsep=2pt]
+  \item[D1] \emph{Kontrakty z wieloma funkcjami.} Każde zadanie wymaga dwóch powiązanych algorytmów
+    za niewielkim API z własnymi typami danych, np.\ grafem, drzewem AST lub B-drzewem, tak aby
+    rozwiązanie trzeba było zaprojektować, a nie tylko napisać.
+  \item[D2] \emph{Precyzyjne specyfikacje.} Reguły rozstrzygania remisów, wartości błędów
+    i przypadki brzegowe są wyspecyfikowane tak, aby oczekiwany wynik był jednoznaczny i dało się
+    go porównać dokładnie (na przykład dokładny kształt B-drzewa po ciągu wstawień i usunięć).
+  \item[D3] \emph{Mocne testy.} Każde zadanie ma 20 testów (10 na algorytm), w tym dane puste
+    i zdegenerowane, niepoprawne argumenty oraz testy obciążeniowe na dużych danych.
+  \item[D4] \emph{Ukryte testy.} Model nigdy nie widzi kodu testów, więc nie może dopasować
+    rozwiązania do testów.
+  \item[D5] \emph{Bezpieczeństwo pamięci.} Tam, gdzie język na to pozwala, testy są uruchamiane pod
+    Valgrindem, więc wycieki i niepoprawne dostępy do pamięci liczą się jako błędy.
+  \item[D6] \emph{Kompozycje trudniejsze do zapamiętania.} Klasyczne algorytmy są łączone
+    z nietypowymi wymaganiami, takimi jak ciągłe wykrywanie kolizji oparte na sumie Minkowskiego,
+    selekcja BFPRT raportująca ślad wyboru pivotów czy mediana dwóch posortowanych ciągów przy
+    ścisłym limicie odczytów, aby zmniejszyć wartość zapamiętanych rozwiązań.
+\end{description}
+\Cref{ch:benchmark} opisuje powstały benchmark. \Cref{ch:results} pokazuje, że unika on efektu
+sufitowego: za pierwszym podejściem rozwiązano tylko 80\,\% zadań, a błędy różnią się między
+językami.
+
+\section{Lokalne modele o otwartych wagach są niepraktyczne}
+\label{sec:local-llms}
+
+\paragraph{Motywacja} Drugim planem było lokalne uruchamianie modeli o otwartych wagach. Obiecywało
+to zerowy koszt krańcowy przebiegu, pełną kontrolę nad dekodowaniem (temperatura, ziarna losowe),
+stałe wagi modelu zapewniające powtarzalność oraz niezależność od komercyjnego API.
+\todo{podać nazwy modeli lokalnych (rodzina, rozmiar, kwantyzacja), środowisko inferencji i sprzęt}
+
+\paragraph{Przeszkoda 1: wydajność} Generowanie na dostępnym nam sprzęcie było zbyt wolne jak na
+badanie tej skali. Pojedyncza próba składa się z długiego promptu (specyfikacja wraz z kontraktem,
+a w rundach naprawy także poprzedni kod i log testów) i długiej odpowiedzi (kompletny moduł
+o długości 100--280 linii, zob.\ \cref{tab:efficiency}). Konwersacja naprawcza rośnie z każdą
+rundą. Dla porównania: w naszym ostatecznym przebiegu \haiku{} generował średnio około 6\,500
+tokenów wyjściowych na wywołanie, łącznie z rozumowaniem, i 635\,269 tokenów wyjściowych w całym
+przebiegu. Przy przykładowej lokalnej szybkości dekodowania 10~tokenów/s zajęłoby to około
+11~minut na wywołanie i prawie 18~godzin samego dekodowania na jedno przejście przez benchmark, bez
+przetwarzania promptów i bez powtórzonych próbek, których wymaga badanie statystyczne. Mniejsze lub
+silniej skwantyzowane modele, które działały szybciej, pisały wyraźnie gorszy kod, więc mierzyłyby
+ograniczenia sprzętu, a nie wpływ paradygmatu.
+\todo{dodać zmierzoną przepustowość (tokeny/s) i czas rzeczywisty na zadanie z pilotażu}
+
+\paragraph{Przeszkoda 2: modele nie zwracały samego kodu} System zapisuje odpowiedź modelu
+bezpośrednio do pliku źródłowego, kompiluje go i uruchamia testy. Wymaga to, aby odpowiedź była
+kodem i niczym więcej. Modele lokalne często się do tego nie stosowały, nawet gdy prompt mówił o tym
+wprost. Dodawały wyjaśnienia przed kodem i po nim, otaczały go znacznikami bloków Markdown, podawały
+kilka alternatywnych wersji, zwracały fragmenty zamiast kompletnych modułów albo powtarzały części
+promptu. Każda taka odpowiedź kończyła się błędem kompilacji, który mierzył wykonywanie instrukcji,
+a nie umiejętność programowania. Co gorsza, efekt ten nie był jednakowy dla wszystkich języków,
+więc mieszał się ze zmienną, którą chcieliśmy badać. Heurystyki wycinające kod z prozy (wybór
+największego bloku kodu, usunięcie tekstu wstępnego) rozwiązywały proste przypadki. Zawodziły,
+gdy bloków kodu było kilka lub brakowało znaczników, a każda ręczna decyzja, który blok jest
+„odpowiedzią”, czyniłaby wyniki mniej obiektywnymi. Ostatecznie wyniki tych przebiegów były bardzo
+trudne do interpretacji i zrezygnowaliśmy w tym badaniu z modeli lokalnych.
+
+\paragraph{Decyzja} Przeszliśmy na hostowane modele Claude dostępne przez API Anthropic. Ten wybór
+usuwa obie przeszkody. Przepustowość jest wystarczająca, by przeprowadzić cały benchmark w około
+trzy kwadranse czasu pracy modelu (\cref{sec:cost}). Modele oferują też \emph{adaptacyjne
+myślenie} (ang.~\emph{adaptive thinking})~\cite{anthropic2026docs}, które zwraca rozumowanie
+w osobnych blokach \emph{thinking}, dzięki czemu odpowiedź tekstowa może być czystym kodem. Sędzia
+korzysta z \emph{ustrukturyzowanych odpowiedzi} (ang.~\emph{structured outputs}), tj.\ schematu
+JSON, który odpowiedź musi spełniać. Zachowaliśmy awaryjny mechanizm wycinania kodu i każdą
+odpowiedź, która go wymagała, rejestrujemy jako \emph{naruszenie formatu}. Dzięki temu
+wykonywanie instrukcji staje się mierzoną wielkością, a nie ukrytym źródłem szumu
+(\cref{sec:extraction}).
+
+\begin{findingbox}[Wniosek.]
+Zgodność z wymaganym formatem odpowiedzi jest warunkiem wstępnym zautomatycznej ewaluacji kodu, a nie
+szczegółem. Nawet model hostowany otoczył kod znacznikami bloków Markdown w 37,8\,\% odpowiedzi,
+a w dwóch odpowiedziach wplótł do pliku źródłowego tekst niebędący kodem
+(\cref{sec:cost,sec:failure-analysis}). Benchmark powinien zatem mierzyć i raportować zgodność
+formatu oddzielnie od poprawności.
+\end{findingbox}
