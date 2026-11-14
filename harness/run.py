@@ -155,9 +155,12 @@ def run_sample(task: Task, sample: int, run_dir: Path, cfg: dict, client, args) 
         (adir / "prompt.md").write_text(prompt, encoding="utf-8")
         messages.append({"role": "user", "content": prompt})
 
-        gen = llm.generate(client, cfg["model"], cfg["effort"], messages, cfg["max_tokens"])
+        gen = llm.generate(client, cfg["model"], cfg["effort"], messages, cfg["max_tokens"],
+                           trace_ctx=(run_dir, "generation", f"{task.lang}-{task.test}-s{sample}-a{attempt}"))
         messages.append({"role": "assistant", "content": gen.content})
         store.write_json(adir / "response.json", gen.raw)
+        if gen.thinking:
+            (adir / "reasoning.md").write_text(gen.thinking + "\n", encoding="utf-8", newline="\n")
         if gen.code:
             (adir / f"solution{ext}").write_text(gen.code, encoding="utf-8", newline="\n")
 
@@ -193,6 +196,7 @@ def run_sample(task: Task, sample: int, run_dir: Path, cfg: dict, client, args) 
             "eval_s": result.duration_s if result else 0.0,
             "llm_s": gen.duration_s,
             "stop_reason": gen.stop_reason,
+            "request_id": gen.request_id,
             "format_violation": gen.format_violation,
             "code_lines": gen.code.count("\n"),
             "code_chars": len(gen.code),

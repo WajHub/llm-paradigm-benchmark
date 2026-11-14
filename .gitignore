@@ -189,3 +189,6 @@ test_runner
 # Local API key (template: harness/.env.example)
 harness/.env
 __pycache__/
+
+# Python virtual environment
+.venv/
