@@ -1,0 +1,181 @@
+{
+  "time": "2026-11-13T18:51:17+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-10-s1-a0",
+  "request_id": "req_011Ch1Rv4HHkoWrJuGi6Hx17",
+  "duration_s": 14.1,
+  "error": null,
+  "reasoning": "I'm checking the `select_kth` clause, where the if-then-else has no outer parentheses. Reading it through, the body still parses as intended, so the logic is fine; it just reads awkwardly.\n\nI'm going through the rest of the clauses now: the cuts in median_of_medians and chunks5 look harmless, and the kth recursion stays well under the step limit. The main critique is design rather than correctness, with the nested if-then-else and repeated kth calls standing out as more imperative than they need to be. Scores are coming out around 3 to 4 for paradigm and design, and 4 for language and readability.\n\n",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\nImplement order-statistics algorithms in SWI-Prolog in the module order_stats (file\norder_stats.pl): deterministic selection (median of medians / BFPRT) that reports\nits pivot trace, and the median of two sorted sequences under a logarithmic read\nbudget. Implement median_of_medians/2, select_kth/3 and median_two_sorted/3.\n\nPart A - Median of medians (Xs is a list of integers, duplicates allowed).\n\n  Lower median of a non-empty group G: the element at 0-based index\n  (length(G) - 1) // 2 of G sorted ascending (duplicates kept, e.g. msort/2).\n\n- Implement `median_of_medians(+Xs, -M)`: split Xs IN ITS CURRENT ORDER into\n  consecutive groups of 5 (elements 0..4, 5..9, ...; the last group may have 1-4\n  elements), take the lower median of every group, and let M be the lower median of\n  the list of these group medians. M = none if Xs = []. (How the median of the\n  medians is computed does not matter, only its value.)\n\n- Implement `select_kth(+Xs, +K, -Result)`: K is 0-based. Result = none if K < 0\n  or K >= length(Xs). Otherwise Result = select(Value, Pivots) computed by exactly\n  this procedure, starting with Cur = Xs and an empty pivot list:\n    1. If length(Cur) =< 5: Value = the element at index K of Cur sorted ascending\n       (duplicates kept); stop. No pivot is recorded at this level.\n    2. P = median_of_medians(Cur); append P to the pivot list.\n    3. Stable three-way partition: L = the elements of Cur that are < P, in their\n       order in Cur; E = the number of elements equal to P; G = the elements > P,\n       in their order in Cur.\n    4. If K < length(L): Cur = L, go to 1.\n       Else if K < length(L) + E: Value = P; stop.\n       Else K = K - length(L) - E, Cur = G, go to 1.\n  Value is the K-th smallest element of Xs and Pivots is the list of the pivots in\n  the order they were chosen (top level first). Only these pivots are recorded, not\n  any pivot used internally while computing a median of medians. The Pivots list is\n  checked exactly: an in-place / Dutch-flag partition that reorders elements, or\n  sorting the whole input, produces a different (wrong) trace.\n  * Example: select_kth([7,2,9,4,1,8,3,6,5,10,0], 8, R) gives R = select(8, [4,7])\n    (pivot 4 splits off [2,1,3,0], then K = 3 in [7,9,8,6,5,10], pivot 7 leaves\n    K = 0 in [9,8,10], which has at most 5 elements, so Value = 8).\n\nPart B - Median of two sorted sources.\n\n  A source is a term source(Length, Getter): a read-only non-decreasing sequence of\n  32-bit integers of length Length >= 0 (Length can be up to 2000000000). Its\n  element with 0-based index I (0 =< I < Length) is read with\n  call(Getter, I, Value). Reading Length is free.\n\n- Implement `median_two_sorted(+A, +B, -Median)`: Median is the median of the\n  merged multiset of both sequences: for an odd total the middle element, for an\n  even total the arithmetic mean of the two middle elements (e.g. 1 and 2 give 1.5;\n  2147483647 and 2147483647 give 2147483647). Median is a number (integer or float;\n  compared with a tolerance of 1e-9). Median = none if both sources are empty.\n  * Read budget: every call of a Getter counts as one read (reading the same index\n    again counts again). The total number of reads over both sources must be at\n    most 16 * (bitlen(LenA + LenB) + 1), where bitlen(X) is the number of binary\n    digits of X (bitlen(0) = 0, bitlen(7) = 3, bitlen(2000000000) = 31, giving a\n    budget of 512 reads). Reading an index outside 0..Length-1 is an error.\n  * When the budget is exceeded or an index is out of range, the Getter throws an\n    exception and the test fails. Do not catch or suppress exceptions thrown by a\n    Getter, do not copy the sources into lists, and do not access the data in any\n    other way.\n  * Use binary search: a partition search on the shorter source (O(log min(m, n))\n    reads) or the k-th element by halving k (O(log(m + n)) reads). A linear merge\n    needs about 10^9 reads on the large tests and will be aborted.\n\nConstraints:\n  - All predicates are deterministic (a single answer).\n  - Results of Part A are compared with ==: M and Value are integers, Pivots is a\n    proper list of integers, and absence is the atom none.\n\n## Stub module given to the author (order_stats.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(order_stats, [\n    median_of_medians/2,\n    select_kth/3,\n    median_two_sorted/3\n]).\n\n% Algorithm A - deterministic selection (BFPRT) with a pivot trace.\n%\n% median_of_medians(+Xs, -M)\n%   Xs is a list of integers. Split Xs in its current order into consecutive\n%   groups of 5 (the last group may have 1-4 elements), take the lower median of\n%   every group, M = lower median of the list of group medians.\n%   Lower median of a group G = element at 0-based index (length(G) - 1) // 2 of\n%   G sorted ascending (duplicates kept). M = none if Xs = [].\n%\n% select_kth(+Xs, +K, -Result)\n%   K is 0-based. Result = select(Value, Pivots) where Value is the K-th\n%   smallest element of Xs and Pivots is the list of pivots chosen by the\n%   procedure described in the task, top level first.\n%   Result = none if K < 0 or K >= length(Xs).\n%\n% Algorithm B - median of two sorted sources under a read budget.\n%\n% A source is source(Length, Getter): a non-decreasing sequence of integers of\n% length Length >= 0 whose element with 0-based index I (0 =< I < Length) is read\n% with call(Getter, I, Value). Every call counts as one read.\n%\n% median_two_sorted(+A, +B, -Median)\n%   Median of the merged multiset of both sources: the middle element for an\n%   odd total, the arithmetic mean of the two middle elements for an even total.\n%   Median is a number (integer or float). Median = none if both are empty.\n\nmedian_of_medians(_, _) :-\n    throw(error(existence_error(procedure, median_of_medians/2), _)).\n\nselect_kth(_, _, _) :-\n    throw(error(existence_error(procedure, select_kth/3), _)).\n\nmedian_two_sorted(_, _, _) :-\n    throw(error(existence_error(procedure, median_two_sorted/3), _)).\n\n```\n\n## Code to evaluate (order_stats.pl)\n```prolog\n:- module(order_stats, [\n    median_of_medians/2,\n    select_kth/3,\n    median_two_sorted/3\n]).\n\n% Algorithm A - deterministic selection (BFPRT) with a pivot trace.\n%\n% median_of_medians(+Xs, -M)\n%   Xs is a list of integers. Split Xs in its current order into consecutive\n%   groups of 5 (the last group may have 1-4 elements), take the lower median of\n%   every group, M = lower median of the list of group medians.\n%   Lower median of a group G = element at 0-based index (length(G) - 1) // 2 of\n%   G sorted ascending (duplicates kept). M = none if Xs = [].\n%\n% select_kth(+Xs, +K, -Result)\n%   K is 0-based. Result = select(Value, Pivots) where Value is the K-th\n%   smallest element of Xs and Pivots is the list of pivots chosen by the\n%   procedure described in the task, top level first.\n%   Result = none if K < 0 or K >= length(Xs).\n%\n% Algorithm B - median of two sorted sources under a read budget.\n%\n% median_two_sorted(+A, +B, -Median)\n%   Median of the merged multiset of both sources: the middle element for an\n%   odd total, the arithmetic mean of the two middle elements for an even total.\n%   Median = none if both are empty.\n\nmedian_of_medians([], none) :- !.\nmedian_of_medians(Xs, M) :-\n    chunks5(Xs, Groups),\n    maplist(lower_median, Groups, Meds),\n    lower_median(Meds, M).\n\nchunks5([], []) :- !.\nchunks5(L, [G|Gs]) :-\n    take(5, L, G, Rest),\n    chunks5(Rest, Gs).\n\ntake(0, L, [], L) :- !.\ntake(_, [], [], []) :- !.\ntake(N, [X|Xs], [X|Ys], R) :-\n    N1 is N - 1,\n    take(N1, Xs, Ys, R).\n\nlower_median(L, M) :-\n    msort(L, S),\n    length(S, N),\n    I is (N - 1) // 2,\n    nth0(I, S, M).\n\nselect_kth(Xs, K, Result) :-\n    length(Xs, Len),\n    (   K < 0 ; K >= Len )\n    ->  Result = none\n    ;   select_loop(Xs, K, [], Value, Pivots),\n        Result = select(Value, Pivots).\n\nselect_loop(Cur, K, Acc, Value, Pivots) :-\n    length(Cur, N),\n    (   N =< 5\n    ->  msort(Cur, S),\n        nth0(K, S, Value),\n        reverse(Acc, Pivots)\n    ;   median_of_medians(Cur, P),\n        include(lt_pivot(P), Cur, L),\n        include(gt_pivot(P), Cur, G),\n        include(eq_pivot(P), Cur, Eq),\n        length(L, NL),\n        length(Eq, E),\n        (   K < NL\n        ->  select_loop(L, K, [P|Acc], Value, Pivots)\n        ;   K < NL + E\n        ->  Value = P,\n            reverse([P|Acc], Pivots)\n        ;   K2 is K - NL - E,\n            select_loop(G, K2, [P|Acc], Value, Pivots)\n        )\n    ).\n\nlt_pivot(P, X) :- X < P.\ngt_pivot(P, X) :- X > P.\neq_pivot(P, X) :- X =:= P.\n\n% Algorithm B\n\nmedian_two_sorted(source(LA, GA), source(LB, GB), Median) :-\n    N is LA + LB,\n    (   N =:= 0\n    ->  Median = none\n    ;   N mod 2 =:= 1\n    ->  M is (N - 1) // 2,\n        kth(GA, 0, LA, GB, 0, LB, M, Median)\n    ;   M1 is N // 2 - 1,\n        M2 is N // 2,\n        kth(GA, 0, LA, GB, 0, LB, M1, X),\n        kth(GA, 0, LA, GB, 0, LB, M2, Y),\n        Median is (X + Y) / 2\n    ).\n\n% kth(+GA, +Ia, +La, +GB, +Ib, +Lb, +K, -V)\n%   V is the element of rank K (0-based) in the merge of the remaining\n%   parts A[Ia..Ia+La-1] and B[Ib..Ib+Lb-1]. Each round discards about K/2\n%   elements from one of the sequences, reading two elements per round.\nkth(GA, Ia, La, GB, Ib, Lb, K, V) :-\n    (   La =:= 0\n    ->  I is Ib + K,\n        call(GB, I, V)\n    ;   Lb =:= 0\n    ->  I is Ia + K,\n        call(GA, I, V)\n    ;   K =:= 0\n    ->  call(GA, Ia, X),\n        call(GB, Ib, Y),\n        V is min(X, Y)\n    ;   H is (K + 1) // 2,\n        I is min(La, H),\n        J is min(Lb, H),\n        IA1 is Ia + I - 1,\n        JB1 is Ib + J - 1,\n        call(GA, IA1, X),\n        call(GB, JB1, Y),\n        (   X =< Y\n        ->  Ia2 is Ia + I,\n            La2 is La - I,\n            K2 is K - I,\n            kth(GA, Ia2, La2, GB, Ib, Lb, K2, V)\n        ;   Ib2 is Ib + J,\n            Lb2 is Lb - J,\n            K2 is K - J,\n            kth(GA, Ia, La, GB, Ib2, Lb2, K2, V)\n        )\n    ).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rv569TdqTsFYXNi2ws",
+    "container": null,
+    "content": [
+      {
+        "signature": "CAQSmg8KEAgTGAI4AUIIdGhpbmtpbmcSDNGMC+QbLamwDZ6K2hoMGO1Ly6BqS5vE4raZIjDO1uVeqoRLd2QLjEfB2mHgGUAhaBQdsalLwJ9l+byEx8m/1NMhGEaCSGJlt4cwaA8qtw44DWm1cNRmiOS9DbPZ4eRWr2rySZ294+YCAR3YosKz43IJ6IjWu5siHzyb+wIi9ghmAvYB5MUnClESHYCMGfrJNWwiDEE7x6hcKWQpwr2BhAdpiVxCOczgAf1NqKUx980loV9fIrJUCSpfiL60A41QHtCOTeTN8Zzsev89DnH5xuG77dNvkaU1ZJR1iCeMCcrmdGNT23Fe2Q9+2622IUrnqEeL9WnSGl1amE07P/jDEDVa3XiC1ln37kfEKBvglIaDO3YU3tIYeH6HRCOhoev5XmIdaAzIJzdMqro4+Vxgi8VIM8SSxYKHiA5S/RYfEhGv3onHZjBpJ4hHLCjYvUdEi+1dS/3o46aQ1Q7gZKARQOTFfUO9Yfm9Vxgyr6Z2jhze9ISOjxyT0Iz/XrSSCDkihNuuuvADvPhcCgDfBAS9lu9zr6SO+k2TJWl+1/Ve9wX7SbnZ6/ASKQL4lttii7/wbt5QzKb4SAXnmKMfUQxWtAcdT4AqHzR98xSIS/jbkOJ4dkrpHcNrOLDmLXOwoChuQ73cGZzILAEFK2kEeiB6Qd+mBTKSqKWyZNWz78rwWKxUa5FzJ4XjIeZhWVTRmBuvzO5IDt0S8x+LTIUym7YnjwtqlRPDNPzXCPpxWj9UUf9NmnY9dsEfHwra//T/kVQ2CkrSC+3XW9XBZocMBXXuzwCHwlsAS3Xz7PoQJyuWIIDlvgx5qJGab7DKLDB3azfNRDnRSFQIDV1BDK25jaP1kMxzc20TDJf4we9vEHK5k9L96+Zi6JJrXWyocf6/r8VXDvLwZk1NmXwZ2dtejIKwwZwUdR3+MYtSNsZQ2BnuFbuSzKvmReAX0yxlDSQ+4ksnXQ1D+/CJug8H6BVrsmpqWIKa9JkaKEU6Pwa2+s7naobu2gDrh2SlJg04VMWzzH28WxeVcA9PCZVZlqx0Sb1jhOk+wDgOOCYqrAwJfrh5CSuL2brqZ/LjYZmpou03EQazEMk7QipEWVh7GVYCHJkRQTCwdCQmbWTlbHnjwVwCNFbflP0+DWwCfCxPdzePrFeRvym8fv5wY82c1ZnyGny7klitDJhKcKS/Jqxaox7Zz5PEbGHFQTIDNqmI8846Uc1CTsS63g01ZnbPI9+glK5aIQnXkVnxsGrAjxtn+9KbkrfJrDQpIgjr6SEGYfcrtY3oy20HSOlb9IJP/+H5KozP98GdH1R0EjMOwn+LMoQSpzGSR5iR5zHOS5/1pL1frItYi/hfHVmhZ0kv4eaJn1ruywMiEXEjnsuJhKNr0TvNLnlqhLZUFIZCj2f7HDNY2OsqJBY0VcGnF2aqrj7LHRM9uVrbtE8AAFO1ALcA4hV/1agSqXFj8wJNHcjUlKBVur6Jf72zetE/Z3FziwEp/sPpiJCsvlPUldeEEZmbxvq+nNCZ3n47hwkXjFlL2KYzvpEahL2J5UlNndIsz2q4PfDO+K+vvWb04AsKs8guYMKDFbMfnchXznFn8F3My6WolAQyX7xeC/nIDj2hW43HvgxgQIanraTSlzl+1BA2tHlUSgFlC1sT/Gw5Uo2BmyQevIwnREswiTlxFY5R3RuCCPkMtNSEX4ApoPbxY5o1QzqLmX2o63gvi1N4ayFL+yPObiKrT8iBHvyPAn4NI7MCktXpvCGAYGpQcWkRJMtwdStW2uAbI+sBN9WfzRaBTOItsKw3SZM6QxTX5mFgz3sMUndkxO5JsriZtA+u5HkeELEMyg5SBEiBJ/drlv+V9NBnwrQ0KYI1J0O5HBwUf6n4dPXeau1GZGwwSeSB6eOh9qkxe0D/2cCYwBoTvdJJ4mRWHHURh/YrPn2hUDAcRCaaD22TBi9ZItDiqF1VRKLJR+yI3awCqUCEtb5bCEi75f675HrhyOB3W7KuUjoiCbIP66Bk2Sm4BBM/DkkPhXYMnsW6FJwAjuitZRTojaUaZ/muyQOVHN3QAqdQl2R0973Ph9rcMqx/CsL9SRmnQDr4tV75Pfu7A1mo1U5iH4PQfhtWUnlSysgcPZJ0GYUcc704+m2WIkBldM7xsJ2+R1GBwnjxuGciGf926t8CDEH8CTEVDW0XpTEo66iyxNehAkxOv9uNHkTsxK52GzRY74jraEZVIOj5BbsNrcEKtX0mQFvANberR8qJhAb1yvFwvlLDa/GKjN+lHRAkanwG3ou1QdUHeIIz/7uk430qTqWlY9AJVfAh9HB8FvibVh90192HCZ4LYRXOt+6jpjLa0Zqg9ci87mLDpdDjGSpT3llWSHAAaZaetqyzuAURqScryJAj36aYJlkIKfaAi+BRNGtoweofgNlX+HFGySFSr+P6wz2erteWXgAUGohShVVztulDmI7eTdoNLHF1Y8o5e755dSuAd3tQCXzHoX3D02NX2iIimOrEfB6FbV5raMepuUqgpWEjoBQCFSwQSNWKjZZmadVjA4O7Lq602E2o7zKWhexbx1qqPNn1Ox0t6RgB",
+        "thinking": "I'm checking the `select_kth` clause, where the if-then-else has no outer parentheses. Reading it through, the body still parses as intended, so the logic is fine; it just reads awkwardly.\n\nI'm going through the rest of the clauses now: the cuts in median_of_medians and chunks5 look harmless, and the kth recursion stays well under the step limit. The main critique is design rather than correctness, with the nested if-then-else and repeated kth calls standing out as more imperative than they need to be. Scores are coming out around 3 to 4 for paradigm and design, and 4 for language and readability.\n\n",
+        "type": "thinking"
+      },
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Recursion with an accumulator (select_loop carries a reversed pivot list, kth threads the remaining ranges) and maplist/include are used well. But select_loop and kth are nested if-then-else chains inside a single clause, not clause-head pattern matching, so control flow reads imperatively. chunks5 and take use red cuts (`take(_, [], [], []) :- !.`) where length/append, or a clause with first-argument indexing, would be cleaner. A 4 would need multi-clause dispatch on the La=0, Lb=0 and K=0 cases and no red cuts.\",\"language_idiomaticity\":\"The code uses msort/2, nth0/3, maplist/3, include/3, reverse/2 and `is` correctly, and returns `none` as the task specifies. Weaker points: `select_kth` has an unparenthesised `(K<0 ; K>=Len) -> ... ; ...` whose precedence is correct but hard to see; partition/4 or a single pass could replace the three include/3 traversals; and the hand-written take/4 reimplements what length/append/append/3 give. A 5 would drop the hand-rolled chunking and clarify the condition structure.\",\"readability\":\"Predicate names (chunks5, lower_median, select_loop, kth, lt_pivot) are clear, and the kth predicate has a mode/semantics comment. The module header comments are kept. The long nested if-then-else blocks in select_loop and kth, and the ambiguous top-level condition in select_kth, cost some clarity. Short helper predicates keep each piece small.\",\"design\":\"The decomposition is reasonable: separate chunking, median, selection loop and the kth-by-halving search, with median_of_medians reused inside select_loop. The kth search is a clean O(log) algorithm over (getter, offset, length) triples. Weaknesses: the even-total case runs kth twice, repeating reads and work instead of fetching both middle elements together; three include/3 passes recompute the partition; and the six-to-eight argument kth signature would benefit from a source/offset term.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":4,\"readability\":4,\"design\":3,\"anti_patterns\":[\"red cuts in take/4 and chunks5 instead of declarative clauses or library predicates\",\"nested if-then-else chains in select_loop and kth instead of clause-head dispatch\",\"reimplementing list splitting (take/4) instead of using library predicates\",\"multiple traversals (three include/3 calls) for one partition\",\"two separate kth runs for the even-total median\"],\"justification\":\"The solution follows the specified algorithms and uses library predicates (maplist, include, msort, nth0) and an accumulator-plus-reverse for the pivot trace. It loses points for hand-rolled take/4 and chunks5 with red cuts, and for expressing the main loops as big nested if-then-else blocks instead of pattern-matching clauses. The two kth calls for even totals duplicate work, and the three include passes over the same list could be one partition, so the design is sound but not polished.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6313,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6313,
+          "model": null,
+          "output_tokens": 1567,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1567,
+      "output_tokens_details": {
+        "thinking_tokens": 540
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

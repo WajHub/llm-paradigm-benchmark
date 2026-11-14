@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is structured procedural Pascal: small helper procedures with var parameters, while/for loops, Exit and Break, and explicit counting before filling the L and G arrays. Control flow is clear and the data flow is simple. Two things keep it from a 5: the pivot trace grows by one SetLength per level, and the loop is `while True do ... Break` rather than a condition-driven loop.",
+    "language_idiomaticity": "It uses SetLength, Copy, High, New/Dispose, Exit and Int64 arithmetic, and it stores the sum in a Double before dividing, which is the RTL-aware choice. Weaknesses: the author hand-wrote insertion sort and heap sort instead of using an RTL sort. Locals `a` and `b` in InsertionSortInts are lowercase and fight the A/B naming convention. Naming is mixed (cnt, mCount, kk). `hasRight` is assigned but never read. `Math` is not needed.",
+    "readability": "The functions are well named (InsertionSortInts, SiftDownInts, MedianTwoSorted) and the helpers are separated. The one invariant comment explains the index bound in the binary search. SelectKth is long, with a two-pass partition and nested if/else chains, and the single-letter or abbreviated names (nL, nE, iL, iG, kk) cost some clarity. The binary search for the median has no comment on the partition idea.",
+    "design": "MedianOfMedians is reused inside SelectKth. Helpers live in the implementation section, and the pivot-trace semantics are implemented exactly. The memory handling is clean: New/Dispose, arrays set to nil, and ownership transferred with `Cur := L; L := nil`. The partition search on the shorter source keeps reads at O(log). Weaknesses: the hand-rolled heap sort for at most a few elements is overkill, the partition logic is inlined in SelectKth instead of extracted, and the leftMax/rightMin logic is repetitive.."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "hand-written heap sort and insertion sort instead of a shared sort helper",
+    "`while True do ... Break` loop",
+    "unused variable hasRight assigned but never read",
+    "pivot array grown by one element per iteration",
+    "partition logic inlined in SelectKth, which makes it long"
+  ],
+  "justification": "This is solid structured procedural Pascal. It makes correct use of SetLength/Copy/New/Dispose, does Int64 index arithmetic, and avoids the Single-precision pitfall by going through a Double variable. The weak points are the hand-rolled sorts, the long SelectKth with inlined partitioning, the `while True`/Break loop, and some dead state (hasRight), so it lands slightly below ideal.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RuKrsKmdYD2qo4kB4Z",
+  "judge_s": 8.4,
+  "input_tokens": 7925,
+  "output_tokens": 952,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

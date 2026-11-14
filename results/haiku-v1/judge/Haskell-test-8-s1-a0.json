@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-8",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and declarative. It uses list comprehensions, `concatMap dfs` for preorder, lazy-array dynamic programming (`table = listArray ... [f m | ...]`) for the matching, and a tail-recursive `go` with an explicit stack for Hierholzer, with no mutation. Some parts are naive: `eulerCircuit` threads `used` lists and rescans every edge on each step, and `mstEdgesA` recomputes keys from scratch. A 5 would need a cleaner data flow, such as an adjacency Map and incremental Prim keys.",
+    "language_idiomaticity": "It uses `Data.Array`, `Data.Bits` (`popCount`, `testBit`, `countTrailingZeros`), tuple `minimum` for tie-breaking, and `Maybe` for the empty input. Lookups on lists are inefficient and idiomatic containers are missing: `delete`, `notElem` and `nub` on lists where `Data.Set`/`Data.Map`/`IntSet` fit, which makes them O(n²) or worse. `inf = maxBound `div` 2` is a sentinel. `dAt pts` partial application and local type signatures are fine. `nub` for shortcutting is concise but quadratic.",
+    "readability": "Small named helpers (`dist`, `mkArr`, `dAt`, `tourCostA`, `childrenOf`, `oddVertices`) carry short comments and signatures. The tuple-minimum trick in `mstEdgesA` is compact but dense. Naming like `go`, `f`, `w`, `cands` is acceptable. The Hierholzer stack/used-list logic needs some thought, and the `table` and `f` structure is readable. A 5 would have fewer dense one-liners and a comment on the tie-break reasoning.",
+    "design": "Decomposition is good: shared `mstEdgesA`, `minMatching` (which returns both weight and pairs, reused by `matchingWeight` and `christofides`), `eulerCircuit` and `tourCostA` are all reusable. It avoids duplicating logic. Weaker points: edge multigraphs as lists of pairs with an O(E) adjacency scan, `used` as a list, and `oddVertices` computing the degree by scanning the whole edge list per vertex. Choosing Map/IntSet and precomputing adjacency would be better. `mstWeight` recomputes the tree."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "list-based `delete`/`notElem`/`nub` where Set/IntSet fits",
+    "adjacency recomputed by scanning the full edge list on every step",
+    "list used as a visited-edge set in Hierholzer",
+    "`inf` sentinel value instead of a Maybe or a smarter DP",
+    "Prim recomputes keys from scratch each iteration"
+  ],
+  "justification": "The solution is pure and declarative, with a lazy-array bitmask DP in `minMatching` and a clean pipeline in `christofides`, and sensible decomposition into shared helpers. It loses points because `eulerCircuit`, `oddVertices`, `mstEdgesA` and `nub` rely on quadratic list scans where `Data.Map`/`Set` structures would be idiomatic. Readability is good thanks to signatures and small functions, although the tuple-minimum and stack logic are dense.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1Rt6c7sFWC4c1ooMs1Q",
+  "judge_s": 9.5,
+  "input_tokens": 5962,
+  "output_tokens": 1153,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

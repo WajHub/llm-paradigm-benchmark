@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The structure is procedural: a recursive `Search(var B, Limit, var Count)` works in place on a working copy and undoes the move with `B[best] := 0`. Early `Exit` handles dead ends and the cutoff. Helpers are small and data flows through explicit parameters. A 5 would need a cleaner contract: `Search` leaves B either solved or restored, and that is only implicit. The solution also recomputes `UsedMask` for every empty cell on every call instead of keeping incremental row/col/box state.",
+    "language_idiomaticity": "It uses `Exit`, `Copy(Grid,0,81)`, `SetLength`, `Result`, `var` and `const` parameters, and `{$mode objfpc}`. Helpers stay in the implementation section. Bitmasks are used well in `SudokuIsValid` with fixed arrays. `PopCountMask` reinvents `PopCnt` from the RTL, and the identifier `free` shadows the `Free` method name, though that is legal. `SudokuCandidates` does not guard Row/Col range (acceptable since the precondition is given). It also builds a 9-element array and then shrinks it. The `Math` and `SysUtils` units are unused.",
+    "readability": "Names are clear (`UsedMask`, `PopCountMask`, `bestFree`) and the doc comments on `UsedMask` and `Search` help. Functions are short. The magic constant `$3FE` and the `1 shl d` bit tricks are not explained. `Search` mixes cell selection and branching in one routine and is a bit long. The `Search` comment is slightly confusing because B holds the last found board only when the limit is reached.",
+    "design": "Solve and count share one `Search` routine, and validity is checked once up front. Candidate computation is shared via `UsedMask`. `SudokuCandidates` and `Search` both depend on `UsedMask`, so there is no duplication. A cleaner design would split out an MRV cell selector (`PickCell`) and keep incremental masks for speed. Using `Search` with Limit 1 for solving is neat. `SudokuIsValid` duplicates the box/row/col logic rather than reusing `UsedMask`, which is reasonable here."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "UsedMask recomputed by scanning row, column and box for every empty cell at each search node instead of maintaining incremental masks",
-    "PopCountMask hand-rolled loop instead of an RTL routine (PopCnt)",
-    "Search both reports success and leaves the board mutated, so the result depends on side effects through the var parameter and boolean return",
-    "unused Math/SysUtils-based facilities and no bounds guard on Row/Col in SudokuCandidates"
+    "reimplements population count instead of using RTL PopCnt",
+    "recomputes full UsedMask for every empty cell on every recursion instead of incremental masks",
+    "magic constant $3FE without a named constant",
+    "unused units Math and SysUtils"
   ],
-  "justification": "The code is clean structured procedural Pascal: bitmask helpers, a recursive MRV `Search` using a `var` board and a `var` counter, and `Exit` for early return. `SudokuIsValid` uses per-row, column and box masks with early exit, and results are managed dynamic arrays copied with `Copy`, so there is no manual memory handling. Weaknesses are efficiency and reinvention: `UsedMask` rescans 27 cells for every empty cell on each node, `PopCountMask` is hand-written, and `Search` conflates counting, early cutoff and leaving the solution in `B`. This is acceptable but not the most polished design.",
+  "justification": "This is a solid procedural solution: `Search` implements MRV backtracking with in-place mutation and undo, and both `SudokuSolve` and `SudokuCountSolutions` reuse it on a `Copy` of the grid. It uses Pascal idioms well (`Exit`, `Result`, `Copy`, `SetLength`, bitmasks). Small blemishes include the hand-rolled `PopCountMask`, the unexplained `$3FE`, the shadowing name `free`, and the non-incremental candidate recomputation.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 5491,
-  "output_tokens": 418,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SGb32BAh4JC4irvUa2",
+  "judge_s": 9.3,
+  "input_tokens": 5828,
+  "output_tokens": 1059,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

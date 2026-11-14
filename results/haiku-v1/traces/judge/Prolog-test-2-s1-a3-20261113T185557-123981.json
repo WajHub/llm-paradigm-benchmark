@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:57+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-2-s1-a3",
+  "request_id": "req_011Ch1SH5QawhKNRg6MihhSF",
+  "duration_s": 8.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\n- Implement `create_graph(+NumVertices, -Graph)`: Create a directed weighted graph as `graph(NumVertices, [])`.\n- Implement `add_edge(+Graph, +From, +To, +Weight, -NewGraph)`: Return new graph with edge added.\n- Implement `dijkstra(+Graph, +Source, -Result)`: Run Dijkstra's algorithm. Result is `path_result(Distances, Predecessors, Source)`. Unreachable vertices get `inf`. Unify Result with `none` if Graph is `none` or source out of bounds.\n- Implement `get_shortest_distance(+Result, +Target, -Distance)`: Unify Distance. If Result is `none` or target out of bounds, Distance = `inf`.\n- Implement `reconstruct_path(+Result, +Target, -Path)`: Unify Path with list of vertex indices, or `none` if unreachable/invalid.\n- Use `none` atom for absent/null values.\n- Use idiomatic SWI-Prolog.\n\n## Stub module given to the author (shortest_path.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(shortest_path, [\n    create_graph/2,\n    add_edge/5,\n    dijkstra/3,\n    get_shortest_distance/3,\n    reconstruct_path/3\n]).\n\n% Graph representation: graph(NumVertices, Edges)\n% where Edges is a list of edge(From, To, Weight)\n%\n% PathResult representation: path_result(Distances, Predecessors, Source)\n% where Distances is a list of NumVertices doubles (index = vertex)\n% and Predecessors is a list of NumVertices integers (-1 for no predecessor)\n\ncreate_graph(_, _) :-\n    throw(error(existence_error(procedure, create_graph/2), _)).\n\nadd_edge(_, _, _, _, _) :-\n    throw(error(existence_error(procedure, add_edge/5), _)).\n\ndijkstra(_, _, _) :-\n    throw(error(existence_error(procedure, dijkstra/3), _)).\n\nget_shortest_distance(_, _, _) :-\n    throw(error(existence_error(procedure, get_shortest_distance/3), _)).\n\nreconstruct_path(_, _, _) :-\n    throw(error(existence_error(procedure, reconstruct_path/3), _)).\n\n```\n\n## Code to evaluate (shortest_path.pl)\n```prolog\n:- module(shortest_path, [\n    create_graph/2,\n    add_edge/5,\n    dijkstra/3,\n    get_shortest_distance/3,\n    reconstruct_path/3\n]).\n\n:- use_module(library(assoc)).\n:- use_module(library(heaps)).\n:- use_module(library(lists)).\n\n% Graph representation: graph(NumVertices, Edges)\n% where Edges is a list of edge(From, To, Weight)\n%\n% PathResult representation: path_result(Distances, Predecessors, Source)\n% where Distances is a list of NumVertices numbers or inf (index = vertex)\n% and Predecessors is a list of NumVertices integers (-1 for no predecessor)\n\ncreate_graph(N, graph(N, [])) :-\n    integer(N),\n    N >= 0.\n\nadd_edge(graph(N, Edges), From, To, Weight, graph(N, [edge(From, To, Weight)|Edges])) :-\n    integer(From), integer(To),\n    From >= 0, From < N,\n    To >= 0, To < N,\n    number(Weight).\n\ndijkstra(graph(N, Edges), Source, path_result(Dists, Preds, Source)) :-\n    integer(N), N > 0,\n    is_list(Edges),\n    integer(Source), Source >= 0, Source < N,\n    !,\n    N1 is N - 1,\n    numlist(0, N1, Vs),\n    init_dist_pred(Vs, Source, Dist0, Pred0),\n    build_adjacency(Edges, Adj),\n    empty_heap(H0),\n    add_to_heap(H0, 0, Source, H1),\n    run_dijkstra(H1, Adj, Dist0, Pred0, DistF, PredF),\n    assoc_to_values(DistF, Dists),\n    assoc_to_values(PredF, Preds).\ndijkstra(_, _, none).\n\ninit_dist_pred(Vs, Source, Dist, Pred) :-\n    findall(V-D,\n            (member(V, Vs), ( V =:= Source -> D = 0 ; D = inf )),\n            DPs),\n    list_to_assoc(DPs, Dist),\n    findall(V-(-1), member(V, Vs), PPs),\n    list_to_assoc(PPs, Pred).\n\nbuild_adjacency(Edges, Adj) :-\n    empty_assoc(A0),\n    foldl(add_adj, Edges, A0, Adj).\n\nadd_adj(edge(F, T, W), A0, A1) :-\n    (   get_assoc(F, A0, L)\n    ->  put_assoc(F, A0, [T-W|L], A1)\n    ;   put_assoc(F, A0, [T-W], A1)\n    ).\n\nrun_dijkstra(Heap, Adj, Dist0, Pred0, Dist, Pred) :-\n    (   get_from_heap(Heap, D, U, Heap1)\n    ->  get_assoc(U, Dist0, CurD),\n        (   D > CurD\n        ->  run_dijkstra(Heap1, Adj, Dist0, Pred0, Dist, Pred)\n        ;   (   get_assoc(U, Adj, Ns) -> true ; Ns = [] ),\n            foldl(relax(U, D), Ns, Heap1-Dist0-Pred0, Heap2-Dist1-Pred1),\n            run_dijkstra(Heap2, Adj, Dist1, Pred1, Dist, Pred)\n        )\n    ;   Dist = Dist0,\n        Pred = Pred0\n    ).\n\nrelax(U, D, T-W, H0-Di-Pi, H-Do-Po) :-\n    NewD is D + W,\n    get_assoc(T, Di, Old),\n    (   ( Old == inf ; NewD < Old )\n    ->  put_assoc(T, Di, NewD, Do),\n        put_assoc(T, Pi, U, Po),\n        add_to_heap(H0, NewD, T, H)\n    ;   Do = Di, Po = Pi, H = H0\n    ).\n\nget_shortest_distance(Result, Target, Distance) :-\n    (   Result = path_result(Dists, _, _),\n        integer(Target),\n        nth0(Target, Dists, D)\n    ->  Distance = D\n    ;   Distance = inf\n    ).\n\nreconstruct_path(Result, Target, Path) :-\n    (   Result = path_result(Dists, Preds, _),\n        integer(Target),\n        nth0(Target, Dists, D),\n        number(D)\n    ->  walk_back(Target, Preds, [], Path)\n    ;   Path = none\n    ).\n\nwalk_back(V, Preds, Acc, Path) :-\n    nth0(V, Preds, P),\n    (   P =:= -1\n    ->  Path = [V|Acc]\n    ;   walk_back(P, Preds, [V|Acc], Path)\n    ).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SH5hwmh8bJ61kYo6QS",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Pure state-threading with no assert/retract. Uses foldl/4 over edges and neighbours, and a recursive run_dijkstra with immutable assoc and heap state. Weaknesses: run_dijkstra and relax are written as nested if-then-else blocks rather than clause-head dispatch, and the foldl state is packed in a Heap-Dist-Pred triple. The cut in dijkstra/3 is a red cut used as an if-else guard before the fallback `dijkstra(_,_,none)`. A 5 would use clause-head pattern matching and a cleaner state structure.\",\"language_idiomaticity\":\"Uses library(assoc), library(heaps), foldl, numlist, nth0, list_to_assoc, assoc_to_values and findall appropriately. But the findall with member for building lists is clumsy where maplist or pairs_keys_values would do, and `V-(-1)` is awkward. Using `inf` as an atom requires `Old == inf` special cases instead of arithmetic with a sentinel. The `Old == inf ; NewD < Old` disjunction inside a condition is slightly awkward. Declarative modes are respected overall.\",\"readability\":\"Predicate names (init_dist_pred, build_adjacency, add_adj, relax, walk_back) are clear and each predicate is short. Nested if-then-else in run_dijkstra is a bit dense, and there are almost no comments beyond the header. A reader can still follow the algorithm easily.\",\"design\":\"Good decomposition: adjacency building, initialisation, main loop, relax step, and path reconstruction are separate. Using assoc for the adjacency map and heaps for the priority queue is a sound data-structure choice. Minor issues: init_dist_pred builds two assocs via findall, the redundant `use_module(library(lists))`, walk_back uses nth0 on lists (O(n) per step), and the final result converts assocs back to lists. get_shortest_distance and reconstruct_path are reasonable; reconstruct_path could loop on malformed predecessors but that is not a design concern here.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"cut in dijkstra/3 used as if-else guard before catch-all fallback clause\",\"nested if-then-else chains in run_dijkstra instead of clause-head dispatch\",\"state packed in Heap-Dist-Pred triple for foldl\",\"findall+member used where maplist/pairs would be simpler\"],\"justification\":\"The solution is functional-relational in style: no global state, foldl over edges, library heaps and assoc for Dijkstra with immutable threading. The main departures are the red cut and catch-all clause in dijkstra/3, the nested if-then-else in run_dijkstra/relax, and the triple-packed foldl accumulator. Decomposition into init_dist_pred, build_adjacency, relax and walk_back is clean and readable.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4443,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4443,
+          "model": null,
+          "output_tokens": 999,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 999,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

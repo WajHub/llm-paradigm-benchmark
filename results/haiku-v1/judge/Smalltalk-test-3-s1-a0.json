@@ -6,23 +6,32 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Domain objects are used (EertreeNode, Eertree) and the work is split into helper methods such as newNodeLen:link:endPos: and matchPattern:length:node:in:. However, eertreeBuild:length: is one long procedural method with mutable locals and the whole algorithm inline. Node behaviour such as the link-finding walk is not pushed onto the objects, and the contract's accessor-only classes encourage this. Extracting the 'find suffix with matching char' loop and a propagate-counts method would earn a 4.",
+    "language_idiomaticity": "Uses cascades with yourself, Dictionary, asSortedCollection:, detect:ifNone:, conform:, and max:. The suffix-walk loop is written as `[... ] whileFalse:` with an awkward condition-and-assignment block. Mixed 0-based p with p+1 and k+1 adjustments is clumsy. `0 to: len - 1 do:` and `3 to: tree size do:` with index access are used where `inject:into:` or collection iteration would be more idiomatic. Declaring temps inside the block is fine in GNU Smalltalk. Overall decent but with some index-based style.",
+    "readability": "Names are mostly clear and comments are present. Short temp names (k, w, c, s) and the duplicated suffix-walk loop make the build method dense. The `[k := .... k >= 0 and: [...]] whileFalse:` idiom is hard to read at first glance. The helper methods are easy to follow.",
+    "design": "The node factory and pattern matching helper are well separated. The suffix-walk loop is duplicated twice in the build method instead of being a helper like `findSuffixFor:at:char:`. Count propagation sorts the whole node array, which is O(n log n) rather than linear, though that is permitted by the spec. Occurrence lookup is a linear detect over all nodes. Defensive checks on `tree size isNil` are redundant. The structure is acceptable but could be factored better."
+  },
   "paradigm_idiomaticity": 3,
   "language_idiomaticity": 3,
   "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "one long procedural eertreeBuild method mixing construction, traversal and count propagation",
-    "duplicated suffix-link search loop instead of an extracted helper method",
-    "index-based 0 to: len - 1 loop with manual +1 offsets instead of keysAndValuesDo: or doWithIndex:",
-    "linear detect: over all nodes in eertreeCountOccurrences instead of a tree walk or lookup",
-    "manual size counter and preallocated Array rather than OrderedCollection",
-    "redundant nil and size checks plus a needless tree temporary"
+    "monolithic build method with inline algorithm",
+    "duplicated suffix-walk loop",
+    "index-based to:do: loops where collection protocols would do",
+    "convoluted whileFalse: block with assignment inside the condition",
+    "redundant nil checks on tree size"
   ],
-  "justification": "The build method is one long procedural block: the duplicated suffix-walk `whileFalse:` loops are inline rather than extracted into something like `findSuffixFrom:at:char:`, and it uses manual counters with a preallocated Array. Collection protocols appear in the right places (`detect:ifNone:`, `conform:`, `asSortedCollection:`, `do:`), and small helpers like `newNodeLen:link:endPos:` and `matchPattern:...` are reasonable. However, occurrence lookup scans every node linearly instead of walking the tree from the roots, and there is some defensive redundancy. Overall it works in Smalltalk style but is more procedural than an expert would write.",
+  "justification": "The solution uses Smalltalk collection messages, cascades and small helpers like newNodeLen:link:endPos: and matchPattern:length:node:in:, so it is serviceable. But eertreeBuild:length: is a long procedural method with the suffix-walk logic duplicated and written as a tricky whileFalse: block with index arithmetic. Better factoring into helper methods and less index-driven iteration would raise the scores.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4765,
-  "output_tokens": 459,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SKDrdy7b7P1ecVW6Ra",
+  "judge_s": 8.4,
+  "input_tokens": 5102,
+  "output_tokens": 944,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

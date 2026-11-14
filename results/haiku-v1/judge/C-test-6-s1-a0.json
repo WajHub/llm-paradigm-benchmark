@@ -6,22 +6,33 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Procedural decomposition is clean: static helpers (check_valid, init_masks, search), a SearchCtx struct passed explicitly, no globals, and in-place mutate/undo backtracking on the working grid and bitmask arrays. The MRV scan with early exit on pc==1 and immediate dead-end on pc==0 is a classic imperative treatment. Small blemishes are that solve and count duplicate the setup code and that search takes five loose state parameters instead of one struct. Grouping them would be a 5.",
+    "language_idiomaticity": "Uses static helpers, const on read-only parameters, memcpy, and unsigned bitmasks with 1u<<v and a 0x3FEu mask. The needless (int*) casts on malloc are a C++ habit. The dead variable b in sudoku_candidates is silenced with (void)b. The popcount9 loop is hand-rolled, and the three-statement-per-line `int r = ..., c = ..., b = ...` style is acceptable. The `int v; v = ...` split declaration is unidiomatic. Removing these would earn a 5.",
+    "readability": "Names (rows, cols, boxes, bestmask, empties) are clear and functions are short. There are no comments explaining the bitmask layout (bit d for digit d, 0x3FE) or the MRV logic. The box index expression (r/3)*3+(c/3) is repeated inline many times, and the unused `b` plus `(void)b` in sudoku_candidates is noise. The `!(bestmask & (1u<<d))` check recomputes the bit, and the loop pattern is slightly redundant.",
+    "design": "Bitmask state makes search efficient, and a single search routine serves both solve and count via limit. Ownership is clear: g freed after search, the result is a fresh allocation, and there are no leaks. Weaknesses: sudoku_is_valid is a pure wrapper of check_valid; the setup code (copy, init_masks, empties count) is duplicated across solve and count; the row/col/box index and the set/clear-bit logic are repeated rather than factored into helpers; solve mallocs twice (g then result) where it could reuse one allocation; and sudoku_candidates does not reuse the shared mask logic."
+  },
   "paradigm_idiomaticity": 4,
-  "language_idiomaticity": 4,
-  "readability": 4,
+  "language_idiomaticity": 3,
+  "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "duplicated setup code (mask init and empties count) in sudoku_solve and sudoku_count_solutions",
-    "unused variable `b` silenced with (void)b in sudoku_candidates",
-    "redundant check_valid wrapper in sudoku_is_valid",
-    "solve copies the grid into a malloc'd buffer, frees it, then mallocs again for the result instead of reusing a stack buffer or returning g",
-    "magic numbers (81, 9, 0x3FE) repeated rather than named constants"
+    "duplicated setup code in sudoku_solve and sudoku_count_solutions",
+    "dead variable b silenced with (void)b",
+    "unnecessary casts on malloc",
+    "trivial wrapper sudoku_is_valid around check_valid",
+    "box index and bit set/clear logic repeated inline instead of helpers",
+    "redundant second allocation in sudoku_solve"
   ],
-  "justification": "The code uses bitmask row/col/box tracking, a static SearchCtx struct, and a recursive MRV search with proper undo and early termination via the limit, which is a solid imperative-C approach. The weaknesses are duplicated setup in solve and count_solutions, a dead variable `b` suppressed with `(void)b`, a trivial wrapper around check_valid, and a wasteful double allocation in sudoku_solve. Magic constants like 81 and 0x3FE are not named, and the helpers are correctly static, though `const` could be used on some parameters like the init_masks input.",
+  "justification": "The solution is a sound procedural backtracker with bitmask state, MRV selection, and explicit context passing, and it manages memory correctly. It loses points for duplicated setup in solve and count, the unused variable hidden with (void)b, malloc casts, and a lack of helpers for repeated index and mask updates. Comments explaining the bit encoding are absent.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 5528,
-  "output_tokens": 407,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SDyACvHaCSfS4k8VTA",
+  "judge_s": 9.4,
+  "input_tokens": 5865,
+  "output_tokens": 1041,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

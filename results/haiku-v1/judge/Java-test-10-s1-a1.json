@@ -1,0 +1,36 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 1,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The class extends OrderStats and overrides the three abstract methods, but all logic sits inside those long methods. There are no private helpers or small objects, and state is local to each call. selectKth is a procedural while(true) loop with counters and manual arrays. A 4 would need helper methods (e.g. partition, lowerMedian) that give the OO design finer behavioural units.",
+    "language_idiomaticity": "It uses Arrays.copyOfRange, Arrays.sort, clone and Math.min/max, and it uses long arithmetic for the large indices. It also maintains a hand-managed pivotBuffer int[64] with manual doubling instead of a growable list or IntStream collection, which is C-style array juggling. Counting and filling passes build the partitions by hand, where a stream or list would be shorter. The `(int)` casts on long indices are fine. More idiomatic structures would earn another point.",
+    "readability": "Names such as lessCount, equalCount, medians and half are clear, and the algorithm follows the spec step by step. selectKth and medianTwoSorted are long with many flags (hasALeft, hasARight), and there are no comments explaining the partition invariant or the `ok` predicate. The binary-search condition is somewhat opaque, with redundant branches (mid >= m, j <= 0). Extracting helpers and adding a brief comment would earn a 4.",
+    "design": "Group-median calculation is inlined, and medianOfMedians is reused by selectKth, which is good. The three-way partition is inlined with two passes and duplicated `v < p` tests. The pivot buffer is manually resized. medianTwoSorted mixes swap logic, binary search and result computation in one method. The design is workable but not well decomposed. Private methods for partition, lower median and the partition search would improve it."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "manual growable int[] pivotBuffer with doubling instead of a List or other collection",
+    "long monolithic methods with no private helpers",
+    "while(true) loop with manual counting passes for partitioning",
+    "a magic initial capacity of 64"
+  ],
+  "justification": "The solution follows the spec and reuses medianOfMedians inside selectKth, and it handles large lengths safely with long arithmetic. However, the logic is crammed into three long methods, with a hand-rolled pivotBuffer and manual two-pass partition. The binary search in medianTwoSorted has several boolean flags and no explanatory comments, so decomposition into private helpers would be needed to reach a higher score.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1Rti45ojUXMpZBW2nbp",
+  "judge_s": 8.2,
+  "input_tokens": 5475,
+  "output_tokens": 869,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

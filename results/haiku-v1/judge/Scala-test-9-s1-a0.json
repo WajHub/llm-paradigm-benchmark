@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Fully persistent and immutable: Node is rebuilt with copy/updated, there are no vars, and the operations are folded with foldLeft in insertAll and deleteAll. fix returns a tuple (newX, index) instead of mutating. Recursion is structural, and the depth is only O(log n), so @tailrec is not needed. It could reach a 5 with less index arithmetic, for example by using helper functions such as removeAt and replaceAt to express the transformations more declaratively.",
+    "language_idiomaticity": "Uses Option for t < 2, a case class, Vector combinators (count, take, drop, init, tail, +:, :+), and Scala 2.11-compatible syntax. Weaknesses: `keys.count(_ < k)` scans linearly where a binary search or `indexWhere` could be used. The take/drop splice idiom is repeated everywhere instead of small utilities. The tuple return from fix is fine. `sys.error` is not used. There is no pattern matching, although it is not strictly needed.",
+    "readability": "Names are clear (splitChild, insertNonFull, fix, maxKey, shrink, isFull). The fix function is long, with four branches that each build several Nodes using dense index arithmetic such as `x.children.updated(i, merged).take(i + 1) ++ x.children.drop(i + 2)`. There is one helpful comment on fix, and delete is a long nested if/else. Extracting rotateRight, rotateLeft, and merge as separate named functions and adding removeAt/insertAt helpers would earn one more point.",
+    "design": "Decomposition is sensible: membership check, insertion, splitting, fixing, delete, and root shrinking are each separate, and the public API is a thin fold. Deficiencies: the repeated take/drop splicing is not factored out. The merge logic is duplicated between fix and delete case 2c. The leaf checks `if (isLeaf(y)) Vector() else ...` are redundant, since take/drop on an empty vector gives empty anyway. fix mixes rotation and merging in one function. Overall the design is solid but has some duplication."
+  },
+  "paradigm_idiomaticity": 5,
+  "language_idiomaticity": 4,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "duplicated take/drop splicing instead of small helper functions (removeAt/insertAt)",
+    "fix is a monolithic function combining rotations and merges",
+    "merge logic duplicated between fix and delete case 2c",
+    "redundant isLeaf checks when taking/dropping children",
+    "linear count(_ < k) for child index lookup"
+  ],
+  "justification": "The code is purely functional: immutable Nodes, copy/updated, foldLeft over inputs, and Option for invalid t. It follows the CLRS rules cleanly and keeps the helpers separate. However, `fix` and `delete` are dense with index arithmetic, the merge logic is duplicated, and repeated take/drop splicing could be factored into helpers, so readability and design are middling.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RwJXKCt2hg1hSPc7j3",
+  "judge_s": 9.0,
+  "input_tokens": 6875,
+  "output_tokens": 999,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

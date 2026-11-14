@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:09+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-9-s1-a0",
+  "request_id": "req_011Ch1RuwieVxWv2gBLAB61B",
+  "duration_s": 7.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement a CLRS B-tree with minimum degree t (top-down insertion and top-down deletion)\nin Free Pascal in the unit btree (file btree.pas). The unit already declares the node\ntype and the three routines; keep the interface unchanged and implement BTreeInsertAll,\nBTreeDeleteAll and FreeBTree in the implementation section. The tests compare the EXACT\nshape of the resulting tree, so follow the algorithm below precisely.\n\nNode representation:\n  * PBTreeNode = ^TBTreeNode; TBTreeNode = record Keys: TIntArray; Children:\n    TBTreeNodeArray; end;\n  * Keys are strictly ascending. A leaf has Length(Children) = 0. An internal node with\n    k keys has exactly k + 1 children (Children[i] holds the keys between Keys[i-1] and\n    Keys[i]). Length(Keys) / Length(Children) must be exact (no spare capacity).\n  * Every node holds at most 2t-1 keys; every non-root node at least t-1 keys.\n  * The empty tree is a root LEAF WITH NO KEYS (a non-nil node), not nil.\n\n- Implement `BTreeInsertAll(MinDegree: LongInt; const Keys: TIntArray): PBTreeNode`:\n  return nil if MinDegree < 2. Otherwise start from the empty tree and insert Keys[0],\n  Keys[1], ... one by one, in order, and return the root.\n  Insertion of k (CLRS B-TREE-INSERT, single pass, top-down):\n  * Duplicates: if k is already in the tree, do nothing. Check membership BEFORE any\n    splitting (a pre-emptive split triggered by a duplicate would change the shape).\n  * If the root is full (2t-1 keys): create a new root with no keys whose only child is\n    the old root, and split that child.\n  * Then descend from the root: at an internal node x find the child index i = the first\n    index with k < x.Keys[i] (or the last child if there is none). If that child is full\n    (2t-1 keys), split it first, and then go to the right half if k is greater than the\n    key that moved up into x. Finally insert k into the leaf at its sorted position.\n  * Split of a full node y (2t-1 keys) that is child i of x: the median key y.Keys[t-1]\n    (0-based) moves up into x at key position i; y keeps keys 0..t-2 (and children\n    0..t-1); a new right sibling z, inserted as child i+1 of x, gets keys t..2t-2 (and\n    children t..2t-1).\n  * Full nodes are split on the way down even if the new key would not make them\n    overflow. This is NOT the bottom-up \"split on overflow\" variant (the two give\n    different trees).\n\n- Implement `BTreeDeleteAll(MinDegree: LongInt; const Keys, Deletions: TIntArray):\n  PBTreeNode`: return nil if MinDegree < 2. Otherwise build the tree exactly like\n  BTreeInsertAll(MinDegree, Keys), then delete Deletions[0], Deletions[1], ... in order,\n  and return the root.\n  Deletion of k:\n  * If k is not in the tree, the tree is left UNCHANGED. Check membership first (a CLRS\n    descent for an absent key would still rebalance nodes).\n  * Otherwise run delete(root, k) (CLRS B-TREE-DELETE, single pass, top-down):\n    1. k is in node x and x is a leaf: remove it from x.\n    2. k = x.Keys[i] in an internal node x; let y = x.Children[i] (left) and\n       z = x.Children[i+1] (right):\n       2a. if y has >= t keys: let k' = the predecessor of k (the maximum key in y's\n           subtree); recursively delete k' starting at y, then replace x.Keys[i] by k'.\n           The predecessor is preferred whenever y has >= t keys, even if z also has.\n       2b. else if z has >= t keys: symmetric with the successor k'' (the minimum key in\n           z's subtree): delete k'' starting at z, then replace x.Keys[i] by k''.\n       2c. else (both have t-1 keys): merge y, k and z into y (k and z are removed from\n           x; z's keys and children are appended to y after k), free z, then delete k\n           starting at y.\n    3. k is not in internal node x: let c = x.Children[i] be the child whose subtree must\n       contain k (i = first index with k < x.Keys[i], or the last child). If c has\n       exactly t-1 keys, fix it BEFORE descending:\n       3a. if the LEFT sibling x.Children[i-1] exists and has >= t keys: rotate right -\n           the separator x.Keys[i-1] moves down to the front of c, the left sibling's\n           last key moves up to replace it, and the left sibling's last child (if any)\n           becomes c's first child.\n           Otherwise, if the RIGHT sibling x.Children[i+1] exists and has >= t keys:\n           rotate left - the separator x.Keys[i] moves down to the end of c, the right\n           sibling's first key moves up to replace it, and the right sibling's first\n           child (if any) becomes c's last child.\n           The left sibling is always tried first.\n       3b. otherwise (no sibling has >= t keys): if c has a right sibling, merge c, the\n           separator x.Keys[i] and the right sibling into c; only if c is the LAST child,\n           merge the left sibling, the separator x.Keys[i-1] and c into the left sibling.\n       Then continue the deletion in the (possibly merged) child that now covers k.\n  * After each deletion: if the root has no keys but has a child, that child becomes the\n    new root (the old root node is freed; the height shrinks).\n  * Deleting the last key yields the empty tree (a root leaf with no keys), not nil.\n\n- Implement `FreeBTree(var Root: PBTreeNode)`: free the WHOLE tree (every node,\n  recursively) and set Root to nil. FreeBTree(nil) is a no-op.\n\nMemory:\n  - Every node is allocated with New and owned by the tree; the caller frees the whole\n    tree with FreeBTree. Nodes removed during deletion (merged siblings, the old root on\n    a height shrink) must be disposed by your code. The program runs under valgrind and\n    must not leak.\n  - The input arrays Keys and Deletions must not be modified. Note that `const` on a\n    dynamic array parameter does not protect its elements and assigning one dynamic\n    array variable to another shares storage: copy (Copy(...)) before modifying.\n\nPascal notes:\n  - Pascal is case-insensitive: the parameter Keys has the same name as the record field\n    Keys. Always access fields qualified (Node^.Keys) and do NOT use `with Node^ do`.\n    Do not name anything Result except the function result.\n  - Up to 2000 keys are inserted; each operation must be O(t * log_t n).\n\n## Stub module given to the author (btree.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit btree;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  { A B-tree node. Keys are strictly ascending. A leaf has Length(Children) = 0;\n    an internal node with k keys has exactly k + 1 children.\n    The empty tree is a root leaf with no keys (not nil). }\n  PBTreeNode = ^TBTreeNode;\n  TBTreeNodeArray = array of PBTreeNode;\n  TBTreeNode = record\n    Keys: TIntArray;\n    Children: TBTreeNodeArray;\n  end;\n\nfunction BTreeInsertAll(MinDegree: LongInt; const Keys: TIntArray): PBTreeNode;\nfunction BTreeDeleteAll(MinDegree: LongInt; const Keys, Deletions: TIntArray): PBTreeNode;\nprocedure FreeBTree(var Root: PBTreeNode);\n\nimplementation\n\nfunction BTreeInsertAll(MinDegree: LongInt; const Keys: TIntArray): PBTreeNode;\nbegin\n  raise Exception.Create('BTreeInsertAll not implemented');\n  Result := nil;\nend;\n\nfunction BTreeDeleteAll(MinDegree: LongInt; const Keys, Deletions: TIntArray): PBTreeNode;\nbegin\n  raise Exception.Create('BTreeDeleteAll not implemented');\n  Result := nil;\nend;\n\nprocedure FreeBTree(var Root: PBTreeNode);\nbegin\n  if Root <> nil then begin\n    Dispose(Root);\n    Root := nil;\n  end;\nend;\n\nend.\n\n```\n\n## Code to evaluate (btree.pas)\n```pascal\nunit btree;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  { A B-tree node. Keys are strictly ascending. A leaf has Length(Children) = 0;\n    an internal node with k keys has exactly k + 1 children.\n    The empty tree is a root leaf with no keys (not nil). }\n  PBTreeNode = ^TBTreeNode;\n  TBTreeNodeArray = array of PBTreeNode;\n  TBTreeNode = record\n    Keys: TIntArray;\n    Children: TBTreeNodeArray;\n  end;\n\nfunction BTreeInsertAll(MinDegree: LongInt; const Keys: TIntArray): PBTreeNode;\nfunction BTreeDeleteAll(MinDegree: LongInt; const Keys, Deletions: TIntArray): PBTreeNode;\nprocedure FreeBTree(var Root: PBTreeNode);\n\nimplementation\n\nfunction NewNode: PBTreeNode;\nvar\n  p: PBTreeNode;\nbegin\n  New(p);\n  p^.Keys := nil;\n  p^.Children := nil;\n  Result := p;\nend;\n\nprocedure IntInsertAt(var A: TIntArray; pos: LongInt; v: LongInt);\nvar\n  j, n: LongInt;\nbegin\n  n := Length(A);\n  SetLength(A, n + 1);\n  for j := n downto pos + 1 do\n    A[j] := A[j - 1];\n  A[pos] := v;\nend;\n\nprocedure IntDeleteAt(var A: TIntArray; pos: LongInt);\nvar\n  j, n: LongInt;\nbegin\n  n := Length(A);\n  for j := pos to n - 2 do\n    A[j] := A[j + 1];\n  SetLength(A, n - 1);\nend;\n\nprocedure IntAppend(var A: TIntArray; const B: TIntArray);\nvar\n  j, m: LongInt;\nbegin\n  m := Length(A);\n  SetLength(A, m + Length(B));\n  for j := 0 to High(B) do\n    A[m + j] := B[j];\nend;\n\nprocedure NodeInsertAt(var A: TBTreeNodeArray; pos: LongInt; v: PBTreeNode);\nvar\n  j, n: LongInt;\nbegin\n  n := Length(A);\n  SetLength(A, n + 1);\n  for j := n downto pos + 1 do\n    A[j] := A[j - 1];\n  A[pos] := v;\nend;\n\nprocedure NodeDeleteAt(var A: TBTreeNodeArray; pos: LongInt);\nvar\n  j, n: LongInt;\nbegin\n  n := Length(A);\n  for j := pos to n - 2 do\n    A[j] := A[j + 1];\n  SetLength(A, n - 1);\nend;\n\nprocedure NodeAppend(var A: TBTreeNodeArray; const B: TBTreeNodeArray);\nvar\n  j, m: LongInt;\nbegin\n  m := Length(A);\n  SetLength(A, m + Length(B));\n  for j := 0 to High(B) do\n    A[m + j] := B[j];\nend;\n\n{ First index i with A[i] >= k, or Length(A) if none }\nfunction LowerBound(const A: TIntArray; k: LongInt): LongInt;\nvar\n  lo, hi, mid: LongInt;\nbegin\n  lo := 0;\n  hi := Length(A);\n  while lo < hi do begin\n    mid := (lo + hi) div 2;\n    if A[mid] < k then\n      lo := mid + 1\n    else\n      hi := mid;\n  end;\n  Result := lo;\nend;\n\nfunction Contains(Root: PBTreeNode; k: LongInt): Boolean;\nvar\n  x: PBTreeNode;\n  j: LongInt;\nbegin\n  x := Root;\n  while x <> nil do begin\n    j := LowerBound(x^.Keys, k);\n    if (j < Length(x^.Keys)) and (x^.Keys[j] = k) then begin\n      Result := True;\n      exit;\n    end;\n    if Length(x^.Children) = 0 then begin\n      Result := False;\n      exit;\n    end;\n    x := x^.Children[j];\n  end;\n  Result := False;\nend;\n\nfunction MaxKey(x: PBTreeNode): LongInt;\nbegin\n  while Length(x^.Children) > 0 do\n    x := x^.Children[High(x^.Children)];\n  Result := x^.Keys[High(x^.Keys)];\nend;\n\nfunction MinKey(x: PBTreeNode): LongInt;\nbegin\n  while Length(x^.Children) > 0 do\n    x := x^.Children[0];\n  Result := x^.Keys[0];\nend;\n\n{ Split full child i of x (child has 2t-1 keys) }\nprocedure SplitChild(x: PBTreeNode; i: LongInt; t: LongInt);\nvar\n  y, z: PBTreeNode;\n  j: LongInt;\n  median: LongInt;\nbegin\n  y := x^.Children[i];\n  z := NewNode;\n  median := y^.Keys[t - 1];\n\n  SetLength(z^.Keys, t - 1);\n  for j := 0 to t - 2 do\n    z^.Keys[j] := y^.Keys[t + j];\n\n  if Length(y^.Children) > 0 then begin\n    SetLength(z^.Children, t);\n    for j := 0 to t - 1 do\n      z^.Children[j] := y^.Children[t + j];\n    SetLength(y^.Children, t);\n  end;\n\n  SetLength(y^.Keys, t - 1);\n\n  IntInsertAt(x^.Keys, i, median);\n  NodeInsertAt(x^.Children, i + 1, z);\nend;\n\nprocedure InsertNonFull(x: PBTreeNode; k: LongInt; t: LongInt);\nvar\n  i: LongInt;\nbegin\n  while Length(x^.Children) > 0 do begin\n    i := LowerBound(x^.Keys, k);\n    if Length(x^.Children[i]^.Keys) = 2 * t - 1 then begin\n      SplitChild(x, i, t);\n      if k > x^.Keys[i] then\n        Inc(i);\n    end;\n    x := x^.Children[i];\n  end;\n  i := LowerBound(x^.Keys, k);\n  IntInsertAt(x^.Keys, i, k);\nend;\n\nfunction BuildTree(t: LongInt; const Keys: TIntArray): PBTreeNode;\nvar\n  root, s: PBTreeNode;\n  idx: LongInt;\nbegin\n  root := NewNode;\n  for idx := 0 to High(Keys) do begin\n    if not Contains(root, Keys[idx]) then begin\n      if Length(root^.Keys) = 2 * t - 1 then begin\n        s := NewNode;\n        SetLength(s^.Children, 1);\n        s^.Children[0] := root;\n        SplitChild(s, 0, t);\n        root := s;\n      end;\n      InsertNonFull(root, Keys[idx], t);\n    end;\n  end;\n  Result := root;\nend;\n\n{ CLRS top-down delete of k, assumed to be present in the subtree of x.\n  x is never the tree root with zero keys here; non-root x has >= t keys. }\nprocedure DeleteFrom(x: PBTreeNode; k: LongInt; t: LongInt);\nvar\n  j, i, n, m, idx: LongInt;\n  y, z, c, lft, rgt: PBTreeNode;\n  kp: LongInt;\nbegin\n  n := Length(x^.Keys);\n  j := LowerBound(x^.Keys, k);\n  if (j < n) and (x^.Keys[j] = k) then begin\n    if Length(x^.Children) = 0 then begin\n      { case 1: leaf }\n      IntDeleteAt(x^.Keys, j);\n    end else begin\n      { case 2: internal }\n      y := x^.Children[j];\n      z := x^.Children[j + 1];\n      if Length(y^.Keys) >= t then begin\n        kp := MaxKey(y);\n        DeleteFrom(y, kp, t);\n        x^.Keys[j] := kp;\n      end else if Length(z^.Keys) >= t then begin\n        kp := MinKey(z);\n        DeleteFrom(z, kp, t);\n        x^.Keys[j] := kp;\n      end else begin\n        { merge y, k, z into y }\n        m := Length(y^.Keys);\n        SetLength(y^.Keys, m + 1);\n        y^.Keys[m] := k;\n        IntAppend(y^.Keys, z^.Keys);\n        if Length(z^.Children) > 0 then\n          NodeAppend(y^.Children, z^.Children);\n        Dispose(z);\n        IntDeleteAt(x^.Keys, j);\n        NodeDeleteAt(x^.Children, j + 1);\n        DeleteFrom(y, k, t);\n      end;\n    end;\n  end else begin\n    { case 3: k lies in child j }\n    i := j;\n    c := x^.Children[i];\n    if Length(c^.Keys) = t - 1 then begin\n      if (i > 0) and (Length(x^.Children[i - 1]^.Keys) >= t) then begin\n        { rotate right }\n        lft := x^.Children[i - 1];\n        IntInsertAt(c^.Keys, 0, x^.Keys[i - 1]);\n        idx := Length(lft^.Keys) - 1;\n        x^.Keys[i - 1] := lft^.Keys[idx];\n        IntDeleteAt(lft^.Keys, idx);\n        if Length(lft^.Children) > 0 then begin\n          idx := Length(lft^.Children) - 1;\n          NodeInsertAt(c^.Children, 0, lft^.Children[idx]);\n          NodeDeleteAt(lft^.Children, idx);\n        end;\n      end else if (i < n) and (Length(x^.Children[i + 1]^.Keys) >= t) then begin\n        { rotate left }\n        rgt := x^.Children[i + 1];\n        IntInsertAt(c^.Keys, Length(c^.Keys), x^.Keys[i]);\n        x^.Keys[i] := rgt^.Keys[0];\n        IntDeleteAt(rgt^.Keys, 0);\n        if Length(rgt^.Children) > 0 then begin\n          NodeInsertAt(c^.Children, Length(c^.Children), rgt^.Children[0]);\n          NodeDeleteAt(rgt^.Children, 0);\n        end;\n      end else if i < n then begin\n        { merge c, separator x.Keys[i], right sibling into c }\n        rgt := x^.Children[i + 1];\n        IntInsertAt(c^.Keys, Length(c^.Keys), x^.Keys[i]);\n        IntAppend(c^.Keys, rgt^.Keys);\n        if Length(rgt^.Children) > 0 then\n          NodeAppend(c^.Children, rgt^.Children);\n        Dispose(rgt);\n        IntDeleteAt(x^.Keys, i);\n        NodeDeleteAt(x^.Children, i + 1);\n      end else begin\n        { merge left sibling, separator x.Keys[i-1], c into left }\n        lft := x^.Children[i - 1];\n        IntInsertAt(lft^.Keys, Length(lft^.Keys), x^.Keys[i - 1]);\n        IntAppend(lft^.Keys, c^.Keys);\n        if Length(c^.Children) > 0 then\n          NodeAppend(lft^.Children, c^.Children);\n        Dispose(c);\n        IntDeleteAt(x^.Keys, i - 1);\n        NodeDeleteAt(x^.Children, i);\n      end;\n    end;\n    j := LowerBound(x^.Keys, k);\n    DeleteFrom(x^.Children[j], k, t);\n  end;\nend;\n\nprocedure FreeNode(p: PBTreeNode);\nvar\n  j: LongInt;\nbegin\n  if p = nil then\n    exit;\n  for j := 0 to High(p^.Children) do\n    FreeNode(p^.Children[j]);\n  Dispose(p);\nend;\n\nfunction BTreeInsertAll(MinDegree: LongInt; const Keys: TIntArray): PBTreeNode;\nbegin\n  if MinDegree < 2 then begin\n    Result := nil;\n    exit;\n  end;\n  Result := BuildTree(MinDegree, Keys);\nend;\n\nfunction BTreeDeleteAll(MinDegree: LongInt; const Keys, Deletions: TIntArray): PBTreeNode;\nvar\n  root, old: PBTreeNode;\n  idx: LongInt;\nbegin\n  if MinDegree < 2 then begin\n    Result := nil;\n    exit;\n  end;\n  root := BuildTree(MinDegree, Keys);\n  for idx := 0 to High(Deletions) do begin\n    if Contains(root, Deletions[idx]) then begin\n      DeleteFrom(root, Deletions[idx], MinDegree);\n      if (Length(root^.Keys) = 0) and (Length(root^.Children) > 0) then begin\n        old := root;\n        root := old^.Children[0];\n        Dispose(old);\n      end;\n    end;\n  end;\n  Result := root;\nend;\n\nprocedure FreeBTree(var Root: PBTreeNode);\nbegin\n  FreeNode(Root);\n  Root := nil;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rux2FCPsyf8umMVBAk",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code follows a structured procedural style: small mutating procedures such as SplitChild, InsertNonFull, DeleteFrom and FreeNode, with loops and clear control flow. InsertNonFull is iterative, which suits Pascal. DeleteFrom is a long procedure that mixes cases 1, 2, 3a and 3b inline; a 5 would extract those into RotateRight, RotateLeft and MergeChildren procedures.\",\"language_idiomaticity\":\"It uses SetLength, Length, High, exit, New and Dispose correctly, and keeps helpers in the implementation section. It reinvents array insert, delete and append helpers by hand instead of using Insert/Delete/Move/Concat from the RTL (FPC has Insert and Delete for dynamic arrays). It also writes 'Result := x; exit;' instead of Exit(value). It keeps the awkward unused 'p: PBTreeNode' in NewNode. A hand-written LowerBound is fine. A 5 would use the RTL array routines and Exit(value).\",\"readability\":\"Names are meaningful (SplitChild, InsertNonFull, LowerBound, MaxKey, MinKey) and brief comments mark each case. DeleteFrom is about 90 lines with many locals (j, i, n, m, idx, y, z, c, lft, rgt, kp), and j and i are redundant aliases. Moving the rotate and merge cases into named procedures would improve it.\",\"design\":\"Helper separation is good: array utilities, Contains for the pre-check, BuildTree shared by both public routines, and FreeNode for recursion. Keys and Children get duplicated insert/delete/append helpers, and the merge logic appears three times (case 2c, 3b-right, 3b-left) with similar code. The root-shrink logic sits in BTreeDeleteAll. Extracting merge and rotate helpers would remove the duplication.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"monolithic DeleteFrom procedure with inline rotate/merge cases\",\"duplicated merge code in three places\",\"hand-rolled array insert/delete/append instead of RTL Insert/Delete/Concat\",\"Result := ...; exit instead of Exit(value)\"],\"justification\":\"The solution is a clean structured-procedural B-tree: iterative insertion, a Contains pre-check, shared BuildTree and recursive FreeNode with correct New/Dispose handling. Its weaknesses are the long DeleteFrom, which inlines rotations and three near-identical merges, and the hand-written array helpers that duplicate RTL routines. Extracting RotateLeft/RotateRight/Merge and using Exit(value) and RTL array routines would raise the scores.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 9482,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 9482,
+          "model": null,
+          "output_tokens": 953,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 953,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:31+00:00",
+  "kind": "judge",
+  "label": "Smalltalk-test-5-s1-a0",
+  "request_id": "req_011Ch1SKUkqMK7ubTqhQJaN5",
+  "duration_s": 9.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Smalltalk code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Smalltalk\n\n- Message passing and polymorphism; small methods with intention-revealing selectors.\n- Collection protocols instead of index loops: `do:`, `collect:`, `select:`, `reject:`, `detect:ifNone:`,\n  `inject:into:`, `with:collect:`; `to:do:` only where indices are really needed.\n- Blocks used idiomatically (`ifTrue:ifFalse:`, `ifNil:`, `and:`/`or:` with blocks), early returns with `^`.\n- Domain logic in objects rather than long procedural methods; no redefinition of built-in classes.\n- GNU Smalltalk bracket syntax used cleanly; temporaries declared where used.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Smalltalk (object-oriented paradigm)\n\n## Task specification given to the author\nImplement a mathematical expression parser and evaluator in GNU Smalltalk in the class\nExpressionImpl (file ExpressionImpl.st), which subclasses the abstract class Expression.\nThe parser turns a string into an abstract syntax tree (AstNode), and the evaluator\ncomputes the numeric value of that AST given a collection of variables. The supporting\nclasses (AstNode, ExprVariable, EvalResult, Expression) are already defined; implement\nparseExpression: and evaluate:vars:.\n\n- Implement `parseExpression: aString`: Parse the string and return the root AstNode,\n  or nil if the string is not a syntactically valid expression. Whitespace is\n  insignificant. You may populate AstNode (kind/numValue/strValue/children) however you\n  like; the tests only call parseExpression: and evaluate:vars:.\n\n  Grammar (highest precedence last; `^` is right-associative, everything else is\n  left-associative):\n\n      expr    := term   (('+' | '-') term)*\n      term    := unary  (('*' | '/' | '%') unary)*\n      unary   := ('+' | '-') unary | power\n      power   := primary ('^' unary)?\n      primary := NUMBER | IDENT | IDENT '(' args ')' | '(' expr ')'\n      args    := expr (',' expr)*\n\n  * NUMBER: a non-negative decimal literal, e.g. 42 or 3.14.\n  * IDENT: a variable name matching [A-Za-z_][A-Za-z0-9_]*.\n  * A call IDENT '(' args ')' is only valid for these functions, with the exact\n    argument count shown: sqrt/1, abs/1, sin/1, cos/1, min/2, max/2, pow/2. Any other\n    function name, or a wrong number of arguments, is a parse error (nil).\n  * Precedence consequences: -2^2 parses as -(2^2) and 2^3^2 as 2^(3^2).\n\n- Implement `evaluate: ast vars: aCollection`: Evaluate the AST using the given\n  ExprVariable bindings (each responds to #name and #value) and return an EvalResult\n  (built with `EvalResult status: aSymbol value: aNumber`). Use these status symbols:\n  #ok, #divByZero, #undefinedVar, #invalidOp, #domainError. If any sub-expression\n  produces a non-#ok status, propagate the first such status (short-circuit) with\n  value 0.0.\n\n  Semantics:\n  * A number evaluates to its literal value with status #ok.\n  * A variable evaluates to its bound value, or #undefinedVar if no binding with that\n    name exists.\n  * Unary '-' negates, unary '+' is identity.\n  * '+' '-' '*' are ordinary arithmetic.\n  * '/' and '%' give #divByZero when the divisor is 0. '%' is the floating-point\n    remainder.\n  * '^' and pow(x, y) compute x raised to y; if the result is not a finite real number\n    (e.g. a negative base with a non-integer exponent), give #domainError.\n  * sqrt(x) gives #domainError when x < 0.\n  * abs, sin, cos, min, max behave as usual (angles in radians).\n\nConstraints:\n  - parseExpression: '' must return nil.\n  - Floating-point results are compared with a small epsilon tolerance.\n\n## Contract given to the author (Expression.st, not written by the author)\n```smalltalk\nObject subclass: AstNode [\n    | kind numValue strValue children |\n\n    AstNode class >> kind: k [\n        ^self new initKind: k\n    ]\n\n    initKind: k [\n        kind := k.\n        numValue := 0.0.\n        strValue := ''.\n        children := OrderedCollection new.\n        ^self\n    ]\n\n    kind [ ^kind ]\n    kind: k [ kind := k ]\n    numValue [ ^numValue ]\n    numValue: v [ numValue := v ]\n    strValue [ ^strValue ]\n    strValue: s [ strValue := s ]\n    children [ ^children ]\n    children: c [ children := c ]\n    addChild: c [ children add: c ]\n]\n\nObject subclass: ExprVariable [\n    | name value |\n\n    ExprVariable class >> name: n value: v [\n        ^self new initName: n value: v\n    ]\n\n    initName: n value: v [\n        name := n.\n        value := v.\n        ^self\n    ]\n\n    name [ ^name ]\n    value [ ^value ]\n]\n\nObject subclass: EvalResult [\n    | status value |\n\n    EvalResult class >> status: s value: v [\n        ^self new initStatus: s value: v\n    ]\n\n    initStatus: s value: v [\n        status := s.\n        value := v.\n        ^self\n    ]\n\n    status [ ^status ]\n    value [ ^value ]\n]\n\nObject subclass: Expression [\n    parseExpression: aString [\n        ^self subclassResponsibility\n    ]\n\n    evaluate: ast vars: aCollection [\n        ^self subclassResponsibility\n    ]\n]\n\n```\n\n## Code to evaluate (ExpressionImpl.st)\n```smalltalk\nObject subclass: ExpressionImpl [\n    | input pos |\n\n    ExpressionImpl class >> new [\n        ^super new init\n    ]\n\n    init [\n        input := ''.\n        pos := 1.\n        ^self\n    ]\n\n    setInput: aString [\n        input := aString.\n        pos := 1.\n        ^self\n    ]\n\n    parseExpression: aString [\n        | parser |\n        aString isNil ifTrue: [^nil].\n        parser := self class new setInput: aString.\n        ^[parser parseAll] on: Error do: [:e | e return: nil]\n    ]\n\n    evaluate: ast vars: aCollection [\n        ^self evalNode: ast vars: aCollection\n    ]\n\n    \"----------------------------------------------------------------\"\n    \"Parsing\"\n    \"----------------------------------------------------------------\"\n\n    parseError [\n        ^Error new signal: 'Invalid expression'\n    ]\n\n    parseAll [\n        | node |\n        node := self parseExpr.\n        self peek notNil ifTrue: [self parseError].\n        ^node\n    ]\n\n    peek [\n        self skipSpaces.\n        ^pos <= input size ifTrue: [input at: pos] ifFalse: [nil]\n    ]\n\n    skipSpaces [\n        [pos <= input size and: [(input at: pos) isSeparator]]\n            whileTrue: [pos := pos + 1]\n    ]\n\n    advance [\n        pos := pos + 1\n    ]\n\n    expect: aChar [\n        self peek = aChar ifFalse: [self parseError].\n        self advance\n    ]\n\n    parseExpr [\n        | node op |\n        node := self parseTerm.\n        [(op := self peek) notNil and: [op = $+ or: [op = $-]]]\n            whileTrue: [\n                self advance.\n                node := self binaryNode: op asString left: node right: self parseTerm].\n        ^node\n    ]\n\n    parseTerm [\n        | node op |\n        node := self parseUnary.\n        [(op := self peek) notNil and: [op = $* or: [op = $/ or: [op = $%]]]]\n            whileTrue: [\n                self advance.\n                node := self binaryNode: op asString left: node right: self parseUnary].\n        ^node\n    ]\n\n    parseUnary [\n        | op |\n        op := self peek.\n        (op notNil and: [op = $+ or: [op = $-]]) ifTrue: [\n            self advance.\n            ^self unaryNode: op asString operand: self parseUnary].\n        ^self parsePower\n    ]\n\n    parsePower [\n        | base |\n        base := self parsePrimary.\n        self peek = $^ ifTrue: [\n            self advance.\n            ^self binaryNode: '^' left: base right: self parseUnary].\n        ^base\n    ]\n\n    parsePrimary [\n        | c node |\n        c := self peek.\n        c isNil ifTrue: [^self parseError].\n        c isDigit ifTrue: [^self parseNumber].\n        (self isIdentStart: c) ifTrue: [^self parseIdentifier].\n        c = $( ifTrue: [\n            self advance.\n            node := self parseExpr.\n            self expect: $).\n            ^node].\n        ^self parseError\n    ]\n\n    parseNumber [\n        | start text |\n        start := pos.\n        [pos <= input size and: [(input at: pos) isDigit]]\n            whileTrue: [pos := pos + 1].\n        (pos <= input size and: [(input at: pos) = $.]) ifTrue: [\n            pos := pos + 1.\n            (pos <= input size and: [(input at: pos) isDigit])\n                ifFalse: [self parseError].\n            [pos <= input size and: [(input at: pos) isDigit]]\n                whileTrue: [pos := pos + 1]].\n        text := input copyFrom: start to: pos - 1.\n        ^AstNode new initKind: #num; numValue: text asNumber asFloat; yourself\n    ]\n\n    parseIdentifier [\n        | start name |\n        start := pos.\n        [pos <= input size and: [self isIdentChar: (input at: pos)]]\n            whileTrue: [pos := pos + 1].\n        name := input copyFrom: start to: pos - 1.\n        self peek = $( ifTrue: [^self parseCall: name].\n        ^AstNode new initKind: #var; strValue: name; yourself\n    ]\n\n    parseCall: name [\n        | arity args |\n        arity := self arityOf: name.\n        arity isNil ifTrue: [^self parseError].\n        self advance.\n        args := OrderedCollection new.\n        args add: self parseExpr.\n        [self peek = $,] whileTrue: [\n            self advance.\n            args add: self parseExpr].\n        self expect: $).\n        args size = arity ifFalse: [^self parseError].\n        ^self callNode: name args: args\n    ]\n\n    arityOf: name [\n        | table |\n        table := Dictionary new.\n        table at: 'sqrt' put: 1;\n              at: 'abs' put: 1;\n              at: 'sin' put: 1;\n              at: 'cos' put: 1;\n              at: 'min' put: 2;\n              at: 'max' put: 2;\n              at: 'pow' put: 2.\n        ^table at: name ifAbsent: [nil]\n    ]\n\n    isIdentStart: c [\n        ^(c between: $a and: $z) or: [(c between: $A and: $Z) or: [c = $_]]\n    ]\n\n    isIdentChar: c [\n        ^(self isIdentStart: c) or: [c between: $0 and: $9]\n    ]\n\n    binaryNode: op left: l right: r [\n        | n |\n        n := AstNode new initKind: #binOp.\n        n strValue: op.\n        n addChild: l.\n        n addChild: r.\n        ^n\n    ]\n\n    unaryNode: op operand: x [\n        | n |\n        n := AstNode new initKind: #unOp.\n        n strValue: op.\n        n addChild: x.\n        ^n\n    ]\n\n    callNode: name args: list [\n        | n |\n        n := AstNode new initKind: #call.\n        n strValue: name.\n        n children: list.\n        ^n\n    ]\n\n    \"----------------------------------------------------------------\"\n    \"Evaluation\"\n    \"----------------------------------------------------------------\"\n\n    okResult: v [\n        ^EvalResult status: #ok value: v\n    ]\n\n    errorResult: s [\n        ^EvalResult status: s value: 0.0\n    ]\n\n    evalNode: node vars: vars [\n        | kind r |\n        kind := node kind.\n        kind = #num ifTrue: [^self okResult: node numValue].\n        kind = #var ifTrue: [^self lookup: node strValue in: vars].\n        kind = #unOp ifTrue: [\n            r := self evalNode: node children first vars: vars.\n            r status = #ok ifFalse: [^r].\n            node strValue = '-' ifTrue: [^self okResult: r value negated].\n            ^r].\n        kind = #binOp ifTrue: [^self evalBinary: node vars: vars].\n        kind = #call ifTrue: [^self evalCall: node vars: vars].\n        ^self errorResult: #invalidOp\n    ]\n\n    lookup: name in: vars [\n        | binding |\n        binding := vars detect: [:b | b name = name] ifNone: [nil].\n        binding isNil ifTrue: [^self errorResult: #undefinedVar].\n        ^self okResult: binding value asFloat\n    ]\n\n    evalBinary: node vars: vars [\n        | l r |\n        l := self evalNode: node children first vars: vars.\n        l status = #ok ifFalse: [^l].\n        r := self evalNode: node children last vars: vars.\n        r status = #ok ifFalse: [^r].\n        ^self applyBinary: node strValue to: l value and: r value\n    ]\n\n    applyBinary: op to: a and: b [\n        op = '+' ifTrue: [^self okResult: a asFloat + b asFloat].\n        op = '-' ifTrue: [^self okResult: a asFloat - b asFloat].\n        op = '*' ifTrue: [^self okResult: a asFloat * b asFloat].\n        op = '/' ifTrue: [\n            b = 0 ifTrue: [^self errorResult: #divByZero].\n            ^self okResult: a asFloat / b asFloat].\n        op = '%' ifTrue: [\n            b = 0 ifTrue: [^self errorResult: #divByZero].\n            ^self okResult: (a asFloat rem: b asFloat)].\n        op = '^' ifTrue: [^self powerOf: a to: b].\n        ^self errorResult: #invalidOp\n    ]\n\n    evalCall: node vars: vars [\n        | name r1 r2 x y |\n        name := node strValue.\n        r1 := self evalNode: node children first vars: vars.\n        r1 status = #ok ifFalse: [^r1].\n        x := r1 value asFloat.\n        node children size = 2 ifTrue: [\n            r2 := self evalNode: node children last vars: vars.\n            r2 status = #ok ifFalse: [^r2].\n            y := r2 value asFloat].\n        name = 'sqrt' ifTrue: [\n            x < 0.0 ifTrue: [^self errorResult: #domainError].\n            ^self okResult: x sqrt].\n        name = 'abs' ifTrue: [^self okResult: x abs].\n        name = 'sin' ifTrue: [^self okResult: x sin].\n        name = 'cos' ifTrue: [^self okResult: x cos].\n        name = 'min' ifTrue: [^self okResult: (x min: y)].\n        name = 'max' ifTrue: [^self okResult: (x max: y)].\n        name = 'pow' ifTrue: [^self powerOf: x to: y].\n        ^self errorResult: #invalidOp\n    ]\n\n    powerOf: a to: b [\n        | x y m r |\n        x := a asFloat.\n        y := b asFloat.\n        (x = 0.0 and: [y < 0.0]) ifTrue: [^self errorResult: #domainError].\n        (x < 0.0 and: [y truncated asFloat ~= y]) ifTrue: [^self errorResult: #domainError].\n        x < 0.0\n            ifTrue: [\n                m := x negated raisedTo: y.\n                r := (y truncated odd) ifTrue: [m negated] ifFalse: [m]]\n            ifFalse: [r := x raisedTo: y].\n        r := r asFloat.\n        (r isNaN or: [r isInfinite]) ifTrue: [^self errorResult: #domainError].\n        ^self okResult: r\n    ]\n]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SKV4SSymkG1zRqGavX",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The recursive-descent parser is split into one small method per grammar rule (parseExpr, parseTerm, parseUnary, parsePower, parsePrimary), and the AST is built with message sends. But the evaluator is a procedural dispatch on kind symbols (`kind = #num ifTrue:` ... ) and on operator strings (`op = '+' ifTrue:`) rather than polymorphism over node classes or a dictionary of operation blocks. The parser and evaluator are also merged into one class with parser state in ivars, and `parseExpression:` creates a fresh instance of itself to parse. Using AstNode subclasses or a selector/block table would earn one more point.\",\"language_idiomaticity\":\"It uses `detect:ifNone:`, `on:do:`, `and:`/`or:` with blocks, `between:and:`, `isSeparator`, `isDigit` and cascades with `yourself`, all correctly. Weaknesses: `^Error new signal:` is used for parse errors, `Dictionary new` is rebuilt on every `arityOf:` call, `AstNode new initKind:` is used instead of the `AstNode kind:` class constructor, and `^self parseError` is used as if it returned a value. `[parser parseAll] on: Error do:` also swallows every error, not just parse errors. `e return: nil` is fine.\",\"readability\":\"Method names are intention-revealing (parseNumber, parseIdentifier, okResult:, errorResult:, powerOf:to:) and methods are short, with section comments. The long if-chains in `applyBinary:to:and:` and `evalCall:vars:` are repetitive. `evalCall:` evaluates `y` conditionally with a nil temp, which is slightly awkward. The code is still easy to follow.\",\"design\":\"The separation into token-level helpers, node constructors and evaluation helpers is reasonable, and okResult:/errorResult: remove duplication. Mixing parser state and evaluator in one class is a smell, the arity table is rebuilt on each call, and evaluation by string and symbol comparisons is not extensible. The operator and function tables could be class-side dictionaries of blocks, and the parser could be its own class.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":4,\"design\":3,\"anti_patterns\":[\"evaluation by symbol/string if-chains instead of polymorphism or a dispatch table\",\"parser state and evaluator mixed in one class\",\"dictionary rebuilt on every arityOf: call\",\"catching all Error to signal parse failure\",\"bypassing the AstNode kind: constructor with new initKind:\"],\"justification\":\"The parser is a clean recursive descent with one small method per grammar rule and clear names. The evaluator, however, is procedural: `evalNode:vars:`, `applyBinary:to:and:` and `evalCall:vars:` dispatch with chains of `ifTrue:` on symbols and strings instead of polymorphism or a table of blocks. Smaller issues are that `arityOf:` builds a Dictionary on every call, that parsing and evaluation share a stateful class, and that the broad `on: Error do:` handler hides other failures.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7240,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7240,
+          "model": null,
+          "output_tokens": 1072,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1072,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -1,0 +1,148 @@
+% =============================================================================
+\chapter{Sędzia LLM: prompt, rubryka i przykład}
+\label{app:judge}
+% =============================================================================
+
+\section{Prompt sędziego}
+
+Sędzia otrzymuje prompt systemowy (\cref{lst:judge-system}), po którym następuje rubryka, oraz
+wiadomość użytkownika (\cref{lst:judge-user}) ze specyfikacją zadania, kontraktem i kodem. Symbole
+zastępcze w nawiasach klamrowych są wypełniane dla każdego rozwiązania. Sędzia nigdy nie otrzymuje
+wyników testów, liczby prób ani nazwy modelu generującego. Prompty i rubrykę podajemy
+w oryginalnym brzmieniu angielskim; \cref{app:rubric} zawiera ich polskie omówienie.
+
+\begin{lstlisting}[style=prompt,caption={Prompt systemowy sędziego (\file{harness/judge.py}).},label={lst:judge-system}]
+You are an expert reviewer of {language} code and of the {paradigm} programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.
+
+Before the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.
+
+{general rubric sections + the section of this language}
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt,caption={Struktura wiadomości użytkownika dla sędziego.},label={lst:judge-user}]
+Language: {language} ({paradigm} paradigm)
+
+## Task specification given to the author
+{task-specific requirements from test-N.md}
+
+## Contract given to the author ({contract file}, not written by the author)
+   -- or, in single-file languages --
+## Stub module given to the author ({module file})
+The author replaced the stub bodies; type declarations and signatures come from it.
+```{language tag}
+{contract}
+```
+
+## Code to evaluate ({target file})
+```{language tag}
+{code}
+```
+\end{lstlisting}
+
+\section{Rubryka}
+\label{app:rubric}
+
+Rubryka (\file{harness/rubrics.md}) składa się z sekcji ogólnych, które otrzymuje każda ocena, oraz
+z sekcji dla każdego języka, z których dołączana jest tylko sekcja ocenianego języka. Poniżej
+podajemy jej treść w tłumaczeniu.
+
+\paragraph{Skala}
+\begin{itemize}
+  \item[\textbf{5}] Tak napisałby to doświadczony praktyk tego języka i paradygmatu; nie ma czego
+    zmieniać.
+  \item[\textbf{4}] Ogólnie idiomatyczny, z kilkoma drobnymi odstępstwami od powszechnej praktyki.
+  \item[\textbf{3}] Miejscami zgodny ze stylem języka, ale z wyraźnymi nieidiomatycznymi
+    fragmentami.
+  \item[\textbf{2}] Napisany przeważnie tak, jakby był w innym języku lub paradygmacie; idiomy tego
+    języka są w dużej mierze ignorowane.
+  \item[\textbf{1}] Walczy z językiem: wszędzie obce mu konstrukcje lub niewłaściwe użycie jego
+    podstawowych cech.
+\end{itemize}
+
+\paragraph{Kryteria}
+\begin{itemize}
+  \item \code{paradigm_idiomaticity}: jak dobrze kod wyraża rozwiązanie w paradygmacie języka
+    (proceduralnym, obiektowym, funkcyjnym, logicznym): dekompozycja, przepływ danych i struktury
+    sterujące preferowane przez ten paradygmat.
+  \item \code{language_idiomaticity}: wykorzystanie cech danego języka, jego biblioteki
+    standardowej i konwencji (nazewnictwo, reprezentacja błędów i braku wartości, kolekcje,
+    formatowanie).
+  \item \code{readability}: jak łatwo kompetentny czytelnik tego języka śledzi kod: nazwy, rozmiar
+    funkcji, struktura, komentarze tam, gdzie pomagają (a nie wszędzie).
+  \item \code{design}: podział na funkcje/typy/klasy/predykaty, dobór struktur danych, rozdzielenie
+    odpowiedzialności, unikanie powtórzeń; struktura, a nie poprawność.
+\end{itemize}
+
+\paragraph{Reguły}
+\begin{itemize}
+  \item Nie oceniać poprawności: poprawne, ale nieidiomatyczne rozwiązanie powinno dostać niską
+    ocenę, a idiomatyczne rozwiązanie z błędem może dostać wysoką.
+  \item Oceniać tylko to, co napisał autor; deklaracje i sygnatury skopiowane z kontraktu są dane.
+  \item Nie nagradzać długości ani dodatkowych funkcji i nie karać krótkiego rozwiązania za to, że
+    jest krótkie.
+  \item Wymagania wynikające z zadania (ustalone sygnatury, struktury wynikowe w stylu C, typy
+    wyliczeniowe statusów, atomy \code{none}, kolekcje Smalltalka indeksowane od 1) nie są
+    antywzorcami.
+  \item \code{anti_patterns}: krótkie, konkretne etykiety nieidiomatycznych konstrukcji faktycznie
+    obecnych w kodzie (np.\ „pętle po indeksach zamiast zwinięć”, „odcięcie użyte do emulacji
+    if-else”); bez drobiazgów stylistycznych.
+  \item \code{justification}: od dwóch do czterech zdań wskazujących konkretne fragmenty kodu.
+\end{itemize}
+
+\paragraph{Sekcje językowe} \Cref{tab:rubric-langs} streszcza oczekiwania wymienione dla każdego
+języka.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Oczekiwania rubryki specyficzne dla języka (w skrócie).}
+  \label{tab:rubric-langs}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lY@{}}
+    \toprule
+    Język & Oczekiwania \\
+    \midrule
+    C         & jasna własność pamięci z odpowiadającymi funkcjami \code{free_*} i brakiem wycieków na ścieżkach błędów; sprawdzane wyniki \code{malloc}/\code{calloc}; funkcje pomocnicze \code{static}, \code{const} dla wskaźników tylko do odczytu; małe funkcje o jednym przeznaczeniu; biblioteka standardowa (\code{qsort}, \code{memcpy}, \code{snprintf}) zamiast własnych implementacji \\
+    Pascal    & ustrukturyzowane procedury ze świadomie dobranymi parametrami \code{const}/\code{var}; spójne \code{New}/\code{Dispose} lub \code{SetLength}; narzędzia RTL Free Pascala (\code{Length}, \code{High}, \code{Exit(value)}, \code{Math}, \code{SysUtils}); czytelny przepływ sterowania, bez \code{goto} \\
+    Java      & zachowanie w dobrze nazwanych klasach i prywatnych metodach pomocniczych z hermetyzowanym stanem; framework kolekcji i standardowe API; \code{final}, typy generyczne, typy wyliczeniowe, niemodyfikowalność; brak połykanych wyjątków; bez statycznego „śmietnika” narzędziowego i kodu w stylu C \\
+    Smalltalk & przekazywanie komunikatów i polimorfizm z małymi metodami o czytelnych intencjach; protokoły kolekcji (\code{do:}, \code{collect:}, \code{select:}, \code{detect:ifNone:}, \code{inject:into:}); idiomatyczne bloki (\code{ifNil:}, \code{and:}); logika dziedzinowa w obiektach; bez redefiniowania klas wbudowanych \\
+    Haskell   & czyste, totalne funkcje; \code{Maybe}/\code{Either}/ADT zamiast \code{error} lub funkcji częściowych; dopasowanie wzorców, strażnicy, zwinięcia; \code{Data.Map}/\code{Data.Set}/\code{Data.Array} do wyszukiwania; ścisłość tam, gdzie ma znaczenie (\code{foldl'}); bez emulacji stylu imperatywnego \\
+    Scala     & \code{val} i niemodyfikowalne kolekcje, wyrażenia zamiast instrukcji; \code{Option}/\code{Either}/zapieczętowane cechy/klasy przypadków; kombinatory kolekcji i for-comprehensions; \code{@tailrec}; bez nulli w stylu Javy i \code{return}; Scala 2.11 \\
+    Prolog    & predykaty relacyjne z rozgałęzianiem w głowach klauzul; akumulatory lub predykaty biblioteczne (\code{foldl/4}, \code{maplist/N}, \code{aggregate_all/3}); tylko „zielone” lub uzasadnione odcięcia; bez \code{assert}/\code{retract} dla zwykłego stanu; porażka lub \code{none} zgodnie ze specyfikacją \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Przykładowa ocena}
+
+\Cref{lst:judgement} przedstawia kompletną ocenę rozwiązania zadania 1 w C (oceny 4/4/4/4). Każde
+uzasadnienie wskazuje konkretne funkcje i konstrukcje oraz to, co dałoby wyższą ocenę, zgodnie
+z wymaganiem schematu. Ocenę podajemy w oryginalnym brzmieniu.
+
+\begin{lstlisting}[language=JSON,numbers=none,caption={Ocena rozwiązania zadania 1 w C (\file{results/haiku-v1/judge/C-test-1-s1-a0.json}, bez metadanych).},label={lst:judgement}]
+{
+  "rationale": {
+    "paradigm_idiomaticity": "The code is clean procedural C: small static helpers (geo_cross, geo_on_segment, geo_segments_intersect), explicit loops, data passed through structs, and straightforward control flow with early returns. Monotone-chain hull built on qsort is the standard imperative approach. Cleanup uses a single exit path in places, with early-break loops. A 5 would require fewer inline loops in the big functions, e.g. extracting hull construction and the 'inside' test into helpers.",
+    "language_idiomaticity": "Uses static helpers, qsort with a comparator, size_t for sizes, calloc/malloc checks, and a bounded strncpy wrapper that guarantees termination. Naming is consistent with a geo_ prefix. Minor departures: [...] the cast of calloc/malloc results is unnecessary in C; geo_abs reimplements fabs from <math.h>; the `for (size_t i = u - 1; i-- > 0; )` idiom is a bit cryptic; [...]",
+    "readability": "Names are clear and comments mark the hull phases and the collision steps. Functions are mostly short, but calculate_clean_minkowski_sum is long, mixing point generation, dedupe, hull and result copy. [...] Splitting it into helpers would earn a 5.",
+    "design": "Good separation: geometry primitives, name copy, allocation/free pairs, and collision implemented via the Minkowski sum of obstacle and negated robot, as the spec requires. Ownership is clear and error paths free pts/hull/neg/cspace. Weaknesses: [...] hull construction is not factored into a reusable convex_hull function; [...] the final copy from hull to result could be a memcpy."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "reimplementing fabs (geo_abs) instead of using math.h",
+    "long function mixing point generation, dedupe, hull building and result copy",
+    "manual loop copy instead of memcpy for hull to result vertices",
+    "unnecessary casts on malloc/calloc results"
+  ],
+  "justification": "The code is solid procedural C with static helpers, qsort, checked allocations and consistent cleanup, and the collision check follows the C-space approach via the Minkowski sum with the negated robot. Small deductions come from the long calculate_clean_minkowski_sum, the hand-rolled geo_abs and copy loop, and the lack of a separate convex-hull helper. Overall it is idiomatic and easy to follow."
+}
+\end{lstlisting}
+
+Dla kontrastu rozwiązanie zadania 4 w Prologu (oceny 4/3/3/3) zostało opisane jako „czyste,
+pozbawione \code{assert} programowanie dynamiczne, które przekazuje niemodyfikowalną tablicę
+pojemności przez \code{fold_items/step/combine}”, z antywzorcami „ręcznie napisane
+\code{fold_items} zamiast \code{foldl/4}”, „łańcuchy if-then-else w \code{combine/4} zamiast
+rozgałęziania w głowach klauzul” oraz „przesuwanie list za pomocą \code{append} w celu emulacji
+indeksowania tablic”.

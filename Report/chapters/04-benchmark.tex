@@ -1,0 +1,248 @@
+% =============================================================================
+\chapter{Projekt benchmarku}
+\label{ch:benchmark}
+% =============================================================================
+
+Ten rozdział opisuje benchmark: języki i ich środowiska wykonawcze, strukturę zadania i samych
+dziesięć zadań oraz sposób walidacji zestawów testów.
+
+\section{Języki i środowiska wykonawcze}
+\label{sec:languages}
+
+\Cref{tab:languages} zestawia siedem języków. Katalog każdego języka zawiera \file{Dockerfile}
+z narzędziami, \file{Makefile} i skrypt \file{run-tests.sh}, który buduje i uruchamia katalog jednego
+zadania, oraz plik \file{README.md} z dwoma szablonami promptów (\cref{sec:prompts}). Testy są
+uruchamiane w jednorazowych kontenerach, więc wadliwe rozwiązanie nie może wpłynąć na system
+gospodarza ani na inne przebiegi. W C, Pascalu, Haskellu i Prologu program testowy działa pod
+Valgrindem~\cite{nethercote2007valgrind} z opcją \texttt{-{}-error-exitcode=1}. Rozwiązanie, które
+przechodzi wszystkie testy, ale ma wycieki pamięci lub odczytuje niepoprawną pamięć, jest więc mimo
+to uznawane za błędne. W Prologu sprawdzanie wycieków jest wyłączone, ponieważ alokacje samego
+interpretera powodowałyby niepowodzenie każdego przebiegu.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Języki, paradygmaty i środowiska wykonawcze. \emph{Kontrakt} to plik pokazywany
+    modelowi, a \emph{cel} to plik zastępowany jego odpowiedzią; „moduł” oznacza, że model
+    otrzymuje moduł-szkielet i zwraca go w kompletnej postaci.}
+  \label{tab:languages}
+  \small
+  \begin{tabularx}{\textwidth}{@{}llYllc@{}}
+    \toprule
+    Język & Paradygmat & Narzędzia (bazowy obraz Docker) & Kontrakt & Cel & Valgrind \\
+    \midrule
+    C         & imperatywny & GCC 12, Debian~12 (\code{debian:bookworm-slim})    & \file{name.h}    & \file{name.c}        & wycieki + pamięć \\
+    Pascal    & imperatywny & Free Pascal 3.2.2, Debian~12                        & \multicolumn{2}{l}{moduł (\file{.pas})} & wycieki + pamięć \\
+    Java      & obiektowy   & JDK 17, Eclipse Temurin (\code{eclipse-temurin:17-jdk})  & \file{Name.java} & \file{NameImpl.java} & -- \\
+    Smalltalk & obiektowy   & GNU Smalltalk 3.2.5, Debian~11                      & \file{Name.st}   & \file{NameImpl.st}   & -- \\
+    Haskell   & funkcyjny   & GHC 9.0.2, Debian~12                                & \multicolumn{2}{l}{moduł (\file{.hs})}  & wycieki + pamięć \\
+    Scala     & funkcyjny   & Scala 2.11.12 na domyślnym JDK, Debian~12          & \multicolumn{2}{l}{moduł (\file{.scala})} & -- \\
+    Prolog    & logiczny    & SWI-Prolog 9.2.9 (\code{swipl:9.2.9})               & \multicolumn{2}{l}{moduł (\file{.pl})}  & tylko pamięć \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Struktura zadania}
+\label{sec:task-structure}
+
+Zadanie to katalog \file{<Language>/test-N/}. To samo zadanie istnieje w każdym języku, z tymi
+samymi testami, danymi wejściowymi i oczekiwanymi wynikami. Różni się tylko reprezentacja, np.\
+\code{NULL} w C, \code{Nothing} w Haskellu i atom \code{none} w Prologu. \Cref{tab:task-files}
+wymienia pliki katalogu zadania.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Pliki katalogu zadania i ich widoczność dla modelu.}
+  \label{tab:task-files}
+  \small
+  \begin{tabularx}{\textwidth}{@{}lYl@{}}
+    \toprule
+    Plik & Rola & Widoczny dla modelu \\
+    \midrule
+    \file{test-N.md}            & Specyfikacja zadania; blok pod nagłówkiem \texttt{\#\# Prompt} jest wstawiany do promptu & tak \\
+    kontrakt (\file{knapsack.h}, \file{Knapsack.java}, \ldots) & Typy i sygnatury, które rozwiązanie musi zaimplementować & tak \\
+    szkielet (\file{knapsack.c}, \file{KnapsackImpl.java}, \ldots) & Ciała typu „nie zaimplementowano”; zastępowane odpowiedzią modelu & jako kontrakt w językach jednoplikowych \\
+    testy (\file{tests.c}, \file{Tests.hs}, \ldots) & Testy jednostkowe i program je uruchamiający & \textbf{nigdy} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Dwa algorytmy, dwadzieścia testów} Każde zadanie wymaga dwóch powiązanych algorytmów,
+A i B, a każdy algorytm ma dziesięć testów nazwanych od \code{Test A01 (Title)} do
+\code{Test B10 (Title)}. System odczytuje identyfikatory testów z pliku testowego i nie zakłada
+stałej liczby testów. Testy obejmują przypadki typowe, przypadki brzegowe (puste dane, pojedynczy
+element, argumenty \code{NULL}, niepoprawne indeksy), podchwytliwe przypadki specyficzne dla
+algorytmu oraz co najmniej jeden test obciążeniowy na dużych danych.
+
+\paragraph{Protokół wyjścia} Wszystkie programy testowe wypisują ten sam protokół
+(\cref{lst:protocol}) i kończą się kodem~0 tylko wtedy, gdy wszystkie testy przeszły, a Valgrind,
+jeśli jest używany, niczego nie wykrył. Znaczniki \code{=== START ===} i
+\code{=== BENCHMARK RESULTS ===} pozwalają systemowi odróżnić kod, który się nie skompilował, od
+kodu, który uległ awarii w trakcie testów (\cref{sec:outcomes}).
+
+\begin{lstlisting}[style=prompt,caption={Protokół wyjścia testów wspólny dla wszystkich języków (fragment przebiegu zadania Dijkstry w Smalltalku).},label={lst:protocol}]
+=== START ===
+--- Algorithm A: Shortest Distances ---
+[FAIL] Test A01 (Linear Chain)
+...
+[PASS] Test A07 (Null Graph)
+--- Algorithm B: Path Reconstruction ---
+[PASS] Test B01 (Simple Path)
+...
+=== BENCHMARK RESULTS ===
+\end{lstlisting}
+
+\paragraph{Kontrakty w różnych paradygmatach} Kontrakt ustala API, ale pozostawia implementację
+otwartą. \Cref{lst:contract-c,lst:contract-hs,lst:contract-pl} pokazują kontrakt zadania plecakowego
+w trzech paradygmatach. W C model implementuje plik nagłówkowy i musi zwracać wyniki zaalokowane na
+stercie, które zwalnia wywołujący. W Haskellu uzupełnia moduł z algebraicznym typem danych
+i czystymi funkcjami. W Prologu implementuje moduł z relacjami, w którym wynikami są termy takie jak
+\code{result(MaxValue, Selected, TotalWeight)}. W językach jednoplikowych (Pascal, Haskell, Scala,
+Prolog) model zwraca cały moduł wraz z deklaracjami typów, więc może też naruszyć kontrakt; objawia
+się to błędem kompilacji.
+
+\begin{lstlisting}[language=C,caption={Kontrakt zadania 4 (plecak 0/1) w C: \file{knapsack.h}.},label={lst:contract-c}]
+typedef struct {
+    int max_value;
+    int* selected;       /* length n; entries 0 or 1 */
+    int n;
+    int total_weight;
+} KnapsackResult;
+
+int knapsack_max_value(const int* weights, const int* values, int n, int capacity);
+KnapsackResult* knapsack_solve(const int* weights, const int* values, int n, int capacity);
+void free_knapsack_result(KnapsackResult* result);
+\end{lstlisting}
+
+\begin{lstlisting}[language=Haskell,caption={Ten sam kontrakt w Haskellu: moduł-szkielet \file{Knapsack.hs}.},label={lst:contract-hs}]
+module Knapsack ( Result (..), maxValue, solve ) where
+
+data Result = Result
+  { resultMaxValue    :: Int
+  , resultSelected    :: [Int]
+  , resultTotalWeight :: Int
+  } deriving (Eq, Show)
+
+maxValue :: [Int] -> [Int] -> Int -> Int
+maxValue _ _ _ = error "Knapsack.maxValue not implemented"
+
+solve :: [Int] -> [Int] -> Int -> Result
+solve _ _ _ = error "Knapsack.solve not implemented"
+\end{lstlisting}
+
+\begin{lstlisting}[language=Prolog,caption={Ten sam kontrakt w Prologu: moduł-szkielet \file{knapsack.pl} z trybami argumentów udokumentowanymi w komentarzach.},label={lst:contract-pl}]
+:- module(knapsack, [knapsack_max_value/4, knapsack_solve/4]).
+
+% knapsack_max_value(+Weights, +Values, +Capacity, -MaxValue)
+% knapsack_solve(+Weights, +Values, +Capacity, -Result)
+%   Result = result(MaxValue, Selected, TotalWeight)
+
+knapsack_max_value(_, _, _, _) :-
+    throw(error(existence_error(procedure, knapsack_max_value/4), _)).
+knapsack_solve(_, _, _, _) :-
+    throw(error(existence_error(procedure, knapsack_solve/4), _)).
+\end{lstlisting}
+
+\section{Dziesięć zadań}
+\label{sec:tasks}
+
+\Cref{tab:tasks} zestawia zadania. Obejmują one geometrię obliczeniową, grafy, struktury danych na
+napisach, programowanie dynamiczne, parsowanie, przeszukiwanie z ograniczeniami, bioinformatykę,
+algorytmy aproksymacyjne, struktury danych dla pamięci zewnętrznej i selekcję. Nowsze zadania (7--10)
+są wyspecyfikowane ściślej niż starsze: definiują każdą regułę rozstrzygania remisów, tak aby
+oczekiwany wynik był jednoznaczny i porównywany dokładnie.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Dziesięć zadań benchmarku. Każdy algorytm ma dziesięć testów (20 na zadanie, 200 na
+    język, łącznie 1\,400).}
+  \label{tab:tasks}
+  \small
+  \begin{tabularx}{\textwidth}{@{}rL{2.7cm}L{3.0cm}L{3.0cm}Y@{}}
+    \toprule
+    \# & Zadanie & Algorytm A & Algorytm B & Co stanowi trudność \\
+    \midrule
+    1  & Logika przestrzenna        & Oczyszczona suma Minkowskiego (otoczka wypukła) & Dynamiczne wykrywanie kolizji & Wielokąty zdegenerowane (punkty, odcinki, puste), usuwanie wierzchołków współliniowych, kolejność przeciwna do ruchu wskazówek zegara, ciągła kolizja w przestrzeni konfiguracyjnej~\cite{deberg2008cg,andrew1979hull} \\
+    2  & Dijkstra                   & Najkrótsze odległości & Odtwarzanie ścieżki & Kolejka priorytetowa, krawędzie równoległe i o wadze zero, wierzchołki nieosiągalne ($\infty$), łańcuchy o 1\,000 wierzchołków~\cite{dijkstra1959note} \\
+    3  & Eertree                    & Budowa i zapytania strukturalne & Zliczanie wystąpień & Drzewo palindromowe w czasie liniowym z dwoma korzeniami, dowiązaniami sufiksowymi i propagacją liczników; test obciążeniowy na 50\,000 znaków~\cite{rubinchik2018eertree} \\
+    4  & Plecak 0/1                 & Maksymalna wartość & Wybór przedmiotów & Programowanie dynamiczne z odtworzeniem optymalnego wyboru; pułapka na algorytm zachłanny~\cite{kellerer2004knapsack} \\
+    5  & Parser wyrażeń             & Parsowanie i budowa AST & Wartościowanie i semantyka błędów & Zejście rekurencyjne z priorytetami i łącznością ($-2^2$, $2^{3^2}$), arność funkcji, propagacja pierwszego statusu błędu~\cite{aho2006compilers} \\
+    6  & Sudoku                     & Walidacja i kandydaci & Rozwiązywanie i zliczanie rozwiązań & Nawracanie z heurystyką MRV, zliczanie z wczesnym zatrzymaniem; naiwne przeszukiwanie jest zbyt wolne~\cite{russell2020aima} \\
+    7  & Dopasowanie sekwencji      & Wynik dopasowania & Odtworzenie dopasowania & Programowanie dynamiczne Gotoha z afinicznymi karami za przerwy, trzema macierzami i przejściami przerwa--przerwa; ścieżka powrotna między macierzami~\cite{gotoh1982improved} \\
+    8  & Aproksymacja metrycznego TSP & Podwojone drzewo MST & Heurystyka Christofidesa & MST algorytmem Prima z dokładnymi regułami remisów, dokładne minimalne skojarzenie doskonałe (DP na maskach bitowych), cykl Eulera algorytmem Hierholzera, skróty~\cite{rosenkrantz1977tsp,christofides1976worst,prim1957shortest} \\
+    9  & B-drzewo                   & Wstawianie & Usuwanie & Podział i scalanie węzłów z góry na dół według CLRS; porównywany jest dokładny kształt drzewa~\cite{bayer1972btree,cormen2009clrs} \\
+    10 & Statystyki pozycyjne       & Mediana median ze śladem pivotów & Mediana dwóch posortowanych źródeł & Selekcja BFPRT z dokładnym śladem pivotów; wyszukiwanie binarne przy limicie $16(\lfloor\log_2(m{+}n)\rfloor+2)$ odczytów~\cite{blum1973time} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\noindent Zadania bardziej szczegółowo:
+
+\begin{description}[leftmargin=0pt,itemsep=3pt,font=\normalfont\bfseries]
+  \item[Zadanie 1: logika przestrzenna.] Oblicz sumę Minkowskiego dwóch wielokątów wypukłych i zwróć
+    tylko ściśle skrajne punkty jej otoczki wypukłej w kolejności przeciwnej do ruchu wskazówek
+    zegara. Następnie rozstrzygnij, czy wielokąt robota poruszający się ze stałą prędkością zderzy
+    się w dowolnym miejscu swojej trajektorii z nieruchomą przeszkodą, korzystając z przeszkody
+    w przestrzeni konfiguracyjnej, aby uniknąć „tunelowania”. Wersja w C zarządza też strukturami
+    wielokątów i warstw zawierającymi posiadane napisy.
+  \item[Zadanie 2: Dijkstra.] Zbuduj skierowany graf ważony z listami sąsiedztwa, oblicz najkrótsze
+    odległości z użyciem kopca minimalnego w czasie $O((V+E)\log V)$ i odtwórz ścieżki z tablicy
+    poprzedników. Niepoprawne wierzchołki źródłowe i docelowe mają zdefiniowane wyniki
+    (\code{NULL}, \code{INFINITY}, \code{none}).
+  \item[Zadanie 3: eertree.] Zbuduj drzewo palindromowe napisu w czasie liniowym, policz różne
+    podsłowa będące palindromami, znajdź najdłuższe z nich i policz wystąpienia danego palindromu
+    po propagacji liczników wzdłuż dowiązań sufiksowych.
+  \item[Zadanie 4: plecak 0/1.] Zwróć optymalną wartość i realizujący ją wybór przedmiotów,
+    z zachowaniem niezmienników dotyczących wagi i wartości wyboru. Specyfikacja wprost ostrzega,
+    że heurystyki zachłanne zawodzą.
+  \item[Zadanie 5: parser wyrażeń.] Sparsuj wyrażenia arytmetyczne ze zmiennymi i siedmioma
+    funkcjami wbudowanymi do drzewa AST zgodnie z podaną gramatyką. Oblicz jego wartość
+    z typowanymi statusami błędów (niezdefiniowana zmienna, dzielenie przez zero, błąd dziedziny),
+    które przerywają obliczenie.
+  \item[Zadanie 6: Sudoku.] Waliduj plansze, wypisz kandydatów dla komórki, rozwiąż łamigłówkę
+    i policz rozwiązania do zadanego limitu. Nawracanie musi rozgałęziać się na komórce z najmniejszą
+    liczbą kandydatów (MRV), ponieważ naiwne przeszukiwanie wierszami jest zbyt wolne dla części
+    testowych łamigłówek.
+  \item[Zadanie 7: dopasowanie sekwencji.] Oblicz wynik optymalnego dopasowania globalnego
+    z afinicznymi karami za przerwy (przerwa długości $L$ kosztuje $o + L\cdot e$) i zwróć jedno
+    optymalne dopasowanie. Dane o długości ponad 100 znaków wykluczają pełne wyliczanie.
+  \item[Zadanie 8: metryczny TSP.] Dla odległości Manhattan oblicz wagę MST i trasę podwojonego
+    drzewa (jednoznaczną dzięki podanym regułom remisów), dokładne skojarzenie doskonałe o minimalnej
+    wadze na wierzchołkach stopnia nieparzystego oraz trasę Christofidesa poprzez cykl Eulera
+    w multigrafie, z zachowaniem krawędzi podwójnych.
+  \item[Zadanie 9: B-drzewo.] Wstawiaj i usuwaj klucze całkowite zgodnie z CLRS~\cite{cormen2009clrs},
+    z wyprzedzającym dzieleniem i scalaniem węzłów, łącznie ze sprawdzeniem przynależności przed
+    modyfikacją. Testy porównują dokładny kształt otrzymanego drzewa.
+  \item[Zadanie 10: statystyki pozycyjne.] Zaimplementuj selekcję BFPRT~\cite{blum1973time} na
+    grupach po pięć elementów ze stabilnym podziałem trójdzielnym i raportuj dokładny ciąg pivotów.
+    Oblicz medianę dwóch posortowanych ciągów, które można odczytywać wyłącznie przez zliczającą
+    sondę; przekroczenie logarytmicznego limitu odczytów przerywa wywołanie.
+\end{description}
+
+\section{Walidacja benchmarku}
+\label{sec:benchmark-validation}
+
+Błędny test karałby każdy model i każdy język, który rozwiązuje zadanie poprawnie, dlatego zestawy
+testów są walidowane przed każdym płatnym przebiegiem.
+
+\paragraph{Tryb bazowy} Opcja \texttt{-{}-baseline} systemu przepuszcza przez ewaluator każdy szkielet
+i każde dostępne rozwiązanie wzorcowe, bez wywoływania modelu. Każdy szkielet musi się
+skompilować, wypisać linię wyniku dla każdego testu i nie przejść testów. Rozwiązania wzorcowe,
+przechowywane w historii gita, muszą przechodzić tam, gdzie się tego oczekuje. Istnieje pięć
+rozwiązań wzorcowych (C: zadania 1 i 3, Pascal: zadanie 1, Java: zadanie 1, Smalltalk: zadanie 1).
+Rozwiązania w Javie i Smalltalku nie przechodzą kilku testów i nie są używane jako dowód
+poprawności testów.
+
+\paragraph{Testy przechodzące na szkielecie} Niektóre testy oczekują dokładnie tego, co zwraca
+szkielet, np.\ \code{NULL} lub \code{false} dla niepoprawnych danych. Tryb bazowy wykrył 17 takich
+testów, wszystkie w C (sześć w zadaniu~1, pięć w zadaniu~5, po dwa w zadaniach~2 i~10, po jednym
+w zadaniach~3 i~9). Nieznacznie zawyżają one liczbę zaliczonych testów, dlatego raport podaje wyniki
+dla C z nimi i bez nich (\cref{sec:results-correctness}).
+
+\paragraph{Generowane zestawy testów} Zadania 1--5 zostały napisane ręcznie, język po języku.
+Zadania 6--10 wytworzono za pomocą umiejętności (ang.~\emph{skill}) Claude Code
+(\file{/new-benchmark}) napisanej na potrzeby tego projektu. Umiejętność najpierw projektuje
+niezależną od języka specyfikację z dwoma algorytmami i dziesięcioma testami dla każdego z nich.
+Po zatwierdzeniu przez autorów generuje kontrakt, szkielet, testy i specyfikację dla każdego języka
+i weryfikuje je względem tymczasowego rozwiązania wzorcowego, które następnie jest usuwane. Nowsze
+zadania są więc bardziej jednolite między językami. Jak pokazuje \cref{sec:benchmark-defects}, oba
+defekty ujawnione przez przebieg znajdują się w ręcznie napisanych zestawach dla Prologu.

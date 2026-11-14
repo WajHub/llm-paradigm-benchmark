@@ -1,0 +1,36 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and functional: medianOfMedians composes `lowerMedian . map lowerMedian . chunks5`, and selectKth uses a recursive `go` with an accumulator, filters for the stable partition, and `reverse acc` at the end. The monadic binary search in `search` and `ok` is a clean recursive formulation without mutable state. Small blemishes are the unreachable `Nothing` branch inside `go` and the explicit accumulator-and-reverse pattern. Both are fine but not perfectly tidy. A 5 would remove the impossible Nothing case, for instance with a non-partial helper.",
+    "language_idiomaticity": "It uses Maybe, guards, `where`, `splitAt`, `filter` and `sequence` with list comprehensions as conditional reads, which is clever but slightly unusual. It also uses `!!` and `maximum`/`minimum` on lists that are non-empty only by reasoning, and these are partial functions. There is dead code: `odd'` and `_unused = odd'` only silence a warning. The `case medianOfMedians cur of Nothing -> Nothing` branch is a code smell. Using `fromIntegral` on Int before dividing avoids overflow, which is good. A 5 would drop the dead code, the partial `maximum`/`minimum`, and the impossible branch.",
+    "readability": "Names are mostly clear (`lowerMedian`, `chunks5`, `leftMax`, `ok`, `search`), and the comments explain the partition predicate. However, the nested if/else in `go` is a bit dense. The `_unused`/`odd'` leftovers confuse the reader, and the shadowed `i` in `sequence [... | i > 0]` makes the list-comprehension guards cryptic. A 5 would need cleaner structure and no leftovers.",
+    "design": "The decomposition is sensible: helper functions for median and chunking, and a binary search on the shorter source with a monotone predicate `ok`. Reads stay within the O(log) budget. `ok` reads two values per step and the final step reads up to 4 more, which is fine. Weak points: `go` computes `length cur` repeatedly, `lowerMedian` sorts, the leftover dead binding is poor design, and the final-phase code is not factored into a helper such as `leftMax`/`rightMin`. A 5 would factor these helpers and remove the leftover code."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 4,
+  "anti_patterns": [
+    "dead code: `odd'` and `_unused` binding only to silence warnings",
+    "unreachable `Nothing` branch from medianOfMedians inside `go`",
+    "partial `maximum`/`minimum`/`!!` relying on implicit non-emptiness",
+    "nested if/else chain instead of guards in `go`"
+  ],
+  "justification": "The solution is pure and functional, with a clear composition for medianOfMedians, a stable filter-based partition in selectKth, and a monadic recursive binary search for the two-source median. Dead code (`odd'`, `_unused`), an impossible `Nothing` branch and reliance on partial functions (`maximum`, `minimum`, `!!`) lower the language-idiomaticity and readability scores. The structure is otherwise sound, but the final read step could be factored into helpers.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1Rt21JQLiKTBWtWFUP1",
+  "judge_s": 9.2,
+  "input_tokens": 5558,
+  "output_tokens": 1118,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

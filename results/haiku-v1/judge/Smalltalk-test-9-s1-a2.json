@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 2,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Logic lives in a single BTreeImpl class that acts as a procedural algorithm container; BTreeNode is only used as a passive data holder, and every helper takes a node argument (splitChild:of:, mergeChildren:of:, fixChildAt:of:). It is not wholly procedural, since messages are sent to nodes and helpers are small. Placing split/merge/insert/delete behaviour as methods on BTreeNode (or a tree object holding t) would score higher, but the contract keeps the node class fixed, so this is partly forced.",
+    "language_idiomaticity": "Uses ifTrue:/and: blocks, whileTrue:, repeat, OrderedCollection protocol (addFirst:, removeLast, add:beforeIndex:), copyFrom:to:, early ^ returns. Non-idiomatic bits: dropAt:from: uses `remove:` of the element at index (removeIndex: exists), lowerBoundOf: is a hand-rolled linear scan (could use findFirst:), containsKey: uses `[...] repeat` with ^ exits, `^self` after procedural mutators, and t is passed through every method. Method categories are used only loosely (a comment string 'Helpers').",
+    "readability": "Selectors are intention-revealing (splitChild:of:degree:, fixChildAt:of:degree:, mergeChildren:of:), methods are short, and the docstring comments are helpful. fixChildAt: returns an index, which is a little implicit, and deleteKey:from:degree: is a long multi-branch method with several early returns. The two-letter temporaries (i, y, z) follow CLRS naming and are acceptable.",
+    "design": "Good decomposition: membership, bounds, min/max, split, merge, rebalance, and insertion/deletion are separate methods; the membership check precedes any mutation as required. Weaknesses: `dropAt:from:` removes by value, which is fragile (the semantics of identity vs. equality for nodes, O(n) search); containsKey: duplicates the descent logic; t is threaded everywhere instead of being held in state; the tree is stateless so the insertion path and containsKey are done as two passes. The input collections are not modified."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "node behaviour implemented externally in the tree class, with BTreeNode used as passive data (feature envy)",
+    "dropAt:from: removes by value via remove: instead of removeIndex:",
+    "hand-rolled index while-loop in lowerBoundOf: instead of findFirst:/detect",
+    "degree t threaded through every helper instead of being stored as state",
+    "`[... ] repeat` with non-local returns used for search loop"
+  ],
+  "justification": "The solution is correct in structure and well split into small, named helpers (splitChild:of:degree:, mergeChildren:of:, fixChildAt:of:degree:), and it uses collection protocol and block control flow reasonably. However, all behaviour sits in the tree class acting on passive nodes with t passed everywhere, and several details are un-Smalltalk-like: remove: by value in dropAt:from:, manual while-loop scanning in lowerBoundOf:, and repeat with ^ in containsKey:. This yields a competent but middling idiomatic result.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RwyDk12gBEeUt6ePR2",
+  "judge_s": 9.8,
+  "input_tokens": 6761,
+  "output_tokens": 1115,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

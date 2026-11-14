@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:06+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-8-s1-a0",
+  "request_id": "req_011Ch1RuXmz6EwjZcje6HSP1",
+  "duration_s": 9.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement two approximation algorithms for the metric Travelling Salesman Problem\n(MST double tree and Christofides) in Free Pascal in the unit tsp_approx (file\ntsp_approx.pas). The unit already declares the types and the five routines; keep the\ninterface unchanged and implement TspMstWeight, TspDoubleTree, TspMatchingWeight,\nTspChristofides and FreeTourResult in the implementation section.\n\nInput and common definitions:\n  * Pts: TTspPointArray; vertex i is Pts[i], i = 0..n-1 in input order. n <= 40,\n    |coordinate| < 10000. Points may coincide (distance 0). Do not modify Pts.\n  * Distance is Manhattan: d(p, q) = |p.X - q.X| + |p.Y - q.Y| (an integer).\n  * A tour is a permutation of all vertex indices 0..n-1 that STARTS WITH 0. It is a\n    closed cycle: Cost = sum of d(Tour[i], Tour[i+1]) for i = 0..n-2 plus\n    d(Tour[n-1], Tour[0]). For n = 1 the tour is [0] with Cost 0; for n = 2 the\n    Cost is 2*d(0,1).\n  * TspDoubleTree and TspChristofides return a NEW record (New) whose Tour is a fresh\n    dynamic array of length n, or nil when n = 0. The caller frees it with\n    FreeTourResult.\n\nThe MST (unique by these rules - the tests depend on them):\n  Prim's algorithm starting from vertex 0. Repeat n-1 times: among the vertices not yet\n  in the tree choose the vertex v with the smallest key(v) = min over tree vertices u of\n  d(u, v); ties -> the smallest index v. The parent of v is the tree vertex u with\n  d(u, v) = key(v); if several tree vertices are at that distance, the parent is the one\n  with the SMALLEST INDEX u (not the first one found, not the most recently added).\n\n- Implement `TspMstWeight(const Pts: TTspPointArray): LongInt`: the total weight of that\n  MST; 0 for n = 0 or n = 1.\n\n- Implement `TspDoubleTree(const Pts: TTspPointArray): PTourResult`: the 2-approximation.\n  The tour is the preorder DFS sequence of that MST rooted at 0, visiting the children of\n  each vertex in ASCENDING index order. The resulting tour is unique and is compared\n  exactly; Cost is the closed-tour cost of that tour. nil for n = 0.\n\n- Implement `TspMatchingWeight(const Pts: TTspPointArray): LongInt`: let O be the set of\n  vertices with odd degree in that MST (|O| is even). Return the MINIMUM total weight\n  (distance d) of a perfect matching of O (pairs of distinct vertices of O, every vertex\n  of O in exactly one pair). It must be exact: greedy nearest-pair matching is wrong.\n  |O| <= 16 in all tests, so an exact bitmask DP over subsets is fine (no blossom\n  needed). Return 0 for n = 0 or n = 1.\n\n- Implement `TspChristofides(const Pts: TTspPointArray): PTourResult`:\n  * build the MULTIGRAPH = MST edges + the edges of a minimum-weight perfect matching of O\n    (an edge that is in both is a double edge: keep both copies - parallel edges are\n    essential for the Euler circuit);\n  * find an Eulerian circuit starting at vertex 0 (Hierholzer);\n  * shortcut it: keep the first occurrence of every vertex. The tour starts with 0.\n  * Cost is the closed-tour cost of the returned tour. By the triangle inequality it is\n    <= MST weight + matching weight.\n  * n = 0 -> nil; n = 1 -> Tour [0], Cost 0.\n  * Any minimum matching and any Eulerian circuit are accepted; the tests check that the\n    tour is a valid permutation starting with 0, that Cost equals the recomputed cost,\n    and the Christofides bound.\n\n- Implement `FreeTourResult(var R: PTourResult)`: free the record (and its Tour) and set\n  R to nil. FreeTourResult(nil) is a no-op.\n\nPascal notes:\n  - Pascal is case-insensitive: do not name variables after the record fields' types or\n    after RTL routines (e.g. a variable named Max, Min or Odd shadows the RTL function),\n    and do not name anything Result except the function result.\n  - All values fit in LongInt.\n  - The program is run under valgrind and must not leak memory.\n\n## Stub module given to the author (tsp_approx.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit tsp_approx;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  { A point; vertex i is Pts[i] (0-based, input order). }\n  TTspPoint = record\n    X, Y: LongInt;\n  end;\n\n  TTspPointArray = array of TTspPoint;\n\n  { A closed tour: Tour is a permutation of 0..n-1 starting with 0,\n    Cost includes the edge from the last vertex back to Tour[0]. }\n  PTourResult = ^TTourResult;\n  TTourResult = record\n    Tour: TIntArray;\n    Cost: LongInt;\n  end;\n\nfunction TspMstWeight(const Pts: TTspPointArray): LongInt;\nfunction TspDoubleTree(const Pts: TTspPointArray): PTourResult;\nfunction TspMatchingWeight(const Pts: TTspPointArray): LongInt;\nfunction TspChristofides(const Pts: TTspPointArray): PTourResult;\nprocedure FreeTourResult(var R: PTourResult);\n\nimplementation\n\nfunction TspMstWeight(const Pts: TTspPointArray): LongInt;\nbegin\n  raise Exception.Create('TspMstWeight not implemented');\n  Result := -1;\nend;\n\nfunction TspDoubleTree(const Pts: TTspPointArray): PTourResult;\nbegin\n  raise Exception.Create('TspDoubleTree not implemented');\n  Result := nil;\nend;\n\nfunction TspMatchingWeight(const Pts: TTspPointArray): LongInt;\nbegin\n  raise Exception.Create('TspMatchingWeight not implemented');\n  Result := -1;\nend;\n\nfunction TspChristofides(const Pts: TTspPointArray): PTourResult;\nbegin\n  raise Exception.Create('TspChristofides not implemented');\n  Result := nil;\nend;\n\nprocedure FreeTourResult(var R: PTourResult);\nbegin\n  if R <> nil then begin\n    R^.Tour := nil;\n    Dispose(R);\n    R := nil;\n  end;\nend;\n\nend.\n\n```\n\n## Code to evaluate (tsp_approx.pas)\n```pascal\nunit tsp_approx;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  { A point; vertex i is Pts[i] (0-based, input order). }\n  TTspPoint = record\n    X, Y: LongInt;\n  end;\n\n  TTspPointArray = array of TTspPoint;\n\n  { A closed tour: Tour is a permutation of 0..n-1 starting with 0,\n    Cost includes the edge from the last vertex back to Tour[0]. }\n  PTourResult = ^TTourResult;\n  TTourResult = record\n    Tour: TIntArray;\n    Cost: LongInt;\n  end;\n\nfunction TspMstWeight(const Pts: TTspPointArray): LongInt;\nfunction TspDoubleTree(const Pts: TTspPointArray): PTourResult;\nfunction TspMatchingWeight(const Pts: TTspPointArray): LongInt;\nfunction TspChristofides(const Pts: TTspPointArray): PTourResult;\nprocedure FreeTourResult(var R: PTourResult);\n\nimplementation\n\nconst\n  BigVal = 1000000000;\n\nfunction Dist(const P, Q: TTspPoint): LongInt;\nbegin\n  Dist := Abs(P.X - Q.X) + Abs(P.Y - Q.Y);\nend;\n\n{ Prim's algorithm from vertex 0 with the prescribed tie-breaking.\n  par[v] is the parent of v (par[0] = -1). total receives the MST weight. }\nprocedure PrimMst(const Pts: TTspPointArray; var par: TIntArray; var total: LongInt);\nvar\n  n, v, step, best, d: LongInt;\n  key: TIntArray;\n  intree: array of Boolean;\nbegin\n  n := Length(Pts);\n  SetLength(par, n);\n  SetLength(key, n);\n  SetLength(intree, n);\n  total := 0;\n  for v := 0 to n - 1 do begin\n    intree[v] := False;\n    key[v] := BigVal;\n    par[v] := -1;\n  end;\n  if n = 0 then\n    Exit;\n  intree[0] := True;\n  for v := 1 to n - 1 do begin\n    key[v] := Dist(Pts[0], Pts[v]);\n    par[v] := 0;\n  end;\n  for step := 1 to n - 1 do begin\n    best := -1;\n    for v := 0 to n - 1 do\n      if (not intree[v]) and ((best < 0) or (key[v] < key[best])) then\n        best := v;\n    intree[best] := True;\n    total := total + key[best];\n    for v := 0 to n - 1 do\n      if not intree[v] then begin\n        d := Dist(Pts[best], Pts[v]);\n        if (d < key[v]) or ((d = key[v]) and (best < par[v])) then begin\n          key[v] := d;\n          par[v] := best;\n        end;\n      end;\n  end;\nend;\n\n{ Exact minimum-weight perfect matching on the vertex list odd (even length).\n  Returns the matched pairs in pu/pv (cnt pairs) and the total cost. }\nprocedure MinMatching(const Pts: TTspPointArray; const odd: TIntArray;\n  var pu, pv: TIntArray; var cnt: LongInt; var cost: LongInt);\nvar\n  m, full, mask, i, j, nb, nc, code: LongInt;\n  dp, pick: TIntArray;\nbegin\n  m := Length(odd);\n  cnt := 0;\n  cost := 0;\n  SetLength(pu, 0);\n  SetLength(pv, 0);\n  if m = 0 then\n    Exit;\n  full := (1 shl m) - 1;\n  SetLength(dp, full + 1);\n  SetLength(pick, full + 1);\n  for mask := 0 to full do\n    dp[mask] := BigVal;\n  dp[0] := 0;\n  for mask := 0 to full - 1 do\n    if dp[mask] < BigVal then begin\n      i := 0;\n      while ((mask shr i) and 1) = 1 do\n        Inc(i);\n      for j := i + 1 to m - 1 do\n        if ((mask shr j) and 1) = 0 then begin\n          nb := mask or (1 shl i) or (1 shl j);\n          nc := dp[mask] + Dist(Pts[odd[i]], Pts[odd[j]]);\n          if nc < dp[nb] then begin\n            dp[nb] := nc;\n            pick[nb] := i * 64 + j;\n          end;\n        end;\n    end;\n  cost := dp[full];\n  SetLength(pu, m div 2);\n  SetLength(pv, m div 2);\n  mask := full;\n  while mask <> 0 do begin\n    code := pick[mask];\n    i := code div 64;\n    j := code mod 64;\n    pu[cnt] := odd[i];\n    pv[cnt] := odd[j];\n    Inc(cnt);\n    mask := mask xor (1 shl i) xor (1 shl j);\n  end;\nend;\n\n{ Preorder DFS of the rooted tree given by par; children in ascending index order. }\nprocedure Preorder(u: LongInt; const par: TIntArray; var tr: TIntArray; var pos: LongInt);\nvar\n  v: LongInt;\nbegin\n  tr[pos] := u;\n  Inc(pos);\n  for v := 1 to High(par) do\n    if par[v] = u then\n      Preorder(v, par, tr, pos);\nend;\n\nfunction TourCost(const tr: TIntArray; const Pts: TTspPointArray): LongInt;\nvar\n  i, n, s: LongInt;\nbegin\n  n := Length(tr);\n  s := 0;\n  if n <= 1 then begin\n    TourCost := 0;\n    Exit;\n  end;\n  for i := 0 to n - 1 do\n    s := s + Dist(Pts[tr[i]], Pts[tr[(i + 1) mod n]]);\n  TourCost := s;\nend;\n\nfunction TspMstWeight(const Pts: TTspPointArray): LongInt;\nvar\n  par: TIntArray;\n  total: LongInt;\nbegin\n  if Length(Pts) <= 1 then begin\n    TspMstWeight := 0;\n    Exit;\n  end;\n  PrimMst(Pts, par, total);\n  TspMstWeight := total;\nend;\n\nfunction TspDoubleTree(const Pts: TTspPointArray): PTourResult;\nvar\n  n: LongInt;\n  par, tr: TIntArray;\n  total, pos: LongInt;\n  res: PTourResult;\nbegin\n  n := Length(Pts);\n  if n = 0 then begin\n    TspDoubleTree := nil;\n    Exit;\n  end;\n  PrimMst(Pts, par, total);\n  SetLength(tr, n);\n  pos := 0;\n  Preorder(0, par, tr, pos);\n  New(res);\n  res^.Tour := tr;\n  res^.Cost := TourCost(tr, Pts);\n  TspDoubleTree := res;\nend;\n\nfunction TspMatchingWeight(const Pts: TTspPointArray): LongInt;\nvar\n  n, v, k, mstw, mc, cnt: LongInt;\n  par, deg, odd, pu, pv: TIntArray;\nbegin\n  n := Length(Pts);\n  if n <= 1 then begin\n    TspMatchingWeight := 0;\n    Exit;\n  end;\n  PrimMst(Pts, par, mstw);\n  SetLength(deg, n);\n  for v := 0 to n - 1 do\n    deg[v] := 0;\n  for v := 1 to n - 1 do begin\n    Inc(deg[v]);\n    Inc(deg[par[v]]);\n  end;\n  SetLength(odd, n);\n  k := 0;\n  for v := 0 to n - 1 do\n    if (deg[v] and 1) = 1 then begin\n      odd[k] := v;\n      Inc(k);\n    end;\n  SetLength(odd, k);\n  MinMatching(Pts, odd, pu, pv, cnt, mc);\n  TspMatchingWeight := mc;\nend;\n\nfunction TspChristofides(const Pts: TTspPointArray): PTourResult;\nvar\n  n, v, k, mstw, mc, cnt, E, sp, cl, cur, found, tl, i, pos: LongInt;\n  par, deg, odd, pu, pv, stk, circ, tr, adj: TIntArray;\n  vis: array of Boolean;\n  res: PTourResult;\nbegin\n  n := Length(Pts);\n  if n = 0 then begin\n    TspChristofides := nil;\n    Exit;\n  end;\n  New(res);\n  if n = 1 then begin\n    SetLength(res^.Tour, 1);\n    res^.Tour[0] := 0;\n    res^.Cost := 0;\n    TspChristofides := res;\n    Exit;\n  end;\n\n  PrimMst(Pts, par, mstw);\n  SetLength(deg, n);\n  for v := 0 to n - 1 do\n    deg[v] := 0;\n  for v := 1 to n - 1 do begin\n    Inc(deg[v]);\n    Inc(deg[par[v]]);\n  end;\n  SetLength(odd, n);\n  k := 0;\n  for v := 0 to n - 1 do\n    if (deg[v] and 1) = 1 then begin\n      odd[k] := v;\n      Inc(k);\n    end;\n  SetLength(odd, k);\n  MinMatching(Pts, odd, pu, pv, cnt, mc);\n\n  { multigraph as multiplicity matrix }\n  SetLength(adj, n * n);\n  for i := 0 to n * n - 1 do\n    adj[i] := 0;\n  for v := 1 to n - 1 do begin\n    Inc(adj[v * n + par[v]]);\n    Inc(adj[par[v] * n + v]);\n  end;\n  for i := 0 to cnt - 1 do begin\n    Inc(adj[pu[i] * n + pv[i]]);\n    Inc(adj[pv[i] * n + pu[i]]);\n  end;\n\n  { Hierholzer from vertex 0 }\n  E := (n - 1) + cnt;\n  SetLength(stk, E + 2);\n  SetLength(circ, E + 2);\n  stk[0] := 0;\n  sp := 1;\n  cl := 0;\n  while sp > 0 do begin\n    cur := stk[sp - 1];\n    found := -1;\n    v := 0;\n    while (v < n) and (found < 0) do begin\n      if adj[cur * n + v] > 0 then\n        found := v;\n      Inc(v);\n    end;\n    if found >= 0 then begin\n      Dec(adj[cur * n + found]);\n      Dec(adj[found * n + cur]);\n      stk[sp] := found;\n      Inc(sp);\n    end\n    else begin\n      circ[cl] := cur;\n      Inc(cl);\n      Dec(sp);\n    end;\n  end;\n\n  { shortcut: keep first occurrence of each vertex }\n  SetLength(vis, n);\n  for v := 0 to n - 1 do\n    vis[v] := False;\n  SetLength(tr, n);\n  tl := 0;\n  for i := 0 to cl - 1 do\n    if not vis[circ[i]] then begin\n      vis[circ[i]] := True;\n      tr[tl] := circ[i];\n      Inc(tl);\n    end;\n  pos := tl;\n  SetLength(tr, n);\n  if pos < n then\n    for v := 0 to n - 1 do\n      if not vis[v] then begin\n        tr[pos] := v;\n        Inc(pos);\n      end;\n\n  res^.Tour := tr;\n  res^.Cost := TourCost(tr, Pts);\n  TspChristofides := res;\nend;\n\nprocedure FreeTourResult(var R: PTourResult);\nbegin\n  if R <> nil then begin\n    R^.Tour := nil;\n    Dispose(R);\n    R := nil;\n  end;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RuY8og3va92iTGXW3N",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is structured procedural Pascal: PrimMst, MinMatching, Preorder and TourCost are separate procedures with explicit var/const parameters, and control flow uses for/while loops. Hierholzer is an iterative stack loop, which suits the paradigm. Weaknesses: TspChristofides is one long procedure with many local variables, and Preorder rescans all of par for every node. Splitting out the Euler circuit and the shortcut step would earn one more point.\",\"language_idiomaticity\":\"It uses SetLength, Length, High, Exit, New/Dispose, dynamic arrays, const parameters and the TIntArray type from the unit. Weaknesses: results are assigned with the old `TspX := ...; Exit;` style instead of `Result`/`Exit(value)`. `odd` is a local variable name that shadows the RTL Odd function, which the task warned against. The 2D adjacency matrix is flattened into `adj[v*n+u]`, and the pick code is packed as `i*64+j`. The unused `total`, `mstw` and `Math` import are minor. Using `Exit(value)` and a proper 2D array or record would earn one more point.\",\"readability\":\"Names are mostly meaningful (PrimMst, MinMatching, Preorder, TourCost), with helpful brief comments on Prim, matching and the Hierholzer/shortcut steps. TspChristofides is about 100 lines with short variable names (E, sp, cl, tl, pos) and several inline phases. The odd-vertex computation is repeated verbatim. The `pick` encoding with `code div 64` is a bit opaque. Extracting named helpers for each phase would earn one more point.\",\"design\":\"PrimMst, MinMatching and TourCost are shared and the helpers are kept in the implementation section. However, the degree and odd-vertex collection is copy-pasted in TspMatchingWeight and TspChristofides, and the Euler circuit and shortcut are inlined rather than extracted. The O(n²) multiplicity matrix and the bitmask DP with a pick array for reconstruction are suitable for n <= 40. The dead fallback block that appends unvisited vertices is unnecessary. Extracting an OddVertices helper and an EulerCircuit routine would earn one more point.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"duplicated odd-degree vertex computation in two routines\",\"monolithic TspChristofides procedure with inlined phases\",\"variable named `odd` shadows RTL Odd function\",\"flattened 2D matrix indexing `adj[v*n+u]` instead of a 2D array\",\"magic-number encoding `i*64+j` for pick\",\"assignment to function name plus Exit instead of Result/Exit(value)\",\"unused variables (total in TspDoubleTree, mstw)\",\"unnecessary defensive fallback for unvisited vertices\"],\"justification\":\"The solution is clear procedural Pascal with sensible helpers (PrimMst, MinMatching, TourCost, Preorder) and correct memory handling via New/Dispose and dynamic arrays. It loses points for the long TspChristofides body, the duplicated odd-vertex code, the shadowing `odd` name, the flattened matrix and packed pick encoding, and the old-style function-name assignment. Overall it is decent but has clear room for tidier decomposition and more modern idioms.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 8364,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 8364,
+          "model": null,
+          "output_tokens": 1163,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1163,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

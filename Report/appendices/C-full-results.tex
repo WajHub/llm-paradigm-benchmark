@@ -1,0 +1,68 @@
+% =============================================================================
+\chapter{Szczegółowe wyniki}
+\label{app:results}
+% =============================================================================
+
+Tabele tego dodatku są generowane z \file{results/haiku-v1} przez skrypt
+\file{Report/tools/make_tables.py}.
+
+\section{Idiomatyczność według języka i zadania}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Średnia ocena sędziego (średnia z czterech kryteriów) według języka i zadania.
+    Ciemniejsze komórki oznaczają kod bardziej idiomatyczny.}
+  \label{tab:judge-heatmap}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}l*{10}{c}c@{}}
+    \toprule
+    Język & Z1 & Z2 & Z3 & Z4 & Z5 & Z6 & Z7 & Z8 & Z9 & Z10 & Średnia \\
+    \midrule
+    \tabinput{tables/judge_heatmap}
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ocena idiomatyczności paradygmatu według języka i zadania. Smalltalk otrzymał 3
+    w każdym zadaniu.}
+  \label{tab:paradigm-scores}
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{@{}l*{10}{c}@{}}
+    \toprule
+    Język & Z1 & Z2 & Z3 & Z4 & Z5 & Z6 & Z7 & Z8 & Z9 & Z10 \\
+    \midrule
+    \tabinput{tables/paradigm_scores}
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Wszystkie zadania}
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{@{}lrlrrcrrccccc@{}}
+  \caption{Wyniki wszystkich 70 zadań. \emph{Pierwszy wynik}: kategoria próby 0; \emph{Pierwsza} /
+    \emph{Końc.}: liczba zaliczonych testów (z 20); \emph{Rozw.\ w}: próba, w której rozwiązano
+    zadanie (0 = pierwsza odpowiedź, \textemdash{} = nierozwiązane); \emph{Pr.}: wykorzystane próby;
+    \emph{Tokeny}: tokeny wyjściowe wszystkich prób (łącznie z rozumowaniem); P/J/C/D: oceny
+    sędziego za idiomy paradygmatu, idiomy języka, czytelność i projekt.}
+  \label{tab:full-results}\\
+  \toprule
+  Język & Z & Pierwszy wynik & Pierwsza & Końc. & Rozw.\ w & Pr. & Tokeny & P & J & C & D & Średnia \\
+  \midrule
+  \endfirsthead
+  \multicolumn{13}{@{}l}{\small\itshape \Cref{tab:full-results} -- ciąg dalszy}\\
+  \toprule
+  Język & Z & Pierwszy wynik & Pierwsza & Końc. & Rozw.\ w & Pr. & Tokeny & P & J & C & D & Średnia \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  \tabinput{tables/full_results}
+\end{longtable}
+\endgroup

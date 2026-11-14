@@ -6,22 +6,29 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The search is pure and declarative: `solutions` returns a lazy list of all completions, built with list comprehensions and `concat`. `solve` uses `take 1` and `countSolutions` uses `take limit`, so laziness provides the early cut-off with no mutable state or flags. The data flow is immutable, with `arr // [(i,d)]` producing new boards. A 5 would need a slightly more refined state, e.g. propagation or `concatMap`, but this is already close to ideal.",
+    "language_idiomaticity": "It uses `Data.Array`, list comprehensions, `minimumBy (comparing ...)`, `take`, and pattern matching on `case` with `[]`. Weaknesses: `candidates` uses `!!` on lists (acceptable given the precondition), and `candidates` and `candA` duplicate logic. `nub` and `elem` on lists are fine at size 9. `minimumBy (comparing (length . snd))` recomputes lengths, and the `[(i,cs) | ... let cs = ...]` form is fine. `length g == 81` is checked first, and `&&` short-circuits before the array is built. The `peerTable` construction is O(81*81*27*9), but it is computed once as a CAF. `concat [..]` could be `concatMap`, a minor point.",
+    "readability": "Names are clear (`units`, `peerTable`, `candA`, `solutions`, `unitOk`), and haddock comments are placed where they help. Functions are short and each does one thing. The `peersOf` comprehension with `any (\\u -> i `elem` u && j `elem` u) units` is a little dense but understandable. A small shortcoming is that `candidates` and `candA` are near duplicates, which makes the reader compare them.",
+    "design": "The decomposition is good: `units` and `peerTable` are shared by validation and candidate computation, and `solutions` is a single lazy generator reused by `solve` and `countSolutions`. Using `Array` for lookups is appropriate. The main flaw is the duplication between `candidates` (list-based, `!!`) and `candA` (array-based). `candidates` could be implemented by converting to an array and calling `candA`, or both could share a helper. The `peerTable` is precomputed, which is a sensible choice. There is also no dead-end short-circuit for zero candidates, although the MRV pick naturally yields an empty branch list."
+  },
   "paradigm_idiomaticity": 5,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "candidates uses grid !! j on lists instead of an array",
-    "peerTable built with O(n^3) any/elem scan over units",
-    "candidates duplicates candA logic instead of sharing it",
-    "concat of list comprehension instead of concatMap or list monad",
-    "nub for uniqueness check on a small list"
+    "duplicated candidate logic in `candidates` and `candA`",
+    "`!!` indexing on lists in `candidates`"
   ],
-  "justification": "The search is purely functional: `solutions` lazily enumerates all completions as a list, so `solve` uses `take 1` and `countSolutions` uses `take limit`, which gives early termination with no mutable state. Code is split into `units`, `peerTable`, `candA` and `solutions`, with MRV expressed via `minimumBy (comparing (length . snd))`. Small blemishes remain: `candidates` duplicates `candA` and indexes lists with `!!`, `peerTable` is built by a naive scan, and `nub`/`concat` are used where something slightly more refined would be typical. The layout is clean and well documented overall.",
+  "justification": "The solution is a pure, lazy-list-based backtracking search, where `take 1` and `take limit` give early termination without any imperative control. It shares `units` and `peerTable` between validation and candidate computation, and uses `Array` for lookup. The main blemishes are the near-duplicate `candidates` and `candA`, the `!!` indexing, and a few minor inefficiencies such as recomputing `length` in `minimumBy`.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4028,
-  "output_tokens": 358,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SEiwDv4pzMfWUQ8xCQ",
+  "judge_s": 8.1,
+  "input_tokens": 4365,
+  "output_tokens": 1039,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

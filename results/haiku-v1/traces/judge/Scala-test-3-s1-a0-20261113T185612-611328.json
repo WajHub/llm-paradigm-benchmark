@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:12+00:00",
+  "kind": "judge",
+  "label": "Scala-test-3-s1-a0",
+  "request_id": "req_011Ch1SJDr7NGwqi63xv5CV1",
+  "duration_s": 8.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement a Palindrome Tree (also known as Eertree) data structure in Scala using the\nobject PalindromeTree. The Eertree is a linear-time data structure that implicitly\nrepresents all distinct palindromic substrings of a string. It was introduced by Mikhail\nRubinchik and Arseny M. Shur in 2014.\n\n- Implement `eertreeBuild(s: Option[String], len: Int): Option[Eertree]`: Build the\n  palindrome tree for string `s` of length `len`. Represent the tree as\n  `Eertree(nodes, size, last, str, strLen)` where nodes is a Vector of\n  `Node(len, suffixLink, children, cnt, endPos)`. The tree must include two imaginary root\n  nodes at indices 0 and 1: root 0 has len = -1 (the \"odd root\"), root 1 has len = 0 (the\n  \"even root\"). After building, propagate occurrence counts from longer palindromes to\n  shorter ones by traversing nodes in decreasing order of len and adding each node's cnt\n  to its suffixLink's cnt. The final cnt of each node must equal the total number of times\n  that palindrome appears as a substring in the input.\n\n- Implement `eertreeCountDistinct(t: Option[Eertree]): Int`: Return the number of distinct\n  palindromic substrings (i.e., the number of real nodes, excluding the two imaginary\n  roots).\n\n- Implement `eertreeCountOccurrences(t: Option[Eertree], pattern: Option[String], plen: Int): Long`:\n  Find the node in the tree whose palindrome matches `pattern` (using endPos to locate the\n  substring in the stored string) and return its propagated cnt. Return 0 if the pattern is\n  not found, not a palindrome, or any argument is None.\n\n- Implement `eertreeLongestLength(t: Option[Eertree]): Int`: Return the maximum len among\n  all real nodes.\n\nConstraints:\n  - Input strings contain only lowercase Latin letters ('a'..'z').\n  - `eertreeBuild(None, n)` with n > 0 must return None.\n  - `eertreeBuild(Some(\"\"), 0)` must return a valid Eertree with only the two imaginary\n    roots.\n  - All query functions must return 0 on None input without throwing.\n  - Keep the contract (case classes and signatures) in `PalindromeTree.scala`.\n  - Use idiomatic Scala with immutable data structures.\n\n## Stub module given to the author (PalindromeTree.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject PalindromeTree {\n  val EertreeAlpha = 26\n\n  case class Node(\n    len: Int,\n    suffixLink: Int,\n    children: Vector[Int],\n    cnt: Long,\n    endPos: Int\n  )\n\n  case class Eertree(\n    nodes: Vector[Node],\n    size: Int,\n    last: Int,\n    str: String,\n    strLen: Int\n  )\n\n  def eertreeBuild(s: Option[String], len: Int): Option[Eertree] =\n    sys.error(\"PalindromeTree.eertreeBuild not implemented\")\n\n  def eertreeCountDistinct(t: Option[Eertree]): Int =\n    sys.error(\"PalindromeTree.eertreeCountDistinct not implemented\")\n\n  def eertreeCountOccurrences(t: Option[Eertree], pattern: Option[String], plen: Int): Long =\n    sys.error(\"PalindromeTree.eertreeCountOccurrences not implemented\")\n\n  def eertreeLongestLength(t: Option[Eertree]): Int =\n    sys.error(\"PalindromeTree.eertreeLongestLength not implemented\")\n}\n\n```\n\n## Code to evaluate (PalindromeTree.scala)\n```scala\nimport scala.annotation.tailrec\n\nobject PalindromeTree {\n  val EertreeAlpha = 26\n\n  case class Node(\n    len: Int,\n    suffixLink: Int,\n    children: Vector[Int],\n    cnt: Long,\n    endPos: Int\n  )\n\n  case class Eertree(\n    nodes: Vector[Node],\n    size: Int,\n    last: Int,\n    str: String,\n    strLen: Int\n  )\n\n  private case class BuildState(nodes: Vector[Node], last: Int)\n\n  private val Roots: Vector[Node] = Vector(\n    Node(-1, 0, Vector.fill(EertreeAlpha)(0), 0L, -1), // odd root\n    Node(0, 0, Vector.fill(EertreeAlpha)(0), 0L, -1)   // even root\n  )\n\n  // Walks suffix links from `start` until finding a palindrome suffix of s[0..i]\n  // that can be extended by s(i) on both sides.\n  @tailrec\n  private def findExtendable(s: String, nodes: Vector[Node], cur: Int, i: Int): Int = {\n    val p = i - nodes(cur).len - 1\n    if (p >= 0 && s(p) == s(i)) cur\n    else findExtendable(s, nodes, nodes(cur).suffixLink, i)\n  }\n\n  private def insert(s: String, st: BuildState, i: Int): BuildState = {\n    val c = s(i) - 'a'\n    val nodes = st.nodes\n    val cur = findExtendable(s, nodes, st.last, i)\n    val existing = nodes(cur).children(c)\n\n    if (existing != 0) {\n      val n = nodes(existing)\n      BuildState(nodes.updated(existing, n.copy(cnt = n.cnt + 1)), existing)\n    } else {\n      val newLen = nodes(cur).len + 2\n      val link =\n        if (newLen == 1) 1\n        else {\n          val w = findExtendable(s, nodes, nodes(cur).suffixLink, i)\n          nodes(w).children(c)\n        }\n      val newIdx = nodes.length\n      val newNode = Node(newLen, link, Vector.fill(EertreeAlpha)(0), 1L, i)\n      val parent = nodes(cur)\n      val updatedParent = parent.copy(children = parent.children.updated(c, newIdx))\n      val nodes1 = nodes.updated(cur, updatedParent) :+ newNode\n      BuildState(nodes1, newIdx)\n    }\n  }\n\n  private def propagate(nodes: Vector[Node]): Vector[Node] = {\n    val order = (2 until nodes.length).sortBy(i => -nodes(i).len)\n    order.foldLeft(nodes) { (ns, idx) =>\n      val link = ns(idx).suffixLink\n      ns.updated(link, ns(link).copy(cnt = ns(link).cnt + ns(idx).cnt))\n    }\n  }\n\n  private def buildFrom(str: String, n: Int): Eertree = {\n    val init = BuildState(Roots, 0)\n    val st = (0 until n).foldLeft(init)((acc, i) => insert(str, acc, i))\n    val nodes = propagate(st.nodes)\n    Eertree(nodes, nodes.length, st.last, str, n)\n  }\n\n  def eertreeBuild(s: Option[String], len: Int): Option[Eertree] =\n    (s, len) match {\n      case (None, n) if n > 0 => None\n      case (None, _)          => Some(buildFrom(\"\", 0))\n      case (Some(str), n) if n < 0 || str.length < n => None\n      case (Some(str), n)     => Some(buildFrom(str.take(n), n))\n    }\n\n  def eertreeCountDistinct(t: Option[Eertree]): Int =\n    t.map(e => math.max(e.nodes.length - 2, 0)).getOrElse(0)\n\n  def eertreeCountOccurrences(t: Option[Eertree], pattern: Option[String], plen: Int): Long =\n    (t, pattern) match {\n      case (Some(e), Some(p)) if p.length == plen && plen > 0 && p == p.reverse =>\n        (2 until e.nodes.length)\n          .find { idx =>\n            val n = e.nodes(idx)\n            n.len == plen && n.endPos - n.len + 1 >= 0 &&\n              e.str.substring(n.endPos - n.len + 1, n.endPos + 1) == p\n          }\n          .map(idx => e.nodes(idx).cnt)\n          .getOrElse(0L)\n      case _ => 0L\n    }\n\n  def eertreeLongestLength(t: Option[Eertree]): Int =\n    t.map { e =>\n      (2 until e.nodes.length).foldLeft(0)((acc, i) => math.max(acc, e.nodes(i).len))\n    }.getOrElse(0)\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJEFRWJKM8UXBDTHwL",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The build is a pure `foldLeft` over indices with an immutable `BuildState`. `insert` returns a new state, `propagate` is a fold over `updated`, and the suffix-link walk is a `@tailrec` function. There are no vars and no mutation. A 5 would need a few small refinements: `propagate` could be built more directly, and the occurrence lookup is a linear scan where a tree walk would be more natural.\",\"language_idiomaticity\":\"It uses `Option` pattern matching with guards, `@tailrec`, `copy`, `Vector.updated`, `sortBy`, `find`, and `map/getOrElse`. Guard cases in `eertreeBuild` and `eertreeCountOccurrences` are used well. Small departures: `(0 until n).foldLeft(0)(math.max)` could be `.map(...).max`, and `getOrElse` after `map` could be `fold`. `(2 until n).sortBy(i => -len)` is fine. The `s(i) - 'a'` index arithmetic is acceptable. The `eertreeBuild(None, n<=0)` case is handled.\",\"readability\":\"Names are clear (`findExtendable`, `insert`, `propagate`, `buildFrom`, `BuildState`) and the functions are short. The comment on `findExtendable` helps, but it mentions `start` while the parameter is `cur`. The node index 0 serving both as the 'no child' sentinel and as the odd root is slightly implicit, though this follows from the contract. The link computation in `insert` is a little dense.\",\"design\":\"Responsibilities are split into walking links, inserting, propagating, building, and the public API. `Roots` is shared as a constant. The `BuildState` private case class is a sensible choice. Weaknesses: `Vector.fill(EertreeAlpha)(0)` is duplicated across several sites, and there is no `emptyNode` helper. Occurrence lookup scans all nodes with substring comparisons, which is O(n·m) instead of walking the tree from the roots using the pattern. `eertreeCountDistinct` includes a redundant `math.max`. Node copying makes each insertion O(26) per update, which is acceptable..\"},\"paradigm_idiomaticity\":5,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"linear scan with substring comparison for occurrence lookup instead of walking the tree\",\"duplicated `Vector.fill(EertreeAlpha)(0)` construction instead of a helper\",\"index 0 doubles as the 'no child' sentinel (contract-driven)\"],\"justification\":\"The solution is a clean functional implementation: a `foldLeft` over an immutable `BuildState`, a `@tailrec` suffix-link walk, and propagation by fold. It uses `Option` matching with guards well. Minor flaws are the repeated empty-children construction, the linear-scan lookup in `eertreeCountOccurrences`, and a stale comment on `findExtendable`.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4833,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4833,
+          "model": null,
+          "output_tokens": 1013,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1013,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

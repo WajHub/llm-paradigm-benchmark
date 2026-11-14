@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:09+00:00",
+  "kind": "judge",
+  "label": "Scala-test-1-s1-a2",
+  "request_id": "req_011Ch1SJ17Pf63rTF5F22qim",
+  "duration_s": 8.0,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\n- Implement `calculateCleanMinkowskiSum`: Calculate the Minkowski sum of two convex polygons (`poly1` and `poly2`), and return a new polygon representing ONLY the convex hull of the resulting point cloud. The vertices of the returned polygon must be strictly extreme points (collinear points on the edges must be removed) and ordered counter-clockwise.\n- Implement `checkDynamicCollision`: Determine if a moving robot polygon intersects with a stationary obstacle polygon at any point along a linear path defined by the velocity vector. Use the Minkowski sum Configuration Space approach to prevent tunneling (continuous collision detection). Return true if a collision occurs, false otherwise.\n- Use immutable data structures and `Option` to represent missing values.\n\n## Stub module given to the author (SpatialLogic.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject SpatialLogic {\n  case class Point(pointX: Double, pointY: Double)\n\n  case class Polygon(\n      polygonVertices: Vector[Point],\n      polygonNumVertices: Int,\n      polygonIsConvex: Boolean,\n      polygonZoneName: String\n  )\n\n  case class SpatialLayer(\n      layerPolygons: Vector[Polygon],\n      layerPolygonCount: Int,\n      layerName: String\n  )\n\n  def calculateCleanMinkowskiSum(\n      poly1: Option[Polygon],\n      poly2: Option[Polygon]\n  ): Option[Polygon] = sys.error(\"SpatialLogic.calculateCleanMinkowskiSum not implemented\")\n\n  def checkDynamicCollision(\n      obstacle: Option[Polygon],\n      robot: Option[Polygon],\n      velocity: Point\n  ): Boolean = sys.error(\"SpatialLogic.checkDynamicCollision not implemented\")\n}\n```\n\n## Code to evaluate (SpatialLogic.scala)\n```scala\nobject SpatialLogic {\n  case class Point(pointX: Double, pointY: Double)\n\n  case class Polygon(\n      polygonVertices: Vector[Point],\n      polygonNumVertices: Int,\n      polygonIsConvex: Boolean,\n      polygonZoneName: String\n  )\n\n  case class SpatialLayer(\n      layerPolygons: Vector[Polygon],\n      layerPolygonCount: Int,\n      layerName: String\n  )\n\n  private val Eps = 1e-9\n\n  private def cross(o: Point, a: Point, b: Point): Double =\n    (a.pointX - o.pointX) * (b.pointY - o.pointY) -\n      (a.pointY - o.pointY) * (b.pointX - o.pointX)\n\n  private def sign(d: Double): Int =\n    if (d > Eps) 1 else if (d < -Eps) -1 else 0\n\n  private def onBox(a: Point, b: Point, p: Point): Boolean =\n    p.pointX >= math.min(a.pointX, b.pointX) - Eps &&\n      p.pointX <= math.max(a.pointX, b.pointX) + Eps &&\n      p.pointY >= math.min(a.pointY, b.pointY) - Eps &&\n      p.pointY <= math.max(a.pointY, b.pointY) + Eps\n\n  private def segmentsIntersect(p1: Point, p2: Point, q1: Point, q2: Point): Boolean = {\n    val d1 = sign(cross(q1, q2, p1))\n    val d2 = sign(cross(q1, q2, p2))\n    val d3 = sign(cross(p1, p2, q1))\n    val d4 = sign(cross(p1, p2, q2))\n    (d1 * d2 < 0 && d3 * d4 < 0) ||\n      (d1 == 0 && onBox(q1, q2, p1)) ||\n      (d2 == 0 && onBox(q1, q2, p2)) ||\n      (d3 == 0 && onBox(p1, p2, q1)) ||\n      (d4 == 0 && onBox(p1, p2, q2))\n  }\n\n  private def edgesOf(poly: Vector[Point]): Vector[(Point, Point)] = {\n    val n = poly.size\n    poly.indices.map(i => (poly(i), poly((i + 1) % n))).toVector\n  }\n\n  private def insideConvex(poly: Vector[Point], p: Point): Boolean =\n    poly.size >= 3 && edgesOf(poly).forall { case (a, b) => sign(cross(a, b, p)) >= 0 }\n\n  private def pushHull(stack: List[Point], p: Point): List[Point] = stack match {\n    case b :: a :: rest if cross(a, b, p) <= 0 => pushHull(a :: rest, p)\n    case _                                     => p :: stack\n  }\n\n  private def convexHull(points: Vector[Point]): Vector[Point] = {\n    val sorted = points.distinct.sortBy(p => (p.pointX, p.pointY))\n    if (sorted.size < 3) sorted\n    else {\n      val lower = sorted.foldLeft(List.empty[Point])(pushHull)\n      val upper = sorted.reverse.foldLeft(List.empty[Point])(pushHull)\n      (lower.reverse.init ++ upper.reverse.init).toVector\n    }\n  }\n\n  def calculateCleanMinkowskiSum(\n      poly1: Option[Polygon],\n      poly2: Option[Polygon]\n  ): Option[Polygon] =\n    for {\n      p1 <- poly1\n      p2 <- poly2\n      sums = for {\n        a <- p1.polygonVertices\n        b <- p2.polygonVertices\n      } yield Point(a.pointX + b.pointX, a.pointY + b.pointY)\n      hull = convexHull(sums)\n    } yield Polygon(\n      polygonVertices = hull,\n      polygonNumVertices = hull.size,\n      polygonIsConvex = true,\n      polygonZoneName = s\"${p1.polygonZoneName}+${p2.polygonZoneName}\"\n    )\n\n  def checkDynamicCollision(\n      obstacle: Option[Polygon],\n      robot: Option[Polygon],\n      velocity: Point\n  ): Boolean =\n    (obstacle, robot) match {\n      case (Some(o), Some(r)) =>\n        val reflectedRobot = r.copy(\n          polygonVertices = r.polygonVertices.map(p => Point(-p.pointX, -p.pointY))\n        )\n        calculateCleanMinkowskiSum(Some(o), Some(reflectedRobot)).exists { cspace =>\n          val origin = Point(0.0, 0.0)\n          val cs = cspace.polygonVertices\n          insideConvex(cs, origin) ||\n            insideConvex(cs, velocity) ||\n            edgesOf(cs).exists { case (a, b) =>\n              segmentsIntersect(origin, velocity, a, b)\n            }\n        }\n      case _ => false\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJ1UDnEeSoGR2ynyTY",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is functional: immutable Vectors and Lists, the monotone-chain hull built with `foldLeft(List.empty[Point])(pushHull)` where `pushHull` is a pure pattern-matching recursion, and no `var` or loops. The Minkowski sum is a for-comprehension over Option and Vectors. A 5 would need little more; the `insideConvex`/`edgesOf` index-modulo edge construction is slightly imperative in flavour, which holds this to a 4.\",\"language_idiomaticity\":\"It uses Option for-comprehension with `=` bindings, `case class.copy`, `exists`, `forall`, tuple pattern matching in `{ case (a, b) => ... }`, and named arguments, all natural Scala. Minor points: `poly.indices.map(i => (poly(i), poly((i+1)%n))).toVector` could be `poly.zip(poly.tail :+ poly.head)`; `lower.reverse.init` is a bit cryptic. Overall a solid 4.\",\"readability\":\"Helper names (`cross`, `sign`, `onBox`, `segmentsIntersect`, `insideConvex`, `pushHull`, `convexHull`) are clear and each function is short. The `Eps` constant is named. There are no comments explaining the CSpace reduction (obstacle ⊕ −robot, ray from origin to velocity) or the hull stitching, which would help a reader. Hence 4.\",\"design\":\"Good decomposition: geometric primitives, hull, Minkowski sum, and collision reuse `calculateCleanMinkowskiSum` through reflection of the robot. Collision is correctly framed as segment-vs-CSpace-polygon, with the containment case handled separately. Weaknesses: the Minkowski sum computes the full O(nm) point cloud rather than merging edges (acceptable given the task's 'point cloud' wording), and the hull uses `<= 0` without Eps, mixing tolerance policies. Overall a 4.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"edge construction via index/modulo arithmetic instead of zip with rotated vector\",\"inconsistent epsilon use (hull uses exact `<= 0`, others use Eps)\"],\"justification\":\"A clean, immutable, expression-oriented solution: the hull is a fold over a pure recursive `pushHull`, the sum is an Option/Vector for-comprehension, and collision reuses the Minkowski sum with the reflected robot. Small departures include index-based `edgesOf`, no explanatory comments for the CSpace trick, and inconsistent tolerance handling. Overall it is idiomatic with only minor polish needed.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4275,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4275,
+          "model": null,
+          "output_tokens": 936,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 936,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

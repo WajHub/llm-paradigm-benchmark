@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:07+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-6-s1-a0",
+  "request_id": "req_011Ch1SHiqN5iqKb2MWtJaun",
+  "duration_s": 10.1,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\nImplement a 9x9 Sudoku validator and solver in SWI-Prolog in the module sudoku\n(file sudoku.pl). Implement sudoku_is_valid/1, sudoku_candidates/4, sudoku_solve/2\nand sudoku_count_solutions/3.\n\nBoard representation: a Grid is a flat list of 81 integers in row-major order\n(Index = Row * 9 + Col, 0-based), where 0 means an empty cell. The nine 3x3 boxes\nstart at rows/cols 0, 3 and 6.\n\n- Implement `sudoku_is_valid(+Grid)`: Succeeds if and only if Grid is a list of\n  exactly 81 elements, every element is an integer in 0..9, and no digit 1..9\n  appears twice in any row, any column or any 3x3 box. Zeros are ignored. Fails\n  (never throws) otherwise: wrong length, a value outside 0..9, or a duplicate digit.\n  * An empty board (81 zeros) is valid. A complete, correct board is valid.\n  * Validity does NOT imply solvability.\n\n- Implement `sudoku_candidates(+Grid, +Row, +Col, -Digits)`: Row and Col are\n  0-based (0..8); Grid has 81 cells. If the cell at Row*9+Col is non-zero, Digits\n  is []. Otherwise Digits is the list of digits 1..9 that do not appear in that\n  cell's row, column or 3x3 box, in ascending order. Only that row, column and box\n  matter; the rest of the grid does not have to be valid. Deterministic.\n\n- Implement `sudoku_solve(+Grid, -Solution)`: Solution is a new complete board\n  (81 integers, no zeros, valid) in which every non-zero cell of Grid is unchanged.\n  If Grid is already complete and valid, Solution is equal to Grid. Unify Solution\n  with the atom `none` if sudoku_is_valid(Grid) fails or no completion exists.\n  Deterministic (a single answer).\n\n- Implement `sudoku_count_solutions(+Grid, +Limit, -Count)`: Count is the number of\n  distinct complete valid boards extending Grid, but the search must stop as soon\n  as Limit solutions have been found, so Count = min(total, Limit). Count = 0 when\n  Limit =< 0 or Grid is invalid. Example: the empty board with Limit 2 gives 2.\n\nSearch requirements:\n  - Use backtracking search that always branches on the empty cell with the\n    fewest candidates (MRV heuristic). A cell with zero candidates is a dead end.\n  - Naive first-empty-cell (row-major) backtracking is too slow for some of the\n    test puzzles. Additional constraint propagation is allowed.\n\nConstraints:\n  - Results are compared with ==: Digits must be a proper list of integers in\n    ascending order, Solution a list of 81 integers or the atom `none`, Count an\n    integer.\n\n## Stub module given to the author (sudoku.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(sudoku, [\n    sudoku_is_valid/1,\n    sudoku_candidates/4,\n    sudoku_solve/2,\n    sudoku_count_solutions/3\n]).\n\n% Grid representation:\n%   a flat list of 81 integers in row-major order (Index = Row * 9 + Col),\n%   0 = empty cell. Boxes are the nine 3x3 blocks starting at rows/cols 0, 3, 6.\n%\n% sudoku_is_valid(+Grid)\n%   Succeeds iff Grid has exactly 81 elements, each an integer in 0..9, and no\n%   digit 1..9 appears twice in any row, column or 3x3 box (zeros ignored).\n%   Fails otherwise. Validity does not imply solvability.\n%\n% sudoku_candidates(+Grid, +Row, +Col, -Digits)\n%   Row, Col are 0-based (0..8). Digits is the ascending list of digits 1..9\n%   not present in that cell's row, column or 3x3 box; [] if the cell is filled.\n%   Deterministic.\n%\n% sudoku_solve(+Grid, -Solution)\n%   Solution is a complete valid 81-element list extending Grid, or the atom\n%   `none` if Grid is invalid or has no solution. Deterministic.\n%\n% sudoku_count_solutions(+Grid, +Limit, -Count)\n%   Count = min(number of solutions, Limit); 0 if Grid is invalid or Limit =< 0.\n\nsudoku_is_valid(_) :-\n    throw(error(existence_error(procedure, sudoku_is_valid/1), _)).\n\nsudoku_candidates(_, _, _, _) :-\n    throw(error(existence_error(procedure, sudoku_candidates/4), _)).\n\nsudoku_solve(_, _) :-\n    throw(error(existence_error(procedure, sudoku_solve/2), _)).\n\nsudoku_count_solutions(_, _, _) :-\n    throw(error(existence_error(procedure, sudoku_count_solutions/3), _)).\n\n```\n\n## Code to evaluate (sudoku.pl)\n```prolog\n:- module(sudoku, [\n    sudoku_is_valid/1,\n    sudoku_candidates/4,\n    sudoku_solve/2,\n    sudoku_count_solutions/3\n]).\n\n% Grid representation:\n%   a flat list of 81 integers in row-major order (Index = Row * 9 + Col),\n%   0 = empty cell. Boxes are the nine 3x3 blocks starting at rows/cols 0, 3, 6.\n%\n% Internally the grid is converted to a compound b/81 so that cells can be\n% accessed in O(1) with arg/3 and updated with setarg/3 on a copy.\n\n% sudoku_is_valid(+Grid)\nsudoku_is_valid(Grid) :-\n    is_list(Grid),\n    length(Grid, 81),\n    maplist(digit_ok, Grid),\n    to_board(Grid, B),\n    \\+ (\n        between(0, 80, I),\n        N is I + 1,\n        arg(N, B, V),\n        V =\\= 0,\n        I1 is I + 1,\n        between(I1, 80, J),\n        peer(I, J),\n        M is J + 1,\n        arg(M, B, V)\n    ).\n\ndigit_ok(V) :-\n    integer(V),\n    V >= 0,\n    V =< 9.\n\n% sudoku_candidates(+Grid, +Row, +Col, -Digits)\nsudoku_candidates(Grid, Row, Col, Digits) :-\n    I is Row * 9 + Col,\n    to_board(Grid, B),\n    N is I + 1,\n    arg(N, B, V),\n    (   V =\\= 0\n    ->  Digits = []\n    ;   cands(B, I, Digits)\n    ).\n\n% sudoku_solve(+Grid, -Solution)\nsudoku_solve(Grid, Solution) :-\n    (   sudoku_is_valid(Grid),\n        to_board(Grid, B),\n        solve_one(B, S)\n    ->  board_list(S, Solution)\n    ;   Solution = none\n    ).\n\n% sudoku_count_solutions(+Grid, +Limit, -Count)\nsudoku_count_solutions(Grid, Limit, Count) :-\n    (   Limit =< 0\n    ->  Count = 0\n    ;   sudoku_is_valid(Grid)\n    ->  to_board(Grid, B),\n        count_sol(B, Limit, 0, Count)\n    ;   Count = 0\n    ).\n\n% --- Board conversion -------------------------------------------------------\n\nto_board(Grid, B) :-\n    B =.. [b|Grid].\n\nboard_list(B, L) :-\n    B =.. [_|L].\n\n% --- Peers and candidates ---------------------------------------------------\n\n% peer(+I, +J): cells I and J (0-based) share a row, column or box.\n% Does not hold for I == J in the sense that it is true for it too; callers\n% exclude J =:= I explicitly where needed.\npeer(I, J) :-\n    R1 is I // 9, C1 is I mod 9,\n    R2 is J // 9, C2 is J mod 9,\n    (   R1 =:= R2\n    ;   C1 =:= C2\n    ;   R1 // 3 =:= R2 // 3,\n        C1 // 3 =:= C2 // 3\n    ).\n\n% cands(+Board, +I, -Digits): digits 1..9 not used by peers of cell I.\ncands(B, I, Ds) :-\n    findall(V,\n            ( between(0, 80, J),\n              J =\\= I,\n              peer(I, J),\n              N is J + 1,\n              arg(N, B, V)\n            ),\n            Vs),\n    findall(D,\n            ( between(1, 9, D),\n              \\+ memberchk(D, Vs)\n            ),\n            Ds).\n\n% --- Minimum remaining values -----------------------------------------------\n\n% mrv(+Board, -Result)\n%   Result = solved if no empty cell remains,\n%   Result = cell(I, Ds) for the empty cell with fewest candidates,\n%   fails if some empty cell has no candidates (dead end).\nmrv(B, R) :-\n    mrv_(0, B, solved, R).\n\nmrv_(81, _, R, R) :- !.\nmrv_(I, B, R0, R) :-\n    N is I + 1,\n    arg(N, B, V),\n    (   V =\\= 0\n    ->  R1 = R0\n    ;   cands(B, I, Ds),\n        Ds \\== [],\n        (   R0 == solved\n        ->  R1 = cell(I, Ds)\n        ;   R0 = cell(_, D0),\n            length(D0, L0),\n            length(Ds, L),\n            (   L < L0\n            ->  R1 = cell(I, Ds)\n            ;   R1 = R0\n            )\n        )\n    ),\n    I1 is I + 1,\n    mrv_(I1, B, R1, R).\n\n% --- Search -----------------------------------------------------------------\n\n% solve_one(+Board, -Solution): first completion found, deterministic overall.\nsolve_one(B, Out) :-\n    mrv(B, R),\n    (   R == solved\n    ->  Out = B\n    ;   R = cell(I, Ds),\n        member(D, Ds),\n        duplicate_term(B, B2),\n        N is I + 1,\n        setarg(N, B2, D),\n        solve_one(B2, Out)\n    ).\n\n% count_sol(+Board, +Limit, +Acc0, -Acc): count solutions up to Limit.\ncount_sol(B, Limit, A0, A) :-\n    (   mrv(B, R)\n    ->  (   R == solved\n        ->  A is A0 + 1\n        ;   R = cell(I, Ds),\n            branch(Ds, I, B, Limit, A0, A)\n        )\n    ;   A = A0\n    ).\n\nbranch([], _, _, _, A, A).\nbranch([D|Ds], I, B, Limit, A0, A) :-\n    (   A0 >= Limit\n    ->  A = A0\n    ;   duplicate_term(B, B2),\n        N is I + 1,\n        setarg(N, B2, D),\n        count_sol(B2, Limit, A0, A1),\n        branch(Ds, I, B, Limit, A1, A)\n    ).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SHjAhpRY3HhWydis9y",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The search is nondeterministic in `solve_one` (`member(D, Ds)` with backtracking, committed by `->` in `sudoku_solve`), and `count_sol` threads an accumulator. However, the board is a mutable compound updated with `duplicate_term` and `setarg/3`, and `mrv_` is an imperative scan with nested if-then-else carrying a running best. `count_sol/branch` is manual state passing rather than `aggregate_all(count)` or `findnsols/4`. `sudoku_is_valid` uses a negated generate-and-test, which is fine. A logic-style version would use list-based pure data, `nth0`/`foldl`, `findnsols` or `limit/2`, and pairs-keyed MRV selection (`min_member`) to earn a 4.\",\"language_idiomaticity\":\"Uses `maplist`, `between`, `findall`, `memberchk`, `arg/3` and `=..` to build the board, with correct `is`/`=:=`. But it hand-rolls things the library provides (`min_member`, `findnsols`, `aggregate_all(count)`, `sumlist`, `nth0`). `setarg` on `duplicate_term` copies is un-Prolog-like, and `=..` with 81 args is clumsy. `sudoku_candidates` does not validate list length or `is_list`, so malformed input throws. `peer/2` has a comment that is muddled and mentions the I==J case confusingly.\",\"readability\":\"Predicate names are clear (`peer`, `cands`, `mrv`, `solve_one`, `count_sol`, `branch`), there are section headers and a header comment explaining the b/81 representation. `mrv_/4` has deeply nested if-then-else and `R0 = cell(_, D0)` unification inside a branch, which is hard to follow. The `peer` comment is confusing. Overall it is mostly readable.\",\"design\":\"Reasonable decomposition into validation, candidates, MRV, solve and count. `peer/2` is recomputed with `//` and `mod` on every call, and `cands/3` scans all 81 cells for each empty cell, so the per-node cost is high and there is no precomputed peer table. There is some duplication between `sudoku_is_valid` and `cands` in the peer scanning. There is no constraint propagation beyond MRV, and the copy-per-branch approach is costly. Using precomputed row/col/box unit lists would make it cleaner and faster.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":4,\"design\":3,\"anti_patterns\":[\"destructive setarg/3 on duplicate_term copies instead of pure data\",\"imperative scan loop in mrv_ with a running-best accumulator\",\"manual counting loop instead of findnsols/aggregate_all\",\"peer computed via arithmetic over all 81 cells instead of precomputed units\",\"sudoku_candidates does not validate input shape\",\"reimplementing min selection instead of using min_member\"],\"justification\":\"The solution has a sensible structure and correct MRV backtracking with `member/2` and an if-then-else commit, but it relies on a mutable `b/81` term with `setarg`/`duplicate_term` and imperative-style loops (`mrv_`, `branch`). It reinvents library functionality (`min_member`, `findnsols`) and recomputes peers by arithmetic across all 81 cells for each query. It is readable, but a more declarative, list-based design with precomputed units would be more idiomatic.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5820,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5820,
+          "model": null,
+          "output_tokens": 1177,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1177,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

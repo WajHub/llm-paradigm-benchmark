@@ -6,23 +6,32 @@
   "sample": 1,
   "attempt": 3,
   "category": "test_failures",
+  "rationale": {
+    "paradigm_idiomaticity": "The logic sits in a ShortestPath subclass and uses the provided Edge, DijkstraGraph and DijkstraResult objects with message passing, so it is OO in form. But dijkstra:source: is one long procedural method: a manual min-selection scan over `visited` and `distances` arrays inside a whileTrue: loop, with mutable `current` and `currentDist` temporaries. A 5 would extract helpers such as `nextUnvisitedVertex` and `relaxEdgesFrom:`, or use a priority queue (SortedCollection), and put vertex validation on the graph object.",
+    "language_idiomaticity": "The code uses `isNil ifTrue: [^nil]` early returns, `and:` with blocks, `Array new:withAll:`, `addFirst:` and `FloatD infinity`, all of which are valid GNU Smalltalk. Weaker points: `isNil ifTrue:` where `ifNil:` fits, `to:do:` with a manual scan instead of a collection protocol, `notNil` as the loop condition, and `Array new: n withAll: nil` where plain `Array new: n` would do. The `isInteger` checks are defensive and not very Smalltalk-like, and the `infinity` method wraps `FloatD infinity` instead of using `Float infinity` directly.",
+    "readability": "Names are clear (`distances`, `predecessors`, `visited`, `current`) and the code is short. The whileTrue: receiver block mixes the scan with the loop condition, which makes it harder to follow. The `+ 1` and `- 1` index mapping is scattered through the code, and the repeated target-bounds check is not named. There are no comments.",
+    "design": "The five required methods are implemented, and a small `infinity` helper is the only extra. Duplication remains: the bounds check on a vertex appears in addEdge:, dijkstra: and getShortestDistance:/reconstructPath:. The index conversion is not centralised, and the Dijkstra core is not decomposed. The O(V^2) scan is acceptable but unextracted. reconstructPath: checks that the first path vertex equals the source, which is a reasonable guard."
+  },
   "paradigm_idiomaticity": 3,
   "language_idiomaticity": 3,
   "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "O(V^2) linear-scan selection of the minimum vertex inside a whileTrue: loop instead of a priority queue/SortedCollection",
-    "block with side effects in the loop condition that assigns outer temporaries (current, currentDist)",
-    "parallel arrays (visited, distances, predecessors) instead of encapsulating the algorithm or state in objects",
-    "repeated bounds-check expression duplicated across methods instead of a helper method",
-    "logic in one long dijkstra:source: method rather than small helper methods",
-    "1 to: n do: index loop for min search where inject:into: or detect-style protocols could be used"
+    "monolithic dijkstra:source: method with a manual min-scan inside a whileTrue: loop",
+    "mutable current/currentDist temporaries used to emulate a priority queue",
+    "bounds validation duplicated across methods instead of a helper",
+    "unnecessary isInteger defensive checks",
+    "visited tracked in a parallel boolean Array, not a Set or Bag"
   ],
-  "justification": "The code works in a message-passing style and uses blocks, early returns with ^ and addFirst: for path building, but dijkstra:source: is a long procedural method with a condition block that mutates temporaries and an index-based min scan. The repeated validation `isInteger and: [>= 0 and: [< n]]` is duplicated in five methods instead of being factored into a helper such as isValidVertex:. Domain logic is not pushed into the graph or result objects, though the contract design somewhat dictates this. The O(V^2) selection with a visited array is simple and readable, but a priority queue would be more idiomatic.}}}",
+  "justification": "The solution is correct in structure and uses the provided classes via message sends, but dijkstra:source: is a long procedural method with an inline linear scan and mutable temporaries. The duplicated bounds checks and the lack of helper methods such as `relaxEdgesFrom:` or `isValidVertex:` reduce the design score. Language use is acceptable, with early returns and block conditionals, but it relies on index loops and `isNil ifTrue:` where more idiomatic forms exist.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3802,
-  "output_tokens": 452,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SK1j8URn7We98xxX4p",
+  "judge_s": 8.8,
+  "input_tokens": 4139,
+  "output_tokens": 1060,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

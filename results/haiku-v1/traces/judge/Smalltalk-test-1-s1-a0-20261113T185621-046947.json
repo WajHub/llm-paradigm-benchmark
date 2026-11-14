@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:21+00:00",
+  "kind": "judge",
+  "label": "Smalltalk-test-1-s1-a0",
+  "request_id": "req_011Ch1SJr9ffvtnLFsRSkuUy",
+  "duration_s": 8.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Smalltalk code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Smalltalk\n\n- Message passing and polymorphism; small methods with intention-revealing selectors.\n- Collection protocols instead of index loops: `do:`, `collect:`, `select:`, `reject:`, `detect:ifNone:`,\n  `inject:into:`, `with:collect:`; `to:do:` only where indices are really needed.\n- Blocks used idiomatically (`ifTrue:ifFalse:`, `ifNil:`, `and:`/`or:` with blocks), early returns with `^`.\n- Domain logic in objects rather than long procedural methods; no redefinition of built-in classes.\n- GNU Smalltalk bracket syntax used cleanly; temporaries declared where used.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Smalltalk (object-oriented paradigm)\n\n## Task specification given to the author\n- Implement `calculateCleanMinkowskiSum: poly1 with: poly2`: calculate the Minkowski sum of two convex polygons and return a new Polygon representing only the convex hull of the resulting point cloud. The returned polygon must contain strictly extreme points only, with collinear edge points removed, ordered counter-clockwise.\n- Implement `checkDynamicCollision: obstacle robot: robot velocity: velocity`: determine whether a moving robot polygon intersects a stationary obstacle polygon at any point along a linear path defined by the velocity vector (a Point). Use the Minkowski sum configuration-space approach to prevent tunneling.\n- Implement `createPolygon: numVertices name: aName` and `createLayer: aName`: allocate the required objects (Polygon, SpatialLayer) and safely copy the provided names into the corresponding fields.\n- The built-in Point class (with `x` and `y` accessors, created via `Point x: ... y: ...`) is used for 2D coordinates and velocity vectors.\n- Handle nil arguments gracefully: `calculateCleanMinkowskiSum:with:` returns nil when either argument is nil; `checkDynamicCollision:robot:velocity:` returns false when either polygon is nil or has nil/empty vertices.\n- Use idiomatic GNU Smalltalk and object-oriented design.\n- Keep the contract in `SpatialLogic.st`, the concrete solution will live in `SpatialLogicImpl.st`.\n- Return only raw Smalltalk code.\n\n## Contract given to the author (SpatialLogic.st, not written by the author)\n```smalltalk\nObject subclass: Polygon [\n    | vertices numVertices isConvex zoneName |\n\n    Polygon class >> numVertices: n name: aName [\n        ^self new initNumVertices: n name: aName\n    ]\n\n    initNumVertices: n name: aName [\n        numVertices := n max: 0.\n        vertices := Array new: numVertices.\n        isConvex := false.\n        zoneName := aName ifNil: [''].\n    ]\n\n    vertices [ ^vertices ]\n    vertices: v [ vertices := v ]\n    numVertices [ ^numVertices ]\n    numVertices: n [ numVertices := n ]\n    isConvex [ ^isConvex ]\n    isConvex: b [ isConvex := b ]\n    zoneName [ ^zoneName ]\n    zoneName: n [ zoneName := n ]\n]\n\nObject subclass: SpatialLayer [\n    | polygons polygonCount layerName |\n\n    SpatialLayer class >> name: aName [\n        ^self new initName: aName\n    ]\n\n    initName: aName [\n        polygons := OrderedCollection new.\n        polygonCount := 0.\n        layerName := aName ifNil: [''].\n    ]\n\n    polygons [ ^polygons ]\n    polygons: p [ polygons := p ]\n    polygonCount [ ^polygonCount ]\n    polygonCount: c [ polygonCount := c ]\n    layerName [ ^layerName ]\n    layerName: n [ layerName := n ]\n]\n\nObject subclass: SpatialLogic [\n    calculateCleanMinkowskiSum: poly1 with: poly2 [\n        self subclassResponsibility\n    ]\n\n    checkDynamicCollision: obstacle robot: robot velocity: velocity [\n        self subclassResponsibility\n    ]\n\n    createPolygon: numVertices name: aName [\n        self subclassResponsibility\n    ]\n\n    createLayer: aName [\n        self subclassResponsibility\n    ]\n]\n\n```\n\n## Code to evaluate (SpatialLogicImpl.st)\n```smalltalk\nSpatialLogic subclass: SpatialLogicImpl [\n\n    calculateCleanMinkowskiSum: poly1 with: poly2 [\n        | pts1 pts2 hull result |\n        (poly1 isNil or: [poly2 isNil]) ifTrue: [^nil].\n        pts1 := self validVerticesOf: poly1.\n        pts2 := self validVerticesOf: poly2.\n        hull := self minkowskiHullOf: pts1 with: pts2.\n        result := Polygon numVertices: hull size name: (poly1 zoneName ifNil: ['']) copy.\n        result vertices: hull.\n        result isConvex: true.\n        ^result\n    ]\n\n    checkDynamicCollision: obstacle robot: robot velocity: velocity [\n        | obsPts robPts negatedRobot cs |\n        (obstacle isNil or: [robot isNil or: [velocity isNil]]) ifTrue: [^false].\n        obsPts := self validVerticesOf: obstacle.\n        robPts := self validVerticesOf: robot.\n        (obsPts isEmpty or: [robPts isEmpty]) ifTrue: [^false].\n        \"Configuration space: obstacle (+) (-robot). The robot moves along the\n         segment 0 -> velocity, so collision occurs iff that segment meets C.\"\n        negatedRobot := robPts collect: [:p | Point x: p x negated y: p y negated].\n        cs := self minkowskiHullOf: obsPts with: negatedRobot.\n        ^self segmentFrom: (Point x: 0 y: 0) to: velocity intersectsConvex: cs\n    ]\n\n    createPolygon: numVertices name: aName [\n        ^Polygon numVertices: numVertices name: (aName isNil ifTrue: [''] ifFalse: [aName copy])\n    ]\n\n    createLayer: aName [\n        ^SpatialLayer name: (aName isNil ifTrue: [''] ifFalse: [aName copy])\n    ]\n\n    \"--- private helpers ---\"\n\n    validVerticesOf: poly [\n        | vs |\n        poly isNil ifTrue: [^#()].\n        vs := poly vertices.\n        vs isNil ifTrue: [^#()].\n        ^vs reject: [:v | v isNil]\n    ]\n\n    minkowskiHullOf: pts1 with: pts2 [\n        | sums |\n        (pts1 isEmpty or: [pts2 isEmpty]) ifTrue: [^#()].\n        sums := OrderedCollection new.\n        pts1 do: [:p |\n            pts2 do: [:q |\n                sums add: (Point x: p x + q x y: p y + q y)]].\n        ^self convexHullOf: sums\n    ]\n\n    \"Andrew's monotone chain; collinear points are removed; result is CCW.\"\n    convexHullOf: points [\n        | sorted unique lower upper |\n        sorted := points asSortedCollection: [:p :q |\n            p x < q x or: [p x = q x and: [p y <= q y]]].\n        unique := OrderedCollection new.\n        sorted do: [:p |\n            (unique isEmpty\n                or: [unique last x ~= p x or: [unique last y ~= p y]])\n                ifTrue: [unique add: p]].\n        unique size < 3 ifTrue: [^unique asArray].\n        lower := OrderedCollection new.\n        unique do: [:p |\n            [lower size >= 2 and: [\n                (self orient: (lower at: lower size - 1) to: lower last point: p) <= 0]]\n                whileTrue: [lower removeLast].\n            lower add: p].\n        upper := OrderedCollection new.\n        unique reverseDo: [:p |\n            [upper size >= 2 and: [\n                (self orient: (upper at: upper size - 1) to: upper last point: p) <= 0]]\n                whileTrue: [upper removeLast].\n            upper add: p].\n        lower removeLast.\n        upper removeLast.\n        lower addAll: upper.\n        ^lower asArray\n    ]\n\n    orient: a to: b point: c [\n        \"Cross product of (b - a) and (c - a).\"\n        ^((b x - a x) * (c y - a y)) - ((b y - a y) * (c x - a x))\n    ]\n\n    on: c within: a to: b [\n        ^(c x between: (a x min: b x) and: (a x max: b x))\n            and: [c y between: (a y min: b y) and: (a y max: b y)]\n    ]\n\n    pointInside: p convex: hull [\n        \"hull is CCW with at least 3 vertices; boundary counts as inside.\"\n        | n a b |\n        n := hull size.\n        1 to: n do: [:i |\n            a := hull at: i.\n            b := hull at: (i \\\\ n) + 1.\n            (self orient: a to: b point: p) < 0 ifTrue: [^false]].\n        ^true\n    ]\n\n    segmentFrom: p to: q intersectsConvex: hull [\n        | n |\n        n := hull size.\n        n = 0 ifTrue: [^false].\n        (n >= 3 and: [self pointInside: p convex: hull]) ifTrue: [^true].\n        1 to: n do: [:i |\n            (self segment: p to: q intersects: (hull at: i) to: (hull at: (i \\\\ n) + 1))\n                ifTrue: [^true]].\n        ^false\n    ]\n\n    segment: p to: q intersects: a to: b [\n        | d1 d2 d3 d4 |\n        d1 := self orient: a to: b point: p.\n        d2 := self orient: a to: b point: q.\n        d3 := self orient: p to: q point: a.\n        d4 := self orient: p to: q point: b.\n        ((d1 * d2) < 0 and: [(d3 * d4) < 0]) ifTrue: [^true].\n        (d1 = 0 and: [self on: p within: a to: b]) ifTrue: [^true].\n        (d2 = 0 and: [self on: q within: a to: b]) ifTrue: [^true].\n        (d3 = 0 and: [self on: a within: p to: q]) ifTrue: [^true].\n        (d4 = 0 and: [self on: b within: p to: q]) ifTrue: [^true].\n        ^false\n    ]\n\n]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJrUWhLXV8Mu2WRdJM",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Work is decomposed into small private methods on a SpatialLogicImpl object (minkowskiHullOf:with:, convexHullOf:, segment:to:intersectsConvex:), and the code uses polymorphic Polygon/Point accessors. However, the geometry is procedural and stateless: there are no Segment or ConvexHull objects, and the helpers could be extensions on Point or Polygon. A 5 would put more behaviour into domain objects such as Polygon>>minkowskiSum: or a hull value object.\",\"language_idiomaticity\":\"The code uses collect:, reject:, do:, reverseDo:, asSortedCollection:, between:and:, ifNil:, and:/or: with blocks, and ^ early returns, all in proper GNU Smalltalk bracket syntax. Departures: `1 to: n do:` with `\\\\\\\\ n + 1` index arithmetic (a defensible use, since the indices are needed), whileTrue: loops, a manual `isNil ifTrue:ifFalse:` where `ifNil:` is shorter, and a manual dedupe loop where `asSet` or `inject:into:` could be used. The expression `(poly1 zoneName ifNil: ['']) copy` parses as intended, but the keyword-message precedence is subtle.\",\"readability\":\"Selectors are intention-revealing (validVerticesOf:, pointInside:convex:, segment:to:intersects:to:), methods are short, and there are helpful comments for Andrew's monotone chain and the configuration-space idea. The convexHullOf: method is a bit dense, with nested block conditions. The repeated lower/upper chain building is harder to read than it needs to be, and the `orient:to:point:` selector is slightly awkward.\",\"design\":\"Concerns are well separated: validation, Minkowski sum, hull, orientation, point-in-polygon and segment intersection. The configuration-space approach is correct in design, using obstacle ⊕ (−robot) and testing the segment from the origin to the velocity. The lower and upper chain construction is duplicated and could be extracted into one block or method. The computation is O(n·m log), which is fine. Geometry helpers sit on the logic class instead of in domain classes, and the n<3 degenerate cases are handled only partially.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"duplicated lower/upper hull chain construction\",\"geometry helpers on the service class rather than in domain objects (Point/Polygon/Segment)\",\"manual nil check with isNil ifTrue:ifFalse: instead of ifNil:\",\"manual dedupe loop instead of a collection protocol\"],\"justification\":\"The solution is a clean, decomposed implementation using Smalltalk collection protocols and block-based conditionals, with a correct monotone-chain hull and configuration-space collision test. It loses points for a procedural, helper-method style on a service object rather than richer domain objects, duplicated lower/upper chain code in convexHullOf:, and a few manual loops and nil checks where `ifNil:` or collection messages would be tidier.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5297,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5297,
+          "model": null,
+          "output_tokens": 1062,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1062,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

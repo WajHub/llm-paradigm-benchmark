@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:01+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-3-s1-a0",
+  "request_id": "req_011Ch1SHHTNcC2dL55oY7MPs",
+  "duration_s": 9.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\nImplement a Palindrome Tree (also known as Eertree) data structure in SWI-Prolog using\nthe module palindrome_tree. The Eertree is a linear-time data structure that implicitly\nrepresents all distinct palindromic substrings of a string. It was introduced by Mikhail\nRubinchik and Arseny M. Shur in 2014.\n\n- Implement `eertree_build(+String, +Len, -Tree)`: Build the palindrome tree for an atom\n  `String` of length `Len`. Represent the tree as `eertree(Nodes, Size, Last, Str, StrLen)`\n  where Nodes is a list of `node(Len, SuffixLink, Children, Cnt, EndPos)` terms. The tree\n  must include two imaginary root nodes at indices 0 and 1: root 0 has Len = -1 (the \"odd\n  root\"), root 1 has Len = 0 (the \"even root\"). After building, propagate occurrence\n  counts from longer palindromes to shorter ones by traversing nodes in decreasing order\n  of Len and adding each node's Cnt to its SuffixLink's Cnt. The final Cnt of each node\n  must equal the total number of times that palindrome appears as a substring in the input.\n\n- Implement `eertree_count_distinct(+Tree, -Count)`: Unify Count with the number of\n  distinct palindromic substrings (i.e., the number of real nodes, excluding the two\n  imaginary roots).\n\n- Implement `eertree_count_occurrences(+Tree, +Pattern, +PLen, -Count)`: Find the node in\n  the tree whose palindrome matches the atom `Pattern` (using EndPos to locate the\n  substring in the stored string) and unify Count with its propagated Cnt. Count = 0 if\n  the pattern is not found, not a palindrome, or any argument is `none`.\n\n- Implement `eertree_longest_length(+Tree, -Length)`: Unify Length with the maximum Len\n  among all real nodes.\n\nConstraints:\n  - Input strings are atoms containing only lowercase Latin letters ('a'..'z').\n  - `eertree_build(none, N, Tree)` with N > 0 must unify Tree with `none`.\n  - `eertree_build('', 0, Tree)` must produce a valid Eertree with only the two imaginary\n    roots.\n  - All query predicates must unify the count with 0 on `none` input without throwing.\n  - Use the `none` atom for absent/null values.\n  - Use idiomatic SWI-Prolog.\n\n## Stub module given to the author (palindrome_tree.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(palindrome_tree, [\n    eertree_build/3,\n    eertree_count_distinct/2,\n    eertree_count_occurrences/4,\n    eertree_longest_length/2\n]).\n\n% Eertree (palindrome tree) representation: eertree(Nodes, Size, Last, Str, StrLen)\n% where Nodes is a list of node(Len, SuffixLink, Children, Cnt, EndPos) terms\n% (index 0 = odd root with Len = -1, index 1 = even root with Len = 0),\n% Children maps a letter to a child node index, Str is the stored input atom and\n% StrLen its length.\n%\n% The input string is an atom of lowercase Latin letters ('a'..'z'), or the atom\n% `none` to denote an absent (NULL) string. Absent trees/patterns are `none`.\n\neertree_build(_, _, _) :-\n    throw(error(existence_error(procedure, eertree_build/3), _)).\n\neertree_count_distinct(_, _) :-\n    throw(error(existence_error(procedure, eertree_count_distinct/2), _)).\n\neertree_count_occurrences(_, _, _, _) :-\n    throw(error(existence_error(procedure, eertree_count_occurrences/4), _)).\n\neertree_longest_length(_, _) :-\n    throw(error(existence_error(procedure, eertree_longest_length/2), _)).\n\n```\n\n## Code to evaluate (palindrome_tree.pl)\n```prolog\n:- module(palindrome_tree, [\n    eertree_build/3,\n    eertree_count_distinct/2,\n    eertree_count_occurrences/4,\n    eertree_longest_length/2\n]).\n\n:- use_module(library(assoc)).\n\n% Eertree (palindrome tree) representation: eertree(Nodes, Size, Last, Str, StrLen)\n% where Nodes is a list of node(Len, SuffixLink, Children, Cnt, EndPos) terms\n% (index 0 = odd root with Len = -1, index 1 = even root with Len = 0),\n% Children is a list of Letter-Index pairs, Str is the stored input atom and\n% StrLen its length.\n\neertree_build(none, _, none) :- !.\neertree_build(Str, Len, eertree(Nodes, Size, Last, Str, Len)) :-\n    atom(Str), integer(Len), Len >= 0,\n    empty_assoc(A0),\n    put_assoc(0, A0, node(-1, 0, [], 0, none), A1),\n    put_assoc(1, A1, node(0, 0, [], 0, none), A2),\n    build(0, Len, Str, st(A2, 2, 1), st(A3, Size, Last)),\n    propagate_all(A3, A4),\n    assoc_to_values(A4, Nodes).\n\nbuild(I, N, Str, S0, S) :-\n    (   I >= N\n    ->  S = S0\n    ;   step(I, Str, S0, S1),\n        I1 is I + 1,\n        build(I1, N, Str, S1, S)\n    ).\n\nstep(I, Str, st(A0, Size0, Last0), st(A, Size, Last)) :-\n    sub_atom(Str, I, 1, _, C),\n    find_suffix(A0, Last0, I, Str, C, Cur),\n    get_assoc(Cur, A0, node(_, _, Ch, _, _)),\n    (   memberchk(C-Child, Ch)\n    ->  get_assoc(Child, A0, node(L, Lk, CCh, Cnt, E)),\n        Cnt1 is Cnt + 1,\n        put_assoc(Child, A0, node(L, Lk, CCh, Cnt1, E), A),\n        Size = Size0,\n        Last = Child\n    ;   get_assoc(Cur, A0, node(CLen, CLink, _, _, _)),\n        NewLen is CLen + 2,\n        (   NewLen =:= 1\n        ->  Link = 1\n        ;   find_suffix(A0, CLink, I, Str, C, W),\n            get_assoc(W, A0, node(_, _, WCh, _, _)),\n            memberchk(C-Link, WCh)\n        ),\n        New = Size0,\n        put_assoc(New, A0, node(NewLen, Link, [], 1, I), A1),\n        get_assoc(Cur, A1, node(CL, CK, CCh, CC, CE)),\n        put_assoc(Cur, A1, node(CL, CK, [C-New|CCh], CC, CE), A),\n        Size is Size0 + 1,\n        Last = New\n    ).\n\n% find_suffix(+Assoc, +Node, +I, +Str, +C, -Cur):\n% walk suffix links from Node until a palindromic suffix extendable by C at I.\nfind_suffix(A, Node, I, Str, C, Cur) :-\n    get_assoc(Node, A, node(L, Lk, _, _, _)),\n    J is I - L - 1,\n    (   J >= 0,\n        sub_atom(Str, J, 1, _, C)\n    ->  Cur = Node\n    ;   find_suffix(A, Lk, I, Str, C, Cur)\n    ).\n\npropagate_all(A0, A) :-\n    assoc_to_list(A0, Pairs),\n    findall(NL-K,\n            ( member(K-node(L, _, _, _, _), Pairs),\n              K >= 2,\n              NL is -L\n            ),\n            Keyed),\n    keysort(Keyed, Sorted),\n    propagate(Sorted, A0, A).\n\npropagate([], A, A).\npropagate([_-K|T], A0, A) :-\n    get_assoc(K, A0, node(_, Lk, _, Cnt, _)),\n    get_assoc(Lk, A0, node(LL, LLk, LC, LCnt, LE)),\n    LCnt1 is LCnt + Cnt,\n    put_assoc(Lk, A0, node(LL, LLk, LC, LCnt1, LE), A1),\n    propagate(T, A1, A).\n\neertree_count_distinct(none, 0) :- !.\neertree_count_distinct(eertree(_, Size, _, _, _), Count) :-\n    Count is Size - 2.\n\neertree_count_occurrences(eertree(Nodes, _, _, Str, _), Pattern, PLen, Count) :-\n    atom(Pattern), Pattern \\== none, integer(PLen), !,\n    (   nth0(K, Nodes, node(L, _, _, C, E)),\n        K >= 2,\n        L =:= PLen,\n        Start is E - L + 1,\n        sub_atom(Str, Start, L, _, Pattern)\n    ->  Count = C\n    ;   Count = 0\n    ).\neertree_count_occurrences(_, _, _, 0).\n\neertree_longest_length(none, 0) :- !.\neertree_longest_length(eertree(Nodes, _, _, _, _), Length) :-\n    drop_roots(Nodes, Real),\n    (   Real == []\n    ->  Length = 0\n    ;   findall(L, member(node(L, _, _, _, _), Real), Ls),\n        max_list(Ls, Length)\n    ).\n\ndrop_roots([_, _ | Rest], Rest) :- !.\ndrop_roots(_, []).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SHHkVFP24MsyUPd8Gd",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"State is threaded explicitly (st(A,Size,Last)), with no assert/retract. The control flow is imperative, though: build/5 is an if-then-else loop on I >= N rather than clause-head matching, step/4 nests deep if-then-else, and find_suffix uses if-then-else instead of clause dispatch. The use of nth0 with a conditional, findall/member and keysort is declarative enough. A 4 would need head-matching recursion and flatter case analysis.\",\"language_idiomaticity\":\"Uses library(assoc), sub_atom/5, memberchk, keysort, max_list, nth0 and assoc_to_values, which is good. Weaknesses: building via an assoc and then converting to a list, the redundant repeated get_assoc on Cur, the unusual `eertree_build(none,_,none) :- !` placed before guards, and the catch-all `eertree_count_occurrences(_,_,_,0)` after a cut. Children is a pair list, which the task allows. max_list over a findall would be better as aggregate_all(max(L), ...), and between/numlist could replace the manual counter.\",\"readability\":\"Predicate names (find_suffix, propagate_all, step) are clear and find_suffix has a doc comment. step/4 is long, with nested conditionals, a repeated get_assoc for Cur, and the single-letter variables CL, CK, CCh, CC, CE, which make it hard to follow. Little commentary explains the algorithm. Splitting step into smaller predicates (extend, add_node, link computation) would earn a 4.\",\"design\":\"Reasonable decomposition into build, step, find_suffix, propagate and the queries. Assoc gives O(log n) node access during the build, which is sensible, then it is flattened to the required list. Node updates are duplicated: the get_assoc/put_assoc pattern for incrementing a count or adding a child is repeated and should be helper predicates such as update_node. Propagation re-fetches nodes by key. count_occurrences does a linear scan, which is acceptable. drop_roots is slightly awkward.  A 4 would need factored node-update helpers and a cleaner step..\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"if-then-else counting loop in build/5 instead of clause-head recursion or numlist/foldl\",\"deeply nested if-then-else in step/4 instead of separate clauses\",\"duplicated get_assoc/put_assoc node-update boilerplate with no helper\",\"catch-all fallback clause after a cut for count_occurrences\",\"findall + max_list instead of aggregate_all(max(...))\"],\"justification\":\"The solution is pure state-threading with no assert and uses the assoc library well, but control flow in build/5, step/4 and find_suffix/6 is written with imperative-style if-then-else chains rather than clause dispatch. step/4 is long and repeats node read/modify/write code, and cryptic variable names (CL, CK, CCh) hurt readability. The decomposition is decent, and the library usage is mostly appropriate, yielding an average idiomatic result.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5317,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5317,
+          "model": null,
+          "output_tokens": 1059,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1059,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

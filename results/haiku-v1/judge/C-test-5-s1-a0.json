@@ -6,23 +6,33 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The solution is a classic procedural recursive-descent parser, with one function per grammar rule (parse_expr, parse_term, parse_unary, parse_power, parse_primary). Parser state is held in a small `Parser` struct passed by pointer, and there is no global state. Left-associative operators are handled with `for(;;)` loops. The evaluator is a recursive switch over `NodeKind`. It would earn a 5 if parse_primary were split into number, identifier and call sub-routines, which would keep the control flow flatter.",
+    "language_idiomaticity": "It uses static helpers, `calloc`, `isspace((unsigned char)...)`, `size_t`, `strtod`, `fmod` and `isfinite`. Allocation failures are checked and the ownership cleanup is correct. Departures from common C practice: `func` is stored as `int` instead of `FuncId`; the number is copied into a malloc'd buffer just to call `strtod`, where `strtod` could parse directly from the source; the function-name lookup is an if/else strcmp chain instead of a static table; `(AstNode *)calloc` casts are unnecessary; and `strtod` accepts a leading '.' that the spec's NUMBER may not allow.",
+    "readability": "Names are clear (`skip_ws`, `make_binary`, `checked_pow`, `make_result`), the grammar mapping is easy to follow, and the evaluator is straightforward. However, `parse_primary` is roughly 100 lines with deeply nested branches and an `ok` flag that threads through argument parsing, which hurts readability. The `nchild == 1` versus else split in `NODE_CALL` is also somewhat implicit.",
+    "design": "Parsing and evaluation are separated, there are constructor helpers with cleanup on failure, and `make_result` enforces value 0.0 on error. Weaknesses: `AstNode` is a fat struct with unused fields per kind (num, name, op, func), not a union. `parse_term` and `parse_expr` duplicate nearly the same loop, which could be parameterised. Function name, arity and ID are handled by a repeated if-chain instead of a lookup table. The oversized `parse_primary` mixes number, identifier and call parsing. The evaluator's call handling dispatches on arity before function, which is awkward."
+  },
   "paradigm_idiomaticity": 4,
-  "language_idiomaticity": 4,
+  "language_idiomaticity": 3,
   "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "parse_primary is one very long function that mixes number scanning, identifier scanning, function-call parsing and parenthesised expressions",
-    "function lookup is a hand-rolled strcmp if-else chain rather than a static table of name/id/arity",
-    "AstNode uses a fat struct with unused fields (num, name, op, func) instead of a union",
-    "func field stored as int rather than FuncId",
-    "unnecessary malloc/copy of the number and identifier text before strtod/strcmp",
-    "manual ok-flag error handling with duplicated cleanup paths"
+    "monolithic parse_primary doing number, identifier and call parsing",
+    "if/else strcmp chain instead of a static function table",
+    "needless malloc'd temporary buffer for strtod",
+    "enum value stored as int (`int func`)",
+    "duplicated left-assoc loop in parse_term and parse_expr",
+    "fat struct with unused fields instead of a tagged union"
   ],
-  "justification": "The code is a clear procedural recursive-descent parser that mirrors the grammar. It uses static helpers, calloc/NULL checks, and a recursive free_ast. Error paths mostly free partial results correctly. However, parse_primary is far too long, with number, identifier, call-argument and paren logic inlined, and it uses temporary malloc buffers where strtod or a fixed table lookup would work directly. A table-driven function lookup, a union for node payloads, and splitting parse_primary into helpers would make it more idiomatic and better structured. The evaluator is reasonably clean, but the NODE_CALL branch dispatches on nchild rather than on function identity, and the make_result helper is slightly redundant.",
+  "justification": "The code is a sound procedural recursive-descent parser with correct ownership and cleanup on every error path, static helpers and a clean evaluator switch. Its idiomaticity is reduced by the long, nested parse_primary, the strcmp chain for function lookup, the temporary malloc buffer for number parsing and the `int func` field. Duplicated binary-operator loops and a non-union AST node add further structural looseness.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 7554,
-  "output_tokens": 463,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SDRCMTs1msFWEZV5LJ",
+  "judge_s": 9.0,
+  "input_tokens": 7891,
+  "output_tokens": 1084,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

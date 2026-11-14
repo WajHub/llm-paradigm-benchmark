@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:02+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-4-s1-a0",
+  "request_id": "req_011Ch1SHKTg4pqiudRPrmNBT",
+  "duration_s": 10.3,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\n- Implement `knapsack_max_value(+Weights, +Values, +Capacity, -MaxValue)`: 0/1 knapsack via DP. Return 0 for empty list or Capacity <= 0.\n- Implement `knapsack_solve(+Weights, +Values, +Capacity, -Result)`: Result = result(MaxValue, Selected, TotalWeight) where Selected is a list of 0/1 of length n.\n- DO NOT use greedy heuristics — they fail on w=[10,20,30], v=[60,100,120], cap=50 (optimum=220).\n- Selection invariants: sum of selected weights <= capacity; sum of selected values = MaxValue.\n- Idiomatic SWI-Prolog (memoization or pure recursion with accumulators).\n\n## Stub module given to the author (knapsack.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(knapsack, [\n    knapsack_max_value/4,\n    knapsack_solve/4\n]).\n\n% knapsack_max_value(+Weights, +Values, +Capacity, -MaxValue)\n%   Returns the max value attainable.\n%\n% knapsack_solve(+Weights, +Values, +Capacity, -Result)\n%   Result = result(MaxValue, Selected, TotalWeight)\n%   where Selected is a list of 0/1 of the same length as Weights.\n\nknapsack_max_value(_, _, _, _) :-\n    throw(error(existence_error(procedure, knapsack_max_value/4), _)).\n\nknapsack_solve(_, _, _, _) :-\n    throw(error(existence_error(procedure, knapsack_solve/4), _)).\n\n```\n\n## Code to evaluate (knapsack.pl)\n```prolog\n:- module(knapsack, [\n    knapsack_max_value/4,\n    knapsack_solve/4\n]).\n\n% knapsack_max_value(+Weights, +Values, +Capacity, -MaxValue)\n%   Returns the max value attainable.\nknapsack_max_value(Ws, Vs, Cap, Max) :-\n    knapsack_solve(Ws, Vs, Cap, result(Max, _, _)).\n\n% knapsack_solve(+Weights, +Values, +Capacity, -Result)\n%   Result = result(MaxValue, Selected, TotalWeight)\n%   where Selected is a list of 0/1 of the same length as Weights.\nknapsack_solve(Ws, Vs, Cap, result(Max, Sel, TW)) :-\n    length(Ws, N),\n    length(Vs, N),\n    (   (N =:= 0 ; Cap =< 0)\n    ->  length(Sel, N),\n        maplist(=(0), Sel),\n        Max = 0,\n        TW = 0\n    ;   Size is Cap + 1,\n        length(T0, Size),\n        maplist(=(best(0, [])), T0),\n        fold_items(Ws, Vs, T0, T),\n        last(T, best(Max, RevSel)),\n        reverse(RevSel, Sel),\n        sum_weights(Ws, Sel, TW)\n    ).\n\n% ---- DP over items -------------------------------------------------------\n\nfold_items([], [], T, T).\nfold_items([W|Ws], [V|Vs], T0, T) :-\n    step(W, V, T0, T1),\n    fold_items(Ws, Vs, T1, T).\n\n% step(+W, +V, +Old, -New): one 0/1 item processed over all capacities.\n% Old and New are lists indexed by capacity 0..Cap, holding best(Value, RevSelection).\nstep(W, V, Old, New) :-\n    length(Old, L),\n    length(Pad, W),\n    maplist(=(none), Pad),\n    append(Pad, Old, Ext),\n    length(Shifted, L),\n    append(Shifted, _, Ext),\n    combine(Old, Shifted, V, New).\n\ncombine([], [], _, []).\ncombine([O|Os], [S|Ss], V, [N|Ns]) :-\n    O = best(OV, OSel),\n    (   S == none\n    ->  N = best(OV, [0|OSel])\n    ;   S = best(SV, SSel),\n        SV2 is SV + V,\n        (   SV2 > OV\n        ->  N = best(SV2, [1|SSel])\n        ;   N = best(OV, [0|OSel])\n        )\n    ),\n    combine(Os, Ss, V, Ns).\n\n% ---- Selection weight ----------------------------------------------------\n\nsum_weights([], [], 0).\nsum_weights([W|Ws], [S|Ss], Total) :-\n    sum_weights(Ws, Ss, Rest),\n    Total is Rest + S * W.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SHKoGWsV4iehUjWtYL",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The DP is a pure fold over items (fold_items/4) that threads an immutable table through step/4 and combine/4, with no assert/retract and no global state. Clause heads pattern-match on lists. Weaknesses: the table is a list shifted by padding with `none` and append, which is an awkward functional encoding. Combine uses nested if-then-else, and knapsack_max_value runs the full solve with reconstruction. A 5 would use a clearer recurrence, such as tabling or recursion on (Index, Capacity), with a cleaner relational formulation.\",\"language_idiomaticity\":\"Uses maplist(=(0)), length/2 as a generator, last/2, reverse/2, and append/3 with a partial list for taking a prefix. It does not use foldl/4 for fold_items, which reimplements it by hand. `maplist(=(none), Pad)` and `append(Shifted,_,Ext)` for prefix-taking are tricks that are legal but not common. The `S == none` sentinel in place of a proper absence representation is un-Prolog-like. `(N =:= 0 ; Cap =< 0) -> ...` is acceptable. Using foldl and a nth-based or pairs-based representation would score higher. There is no handling of W=0 (length(Pad,0) works) or of negative W (length throws).\",\"readability\":\"Predicates are small, and there are comments on the signatures and on step/4 describing the table layout. The shift-by-padding trick in step/4 takes effort to understand, and combine/4 has nested if-then-else with the none sentinel. The names best, RevSel, Shifted and Pad are reasonable. A short comment explaining the shift would earn the 4th point.\",\"design\":\"Decomposition is reasonable: fold_items, step, combine and sum_weights are separate, and reconstruction rides along in the table through reversed selection lists, so no backtracking array is needed. max_value delegates to solve, which avoids duplication. The cost is that O(Cap) lists carry selections, and the shift is done via append, which is wasteful. The sum_weights recursion is not tail-recursive, and it could have been computed with foldl or sum_list. Mixing the sentinel `none` in with best terms weakens the data model.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"hand-written fold_items instead of foldl/4\",\"`none` sentinel atom mixed into data and tested with ==\",\"if-then-else chains in combine/4 instead of clause-head dispatch\",\"append-based list shifting to emulate array indexing\",\"non-tail-recursive sum_weights that could use a library predicate\"],\"justification\":\"The solution is a pure, assert-free DP that threads an immutable capacity table through fold_items/step/combine and reconstructs the selection by carrying reversed choices, which fits the logic paradigm reasonably. Idiomatic touches include maplist, last and length-as-generator. It loses points for reimplementing foldl, using the `none` sentinel with `==`, nested if-then-else in combine/4, and the obscure padding-and-append shift trick. Its structure is sensible but somewhat awkward and inefficient.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3560,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3560,
+          "model": null,
+          "output_tokens": 1080,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1080,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

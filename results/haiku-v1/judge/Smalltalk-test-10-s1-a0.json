@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The work is spread over small methods on the OrderStatsImpl object (lowerMedianOf:, kthOf:in:and:, medianOf:and:), and the abstract class is overridden polymorphically. The algorithm bodies are still procedural: selectKth: keeps mutable cur/rank/pivots state in a `repeat` loop, and kthOf:in:and: does the same with offsets. There is no domain object such as a source wrapper or a partition result. A score of 5 would need a more object-centred decomposition, for example a partition helper or a source-view object.",
+    "language_idiomaticity": "The code uses select:, asSortedCollection, copyFrom:to:, min:, `^` early returns inside blocks, and `repeat` for loops. It also uses `1 to:by:do:` with block temporaries, which is reasonable here. Weak spots: OrderStats is redefined at the top of the file even though the contract already supplies it, and `asSortedCollection asArray` is a clumsy way to sort (`asArray sort` or `asSortedCollection` alone would do). There are three select: passes where a single pass or `count:` would be cleaner. Calling `^` inside a `repeat` block as the only exit is acceptable but a little awkward.",
+    "readability": "Names are clear (lessPart, equalCount, greaterPart, remA, remB, offA, offB). Methods are short and the logic is easy to follow. There are no comments explaining the k-th search by halving k, which is the non-obvious part. Block-local temporaries are declared where they are used.",
+    "design": "Part A and Part B are separated, and the helper kthOf:in:and: is reused for both the odd and even medians. The median computation duplicates lowerMedianOf: logic inside medianOfMedians: instead of calling the helper for each group. The redefinition of OrderStats in the solution file is a duplication of the contract. The even case does two full k-th searches, which is acceptable within the read budget but doubles the reads. The partition is done in three passes over cur."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "redefinition of the provided OrderStats abstract class in the solution file",
+    "duplicated lower-median logic instead of reusing lowerMedianOf: for each group",
+    "three separate select: passes where one would do (count: for the equal elements)",
+    "asSortedCollection asArray used just to sort",
+    "mutable-state loops with `repeat` and `^` as the only exit"
+  ],
+  "justification": "The solution is split into sensible helper methods and uses collection messages such as select: and copyFrom:to:. It still reads as procedural: selectKth: and kthOf:in:and: are mutable-state loops with `repeat`. The file also redefines OrderStats, which the contract already provides, and the lower-median logic is copied inline in medianOfMedians: rather than reusing lowerMedianOf:. Names are clear, so readability is good, but the code is only moderately idiomatic overall.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RwdzbASpBS1o3ba7ce",
+  "judge_s": 8.6,
+  "input_tokens": 5127,
+  "output_tokens": 1006,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is procedural DP with explicit loops, in-place mutation and a backward capacity loop for the 1D table in knapsack_max_value. Early returns handle guards and an explicit free ends each path. The 1D rolling array is the classic form. In knapsack_solve the flattened 2D table and backtracking are also standard. Because the DP fill and the reconstruction sit inline in one function, it falls just short of a 5.",
+    "language_idiomaticity": "It uses calloc with (size_t) casts, const pointer parameters from the contract, and size_t index arithmetic for the flattened table. Cleanup on allocation failure is correct. The casts on malloc/calloc are unnecessary in C. The repeated `(size_t)i * cols + c` is verbose, and no static helper or macro is used. The `w < 0` handling is inconsistent between the two functions. These keep it at 4.",
+    "readability": "Names are clear (dp, cols, rows, cand, best), and a comment documents dp[i][c] and the reconstruction step. The long index expressions in knapsack_solve are somewhat noisy. The function is moderately long but still easy to follow. A small index helper would make it a 5.",
+    "design": "The three functions match the contract and ownership is clear: free_knapsack_result frees both the inner array and the struct. The solve function does allocation, DP fill and reconstruction in one body, with no static helpers. The 1D and 2D DP logic is duplicated across the two public functions, though the 2D table is justified because reconstruction needs it. Extracting static helpers for table building and backtracking would raise the score."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 3,
   "anti_patterns": [
-    "knapsack_solve is one long function mixing allocation, DP fill and reconstruction instead of static helpers",
-    "flattened 2D array index arithmetic repeated inline instead of a helper or macro",
-    "unnecessary casts on malloc/calloc return values in C",
-    "duplicated DP logic between knapsack_max_value and knapsack_solve"
+    "unnecessary casts of malloc/calloc results",
+    "long inline index arithmetic instead of a helper or macro",
+    "monolithic knapsack_solve combining allocation, DP fill and backtracking",
+    "DP recurrence duplicated across the two public functions"
   ],
-  "justification": "The code uses standard C idioms: calloc with checks, cleanup on every error path, a rolling 1D DP array in knapsack_max_value, and a NULL-safe free_knapsack_result. The cost is that knapsack_solve does everything in one function, with repeated `(size_t)i * cols + c` expressions that hurt readability, and its DP fill duplicates the logic in knapsack_max_value. Splitting out static helpers for table building and reconstruction would improve the design, and the casts on malloc/calloc are unneeded in C. The negative-weight guards are slightly inconsistent with the reconstruction step, but that is a correctness concern rather than idiomaticity.",
+  "justification": "This is a correct, conventional C DP solution: a 1D rolling table for the value-only function and a full 2D table with backtracking for the result. Error paths free memory properly and the NULL-safe free function is correct. The main weaknesses are the single long knapsack_solve with no static helpers, the noisy flattened-index expressions, and the redundant malloc casts.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3257,
-  "output_tokens": 390,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SDRCbxNkTCeuYks8Wt",
+  "judge_s": 7.7,
+  "input_tokens": 3594,
+  "output_tokens": 796,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

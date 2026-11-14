@@ -1,0 +1,29 @@
+% Streszczenie -- składane na stronie tytułowej przez main.tex
+\begin{center}\textbf{Streszczenie}\end{center}
+\vspace{-4pt}
+{\small
+Duże modele językowe (LLM) ocenia się zwykle na benchmarkach generowania kodu zdominowanych przez
+Pythona i kilka popularnych języków, dlatego w dużej mierze nie wiadomo, czy sam \emph{paradygmat
+programowania} wpływa na poprawność i idiomatyczność generowanego kodu. Przedstawiamy
+\emph{LLM Paradigm Benchmark}: dziesięć zadań algorytmicznych, od wykrywania kolizji za pomocą sumy
+Minkowskiego i algorytmu Dijkstry po eertree, dopasowanie Gotoha, heurystykę Christofidesa, B-drzewa
+w ujęciu CLRS i selekcję BFPRT, każde z \emph{tymi samymi} 20 ukrytymi testami jednostkowymi
+w siedmiu językach z czterech paradygmatów: imperatywnego (C, Pascal), obiektowego (Java, Smalltalk),
+funkcyjnego (Haskell, Scala) i logicznego (Prolog). Zautomatyzowany system ewaluacyjny przekazuje
+modelowi specyfikację i kontrakt kodu, uruchamia odpowiedź w izolowanych kontenerach Docker (tam,
+gdzie to możliwe, pod Valgrindem), zwraca diagnostykę kompilatora i testów w maksymalnie trzech
+rundach samonaprawy, a na koniec prosi zaślepionego sędziego LLM o ocenę idiomatyczności według
+rubryki właściwej dla danego języka. W pełnym przebiegu modelu \haiku{} (70~zadań, 1\,400~testów),
+ocenianym przez \sonnet{}, model rozwiązał 80,0\,\% zadań za pierwszym podejściem i 92,9\,\% po
+samonaprawie (87,8\,\% $\to$ 98,2\,\% testów). Różnice w poprawności są większe między językami niż
+między paradygmatami i żadna z nich nie jest istotna statystycznie przy tej wielkości próby.
+Idiomatyczność wyraźniej rozróżnia paradygmaty: kod funkcyjny uzyskał najwyższą ocenę (3,90 na 5),
+natomiast kod obiektowy (3,45) i logiczny (3,40) był często pisany w stylu proceduralnym. Przebieg
+ujawnił też dwa defekty w zestawie testów dla Prologu. Raportujemy wreszcie negatywne wyniki badań
+pilotażowych: zadania w stylu HumanEval okazały się zbyt łatwe, by rozróżnić paradygmaty, a lokalnie
+uruchamiane modele o otwartych wagach były zbyt wolne i zbyt często otaczały kod prozą, by nadawały
+się do zautomatyzowanego potoku.\par}
+
+\vspace{6pt}
+{\small\noindent\textbf{Słowa kluczowe:} duże modele językowe; generowanie kodu; paradygmaty
+programowania; benchmark; samonaprawa; LLM jako sędzia; idiomatyczność.\par}

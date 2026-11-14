@@ -24,7 +24,8 @@ python harness/run.py               # generate -> evaluate -> repair -> judge ->
 | [`prompts.py`](prompts.py) | fills the templates from `<Language>/README.md` with `test-N.md`, the contract, the log and the failing tests |
 | [`llm.py`](llm.py) | API key, client, one generation call (streaming, adaptive thinking), code extraction from the answer, cost estimate and confirmation |
 | [`evaluator.py`](evaluator.py) | Docker: image build, work copy in `.work/`, test run with timeout, output parsing, outcome category, log excerpt for the repair prompt |
-| [`judge.py`](judge.py), [`rubrics.md`](rubrics.md) | LLM-as-judge with a JSON schema; the rubric has general sections plus one per language |
+| [`judge.py`](judge.py), [`rubrics.md`](rubrics.md) | LLM-as-judge with a JSON schema (a rationale per criterion, then the scores); the rubric has general sections plus one per language; writes `judge_review.md` |
+| [`tracing.py`](tracing.py) | records every API call (request, response, summarized reasoning, request id, timing, tokens) in `results/<RUN_ID>/traces/` with an index in `traces.jsonl` |
 | [`report.py`](report.py) | aggregates a run into `report.md`, `summary.csv`, `attempts.jsonl` |
 | [`store.py`](store.py) | paths of `results/` and `.work/`, JSON helpers, git state |
 
@@ -51,6 +52,18 @@ tasks.load_task ─► prompts.render_initial ─► llm.generate ─► evaluat
   back unchanged in the next round.
 - **No API without consent.** Every paid path calls `llm.confirm_api_use` first; dry-run and baseline
   never import the SDK.
+
+## Tracing and the judge's reasons
+
+- `config.THINKING_DISPLAY = "summarized"` makes Claude 5.x return a readable summary of its thinking
+  (the API default leaves it empty). Same cost; it only changes what is returned.
+- Each generation attempt gets a `reasoning.md` and a `request_id` in `attempt.json`.
+- Each judge file has `rationale` (one reason per criterion), `judge_reasoning` (summarized thinking),
+  `request_id` and `judge_version`. `results/<RUN_ID>/judge_review.md` puts it all on one page.
+- Judgements made before version 2 have only an overall `justification`;
+  `python harness/judge.py --rejudge` redoes them (paid API calls, asks first).
+- `results/<RUN_ID>/traces.jsonl` has one line per API call, failed ones included; its `file` field
+  points to the full record. Turn it off with `config.TRACE_ENABLED = False`.
 
 ## Extending
 

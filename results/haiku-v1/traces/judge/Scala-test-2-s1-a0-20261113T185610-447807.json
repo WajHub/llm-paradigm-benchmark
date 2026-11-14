@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:10+00:00",
+  "kind": "judge",
+  "label": "Scala-test-2-s1-a0",
+  "request_id": "req_011Ch1SJ5YYfz19VE4gKc6VF",
+  "duration_s": 8.0,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\n- Implement `createGraph`: Create directed weighted graph with the given vertices (0-indexed).\n- Implement `addEdge`: Return a new Graph with the directed edge added. Support multiple edges.\n- Implement `dijkstra`: Takes Option[Graph] and source. Return None if graph is None or source out of bounds. Unreachable vertices get Double.PositiveInfinity.\n- Implement `getShortestDistance`: Takes Option[PathResult] and target. Return Double.PositiveInfinity if None or out of bounds.\n- Implement `reconstructPath`: Return Option[List[Int]] — Some(path) or None if unreachable/invalid.\n- Use idiomatic Scala with immutable data structures.\n- Use a priority queue for efficiency.\n\n## Stub module given to the author (ShortestPath.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject ShortestPath {\n  case class Edge(to: Int, weight: Double)\n  case class Graph(adjacency: Vector[List[Edge]], numVertices: Int)\n  case class PathResult(distances: Vector[Double], predecessors: Vector[Int], source: Int)\n\n  def createGraph(numVertices: Int): Graph =\n    sys.error(\"ShortestPath.createGraph not implemented\")\n\n  def addEdge(graph: Graph, from: Int, to: Int, weight: Double): Graph =\n    sys.error(\"ShortestPath.addEdge not implemented\")\n\n  def dijkstra(graph: Option[Graph], source: Int): Option[PathResult] =\n    sys.error(\"ShortestPath.dijkstra not implemented\")\n\n  def getShortestDistance(result: Option[PathResult], target: Int): Double =\n    sys.error(\"ShortestPath.getShortestDistance not implemented\")\n\n  def reconstructPath(result: Option[PathResult], target: Int): Option[List[Int]] =\n    sys.error(\"ShortestPath.reconstructPath not implemented\")\n}\n\n```\n\n## Code to evaluate (ShortestPath.scala)\n```scala\nobject ShortestPath {\n  import scala.annotation.tailrec\n  import scala.collection.immutable.TreeSet\n\n  case class Edge(to: Int, weight: Double)\n  case class Graph(adjacency: Vector[List[Edge]], numVertices: Int)\n  case class PathResult(distances: Vector[Double], predecessors: Vector[Int], source: Int)\n\n  def createGraph(numVertices: Int): Graph = {\n    val n = math.max(0, numVertices)\n    Graph(Vector.fill(n)(List.empty[Edge]), n)\n  }\n\n  def addEdge(graph: Graph, from: Int, to: Int, weight: Double): Graph =\n    if (from < 0 || from >= graph.numVertices || to < 0 || to >= graph.numVertices) graph\n    else {\n      val updatedList = graph.adjacency(from) :+ Edge(to, weight)\n      graph.copy(adjacency = graph.adjacency.updated(from, updatedList))\n    }\n\n  def dijkstra(graph: Option[Graph], source: Int): Option[PathResult] =\n    graph.flatMap { g =>\n      if (source < 0 || source >= g.numVertices) None\n      else {\n        val initDist = Vector.fill(g.numVertices)(Double.PositiveInfinity).updated(source, 0.0)\n        val initPred = Vector.fill(g.numVertices)(-1)\n        val initFrontier = TreeSet((0.0, source))\n\n        @tailrec\n        def loop(\n          frontier: TreeSet[(Double, Int)],\n          dist: Vector[Double],\n          pred: Vector[Int]\n        ): (Vector[Double], Vector[Int]) =\n          frontier.headOption match {\n            case None => (dist, pred)\n            case Some(item @ (d, u)) =>\n              val rest = frontier - item\n              if (d > dist(u)) loop(rest, dist, pred)\n              else {\n                val (nf, nd, np) = g.adjacency(u).foldLeft((rest, dist, pred)) {\n                  case ((f, dd, pp), Edge(v, w)) =>\n                    val candidate = d + w\n                    if (candidate < dd(v))\n                      (f + ((candidate, v)), dd.updated(v, candidate), pp.updated(v, u))\n                    else (f, dd, pp)\n                }\n                loop(nf, nd, np)\n              }\n          }\n\n        val (finalDist, finalPred) = loop(initFrontier, initDist, initPred)\n        Some(PathResult(finalDist, finalPred, source))\n      }\n    }\n\n  def getShortestDistance(result: Option[PathResult], target: Int): Double =\n    result match {\n      case Some(r) if target >= 0 && target < r.distances.length => r.distances(target)\n      case _ => Double.PositiveInfinity\n    }\n\n  def reconstructPath(result: Option[PathResult], target: Int): Option[List[Int]] =\n    result.flatMap { r =>\n      if (target < 0 || target >= r.distances.length) None\n      else if (r.distances(target).isPosInfinity) None\n      else {\n        @tailrec\n        def walk(v: Int, acc: List[Int]): Option[List[Int]] =\n          if (v == r.source) Some(v :: acc)\n          else {\n            val p = r.predecessors(v)\n            if (p < 0) None else walk(p, v :: acc)\n          }\n        walk(target, Nil)\n      }\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJ5s9BFH1sUrTCgrdJ",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Pure functional style throughout: immutable Vector/List/TreeSet, a @tailrec `loop` carrying (frontier, dist, pred) as state, foldLeft over edges, and Option.flatMap for absence. No vars or mutation. A 5 is plausible; a small departure is the nested tuple-threading state in the foldLeft, which a small case class could express more clearly, but nothing is imperative.\",\"language_idiomaticity\":\"Uses Option.flatMap, pattern matching with guards (`case Some(r) if ...`), `item @ (d, u)` binder, `isPosInfinity`, `copy`, `updated`, `Vector.fill`. TreeSet[(Double, Int)] as an immutable priority queue is a reasonable stdlib choice, though it relies on implicit tuple ordering. `graph.adjacency(from) :+ Edge` appends to a List, which is O(n) (Scala idiom would prepend with `::`). Imports are placed inside the object, which is acceptable. Minor issues only.\",\"readability\":\"Clear names (frontier, dist, pred, candidate, walk, initDist), logically structured, and moderately sized. dijkstra is a somewhat long function with nested loop and fold plus a triple-tuple accumulator, which takes some effort to read. No comments, but the code is mostly self-explanatory. Extracting a relax step would earn a 5.\",\"design\":\"Public API matches the contract and the helpers (loop, walk) are local. Guards for bounds are repeated between getShortestDistance and reconstructPath, and dijkstra does everything in one block, with no extracted `relax` helper. Data structure choices are good (TreeSet frontier with lazy deletion check `d > dist(u)`). addEdge silently ignores invalid edges, which is a defensible choice. List append is a small inefficiency. Overall solid but not perfectly decomposed.\"},\"paradigm_idiomaticity\":5,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"List append `:+` on adjacency list (O(n)) instead of prepending\",\"Triple-tuple state threaded through foldLeft instead of a small named type\",\"Duplicated bounds-check logic across accessor functions\"],\"justification\":\"The solution is purely functional: a @tailrec `loop` in dijkstra threads an immutable TreeSet frontier, distance and predecessor vectors, and `walk` in reconstructPath is also tail recursive with Option results. Scala features such as Option.flatMap, guarded pattern matches and `copy` are used naturally. Weaknesses are the O(n) `:+` append in addEdge, the tuple-based fold accumulator, and a somewhat monolithic dijkstra body that could factor out a relaxation step.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3775,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3775,
+          "model": null,
+          "output_tokens": 946,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 946,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -6,24 +6,32 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The recursive-descent parser is split into one small method per grammar rule (parseExpr, parseTerm, parseUnary, parsePower, parsePrimary), and the AST is built with message sends. But the evaluator is a procedural dispatch on kind symbols (`kind = #num ifTrue:` ... ) and on operator strings (`op = '+' ifTrue:`) rather than polymorphism over node classes or a dictionary of operation blocks. The parser and evaluator are also merged into one class with parser state in ivars, and `parseExpression:` creates a fresh instance of itself to parse. Using AstNode subclasses or a selector/block table would earn one more point.",
+    "language_idiomaticity": "It uses `detect:ifNone:`, `on:do:`, `and:`/`or:` with blocks, `between:and:`, `isSeparator`, `isDigit` and cascades with `yourself`, all correctly. Weaknesses: `^Error new signal:` is used for parse errors, `Dictionary new` is rebuilt on every `arityOf:` call, `AstNode new initKind:` is used instead of the `AstNode kind:` class constructor, and `^self parseError` is used as if it returned a value. `[parser parseAll] on: Error do:` also swallows every error, not just parse errors. `e return: nil` is fine.",
+    "readability": "Method names are intention-revealing (parseNumber, parseIdentifier, okResult:, errorResult:, powerOf:to:) and methods are short, with section comments. The long if-chains in `applyBinary:to:and:` and `evalCall:vars:` are repetitive. `evalCall:` evaluates `y` conditionally with a nil temp, which is slightly awkward. The code is still easy to follow.",
+    "design": "The separation into token-level helpers, node constructors and evaluation helpers is reasonable, and okResult:/errorResult: remove duplication. Mixing parser state and evaluator in one class is a smell, the arity table is rebuilt on each call, and evaluation by string and symbol comparisons is not extensible. The operator and function tables could be class-side dictionaries of blocks, and the parser could be its own class."
+  },
   "paradigm_idiomaticity": 3,
   "language_idiomaticity": 3,
   "readability": 4,
   "design": 3,
   "anti_patterns": [
-    "AST node kind dispatched via chains of symbol/string comparisons instead of polymorphism",
-    "operators stored as strings and dispatched with if-chains rather than a dictionary of blocks or node classes",
-    "parser state mixed into the evaluator class (ExpressionImpl does parsing, evaluation and holds input/pos)",
-    "arity table Dictionary rebuilt on every call",
-    "exceptions used for parse control flow, with a generic Error caught",
-    "evalCall computes optional second arg through a nil temp and size check",
-    "uses `^self parseError` and `^Error new signal` as value-returning idiom"
+    "evaluation by symbol/string if-chains instead of polymorphism or a dispatch table",
+    "parser state and evaluator mixed in one class",
+    "dictionary rebuilt on every arityOf: call",
+    "catching all Error to signal parse failure",
+    "bypassing the AstNode kind: constructor with new initKind:"
   ],
-  "justification": "The recursive-descent parser follows the grammar closely with small, clearly named methods (parseExpr, parseTerm, parsePower), and uses detect:ifNone: and blocks reasonably. However, the evaluator is a procedural if-chain on kind symbols and operator strings rather than polymorphic node classes or dispatch tables, so object-oriented decomposition is weak. Parser and evaluator are fused in one class that creates a new instance for parser state, and the arity table is rebuilt on each call, which shows design shortcomings. Catching a generic Error to signal parse failure works but is blunt.</br>",
+  "justification": "The parser is a clean recursive descent with one small method per grammar rule and clear names. The evaluator, however, is procedural: `evalNode:vars:`, `applyBinary:to:and:` and `evalCall:vars:` dispatch with chains of `ifTrue:` on symbols and strings instead of polymorphism or a table of blocks. Smaller issues are that `arityOf:` builds a Dictionary on every call, that parsing and evaluation share a stateful class, and that the broad `on: Error do:` handler hides other failures.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 6903,
-  "output_tokens": 449,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SKUkqMK7ubTqhQJaN5",
+  "judge_s": 9.7,
+  "input_tokens": 7240,
+  "output_tokens": 1072,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

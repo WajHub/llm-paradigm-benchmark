@@ -6,22 +6,32 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Logic lives in a KnapsackImpl subclass of the contract's Knapsack, overriding the two required selectors, and the DP table is built by a separate helper message. The algorithm is still procedural: a table of Arrays, nested index loops and mutable temporaries, with no domain objects such as an item or a table object. A 4 would need a little more object decomposition, for example a table or item abstraction, or collection-style iteration for the traceback.",
+    "language_idiomaticity": "Uses `Array new:withAll:`, `to:do:` with block-local temporaries, `ifTrue:`, `or:` with a block, `^` early returns and the contract's class-side constructor. The `to:do:` loops are justified because indices are needed. Weak spots: the 1-based offset arithmetic (`capacity + 1`, `c - wi`, `wi < c`) is confusing, `max:` is replaced by a manual compare-and-assign, and the `(cur at: c) ~= (prev at: c)` condition is not parenthesised in a way that signals intent. Using `max:` and `Array new: withAll:` consistently would earn a 4.",
+    "readability": "Selectors such as `buildTableWeights:values:capacity:` and temporaries such as `prev`, `cur` and `row` are clear enough. The `c` index with its +1 offset is the hard part, and `c` means different things in `solveWeights:` (a mutable column) and `buildTable` (a loop index). There are no comments explaining the offset or the traceback. Short methods and consistent layout help.",
+    "design": "The table-building code is shared by both public methods, which avoids duplication. The traceback is a sound way to recover the selection. The duplicated empty/capacity guard in both public methods could be factored out. The helper is public rather than private, since there is no `<category: 'private'>`. The full 2D table is kept even though only the traceback needs it, which is fine. The `wi < c` condition is a subtle but correct 1-based check."
+  },
   "paradigm_idiomaticity": 3,
   "language_idiomaticity": 3,
-  "readability": 4,
+  "readability": 3,
   "design": 4,
   "anti_patterns": [
-    "index-based to:do: loops for the DP where inject/collection protocols could be used in part",
-    "duplicated guard clause (empty/capacity<=0) in both public methods",
-    "helper buildTableWeights:values:capacity: is public rather than private-categorized",
-    "mutable accumulators (selected, totalWeight, c) updated inside a loop during reconstruction",
-    "magic index offsets (+1) instead of an abstraction for the table"
+    "procedural nested index loops with mutable accumulators in the DP",
+    "manual compare-and-assign instead of `max:`",
+    "duplicated guard clause in both public methods",
+    "helper method not marked private",
+    "1-based offset arithmetic (`capacity + 1`) scattered through the code"
   ],
-  "justification": "The solution factors the DP table construction into a shared helper `buildTableWeights:values:capacity:`, which both public methods reuse, and it uses a clean backtrack to reconstruct the selection. However, it is largely procedural: nested `to:do:` loops with mutable temporaries, 1-based offset arithmetic (`c - wi`, `n + 1`), and no domain objects beyond the provided result class. The guard clause is duplicated and the helper is not marked private, but the names are intention-revealing and the methods are reasonably small, so it reads well.",
+  "justification": "The solution is a correct, structured DP: `buildTableWeights:values:capacity:` is shared, and `solveWeights:values:capacity:` recovers the selection by traceback. It is mostly procedural in style, using index loops and mutable temporaries, with few Smalltalk collection idioms such as `max:`. The `+1` offsets, the duplicated guard and the public helper keep it from scoring higher on idiom and readability.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3012,
-  "output_tokens": 373,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SKL4SqhZqNVLAqKMoU",
+  "judge_s": 8.7,
+  "input_tokens": 3349,
+  "output_tokens": 950,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

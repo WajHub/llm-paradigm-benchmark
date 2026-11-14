@@ -1,0 +1,32 @@
+% Mean judge scores per paradigm and criterion (1-5 scale; 20 solutions per paradigm, 10 for logic).
+% Data: results/haiku-v1/report.md, section 5. Colours: categorical slots 1-4 in fixed order.
+\begin{tikzpicture}
+\begin{axis}[
+  reportchart,
+  ybar=1.5pt,
+  width=0.9\textwidth, height=6.2cm,
+  bar width=11pt,
+  ymin=1, ymax=5, ytick={1,2,3,4,5},
+  ylabel={Średnia ocena (1--5)},
+  symbolic x coords={P, L, R, D},
+  xtick=data,
+  xticklabels={Idiomy paradygmatu, Idiomy języka, Czytelność, Projekt},
+  enlarge x limits=0.16,
+  ymajorgrids=true,
+  axis x line*=bottom, axis y line*=left,
+  x axis line style={draw=inkmuted},
+  legend style={at={(0.0,1.02)}, anchor=south west, legend columns=4,
+                /tikz/every even column/.append style={column sep=8pt}},
+  every axis plot/.append style={draw=white, line width=0.6pt},
+  legend image code/.code={\draw[#1, draw=none] (0cm,-0.1cm) rectangle (0.3cm,0.12cm);},
+]
+  \addplot[fill=cat1] coordinates {(P,4.05) (L,3.45) (R,3.55) (D,3.45)};
+  \addlegendentry{imperatywny}
+  \addplot[fill=cat2] coordinates {(P,3.25) (L,3.55) (R,3.60) (D,3.40)};
+  \addlegendentry{obiektowy}
+  \addplot[fill=cat3] coordinates {(P,4.25) (L,3.85) (R,3.80) (D,3.70)};
+  \addlegendentry{funkcyjny}
+  \addplot[fill=cat4] coordinates {(P,3.40) (L,3.40) (R,3.50) (D,3.30)};
+  \addlegendentry{logiczny}
+\end{axis}
+\end{tikzpicture}

@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:40+00:00",
+  "kind": "judge",
+  "label": "Java-test-6-s1-a0",
+  "request_id": "req_011Ch1SFqPwYWnxjNJLLeLHy",
+  "duration_s": 8.0,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\nImplement a 9x9 Sudoku validator and solver in Java in the class SudokuImpl\n(file SudokuImpl.java), which extends the abstract class Sudoku.\n\nBoard representation: a Sudoku board is an int[] of 81 cells in row-major order,\nindex = row * 9 + col (row and col are 0-based, 0..8). The value 0 means an empty\ncell, 1..9 are digits. The nine 3x3 boxes start at rows/columns 0, 3 and 6.\n\n- Implement `boolean isValid(int[] grid)`: return true iff\n  * grid.length == 81, and\n  * every cell is in 0..9, and\n  * no digit 1..9 appears more than once in any row, any column, or any of the\n    nine 3x3 boxes. Zeros (empty cells) are ignored.\n  Return false otherwise (wrong length, a value outside 0..9, or a duplicate digit).\n  An empty board (all zeros) is valid. A complete, correct board is valid.\n  Validity does NOT imply solvability.\n\n- Implement `int[] candidates(int[] grid, int row, int col)`: precondition: grid has\n  81 cells and row, col are in 0..8.\n  * If grid[row * 9 + col] != 0 (the cell is filled), return an empty array.\n  * Otherwise return the digits 1..9 that do not appear in that cell's row, column,\n    or 3x3 box, in ascending order.\n  * Only the cell's row, column and box matter; the rest of the grid does not have\n    to be valid.\n  * Never return null (use an empty int[] when there are no candidates).\n\n- Implement `int[] solve(int[] grid)`: return a NEW complete board (81 cells, no\n  zeros, valid) in which every non-zero cell of the input is unchanged.\n  * Return null if isValid(grid) is false or the board has no solution.\n  * If the input is already complete and valid, return an equal board.\n  * The input array must NOT be modified.\n  * If the puzzle has several solutions, any one of them is acceptable.\n\n- Implement `int countSolutions(int[] grid, int limit)`: return the number of\n  distinct complete valid boards extending grid, but stop searching as soon as\n  `limit` solutions have been found, so the result is min(total, limit).\n  * Return 0 if limit <= 0 or isValid(grid) is false.\n  * The input array must not be modified.\n  * Example: an empty board with limit 2 gives 2 (the search must stop early).\n\nSearch requirements (solve and countSolutions):\n  - Use recursive backtracking that always branches on the empty cell with the\n    FEWEST candidates (MRV heuristic). An empty cell with zero candidates is a dead\n    end: backtrack immediately.\n  - Naive backtracking that fills cells in row-major order is too slow for some of\n    the test puzzles. Additional constraint propagation is allowed.\n\nKeep the contract in Sudoku.java; put the solution in SudokuImpl.java.\n\n## Contract given to the author (Sudoku.java, not written by the author)\n```java\npublic abstract class Sudoku {\n    protected Sudoku() {}\n\n    public abstract boolean isValid(int[] grid);\n    public abstract int[] candidates(int[] grid, int row, int col);\n    public abstract int[] solve(int[] grid);\n    public abstract int countSolutions(int[] grid, int limit);\n}\n\n```\n\n## Code to evaluate (SudokuImpl.java)\n```java\nimport java.util.Arrays;\n\npublic class SudokuImpl extends Sudoku {\n\n    private static final int SIZE = 9;\n    private static final int CELLS = 81;\n    private static final int ALL_DIGITS = 0b1111111110; // bits 1..9\n\n    @Override\n    public boolean isValid(int[] grid) {\n        if (grid == null || grid.length != CELLS) {\n            return false;\n        }\n        int[] rows = new int[SIZE];\n        int[] cols = new int[SIZE];\n        int[] boxes = new int[SIZE];\n        for (int i = 0; i < CELLS; i++) {\n            int v = grid[i];\n            if (v < 0 || v > 9) {\n                return false;\n            }\n            if (v == 0) {\n                continue;\n            }\n            int r = i / SIZE;\n            int c = i % SIZE;\n            int b = boxOf(r, c);\n            int bit = 1 << v;\n            if ((rows[r] & bit) != 0 || (cols[c] & bit) != 0 || (boxes[b] & bit) != 0) {\n                return false;\n            }\n            rows[r] |= bit;\n            cols[c] |= bit;\n            boxes[b] |= bit;\n        }\n        return true;\n    }\n\n    @Override\n    public int[] candidates(int[] grid, int row, int col) {\n        if (grid[row * SIZE + col] != 0) {\n            return new int[0];\n        }\n        int used = 0;\n        for (int i = 0; i < SIZE; i++) {\n            used |= bitOf(grid[row * SIZE + i]);\n            used |= bitOf(grid[i * SIZE + col]);\n        }\n        int br = (row / 3) * 3;\n        int bc = (col / 3) * 3;\n        for (int r = br; r < br + 3; r++) {\n            for (int c = bc; c < bc + 3; c++) {\n                used |= bitOf(grid[r * SIZE + c]);\n            }\n        }\n        int available = ~used & ALL_DIGITS;\n        int[] result = new int[Integer.bitCount(available)];\n        int k = 0;\n        for (int d = 1; d <= 9; d++) {\n            if ((available & (1 << d)) != 0) {\n                result[k++] = d;\n            }\n        }\n        return result;\n    }\n\n    @Override\n    public int[] solve(int[] grid) {\n        if (!isValid(grid)) {\n            return null;\n        }\n        Search search = new Search(grid, 1);\n        search.run();\n        return search.found > 0 ? search.solution() : null;\n    }\n\n    @Override\n    public int countSolutions(int[] grid, int limit) {\n        if (limit <= 0 || !isValid(grid)) {\n            return 0;\n        }\n        Search search = new Search(grid, limit);\n        search.run();\n        return search.found;\n    }\n\n    private static int boxOf(int row, int col) {\n        return (row / 3) * 3 + (col / 3);\n    }\n\n    private static int bitOf(int value) {\n        return value == 0 ? 0 : (1 << value);\n    }\n\n    /** Backtracking search state with MRV cell selection. */\n    private static final class Search {\n        private final int[] cells;\n        private final int[] rowMask = new int[SIZE];\n        private final int[] colMask = new int[SIZE];\n        private final int[] boxMask = new int[SIZE];\n        private final int limit;\n        private int found;\n        private int[] firstSolution;\n\n        Search(int[] grid, int limit) {\n            this.cells = Arrays.copyOf(grid, CELLS);\n            this.limit = limit;\n            for (int i = 0; i < CELLS; i++) {\n                int v = cells[i];\n                if (v != 0) {\n                    apply(i, v);\n                }\n            }\n        }\n\n        void run() {\n            dfs();\n        }\n\n        int[] solution() {\n            return Arrays.copyOf(firstSolution, CELLS);\n        }\n\n        private void apply(int idx, int d) {\n            int r = idx / SIZE;\n            int c = idx % SIZE;\n            int bit = 1 << d;\n            cells[idx] = d;\n            rowMask[r] |= bit;\n            colMask[c] |= bit;\n            boxMask[boxOf(r, c)] |= bit;\n        }\n\n        private void undo(int idx, int d) {\n            int r = idx / SIZE;\n            int c = idx % SIZE;\n            int bit = ~(1 << d);\n            cells[idx] = 0;\n            rowMask[r] &= bit;\n            colMask[c] &= bit;\n            boxMask[boxOf(r, c)] &= bit;\n        }\n\n        /** Returns true when the search should stop. */\n        private boolean dfs() {\n            int bestIdx = -1;\n            int bestMask = 0;\n            int bestCount = Integer.MAX_VALUE;\n\n            for (int i = 0; i < CELLS; i++) {\n                if (cells[i] != 0) {\n                    continue;\n                }\n                int r = i / SIZE;\n                int c = i % SIZE;\n                int mask = ~(rowMask[r] | colMask[c] | boxMask[boxOf(r, c)]) & ALL_DIGITS;\n                int count = Integer.bitCount(mask);\n                if (count < bestCount) {\n                    bestCount = count;\n                    bestIdx = i;\n                    bestMask = mask;\n                    if (count <= 1) {\n                        break;\n                    }\n                }\n            }\n\n            if (bestIdx == -1) {\n                found++;\n                if (firstSolution == null) {\n                    firstSolution = Arrays.copyOf(cells, CELLS);\n                }\n                return found >= limit;\n            }\n            if (bestCount == 0) {\n                return false;\n            }\n\n            int m = bestMask;\n            while (m != 0) {\n                int bit = m & -m;\n                m ^= bit;\n                int d = Integer.numberOfTrailingZeros(bit);\n                apply(bestIdx, d);\n                boolean stop = dfs();\n                undo(bestIdx, d);\n                if (stop) {\n                    return true;\n                }\n            }\n            return false;\n        }\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SFquCMJcebVqgXcUbC",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"State and behaviour are encapsulated in a private static nested class `Search` (masks, `apply`/`undo`, `dfs`) built per call, and the public methods delegate to it. The outer class is stateless, which is reasonable. The mask-based design is more algorithmic than object-oriented: there is no `Board` type, and `Search` exposes its `found` field directly. A small `Board` abstraction, or encapsulating `found` behind accessors, would earn a 5.\",\"language_idiomaticity\":\"Uses `Arrays.copyOf`, `Integer.bitCount`, `Integer.numberOfTrailingZeros`, `@Override`, `final` fields, private constants and a Javadoc comment. The lowest-set-bit idiom `m & -m` is standard. Minor departures: `search.found` is read from the outer class, `run()` is a pointless wrapper around `dfs()`, and `candidates` does not null-check (allowed by the precondition). Otherwise very idiomatic.\",\"readability\":\"Names are clear (`rowMask`, `bestIdx`, `bestMask`, `apply`/`undo`, `boxOf`, `bitOf`). Methods are short, and `dfs` is the longest but linear and easy to follow. The `ALL_DIGITS` binary literal has a comment. The `dfs` return value is documented as 'true when the search should stop'. The magic `3` and `9` remain in places, and `dfs` mixes cell selection with branching; extracting `selectCell` would earn a 5.\",\"design\":\"Validation, candidates and search are separated. Bitmasks give efficient MRV, and the early stop is propagated through a boolean return. The input is copied, so it is never mutated. `solve` and `countSolutions` share `Search`. The weaknesses are that `candidates` and `isValid` duplicate the mask logic that `Search` also has, `dfs` combines cell selection with branching, and `found` and `firstSolution` are accessed directly from outside.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"outer class reads Search's `found` field directly instead of using an accessor\",\"trivial `run()` wrapper around `dfs()`\",\"mask-building logic duplicated between isValid, candidates and Search\"],\"justification\":\"The solution isolates the mutable backtracking state in a private nested `Search` class and keeps the public API stateless, using idiomatic bit tricks and `Arrays` utilities. It is clean and efficient, with clear naming and short methods. Small blemishes are the direct field access to `found`, the redundant `run()`, and no dedicated board abstraction or extracted cell-selection method.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5113,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5113,
+          "model": null,
+          "output_tokens": 921,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 921,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

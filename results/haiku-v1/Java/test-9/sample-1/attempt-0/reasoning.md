@@ -1,0 +1,23 @@
+I'm going to write BTreeImpl.java as a subclass of BTree that supports insert and delete, and the output has to be raw Java only. My plan is to use BTree.Node directly with mutable ArrayLists rather than a separate internal node class, since that's simpler than converting at the end.
+
+Still writing the insertion logic...
+
+Still writing the split and delete logic...
+
+Still working out the delete routine: when the key is found in an internal node, I'll swap in its predecessor or successor if a child has enough keys, and otherwise merge the two children.
+
+Checking the child before descending: if it has only t-1 keys, I need to borrow from a sibling first. If the left sibling has at least t keys, I rotate a key down from the parent and move the sibling's last key up in its place, along with its last child if there are any.
+
+Still writing the merge logic for the delete routine...
+
+Still working through the delete routine: I'm making sure the Integer removal uses explicit int indices so it doesn't hit the remove(Object) overload, and that the predecessor and successor lookups walk to the right leaf.
+
+Still writing the BTreeImpl methods...
+
+Still writing the helper methods and the node-splitting code...
+
+Still writing the split helper...
+
+Still writing the insertion descent...
+
+

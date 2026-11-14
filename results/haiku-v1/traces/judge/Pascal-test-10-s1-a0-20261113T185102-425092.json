@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:02+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-10-s1-a0",
+  "request_id": "req_011Ch1RuKrsKmdYD2qo4kB4Z",
+  "duration_s": 8.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement order statistics in Free Pascal in the unit order_stats (file order_stats.pas):\ndeterministic BFPRT selection that reports its pivot trace, and the median of two sorted\nsequences that can only be read through a counting probe. The unit already declares the\ntypes and the four routines; keep the interface unchanged and implement MedianOfMedians,\nSelectKth, FreeSelectResult and MedianTwoSorted in the implementation section.\n\nPart A - median of medians (values are LongInt, duplicates allowed):\n  * Lower median of a non-empty group g = the element at 0-based index\n    (Length(g) - 1) div 2 of g sorted ascending.\n  * The input array Xs must NOT be modified. Note that `const` on a dynamic array\n    parameter does not protect its elements and assigning one dynamic array variable to\n    another shares storage: work on copies (Copy(Xs, 0, Length(Xs))).\n\n- Implement `MedianOfMedians(const Xs: TIntArray; out Value: LongInt): Boolean`:\n  return False if Xs is empty. Otherwise split Xs IN ITS CURRENT ORDER into consecutive\n  groups of 5 (Xs[0..4], Xs[5..9], ...; the last group may have 1-4 elements), take the\n  lower median of each group, set Value to the lower median of the list of group medians\n  and return True. (How that last lower median is computed does not matter, only its\n  value.)\n\n- Implement `SelectKth(const Xs: TIntArray; K: LongInt): PSelectResult`: K is 0-based\n  (K = 0 is the minimum). Return nil if K < 0 or K >= Length(Xs). Otherwise return a\n  NEW record (New) whose Value is the K-th smallest element and whose Pivots is the trace\n  produced by EXACTLY this procedure, starting with Cur = a copy of Xs and an empty\n  pivot list:\n    1. If Length(Cur) <= 5: Value = (Cur sorted ascending)[K]; stop (no pivot is recorded\n       at this level).\n    2. P = the median-of-medians pivot of Cur (as in MedianOfMedians); append P to Pivots.\n    3. Stable three-way partition: L = the elements < P in their order in Cur,\n       E = the number of elements = P, G = the elements > P in their order in Cur.\n    4. If K < Length(L): Cur = L, go to 1.\n       Else if K < Length(L) + E: Value = P; stop.\n       Else K = K - Length(L) - E, Cur = G, go to 1.\n  Pivots lists the pivots in order (top level first) and is compared exactly; it is an\n  empty array when no pivot was recorded. Only these top-level pivots are recorded, not\n  pivots used internally while computing a median of medians. An in-place / Dutch-flag\n  partition that reorders elements produces a different trace and is wrong; sorting the\n  whole input gives the right Value but not the trace.\n\n- Implement `FreeSelectResult(var R: PSelectResult)`: free the record and set R to nil;\n  FreeSelectResult(nil) is a no-op. The caller owns each returned record.\n\nPart B - median of two sorted sources:\n  * A source (PSortedSource) is a read-only sorted (non-decreasing) virtual sequence of\n    LongInt values with Src^.Len elements (Len >= 0, up to 2 000 000 000; the sum of both\n    lengths fits in LongInt). Element I, 0 <= I < Src^.Len, can ONLY be read by calling\n    Src^.Get(Src, I). Reading Len is free. Ctx belongs to the caller - do not touch it.\n\n- Implement `MedianTwoSorted(A, B: PSortedSource; out Value: Double): Boolean`:\n  return False if both sources are empty (Len = 0). Otherwise set Value to the median of\n  the merged multiset of both sequences and return True:\n    * odd total length -> the middle element (as a Double);\n    * even total length -> the arithmetic mean of the two middle elements as a Double,\n      e.g. 1 and 2 -> 1.5. Compute it without LongInt overflow: 2147483647 and\n      2147483647 -> 2147483647.0, -2147483648 and 2147483647 -> -0.5.\n  * One source may be empty.\n  * READ BUDGET: every Get call counts (reading the same index again counts again). The\n    total number of reads over both sources must be at most 16 * (bitlen(A^.Len +\n    B^.Len) + 1), where bitlen(x) is the number of binary digits of x (bitlen(0) = 0,\n    bitlen(7) = 3, bitlen(2000000000) = 31 -> budget 512). Reading an index outside\n    0..Len-1 is an error. The tests' probe raises an exception when the budget is\n    exceeded or an index is out of range, and the test then fails.\n  * Do NOT catch or suppress exceptions raised by Get, do not copy the sources into\n    arrays, do not access the data in any other way.\n  * Therefore use binary search: the partition search on the shorter source\n    (O(log min(m, n)) reads) or the k-th element by halving k (O(log(m + n)) reads).\n    A linear merge needs ~10^9 reads and is aborted.\n  * Lengths reach 2*10^9: do index arithmetic in Int64 (i + j, (lo + hi) div 2, sums of\n    lengths) so nothing overflows LongInt; pass indices to Get as LongInt.\n  * Beware of single precision: FPC types a float literal such as 2.0 as Single, so\n    (X + Y) / 2.0 with large integers can be computed in Single precision and turn\n    2147483647 into 2147483648. Store the Int64 sum in a Double variable first and\n    divide that (e.g. S := Int64Sum; Value := S / 2).\n\nPascal notes:\n  - Pascal is case-insensitive: the out parameters are named Value, so do not declare\n    another identifier Value; the source parameters are A and B, so do not declare\n    locals named a or b. Do not name anything Result except the function result, and do\n    not name variables Max, Min, Odd (RTL functions).\n  - Call the getter exactly as Src^.Get(Src, I).\n  - The program is run under valgrind and must not leak memory.\n\n## Stub module given to the author (order_stats.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit order_stats;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  { Result of SelectKth: the k-th smallest value and the trace of top-level pivots. }\n  PSelectResult = ^TSelectResult;\n  TSelectResult = record\n    Value: LongInt;\n    Pivots: TIntArray;\n  end;\n\n  { A read-only sorted (non-decreasing) virtual sequence of Len elements.\n    Element I (0 <= I < Len) is read ONLY as Src^.Get(Src, I); Ctx belongs to the caller. }\n  PSortedSource = ^TSortedSource;\n  TGetFunc = function(Src: PSortedSource; Index: LongInt): LongInt;\n  TSortedSource = record\n    Len: LongInt;\n    Get: TGetFunc;\n    Ctx: Pointer;\n  end;\n\nfunction MedianOfMedians(const Xs: TIntArray; out Value: LongInt): Boolean;\nfunction SelectKth(const Xs: TIntArray; K: LongInt): PSelectResult;\nprocedure FreeSelectResult(var R: PSelectResult);\nfunction MedianTwoSorted(A, B: PSortedSource; out Value: Double): Boolean;\n\nimplementation\n\nfunction MedianOfMedians(const Xs: TIntArray; out Value: LongInt): Boolean;\nbegin\n  raise Exception.Create('MedianOfMedians not implemented');\n  Value := 0;\n  Result := False;\nend;\n\nfunction SelectKth(const Xs: TIntArray; K: LongInt): PSelectResult;\nbegin\n  raise Exception.Create('SelectKth not implemented');\n  Result := nil;\nend;\n\nprocedure FreeSelectResult(var R: PSelectResult);\nbegin\n  if R <> nil then begin\n    R^.Pivots := nil;\n    Dispose(R);\n    R := nil;\n  end;\nend;\n\nfunction MedianTwoSorted(A, B: PSortedSource; out Value: Double): Boolean;\nbegin\n  raise Exception.Create('MedianTwoSorted not implemented');\n  Value := 0.0;\n  Result := False;\nend;\n\nend.\n\n```\n\n## Code to evaluate (order_stats.pas)\n```pascal\nunit order_stats;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  { Result of SelectKth: the k-th smallest value and the trace of top-level pivots. }\n  PSelectResult = ^TSelectResult;\n  TSelectResult = record\n    Value: LongInt;\n    Pivots: TIntArray;\n  end;\n\n  { A read-only sorted (non-decreasing) virtual sequence of Len elements.\n    Element I (0 <= I < Len) is read ONLY as Src^.Get(Src, I); Ctx belongs to the caller. }\n  PSortedSource = ^TSortedSource;\n  TGetFunc = function(Src: PSortedSource; Index: LongInt): LongInt;\n  TSortedSource = record\n    Len: LongInt;\n    Get: TGetFunc;\n    Ctx: Pointer;\n  end;\n\nfunction MedianOfMedians(const Xs: TIntArray; out Value: LongInt): Boolean;\nfunction SelectKth(const Xs: TIntArray; K: LongInt): PSelectResult;\nprocedure FreeSelectResult(var R: PSelectResult);\nfunction MedianTwoSorted(A, B: PSortedSource; out Value: Double): Boolean;\n\nimplementation\n\nprocedure InsertionSortInts(var Arr: TIntArray; cnt: LongInt);\nvar\n  a, b: LongInt;\n  tmp: LongInt;\nbegin\n  for a := 1 to cnt - 1 do begin\n    tmp := Arr[a];\n    b := a - 1;\n    while (b >= 0) and (Arr[b] > tmp) do begin\n      Arr[b + 1] := Arr[b];\n      Dec(b);\n    end;\n    Arr[b + 1] := tmp;\n  end;\nend;\n\nprocedure SiftDownInts(var Arr: TIntArray; start, stop: LongInt);\nvar\n  root, child, tmp: LongInt;\nbegin\n  root := start;\n  while 2 * root + 1 <= stop do begin\n    child := 2 * root + 1;\n    if (child + 1 <= stop) and (Arr[child] < Arr[child + 1]) then\n      Inc(child);\n    if Arr[root] < Arr[child] then begin\n      tmp := Arr[root];\n      Arr[root] := Arr[child];\n      Arr[child] := tmp;\n      root := child;\n    end\n    else\n      Exit;\n  end;\nend;\n\nprocedure HeapSortInts(var Arr: TIntArray);\nvar\n  n, i: LongInt;\n  tmp: LongInt;\nbegin\n  n := Length(Arr);\n  if n < 2 then\n    Exit;\n  for i := (n div 2) - 1 downto 0 do\n    SiftDownInts(Arr, i, n - 1);\n  for i := n - 1 downto 1 do begin\n    tmp := Arr[0];\n    Arr[0] := Arr[i];\n    Arr[i] := tmp;\n    SiftDownInts(Arr, 0, i - 1);\n  end;\nend;\n\nfunction MedianOfMedians(const Xs: TIntArray; out Value: LongInt): Boolean;\nvar\n  n, g, cnt, k, mCount: LongInt;\n  Meds, Grp: TIntArray;\nbegin\n  Value := 0;\n  n := Length(Xs);\n  if n = 0 then begin\n    Result := False;\n    Exit;\n  end;\n  mCount := (n + 4) div 5;\n  SetLength(Meds, mCount);\n  SetLength(Grp, 5);\n  for g := 0 to mCount - 1 do begin\n    cnt := n - g * 5;\n    if cnt > 5 then\n      cnt := 5;\n    for k := 0 to cnt - 1 do\n      Grp[k] := Xs[g * 5 + k];\n    InsertionSortInts(Grp, cnt);\n    Meds[g] := Grp[(cnt - 1) div 2];\n  end;\n  HeapSortInts(Meds);\n  Value := Meds[(mCount - 1) div 2];\n  Result := True;\nend;\n\nfunction SelectKth(const Xs: TIntArray; K: LongInt): PSelectResult;\nvar\n  R: PSelectResult;\n  Cur, L, G: TIntArray;\n  nCur, nL, nG, nE, iL, iG, idx, kk: LongInt;\n  P: LongInt;\nbegin\n  Result := nil;\n  if (K < 0) or (K >= Length(Xs)) then\n    Exit;\n\n  New(R);\n  R^.Value := 0;\n  R^.Pivots := nil;\n\n  Cur := Copy(Xs, 0, Length(Xs));\n  kk := K;\n  while True do begin\n    nCur := Length(Cur);\n    if nCur <= 5 then begin\n      InsertionSortInts(Cur, nCur);\n      R^.Value := Cur[kk];\n      Break;\n    end;\n\n    MedianOfMedians(Cur, P);\n    SetLength(R^.Pivots, Length(R^.Pivots) + 1);\n    R^.Pivots[High(R^.Pivots)] := P;\n\n    nL := 0;\n    nE := 0;\n    nG := 0;\n    for idx := 0 to nCur - 1 do begin\n      if Cur[idx] < P then\n        Inc(nL)\n      else if Cur[idx] = P then\n        Inc(nE)\n      else\n        Inc(nG);\n    end;\n\n    SetLength(L, nL);\n    SetLength(G, nG);\n    iL := 0;\n    iG := 0;\n    for idx := 0 to nCur - 1 do begin\n      if Cur[idx] < P then begin\n        L[iL] := Cur[idx];\n        Inc(iL);\n      end\n      else if Cur[idx] > P then begin\n        G[iG] := Cur[idx];\n        Inc(iG);\n      end;\n    end;\n\n    if kk < nL then begin\n      Cur := L;\n      L := nil;\n    end\n    else if kk < nL + nE then begin\n      R^.Value := P;\n      Break;\n    end\n    else begin\n      kk := kk - nL - nE;\n      Cur := G;\n      G := nil;\n    end;\n  end;\n\n  Result := R;\nend;\n\nprocedure FreeSelectResult(var R: PSelectResult);\nbegin\n  if R <> nil then begin\n    R^.Pivots := nil;\n    Dispose(R);\n    R := nil;\n  end;\nend;\n\nfunction MedianTwoSorted(A, B: PSortedSource; out Value: Double): Boolean;\nvar\n  X, Y: PSortedSource;\n  m, n, total, half, lo, hi, i, j: Int64;\n  leftMax, rightMin, v: LongInt;\n  hasLeft, hasRight: Boolean;\n  dS: Double;\nbegin\n  Value := 0.0;\n  Result := False;\n  if (A^.Len = 0) and (B^.Len = 0) then\n    Exit;\n\n  if A^.Len <= B^.Len then begin\n    X := A;\n    Y := B;\n  end\n  else begin\n    X := B;\n    Y := A;\n  end;\n\n  m := X^.Len;\n  n := Y^.Len;\n  total := m + n;\n  half := (total + 1) div 2;\n\n  lo := half - n;\n  if lo < 0 then\n    lo := 0;\n  hi := m;\n  if half < hi then\n    hi := half;\n\n  while lo < hi do begin\n    i := (lo + hi) div 2;\n    j := half - i;\n    { i < hi <= m and i < half, so j >= 1 and j - 1 < n }\n    if Y^.Get(Y, LongInt(j - 1)) > X^.Get(X, LongInt(i)) then\n      lo := i + 1\n    else\n      hi := i;\n  end;\n\n  i := lo;\n  j := half - i;\n\n  hasLeft := False;\n  leftMax := 0;\n  if i > 0 then begin\n    leftMax := X^.Get(X, LongInt(i - 1));\n    hasLeft := True;\n  end;\n  if j > 0 then begin\n    v := Y^.Get(Y, LongInt(j - 1));\n    if (not hasLeft) or (v > leftMax) then\n      leftMax := v;\n    hasLeft := True;\n  end;\n\n  if total mod 2 = 1 then begin\n    Value := leftMax;\n    Result := True;\n    Exit;\n  end;\n\n  hasRight := False;\n  rightMin := 0;\n  if i < m then begin\n    rightMin := X^.Get(X, LongInt(i));\n    hasRight := True;\n  end;\n  if j < n then begin\n    v := Y^.Get(Y, LongInt(j));\n    if (not hasRight) or (v < rightMin) then\n      rightMin := v;\n    hasRight := True;\n  end;\n\n  dS := Double(Int64(leftMax) + Int64(rightMin));\n  Value := dS / 2;\n  Result := True;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RuLAjdSqN9bFGJDfo4",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is structured procedural Pascal: small helper procedures with var parameters, while/for loops, Exit and Break, and explicit counting before filling the L and G arrays. Control flow is clear and the data flow is simple. Two things keep it from a 5: the pivot trace grows by one SetLength per level, and the loop is `while True do ... Break` rather than a condition-driven loop.\",\"language_idiomaticity\":\"It uses SetLength, Copy, High, New/Dispose, Exit and Int64 arithmetic, and it stores the sum in a Double before dividing, which is the RTL-aware choice. Weaknesses: the author hand-wrote insertion sort and heap sort instead of using an RTL sort. Locals `a` and `b` in InsertionSortInts are lowercase and fight the A/B naming convention. Naming is mixed (cnt, mCount, kk). `hasRight` is assigned but never read. `Math` is not needed.\",\"readability\":\"The functions are well named (InsertionSortInts, SiftDownInts, MedianTwoSorted) and the helpers are separated. The one invariant comment explains the index bound in the binary search. SelectKth is long, with a two-pass partition and nested if/else chains, and the single-letter or abbreviated names (nL, nE, iL, iG, kk) cost some clarity. The binary search for the median has no comment on the partition idea.\",\"design\":\"MedianOfMedians is reused inside SelectKth. Helpers live in the implementation section, and the pivot-trace semantics are implemented exactly. The memory handling is clean: New/Dispose, arrays set to nil, and ownership transferred with `Cur := L; L := nil`. The partition search on the shorter source keeps reads at O(log). Weaknesses: the hand-rolled heap sort for at most a few elements is overkill, the partition logic is inlined in SelectKth instead of extracted, and the leftMax/rightMin logic is repetitive..\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":4,\"design\":4,\"anti_patterns\":[\"hand-written heap sort and insertion sort instead of a shared sort helper\",\"`while True do ... Break` loop\",\"unused variable hasRight assigned but never read\",\"pivot array grown by one element per iteration\",\"partition logic inlined in SelectKth, which makes it long\"],\"justification\":\"This is solid structured procedural Pascal. It makes correct use of SetLength/Copy/New/Dispose, does Int64 index arithmetic, and avoids the Single-precision pitfall by going through a Double variable. The weak points are the hand-rolled sorts, the long SelectKth with inlined partitioning, the `while True`/Break loop, and some dead state (hasRight), so it lands slightly below ideal.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7925,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7925,
+          "model": null,
+          "output_tokens": 952,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 952,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

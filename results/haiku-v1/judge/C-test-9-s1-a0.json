@@ -1,0 +1,35 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is procedural: small static helpers (split_child, merge_children, rotate_left/right, remove_key_at) mutate nodes in place, and the root is updated through a BTreeNode** in insert_key. Iterative descent in insert_nonfull and delete_key avoids needless recursion, with recursion only where the predecessor/successor delete needs it. It would reach 5 with less manual shifting and the shared logic factored out, but the paradigm fit is already strong.",
+    "language_idiomaticity": "Uses static helpers, const on contains' parameter, size_t casts in calloc, and a free_btree that accepts NULL. Departures: the manual shift loops could be memmove, the calloc results for keys/children in new_node are never checked, split_child and insert_key dereference new_node results unchecked, and there are C99 mid-block declarations alongside C89-style `int j;` declarations. Using memmove and checking every allocation would earn a 5.",
+    "readability": "Names are clear (max_key, min_key, rotate_right, merge_children), the functions are short, and the comments on split/merge/rotate are useful. Case 2 and case 3 of delete_key sit inside one loop with a continue after the merge, which is a little dense. The unchecked `int ci = i;` aliasing and the manual shifting loops add noise. Splitting delete_key into a helper like ensure_child_has_t_keys would bring it to 5.",
+    "design": "Decomposition follows the CLRS operations, with a shared merge_children used for both 2c and 3b, rotations separated out, and contains used for the membership pre-checks. Nodes are allocated with a uniform capacity (2t keys, 2t+1 children) and free_shell handles ownership consistently, so merges and root shrinking don't leak. Weaknesses: the shifting code is duplicated across many helpers, there is no allocation-failure handling, and delete_key is long. Extracting a fix-child helper and array-shift helpers would improve it."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "unchecked calloc results in new_node (keys/children) and unchecked new_node in split_child/insert_key",
+    "hand-rolled element-shifting loops instead of memmove",
+    "long delete_key function mixing cases 2 and 3 including child rebalancing"
+  ],
+  "justification": "This is a clean procedural CLRS B-tree with static helpers, iterative descent, and consistent ownership through free_shell and free_tree_rec. The algorithm decomposition (split_child, merge_children, rotate_left/right, contains pre-checks) is sound. It loses points for missing allocation-failure handling, hand-written shift loops rather than memmove, and a long delete_key that inlines the child-fixing logic.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RsxavB53smWrqK3HLW",
+  "judge_s": 9.2,
+  "input_tokens": 7907,
+  "output_tokens": 945,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,34 @@
+=== Running benchmark for folder: test-7 ===
+rm -rf test-7/test_runner test-7/*.class test-7/*.log
+mkdir -p test-7/test_runner
+scalac -deprecation -feature -unchecked -d test-7/test_runner test-7/SequenceAlignment.scala test-7/Tests.scala
+=== START ===
+
+--- Algorithm A: Alignment Score ---
+[PASS] Test A01 (Both Empty)
+[PASS] Test A02 (One Empty)
+[PASS] Test A03 (Identical)
+[PASS] Test A04 (Mismatch Beats Gaps)
+[PASS] Test A05 (Textbook)
+[PASS] Test A06 (One Long Gap)
+[PASS] Test A07 (Zero Extend)
+[PASS] Test A08 (Adjacent Gaps Beat Mismatch)
+[PASS] Test A09 (Terminal Gaps Penalized)
+[PASS] Test A10 (Stress)
+
+--- Algorithm B: Alignment Reconstruction ---
+[PASS] Test B01 (Both Empty)
+[PASS] Test B02 (Second Empty)
+[PASS] Test B03 (Identical)
+[PASS] Test B04 (Unique Long Gap)
+[PASS] Test B05 (Adjacent Gaps)
+[PASS] Test B06 (Textbook Unique)
+[PASS] Test B07 (Gap Merging)
+[PASS] Test B08 (Gaps In Both Rows)
+[PASS] Test B09 (Tied Gap Positions)
+[PASS] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 20
+Failed: 0

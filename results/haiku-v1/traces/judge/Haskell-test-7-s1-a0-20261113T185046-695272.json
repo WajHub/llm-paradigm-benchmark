@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:46+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-7-s1-a0",
+  "request_id": "req_011Ch1Rt5c6TsEmud71pZcgz",
+  "duration_s": 9.3,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\nImplement global sequence alignment with an affine gap penalty (Gotoh's\nalgorithm) in Haskell in the module SequenceAlignment (file\nSequenceAlignment.hs). The module already defines the result type\nAlignResult { arScore :: Int, arAlignedA :: String, arAlignedB :: String };\nimplement alignmentScore and alignmentAlign.\n\nParameters (both functions, in this order):\n  a :: String, b :: String, matchScore :: Int, mismatchPenalty :: Int,\n  gapOpen :: Int, gapExtend :: Int.\n  * All four numeric parameters are >= 0.\n  * a and b contain only ASCII letters (never '-'); they may be empty.\n    Characters are compared exactly (case-sensitive).\n\nDefinitions:\n  * An alignment of a and b is a pair of strings (A', B') of equal length over\n    the input characters plus the gap character '-', such that removing every\n    '-' from A' gives a, removing every '-' from B' gives b, and NO column has\n    '-' in both rows.\n  * Score of an alignment:\n      - every column without '-' adds +matchScore if the two characters are\n        equal, and -mismatchPenalty otherwise;\n      - every gap, i.e. a MAXIMAL run of consecutive '-' in the same row, of\n        length L >= 1 subtracts gapOpen + L * gapExtend.\n        (A gap of length 3 costs gapOpen + 3 * gapExtend: the first gap\n        character also pays gapExtend.)\n  * A gap in one row may be immediately followed by a gap in the other row,\n    e.g. the columns\n        A-\n        -C\n    These are two separate gaps and each pays its own gapOpen. Such\n    alignments must be reachable by your DP (allow transitions between the\n    \"gap in a\" and \"gap in b\" states), otherwise some optima are missed.\n  * This is GLOBAL alignment: leading and trailing gaps are penalised exactly\n    like any other gap (no free end gaps, no local alignment, no clamping of\n    scores at 0). Scores may be negative.\n\n- Implement `alignmentScore :: String -> String -> Int -> Int -> Int -> Int -> Int`:\n  return the maximum score over all alignments of a and b.\n  * a == \"\" and b == \"\": 0.\n  * One string empty, the other of length L > 0: -(gapOpen + L * gapExtend).\n\n- Implement `alignmentAlign :: String -> String -> Int -> Int -> Int -> Int -> AlignResult`:\n  return one optimal alignment:\n  * arScore = the maximum score (same value as alignmentScore),\n  * arAlignedA / arAlignedB = the two rows A' and B' of an alignment whose\n    score (computed by the definition above) equals that maximum.\n  * Use '-' as the gap character.\n  * a == \"\" and b == \"\": AlignResult 0 \"\" \"\".\n  * If several optimal alignments exist, any one of them is accepted.\n\nRequirements:\n  - Use Gotoh's O(length a * length b) dynamic programming with three tables\n    (best score ending in a match/mismatch column, ending with a gap in b,\n    ending with a gap in a) or an equivalent formulation, and a traceback\n    that follows the table/state the optimum came from. Do NOT enumerate\n    alignments; the inputs can be over 100 characters long.\n  - The tests recompute the score of the returned rows from the definition\n    above and compare it with arScore.\n  - Only the libraries shipped with GHC may be used (base, containers, array).\n\n## Stub module given to the author (SequenceAlignment.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule SequenceAlignment\n  ( AlignResult (..)\n  , alignmentScore\n  , alignmentAlign\n  ) where\n\n-- One optimal global alignment: the two gapped rows ('-' = gap) and its score.\ndata AlignResult = AlignResult\n  { arScore    :: Int\n  , arAlignedA :: String\n  , arAlignedB :: String\n  } deriving (Eq, Show)\n\n-- alignmentScore a b matchScore mismatchPenalty gapOpen gapExtend\nalignmentScore :: String -> String -> Int -> Int -> Int -> Int -> Int\nalignmentScore _ _ _ _ _ _ = error \"SequenceAlignment.alignmentScore not implemented\"\n\n-- alignmentAlign a b matchScore mismatchPenalty gapOpen gapExtend\nalignmentAlign :: String -> String -> Int -> Int -> Int -> Int -> AlignResult\nalignmentAlign _ _ _ _ _ _ = error \"SequenceAlignment.alignmentAlign not implemented\"\n\n```\n\n## Code to evaluate (SequenceAlignment.hs)\n```haskell\nmodule SequenceAlignment\n  ( AlignResult (..)\n  , alignmentScore\n  , alignmentAlign\n  ) where\n\nimport Data.Array\n\n-- One optimal global alignment: the two gapped rows ('-' = gap) and its score.\ndata AlignResult = AlignResult\n  { arScore    :: Int\n  , arAlignedA :: String\n  , arAlignedB :: String\n  } deriving (Eq, Show)\n\n-- Gotoh DP states: M = ends with a pair column, X = ends with a gap in b\n-- (consumes a character of a), Y = ends with a gap in a (consumes b).\ndata St = SM | SX | SY deriving (Eq, Show)\n\ndata Tabs = Tabs\n  { tM :: Array (Int, Int) Int\n  , tX :: Array (Int, Int) Int\n  , tY :: Array (Int, Int) Int\n  }\n\nnegInf :: Int\nnegInf = -(10 ^ (15 :: Int))\n\n-- Value of the M table, with the start cell (0,0) treated as a score-0 \"end\".\nendMAt :: Tabs -> Int -> Int -> Int\nendMAt t i j\n  | i == 0 && j == 0 = 0\n  | otherwise        = tM t ! (i, j)\n\n-- Best value over all states ending at (i,j).\nbestAt :: Tabs -> Int -> Int -> Int\nbestAt t i j = maximum [endMAt t i j, tX t ! (i, j), tY t ! (i, j)]\n\nbuildTabs :: Array Int Char -> Array Int Char -> Int -> Int -> Int -> Int -> Tabs\nbuildTabs ca cb ma mp go ge = t\n  where\n    n = snd (bounds ca)\n    m = snd (bounds cb)\n    bnds = ((0, 0), (n, m))\n    t = Tabs mT xT yT\n    mT = array bnds [((i, j), mv i j) | i <- [0 .. n], j <- [0 .. m]]\n    xT = array bnds [((i, j), xv i j) | i <- [0 .. n], j <- [0 .. m]]\n    yT = array bnds [((i, j), yv i j) | i <- [0 .. n], j <- [0 .. m]]\n\n    mv i j\n      | i == 0 || j == 0 = negInf\n      | otherwise =\n          bestAt t (i - 1) (j - 1) + (if ca ! i == cb ! j then ma else negInf') \n      where negInf' = -mp\n\n    xv i j\n      | i == 0 = negInf\n      | otherwise = maximum\n          [ endMAt t (i - 1) j - go - ge\n          , tX t ! (i - 1, j) - ge\n          , tY t ! (i - 1, j) - go - ge\n          ]\n\n    yv i j\n      | j == 0 = negInf\n      | otherwise = maximum\n          [ endMAt t i (j - 1) - go - ge\n          , tY t ! (i, j - 1) - ge\n          , tX t ! (i, j - 1) - go - ge\n          ]\n\n-- alignmentScore a b matchScore mismatchPenalty gapOpen gapExtend\nalignmentScore :: String -> String -> Int -> Int -> Int -> Int -> Int\nalignmentScore a b ma mp go ge = bestAt t n m\n  where\n    n = length a\n    m = length b\n    ca = listArray (1, n) a\n    cb = listArray (1, m) b\n    t = buildTabs ca cb ma mp go ge\n\n-- alignmentAlign a b matchScore mismatchPenalty gapOpen gapExtend\nalignmentAlign :: String -> String -> Int -> Int -> Int -> Int -> AlignResult\nalignmentAlign a b ma mp go ge = AlignResult score rowA rowB\n  where\n    n = length a\n    m = length b\n    ca = listArray (1, n) a\n    cb = listArray (1, m) b\n    t = buildTabs ca cb ma mp go ge\n    score = bestAt t n m\n\n    initState\n      | endMAt t n m == score = SM\n      | tX t ! (n, m) == score = SX\n      | otherwise = SY\n\n    (rowA, rowB) = walk initState n m [] []\n\n    walk :: St -> Int -> Int -> String -> String -> (String, String)\n    walk st i j accA accB\n      | i == 0 && j == 0 = (accA, accB)\n      | otherwise = case st of\n          SM ->\n            let v = bestAt t (i - 1) (j - 1)\n                pst | endMAt t (i - 1) (j - 1) == v = SM\n                    | tX t ! (i - 1, j - 1) == v = SX\n                    | otherwise = SY\n            in walk pst (i - 1) (j - 1) (ca ! i : accA) (cb ! j : accB)\n          SX ->\n            let cur = tX t ! (i, j)\n                pst | cur == tX t ! (i - 1, j) - ge = SX\n                    | cur == endMAt t (i - 1) j - go - ge = SM\n                    | otherwise = SY\n            in walk pst (i - 1) j (ca ! i : accA) ('-' : accB)\n          SY ->\n            let cur = tY t ! (i, j)\n                pst | cur == tY t ! (i, j - 1) - ge = SY\n                    | cur == endMAt t i (j - 1) - go - ge = SM\n                    | otherwise = SX\n            in walk pst i (j - 1) ('-' : accA) (cb ! j : accB)\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rt5vh3oZtWmqWiow6S",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is pure and uses lazy self-referential arrays (`mT`, `xT`, `yT` defined through `t`) for dynamic programming, which is the classic Haskell idiom. The traceback is a tail-recursive `walk` with accumulators, and no mutation is involved. It is not a 5 because the traceback re-derives the predecessor state by comparing values (`pst | ... == v`) instead of storing back-pointers or using a combinator, and because it manually threads two accumulators. Those are small departures from the style.\",\"language_idiomaticity\":\"It uses `Data.Array` with tuple indices, `listArray`, `array` with list comprehensions, guards, `where` and a `case` over an ADT. There are a few oddities. `negInf'` is a misleading name for `-mp` and is bound in a `where` inside a guard. There is a trailing space after the `if` expression. `maximum` over small lists is slightly wasteful. `10 ^ (15 :: Int)` is fine. Three separate `array` builds repeat the same comprehension. Lazy boxed arrays are acceptable here. A `bounds`-derived `n` and `m` is fine, but the `n`/`m`/`ca`/`cb`/`t` setup is duplicated.\",\"readability\":\"Names are short but explained: a comment documents the M/X/Y states, `endMAt` and `bestAt` are clear, and the cases are laid out cleanly. The `negInf'` binding is confusing, since it holds the mismatch penalty and is not infinity. Terse names such as `mv`, `xv`, `yv`, `ma`, `mp`, `go`, `ge` need the state comment to decode. The traceback logic is a bit dense, but it can be followed.\",\"design\":\"The split into `St`, `Tabs`, `buildTabs`, `bestAt` and `endMAt` is sensible, and the table construction is shared by the score and align functions. The duplication is in the setup in `alignmentScore` and `alignmentAlign`, which could be one helper. The treatment of cell (0,0) is handled through the `endMAt` special case, which is a little hacky. `tM` at the borders is `negInf` while `endMAt` patches (0,0). The traceback recomputes comparisons rather than storing pointers, which is acceptable but couples it tightly to the recurrence formulas. Using `negInf` with subtractions is safe at Int 64-bit.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":3,\"design\":4,\"anti_patterns\":[\"misleading name `negInf'` for the mismatch penalty\",\"duplicated setup (n, m, ca, cb, t) in both exported functions\",\"traceback re-derives predecessor state via value equality chains instead of storing back-pointers\"],\"justification\":\"This is a clean lazy-array Gotoh implementation: pure, with an ADT for states and a tail-recursive traceback `walk`. The shared `buildTabs`, `bestAt` and `endMAt` keep the recurrences compact. The deductions are for the confusingly named `negInf'`, terse identifiers, duplicated setup in both entry points, and a traceback that recomputes equality comparisons instead of recording choices.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5431,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5431,
+          "model": null,
+          "output_tokens": 1090,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1090,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

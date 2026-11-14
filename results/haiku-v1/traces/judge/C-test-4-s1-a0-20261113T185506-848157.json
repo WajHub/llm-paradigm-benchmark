@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:06+00:00",
+  "kind": "judge",
+  "label": "C-test-4-s1-a0",
+  "request_id": "req_011Ch1SDRCbxNkTCeuYks8Wt",
+  "duration_s": 7.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\n- Implement `knapsack_max_value`: Solve the 0/1 knapsack problem and return the maximum value attainable within the given capacity. Use dynamic programming (O(n * capacity) time and space).\n  * Return 0 if n == 0 or capacity == 0 or capacity < 0.\n  * Each item may be selected at most once.\n- Implement `knapsack_solve`: Solve the 0/1 knapsack problem and return a KnapsackResult containing the max value, a 0/1 selection array of length n, and the total weight of the selected items.\n  * Return NULL if n == 0 (no items to allocate). Return a valid result with all selected[i]=0 if capacity == 0.\n  * The returned `selected` array must be a fresh heap allocation owned by the caller.\n- Implement `free_knapsack_result`: Free the result and its inner `selected` array. Must handle NULL.\n- DO NOT use greedy heuristics — they fail on cases like w=[10,20,30], v=[60,100,120], cap=50 (optimum = 220, greedy by ratio = 160).\n- Selection must satisfy: sum of selected weights <= capacity; sum of selected values = max_value.\n\n## Contract given to the author (knapsack.h, not written by the author)\n```c\n#ifndef KNAPSACK_H\n#define KNAPSACK_H\n\ntypedef struct {\n    int max_value;\n    int* selected;       /* length n; entries 0 or 1 */\n    int n;\n    int total_weight;\n} KnapsackResult;\n\nint knapsack_max_value(const int* weights, const int* values, int n, int capacity);\nKnapsackResult* knapsack_solve(const int* weights, const int* values, int n, int capacity);\nvoid free_knapsack_result(KnapsackResult* result);\n\n#endif\n\n```\n\n## Code to evaluate (knapsack.c)\n```c\n#include <stdlib.h>\n#include \"knapsack.h\"\n\nint knapsack_max_value(const int* weights, const int* values, int n, int capacity) {\n    if (weights == NULL || values == NULL || n <= 0 || capacity <= 0) {\n        return 0;\n    }\n\n    int* dp = (int*)calloc((size_t)capacity + 1, sizeof(int));\n    if (dp == NULL) {\n        return 0;\n    }\n\n    for (int i = 0; i < n; i++) {\n        int w = weights[i];\n        int v = values[i];\n        if (w < 0) {\n            continue;\n        }\n        for (int c = capacity; c >= w; c--) {\n            int cand = dp[c - w] + v;\n            if (cand > dp[c]) {\n                dp[c] = cand;\n            }\n        }\n    }\n\n    int best = dp[capacity];\n    free(dp);\n    return best;\n}\n\nKnapsackResult* knapsack_solve(const int* weights, const int* values, int n, int capacity) {\n    if (weights == NULL || values == NULL || n <= 0) {\n        return NULL;\n    }\n\n    KnapsackResult* result = (KnapsackResult*)malloc(sizeof(KnapsackResult));\n    if (result == NULL) {\n        return NULL;\n    }\n\n    result->n = n;\n    result->max_value = 0;\n    result->total_weight = 0;\n    result->selected = (int*)calloc((size_t)n, sizeof(int));\n    if (result->selected == NULL) {\n        free(result);\n        return NULL;\n    }\n\n    if (capacity <= 0) {\n        return result;\n    }\n\n    size_t cols = (size_t)capacity + 1;\n    size_t rows = (size_t)n + 1;\n    int* dp = (int*)calloc(rows * cols, sizeof(int));\n    if (dp == NULL) {\n        free(result->selected);\n        free(result);\n        return NULL;\n    }\n\n    /* dp[i][c]: best value using first i items with capacity c */\n    for (int i = 1; i <= n; i++) {\n        int w = weights[i - 1];\n        int v = values[i - 1];\n        for (int c = 0; c <= capacity; c++) {\n            int best = dp[(size_t)(i - 1) * cols + c];\n            if (w >= 0 && w <= c) {\n                int cand = dp[(size_t)(i - 1) * cols + (c - w)] + v;\n                if (cand > best) {\n                    best = cand;\n                }\n            }\n            dp[(size_t)i * cols + c] = best;\n        }\n    }\n\n    result->max_value = dp[(size_t)n * cols + capacity];\n\n    /* Reconstruct selection */\n    int c = capacity;\n    for (int i = n; i >= 1; i--) {\n        if (dp[(size_t)i * cols + c] != dp[(size_t)(i - 1) * cols + c]) {\n            result->selected[i - 1] = 1;\n            result->total_weight += weights[i - 1];\n            c -= weights[i - 1];\n        }\n    }\n\n    free(dp);\n    return result;\n}\n\nvoid free_knapsack_result(KnapsackResult* result) {\n    if (result == NULL) {\n        return;\n    }\n    free(result->selected);\n    free(result);\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SDRxV9TDzcGKfGAbmH",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is procedural DP with explicit loops, in-place mutation and a backward capacity loop for the 1D table in knapsack_max_value. Early returns handle guards and an explicit free ends each path. The 1D rolling array is the classic form. In knapsack_solve the flattened 2D table and backtracking are also standard. Because the DP fill and the reconstruction sit inline in one function, it falls just short of a 5.\",\"language_idiomaticity\":\"It uses calloc with (size_t) casts, const pointer parameters from the contract, and size_t index arithmetic for the flattened table. Cleanup on allocation failure is correct. The casts on malloc/calloc are unnecessary in C. The repeated `(size_t)i * cols + c` is verbose, and no static helper or macro is used. The `w < 0` handling is inconsistent between the two functions. These keep it at 4.\",\"readability\":\"Names are clear (dp, cols, rows, cand, best), and a comment documents dp[i][c] and the reconstruction step. The long index expressions in knapsack_solve are somewhat noisy. The function is moderately long but still easy to follow. A small index helper would make it a 5.\",\"design\":\"The three functions match the contract and ownership is clear: free_knapsack_result frees both the inner array and the struct. The solve function does allocation, DP fill and reconstruction in one body, with no static helpers. The 1D and 2D DP logic is duplicated across the two public functions, though the 2D table is justified because reconstruction needs it. Extracting static helpers for table building and backtracking would raise the score.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":3,\"anti_patterns\":[\"unnecessary casts of malloc/calloc results\",\"long inline index arithmetic instead of a helper or macro\",\"monolithic knapsack_solve combining allocation, DP fill and backtracking\",\"DP recurrence duplicated across the two public functions\"],\"justification\":\"This is a correct, conventional C DP solution: a 1D rolling table for the value-only function and a full 2D table with backtracking for the result. Error paths free memory properly and the NULL-safe free function is correct. The main weaknesses are the single long knapsack_solve with no static helpers, the noisy flattened-index expressions, and the redundant malloc casts.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3594,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3594,
+          "model": null,
+          "output_tokens": 796,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 796,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

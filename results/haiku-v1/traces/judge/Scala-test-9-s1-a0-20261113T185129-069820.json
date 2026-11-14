@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:29+00:00",
+  "kind": "judge",
+  "label": "Scala-test-9-s1-a0",
+  "request_id": "req_011Ch1RwJXKCt2hg1hSPc7j3",
+  "duration_s": 9.0,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement the exact CLRS B-tree with minimum degree t (single-pass top-down\ninsertion and single-pass top-down deletion) in Scala 2.11 in the object BTree\n(file BTree.scala). The object already defines the node type; implement\ninsertAll and deleteAll. The tests compare the EXACT SHAPE of the resulting\ntree, so every rule below (including which sibling is preferred) matters.\n\nNode representation:\n  * case class Node(keys: Vector[Int], children: Vector[Node])\n  * keys are strictly ascending. A leaf has children == Vector.empty; an\n    internal node with k keys has exactly k + 1 children.\n  * The EMPTY tree is a root leaf with no keys: Node(Vector(), Vector())\n    (it is NOT None).\n  * Every node holds at most 2t-1 keys; every non-root node at least t-1 keys.\n  * Persistent (immutable) rebuilding or internal mutation are both fine; only\n    the returned structure matters.\n\n- Implement `insertAll(t: Int, keys: Vector[Int]): Option[Node]`:\n  * None if t < 2.\n  * Otherwise start from the empty tree, insert the keys one by one in the given\n    order and return Some(root).\n\n- Implement `deleteAll(t: Int, keys: Vector[Int], deletions: Vector[Int]): Option[Node]`:\n  * None if t < 2.\n  * Otherwise build the tree exactly like insertAll(t, keys), then delete every\n    key of deletions in the given order, and return Some(root).\n\nInsertion of key k (CLRS B-TREE-INSERT, top-down, pre-emptive splitting):\n  0. DUPLICATES: if k is already in the tree, do nothing at all. Check membership\n     BEFORE any splitting (a split triggered by a duplicate would change the shape).\n  1. If the root is full (2t-1 keys): create a new root with no keys whose only\n     child is the old root, and split that child (see Split). The tree grows by\n     one level.\n  2. Descend from the root: at an internal node x let i be the first index with\n     k < x.keys(i) (or i = x.keys.length if there is none). If child i is full\n     (2t-1 keys), split it first; then, if k is greater than the key that moved\n     up into x at position i, continue into child i+1, otherwise child i.\n  3. At the leaf, insert k at its sorted position.\n  Split of a full node y (2t-1 keys) that is child i of x:\n    the median y.keys(t-1) (0-based) moves up into x.keys at position i;\n    y keeps keys 0..t-2 (and children 0..t-1);\n    a new right sibling, placed at x.children(i+1), gets keys t..2t-2 (and\n    children t..2t-1).\n  Nodes are split on the way down even if the insertion would not overflow\n  them. Do NOT implement the bottom-up \"split on overflow\" variant; it gives a\n  different tree.\n\nDeletion of key k:\n  0. If k is not in the tree, the tree is UNCHANGED. Check membership first (a\n     CLRS descent for an absent key would still rebalance nodes).\n  Otherwise run delete(root, k):\n  1. k is in node x and x is a leaf: remove k from x.\n  2. k = x.keys(i) in an internal node x; y = x.children(i) (left child),\n     z = x.children(i+1) (right child):\n     (2a) if y has >= t keys: k' = predecessor of k = the maximum key in y's\n          subtree; recursively delete(y, k'), then replace x.keys(i) by k'.\n          The predecessor is preferred whenever y has >= t keys, even if z\n          also has >= t keys.\n     (2b) else if z has >= t keys: k'' = successor = the minimum key in z's\n          subtree; recursively delete(z, k''), then replace x.keys(i) by k''.\n     (2c) else (both have exactly t-1 keys): merge y, k and z into y\n          (y.keys ++ [k] ++ z.keys, y.children ++ z.children), remove k and z\n          from x, then recursively delete(y, k).\n  3. k is not in the internal node x: let c = x.children(i) be the child whose\n     subtree must contain k (i = number of keys of x smaller than k). If c has\n     exactly t-1 keys, fix it BEFORE descending:\n     (3a) if the LEFT sibling x.children(i-1) exists and has >= t keys, rotate\n          right: the separator x.keys(i-1) moves down to the front of c's keys,\n          the left sibling's last key moves up to replace x.keys(i-1), and the\n          left sibling's last child (if it is internal) becomes c's first child.\n          Otherwise, if the RIGHT sibling x.children(i+1) exists and has >= t\n          keys, rotate left (symmetric: separator x.keys(i) moves to the end of\n          c, the right sibling's first key replaces it, its first child becomes\n          c's last child). The LEFT sibling is always tried first.\n     (3b) otherwise (no sibling with >= t keys): if c has a right sibling, merge\n          c, separator x.keys(i) and the right sibling into c; only if c is the\n          LAST child, merge the left sibling, separator x.keys(i-1) and c into the\n          left sibling.\n     Then recurse into the (possibly merged) child that now covers k.\n  After each deletion: if the root has no keys but has a child, that child\n  becomes the new root (the height shrinks by one). Deleting the last key\n  leaves the empty tree Node(Vector(), Vector()).\n\nNotes:\n  - Inputs contain up to 2000 keys; each operation must be O(t * log_t n).\n  - Keys are arbitrary Ints; keys and deletions may contain duplicates and\n    keys that are absent.\n  - Use Scala 2.11 syntax and standard library only (no Scala 3 syntax, no\n    2.12/2.13-only APIs such as LazyList or .to(List)).\n\n## Stub module given to the author (BTree.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject BTree {\n  // A leaf has children == Vector.empty; an internal node with k keys has exactly k + 1 children.\n  case class Node(keys: Vector[Int], children: Vector[Node])\n\n  def insertAll(t: Int, keys: Vector[Int]): Option[Node] =\n    sys.error(\"BTree.insertAll not implemented\")\n\n  def deleteAll(t: Int, keys: Vector[Int], deletions: Vector[Int]): Option[Node] =\n    sys.error(\"BTree.deleteAll not implemented\")\n}\n\n```\n\n## Code to evaluate (BTree.scala)\n```scala\nobject BTree {\n  case class Node(keys: Vector[Int], children: Vector[Node])\n\n  private val emptyTree: Node = Node(Vector(), Vector())\n\n  private def isLeaf(n: Node): Boolean = n.children.isEmpty\n\n  private def isFull(t: Int, n: Node): Boolean = n.keys.length == 2 * t - 1\n\n  private def contains(x: Node, k: Int): Boolean = {\n    val i = x.keys.count(_ < k)\n    (i < x.keys.length && x.keys(i) == k) ||\n      (!isLeaf(x) && contains(x.children(i), k))\n  }\n\n  private def insertSorted(keys: Vector[Int], k: Int): Vector[Int] = {\n    val i = keys.count(_ < k)\n    keys.take(i) ++ (k +: keys.drop(i))\n  }\n\n  private def splitChild(t: Int, x: Node, i: Int): Node = {\n    val y = x.children(i)\n    val med = y.keys(t - 1)\n    val left = Node(y.keys.take(t - 1), if (isLeaf(y)) Vector() else y.children.take(t))\n    val right = Node(y.keys.drop(t), if (isLeaf(y)) Vector() else y.children.drop(t))\n    Node(\n      x.keys.take(i) ++ (med +: x.keys.drop(i)),\n      x.children.take(i) ++ Vector(left, right) ++ x.children.drop(i + 1)\n    )\n  }\n\n  private def insertNonFull(t: Int, x: Node, k: Int): Node = {\n    if (isLeaf(x)) Node(insertSorted(x.keys, k), Vector())\n    else {\n      val i0 = x.keys.count(_ < k)\n      if (isFull(t, x.children(i0))) {\n        val x1 = splitChild(t, x, i0)\n        val i = if (k > x1.keys(i0)) i0 + 1 else i0\n        x1.copy(children = x1.children.updated(i, insertNonFull(t, x1.children(i), k)))\n      } else {\n        x.copy(children = x.children.updated(i0, insertNonFull(t, x.children(i0), k)))\n      }\n    }\n  }\n\n  private def insertKey(t: Int, root: Node, k: Int): Node = {\n    if (contains(root, k)) root\n    else {\n      val r =\n        if (isFull(t, root)) splitChild(t, Node(Vector(), Vector(root)), 0)\n        else root\n      insertNonFull(t, r, k)\n    }\n  }\n\n  private def maxKey(n: Node): Int =\n    if (isLeaf(n)) n.keys.last else maxKey(n.children.last)\n\n  private def minKey(n: Node): Int =\n    if (isLeaf(n)) n.keys.head else minKey(n.children.head)\n\n  // Ensures child i of x has at least t keys; returns new x and index of child covering the key.\n  private def fix(t: Int, x: Node, i: Int): (Node, Int) = {\n    val c = x.children(i)\n    val leftHasSpare = i > 0 && x.children(i - 1).keys.length >= t\n    val rightHasSpare = i < x.keys.length && x.children(i + 1).keys.length >= t\n    if (leftHasSpare) {\n      val l = x.children(i - 1)\n      val lastKey = l.keys.last\n      val newL = Node(l.keys.init, if (isLeaf(l)) Vector() else l.children.init)\n      val newC = Node(\n        x.keys(i - 1) +: c.keys,\n        if (isLeaf(c)) Vector() else l.children.last +: c.children\n      )\n      val newX = Node(\n        x.keys.updated(i - 1, lastKey),\n        x.children.updated(i - 1, newL).updated(i, newC)\n      )\n      (newX, i)\n    } else if (rightHasSpare) {\n      val r = x.children(i + 1)\n      val firstKey = r.keys.head\n      val newR = Node(r.keys.tail, if (isLeaf(r)) Vector() else r.children.tail)\n      val newC = Node(\n        c.keys :+ x.keys(i),\n        if (isLeaf(c)) Vector() else c.children :+ r.children.head\n      )\n      val newX = Node(\n        x.keys.updated(i, firstKey),\n        x.children.updated(i, newC).updated(i + 1, newR)\n      )\n      (newX, i)\n    } else if (i < x.keys.length) {\n      val r = x.children(i + 1)\n      val merged = Node(c.keys ++ (x.keys(i) +: r.keys), c.children ++ r.children)\n      val newX = Node(\n        x.keys.take(i) ++ x.keys.drop(i + 1),\n        x.children.updated(i, merged).take(i + 1) ++ x.children.drop(i + 2)\n      )\n      (newX, i)\n    } else {\n      val l = x.children(i - 1)\n      val merged = Node(l.keys ++ (x.keys(i - 1) +: c.keys), l.children ++ c.children)\n      val newX = Node(\n        x.keys.take(i - 1) ++ x.keys.drop(i),\n        x.children.take(i - 1) ++ (merged +: x.children.drop(i + 1))\n      )\n      (newX, i - 1)\n    }\n  }\n\n  private def delete(t: Int, x: Node, k: Int): Node = {\n    val i = x.keys.count(_ < k)\n    val found = i < x.keys.length && x.keys(i) == k\n    if (found) {\n      if (isLeaf(x)) {\n        x.copy(keys = x.keys.take(i) ++ x.keys.drop(i + 1))\n      } else {\n        val y = x.children(i)\n        val z = x.children(i + 1)\n        if (y.keys.length >= t) {\n          val kp = maxKey(y)\n          val y2 = delete(t, y, kp)\n          x.copy(keys = x.keys.updated(i, kp), children = x.children.updated(i, y2))\n        } else if (z.keys.length >= t) {\n          val kpp = minKey(z)\n          val z2 = delete(t, z, kpp)\n          x.copy(keys = x.keys.updated(i, kpp), children = x.children.updated(i + 1, z2))\n        } else {\n          val merged = Node(y.keys ++ (k +: z.keys), y.children ++ z.children)\n          val newX = Node(\n            x.keys.take(i) ++ x.keys.drop(i + 1),\n            x.children.updated(i, merged).take(i + 1) ++ x.children.drop(i + 2)\n          )\n          newX.copy(children = newX.children.updated(i, delete(t, merged, k)))\n        }\n      }\n    } else if (isLeaf(x)) {\n      x\n    } else {\n      val (x2, j) =\n        if (x.children(i).keys.length == t - 1) fix(t, x, i)\n        else (x, i)\n      x2.copy(children = x2.children.updated(j, delete(t, x2.children(j), k)))\n    }\n  }\n\n  private def shrink(root: Node): Node =\n    if (root.keys.isEmpty && root.children.nonEmpty) root.children.head else root\n\n  private def deleteKey(t: Int, root: Node, k: Int): Node =\n    if (!contains(root, k)) root\n    else shrink(delete(t, root, k))\n\n  def insertAll(t: Int, keys: Vector[Int]): Option[Node] =\n    if (t < 2) None\n    else Some(keys.foldLeft(emptyTree)((root, k) => insertKey(t, root, k)))\n\n  def deleteAll(t: Int, keys: Vector[Int], deletions: Vector[Int]): Option[Node] =\n    if (t < 2) None\n    else {\n      val built = keys.foldLeft(emptyTree)((root, k) => insertKey(t, root, k))\n      Some(deletions.foldLeft(built)((root, k) => deleteKey(t, root, k)))\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RwJpv8xobYcWgNRt4Z",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Fully persistent and immutable: Node is rebuilt with copy/updated, there are no vars, and the operations are folded with foldLeft in insertAll and deleteAll. fix returns a tuple (newX, index) instead of mutating. Recursion is structural, and the depth is only O(log n), so @tailrec is not needed. It could reach a 5 with less index arithmetic, for example by using helper functions such as removeAt and replaceAt to express the transformations more declaratively.\",\"language_idiomaticity\":\"Uses Option for t < 2, a case class, Vector combinators (count, take, drop, init, tail, +:, :+), and Scala 2.11-compatible syntax. Weaknesses: `keys.count(_ < k)` scans linearly where a binary search or `indexWhere` could be used. The take/drop splice idiom is repeated everywhere instead of small utilities. The tuple return from fix is fine. `sys.error` is not used. There is no pattern matching, although it is not strictly needed.\",\"readability\":\"Names are clear (splitChild, insertNonFull, fix, maxKey, shrink, isFull). The fix function is long, with four branches that each build several Nodes using dense index arithmetic such as `x.children.updated(i, merged).take(i + 1) ++ x.children.drop(i + 2)`. There is one helpful comment on fix, and delete is a long nested if/else. Extracting rotateRight, rotateLeft, and merge as separate named functions and adding removeAt/insertAt helpers would earn one more point.\",\"design\":\"Decomposition is sensible: membership check, insertion, splitting, fixing, delete, and root shrinking are each separate, and the public API is a thin fold. Deficiencies: the repeated take/drop splicing is not factored out. The merge logic is duplicated between fix and delete case 2c. The leaf checks `if (isLeaf(y)) Vector() else ...` are redundant, since take/drop on an empty vector gives empty anyway. fix mixes rotation and merging in one function. Overall the design is solid but has some duplication.\"},\"paradigm_idiomaticity\":5,\"language_idiomaticity\":4,\"readability\":3,\"design\":3,\"anti_patterns\":[\"duplicated take/drop splicing instead of small helper functions (removeAt/insertAt)\",\"fix is a monolithic function combining rotations and merges\",\"merge logic duplicated between fix and delete case 2c\",\"redundant isLeaf checks when taking/dropping children\",\"linear count(_ < k) for child index lookup\"],\"justification\":\"The code is purely functional: immutable Nodes, copy/updated, foldLeft over inputs, and Option for invalid t. It follows the CLRS rules cleanly and keeps the helpers separate. However, `fix` and `delete` are dense with index arithmetic, the merge logic is duplicated, and repeated take/drop splicing could be factored into helpers, so readability and design are middling.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6875,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6875,
+          "model": null,
+          "output_tokens": 999,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 999,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

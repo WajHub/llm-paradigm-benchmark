@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:51+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-6-s1-a0",
+  "request_id": "req_011Ch1SGb32BAh4JC4irvUa2",
+  "duration_s": 9.3,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement a 9x9 Sudoku validator and solver in Free Pascal in the unit sudoku\n(file sudoku.pas). The unit already declares the type and the four functions; keep the\ninterface unchanged and implement SudokuIsValid, SudokuCandidates, SudokuSolve and\nSudokuCountSolutions in the implementation section.\n\nBoard representation:\n  * A board is a TIntArray (array of LongInt) of 81 cells in row-major order:\n    index = Row * 9 + Col, Row and Col are 0-based (0..8). 0 means an empty cell,\n    1..9 is a filled cell.\n  * Boxes are the nine 3x3 blocks whose top-left corners are at rows/cols 0, 3, 6.\n\n- Implement `SudokuIsValid(const Grid: TIntArray): Boolean`: Return True iff\n  * Length(Grid) = 81, and\n  * every cell value is in 0..9 (anything else, e.g. 10 or -1, makes the board invalid), and\n  * no digit 1..9 appears more than once in any row, any column or any 3x3 box.\n  Zeros are ignored (an empty board is valid; a complete correct board is valid).\n  Validity does NOT imply solvability.\n\n- Implement `SudokuCandidates(const Grid: TIntArray; Row, Col: LongInt): TIntArray`:\n  Precondition: Length(Grid) = 81 and Row, Col in 0..8.\n  * If Grid[Row * 9 + Col] <> 0, return an empty array (Length 0).\n  * Otherwise return the digits 1..9 that do not appear in that row, that column or that\n    cell's 3x3 box, in ascending order.\n  * Only the cell's own row, column and box matter; the rest of the board does not have\n    to be valid.\n\n- Implement `SudokuSolve(const Grid: TIntArray): TIntArray`: Return a NEW array of 81\n  cells holding a complete board (no zeros, valid) in which every non-zero input cell is\n  unchanged.\n  * Return an empty array (Length 0) if SudokuIsValid(Grid) is False or the board has no\n    completion.\n  * If the input is already complete and valid, return an equal board.\n  * The caller's array must NOT be modified. Note that `const` on a dynamic array\n    parameter does not protect its elements, and assigning one dynamic array variable to\n    another shares the same storage: work on a copy (e.g. Copy(Grid, 0, 81)).\n  * If several solutions exist any one is acceptable.\n\n- Implement `SudokuCountSolutions(const Grid: TIntArray; Limit: LongInt): LongInt`:\n  Return the number of distinct complete valid boards extending Grid, but stop searching\n  as soon as Limit solutions have been found, so the result is min(total, Limit).\n  * Return 0 if Limit <= 0 or SudokuIsValid(Grid) is False.\n  * An empty board with Limit 2 returns 2 (the search must cut off early).\n  * The caller's array must not be modified.\n\nSearch requirements:\n  - Use recursive backtracking that always branches on the empty cell with the FEWEST\n    candidates (MRV heuristic). An empty cell with zero candidates is a dead end\n    (backtrack immediately).\n  - Naive first-empty-cell (row-major) backtracking is too slow for some test puzzles.\n    Additional constraint propagation is allowed.\n\nMemory:\n  - All results are managed dynamic arrays (TIntArray); no pointers, New/Dispose or\n    GetMem are needed. The program is run under valgrind and must not leak.\n\n## Stub module given to the author (sudoku.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit sudoku;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  { A 9x9 board: 81 cells in row-major order (index = Row * 9 + Col), 0 = empty. }\n  TIntArray = array of LongInt;\n\nfunction SudokuIsValid(const Grid: TIntArray): Boolean;\nfunction SudokuCandidates(const Grid: TIntArray; Row, Col: LongInt): TIntArray;\nfunction SudokuSolve(const Grid: TIntArray): TIntArray;\nfunction SudokuCountSolutions(const Grid: TIntArray; Limit: LongInt): LongInt;\n\nimplementation\n\nfunction SudokuIsValid(const Grid: TIntArray): Boolean;\nbegin\n  raise Exception.Create('SudokuIsValid not implemented');\n  Result := False;\nend;\n\nfunction SudokuCandidates(const Grid: TIntArray; Row, Col: LongInt): TIntArray;\nbegin\n  raise Exception.Create('SudokuCandidates not implemented');\n  Result := nil;\nend;\n\nfunction SudokuSolve(const Grid: TIntArray): TIntArray;\nbegin\n  raise Exception.Create('SudokuSolve not implemented');\n  Result := nil;\nend;\n\nfunction SudokuCountSolutions(const Grid: TIntArray; Limit: LongInt): LongInt;\nbegin\n  raise Exception.Create('SudokuCountSolutions not implemented');\n  Result := -1;\nend;\n\nend.\n\n```\n\n## Code to evaluate (sudoku.pas)\n```pascal\nunit sudoku;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  { A 9x9 board: 81 cells in row-major order (index = Row * 9 + Col), 0 = empty. }\n  TIntArray = array of LongInt;\n\nfunction SudokuIsValid(const Grid: TIntArray): Boolean;\nfunction SudokuCandidates(const Grid: TIntArray; Row, Col: LongInt): TIntArray;\nfunction SudokuSolve(const Grid: TIntArray): TIntArray;\nfunction SudokuCountSolutions(const Grid: TIntArray; Limit: LongInt): LongInt;\n\nimplementation\n\nfunction PopCountMask(M: LongInt): LongInt;\nvar\n  i: LongInt;\nbegin\n  Result := 0;\n  for i := 1 to 9 do\n    if (M and (1 shl i)) <> 0 then\n      Inc(Result);\nend;\n\n{ Bitmask (bit d set for digit d) of digits already used in the row, column\n  and box of cell (r, c). The cell itself is ignored only if it is empty. }\nfunction UsedMask(const B: TIntArray; r, c: LongInt): LongInt;\nvar\n  i, j, v, br, bc: LongInt;\nbegin\n  Result := 0;\n  for i := 0 to 8 do\n  begin\n    v := B[r * 9 + i];\n    if v <> 0 then\n      Result := Result or (1 shl v);\n    v := B[i * 9 + c];\n    if v <> 0 then\n      Result := Result or (1 shl v);\n  end;\n  br := (r div 3) * 3;\n  bc := (c div 3) * 3;\n  for i := 0 to 2 do\n    for j := 0 to 2 do\n    begin\n      v := B[(br + i) * 9 + (bc + j)];\n      if v <> 0 then\n        Result := Result or (1 shl v);\n    end;\nend;\n\nfunction SudokuIsValid(const Grid: TIntArray): Boolean;\nvar\n  rowM, colM, boxM: array[0..8] of LongInt;\n  i, r, c, v, bit, b: LongInt;\nbegin\n  Result := False;\n  if Length(Grid) <> 81 then\n    Exit;\n  for i := 0 to 8 do\n  begin\n    rowM[i] := 0;\n    colM[i] := 0;\n    boxM[i] := 0;\n  end;\n  for i := 0 to 80 do\n  begin\n    v := Grid[i];\n    if (v < 0) or (v > 9) then\n      Exit;\n    if v <> 0 then\n    begin\n      r := i div 9;\n      c := i mod 9;\n      b := (r div 3) * 3 + (c div 3);\n      bit := 1 shl v;\n      if (rowM[r] and bit) <> 0 then\n        Exit;\n      if (colM[c] and bit) <> 0 then\n        Exit;\n      if (boxM[b] and bit) <> 0 then\n        Exit;\n      rowM[r] := rowM[r] or bit;\n      colM[c] := colM[c] or bit;\n      boxM[b] := boxM[b] or bit;\n    end;\n  end;\n  Result := True;\nend;\n\nfunction SudokuCandidates(const Grid: TIntArray; Row, Col: LongInt): TIntArray;\nvar\n  used, d, n: LongInt;\nbegin\n  SetLength(Result, 0);\n  if Length(Grid) <> 81 then\n    Exit;\n  if Grid[Row * 9 + Col] <> 0 then\n    Exit;\n  used := UsedMask(Grid, Row, Col);\n  SetLength(Result, 9);\n  n := 0;\n  for d := 1 to 9 do\n    if (used and (1 shl d)) = 0 then\n    begin\n      Result[n] := d;\n      Inc(n);\n    end;\n  SetLength(Result, n);\nend;\n\n{ Recursive MRV backtracking on a working board B (modified in place).\n  Counts complete boards in Count. Returns True when Count reaches Limit;\n  in that case B holds the last found complete board. }\nfunction Search(var B: TIntArray; Limit: LongInt; var Count: LongInt): Boolean;\nvar\n  i, d, best, bestCnt, cnt, free, bestFree, used: LongInt;\nbegin\n  Result := False;\n  best := -1;\n  bestCnt := 10;\n  bestFree := 0;\n  for i := 0 to 80 do\n    if B[i] = 0 then\n    begin\n      used := UsedMask(B, i div 9, i mod 9);\n      free := (not used) and $3FE;\n      cnt := PopCountMask(free);\n      if cnt = 0 then\n        Exit;\n      if cnt < bestCnt then\n      begin\n        best := i;\n        bestCnt := cnt;\n        bestFree := free;\n      end;\n    end;\n\n  if best < 0 then\n  begin\n    Inc(Count);\n    Result := Count >= Limit;\n    Exit;\n  end;\n\n  for d := 1 to 9 do\n    if (bestFree and (1 shl d)) <> 0 then\n    begin\n      B[best] := d;\n      if Search(B, Limit, Count) then\n      begin\n        Result := True;\n        Exit;\n      end;\n    end;\n  B[best] := 0;\nend;\n\nfunction SudokuSolve(const Grid: TIntArray): TIntArray;\nvar\n  B: TIntArray;\n  Count: LongInt;\nbegin\n  SetLength(Result, 0);\n  if not SudokuIsValid(Grid) then\n    Exit;\n  B := Copy(Grid, 0, 81);\n  Count := 0;\n  if Search(B, 1, Count) then\n    Result := B;\nend;\n\nfunction SudokuCountSolutions(const Grid: TIntArray; Limit: LongInt): LongInt;\nvar\n  B: TIntArray;\n  Count: LongInt;\nbegin\n  Result := 0;\n  if Limit <= 0 then\n    Exit;\n  if not SudokuIsValid(Grid) then\n    Exit;\n  B := Copy(Grid, 0, 81);\n  Count := 0;\n  Search(B, Limit, Count);\n  Result := Count;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SGbNcvyCPKjUHdGCoY",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The structure is procedural: a recursive `Search(var B, Limit, var Count)` works in place on a working copy and undoes the move with `B[best] := 0`. Early `Exit` handles dead ends and the cutoff. Helpers are small and data flows through explicit parameters. A 5 would need a cleaner contract: `Search` leaves B either solved or restored, and that is only implicit. The solution also recomputes `UsedMask` for every empty cell on every call instead of keeping incremental row/col/box state.\",\"language_idiomaticity\":\"It uses `Exit`, `Copy(Grid,0,81)`, `SetLength`, `Result`, `var` and `const` parameters, and `{$mode objfpc}`. Helpers stay in the implementation section. Bitmasks are used well in `SudokuIsValid` with fixed arrays. `PopCountMask` reinvents `PopCnt` from the RTL, and the identifier `free` shadows the `Free` method name, though that is legal. `SudokuCandidates` does not guard Row/Col range (acceptable since the precondition is given). It also builds a 9-element array and then shrinks it. The `Math` and `SysUtils` units are unused.\",\"readability\":\"Names are clear (`UsedMask`, `PopCountMask`, `bestFree`) and the doc comments on `UsedMask` and `Search` help. Functions are short. The magic constant `$3FE` and the `1 shl d` bit tricks are not explained. `Search` mixes cell selection and branching in one routine and is a bit long. The `Search` comment is slightly confusing because B holds the last found board only when the limit is reached.\",\"design\":\"Solve and count share one `Search` routine, and validity is checked once up front. Candidate computation is shared via `UsedMask`. `SudokuCandidates` and `Search` both depend on `UsedMask`, so there is no duplication. A cleaner design would split out an MRV cell selector (`PickCell`) and keep incremental masks for speed. Using `Search` with Limit 1 for solving is neat. `SudokuIsValid` duplicates the box/row/col logic rather than reusing `UsedMask`, which is reasonable here.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"reimplements population count instead of using RTL PopCnt\",\"recomputes full UsedMask for every empty cell on every recursion instead of incremental masks\",\"magic constant $3FE without a named constant\",\"unused units Math and SysUtils\"],\"justification\":\"This is a solid procedural solution: `Search` implements MRV backtracking with in-place mutation and undo, and both `SudokuSolve` and `SudokuCountSolutions` reuse it on a `Copy` of the grid. It uses Pascal idioms well (`Exit`, `Result`, `Copy`, `SetLength`, bitmasks). Small blemishes include the hand-rolled `PopCountMask`, the unexplained `$3FE`, the shadowing name `free`, and the non-incremental candidate recomputation.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5828,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5828,
+          "model": null,
+          "output_tokens": 1059,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1059,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

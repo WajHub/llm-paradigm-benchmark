@@ -6,24 +6,32 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "State is threaded explicitly (st(A,Size,Last)), with no assert/retract. The control flow is imperative, though: build/5 is an if-then-else loop on I >= N rather than clause-head matching, step/4 nests deep if-then-else, and find_suffix uses if-then-else instead of clause dispatch. The use of nth0 with a conditional, findall/member and keysort is declarative enough. A 4 would need head-matching recursion and flatter case analysis.",
+    "language_idiomaticity": "Uses library(assoc), sub_atom/5, memberchk, keysort, max_list, nth0 and assoc_to_values, which is good. Weaknesses: building via an assoc and then converting to a list, the redundant repeated get_assoc on Cur, the unusual `eertree_build(none,_,none) :- !` placed before guards, and the catch-all `eertree_count_occurrences(_,_,_,0)` after a cut. Children is a pair list, which the task allows. max_list over a findall would be better as aggregate_all(max(L), ...), and between/numlist could replace the manual counter.",
+    "readability": "Predicate names (find_suffix, propagate_all, step) are clear and find_suffix has a doc comment. step/4 is long, with nested conditionals, a repeated get_assoc for Cur, and the single-letter variables CL, CK, CCh, CC, CE, which make it hard to follow. Little commentary explains the algorithm. Splitting step into smaller predicates (extend, add_node, link computation) would earn a 4.",
+    "design": "Reasonable decomposition into build, step, find_suffix, propagate and the queries. Assoc gives O(log n) node access during the build, which is sensible, then it is flattened to the required list. Node updates are duplicated: the get_assoc/put_assoc pattern for incrementing a count or adding a child is repeated and should be helper predicates such as update_node. Propagation re-fetches nodes by key. count_occurrences does a linear scan, which is acceptable. drop_roots is slightly awkward.  A 4 would need factored node-update helpers and a cleaner step.."
+  },
   "paradigm_idiomaticity": 3,
   "language_idiomaticity": 3,
   "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "explicit counter-based recursion with if-then-else (I >= N -> ...) instead of clause-head pattern matching or numlist/foldl",
-    "if-then-else chains in step/4 instead of separate clauses",
-    "cut-then-fallback clauses (final catch-all clause with 0) used for control flow",
-    "assoc used with sequential integer keys where a list or dict would suffice, forcing repeated get/put pairs",
-    "red cuts after type-checking guards in eertree_count_occurrences",
-    "findall+member+max_list instead of aggregate_all(max) or direct max_member",
-    "linear nth0 scan to find the node on each occurrence query"
+    "if-then-else counting loop in build/5 instead of clause-head recursion or numlist/foldl",
+    "deeply nested if-then-else in step/4 instead of separate clauses",
+    "duplicated get_assoc/put_assoc node-update boilerplate with no helper",
+    "catch-all fallback clause after a cut for count_occurrences",
+    "findall + max_list instead of aggregate_all(max(...))"
   ],
-  "justification": "The code threads state explicitly through st/3 terms and uses assoc for node storage, which is a reasonable purely functional approach with no assert/retract. However, the build loop is written as an imperative-style counter loop with if-then-else instead of foldl/numlist or head-pattern recursion, and step/4 is one big nested if-then-else with repeated get_assoc/put_assoc. Query predicates rely on cut plus catch-all clauses and findall/max_list where aggregate_all or max_member would be more idiomatic; the comment on find_suffix helps, but the long step predicate hurts readability and design.\n",
+  "justification": "The solution is pure state-threading with no assert and uses the assoc library well, but control flow in build/5, step/4 and find_suffix/6 is written with imperative-style if-then-else chains rather than clause dispatch. step/4 is long and repeats node read/modify/write code, and cryptic variable names (CL, CK, CCh) hurt readability. The decomposition is decent, and the library usage is mostly appropriate, yielding an average idiomatic result.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4980,
-  "output_tokens": 460,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SHHTNcC2dL55oY7MPs",
+  "judge_s": 9.7,
+  "input_tokens": 5317,
+  "output_tokens": 1059,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

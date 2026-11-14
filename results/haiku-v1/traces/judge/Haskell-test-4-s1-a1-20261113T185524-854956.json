@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:24+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-4-s1-a1",
+  "request_id": "req_011Ch1SEdy5Ei1SS87pYj1nH",
+  "duration_s": 8.6,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\n- Implement `maxValue weights values capacity`: Return the maximum value attainable with sum of selected weights ≤ capacity. Use DP. Return 0 if null weights or capacity <= 0.\n- Implement `solve weights values capacity`: Return Result with resultMaxValue, resultSelected (length n, entries 0/1), resultTotalWeight.\n- DO NOT use greedy heuristics — they fail on w=[10,20,30], v=[60,100,120], cap=50 (optimum=220, greedy=160).\n- Selection invariants: sum of selected weights ≤ capacity; sum of selected values = maxValue.\n- Use idiomatic Haskell (immutable lists / arrays).\n\n## Stub module given to the author (Knapsack.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule Knapsack\n  ( Result (..)\n  , maxValue\n  , solve\n  ) where\n\ndata Result = Result\n  { resultMaxValue    :: Int\n  , resultSelected    :: [Int]\n  , resultTotalWeight :: Int\n  } deriving (Eq, Show)\n\nmaxValue :: [Int] -> [Int] -> Int -> Int\nmaxValue _ _ _ = error \"Knapsack.maxValue not implemented\"\n\nsolve :: [Int] -> [Int] -> Int -> Result\nsolve _ _ _ = error \"Knapsack.solve not implemented\"\n\n```\n\n## Code to evaluate (Knapsack.hs)\n```haskell\nmodule Knapsack\n  ( Result (..)\n  , maxValue\n  , solve\n  ) where\n\nimport Data.Array\n\ndata Result = Result\n  { resultMaxValue    :: Int\n  , resultSelected    :: [Int]\n  , resultTotalWeight :: Int\n  } deriving (Eq, Show)\n\n-- | DP table: row i holds best values for capacities 0..cap\n-- using only the first i items.\nbuildTable :: [(Int, Int)] -> Int -> [Array Int Int]\nbuildTable items cap = scanl step base items\n  where\n    base = listArray (0, cap) (replicate (cap + 1) 0)\n    step prev (w, v)\n      | w < 0 = prev\n      | otherwise = listArray (0, cap)\n          [ if w <= c then max (prev ! c) (prev ! (c - w) + v) else prev ! c\n          | c <- [0 .. cap]\n          ]\n\nmaxValue :: [Int] -> [Int] -> Int -> Int\nmaxValue [] _ _ = 0\nmaxValue _ _ cap | cap <= 0 = 0\nmaxValue weights values cap =\n  let n = length weights\n      vs = take n (values ++ repeat 0)\n      items = zip weights vs\n      rows = buildTable items cap\n  in last rows ! cap\n\nsolve :: [Int] -> [Int] -> Int -> Result\nsolve weights values cap\n  | null weights || cap <= 0 =\n      Result 0 (replicate n 0) 0\n  | otherwise =\n      Result best flags totalW\n  where\n    n = length weights\n    vs = take n (values ++ repeat 0)\n    items = zip weights vs\n    rows = buildTable items cap\n    tbl = listArray (0, n) rows :: Array Int (Array Int Int)\n    itemArr = listArray (1, n) items :: Array Int (Int, Int)\n    best = (tbl ! n) ! cap\n\n    -- Backtrack from the last item to the first, consing flags so the\n    -- final list is in ascending item order.\n    go :: Int -> Int -> [Int] -> [Int]\n    go i c acc\n      | i == 0 = acc\n      | otherwise =\n          let (w, _) = itemArr ! i\n              took = (tbl ! i) ! c /= (tbl ! (i - 1)) ! c\n              c' = if took then c - w else c\n          in go (i - 1) c' ((if took then 1 else 0) : acc)\n\n    flags = go n cap []\n    totalW = sum [w | (w, f) <- zip weights flags, f == 1]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SEec2QdNJF6spKczSS",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is pure and immutable. `buildTable` uses `scanl step base items` to produce DP rows as a fold over the items, and `Data.Array` handles the lookups. Backtracking is a tail-recursive `go` with an accumulator that conses flags. It would earn a 5 if the backtrack were a fold or unfold (e.g. `foldr` over indices) and the array-of-arrays were replaced by a single 2D array or a lazy-array DP.\",\"language_idiomaticity\":\"It uses `scanl`, `listArray`, list comprehensions, guards and `where`, and the `Result` record comes from the stub. Weaker points: `last rows ! cap` is partial, though safe here. The padding idiom `take n (values ++ repeat 0)` is a little hacky. `length weights` is duplicated. `if took then 1 else 0` and `f == 1` are manual flag handling. Negative weights are silently skipped with `w < 0 = prev`, which is ad hoc. A 2D `Array (Int,Int) Int` or `foldl'` with a strict step would be more idiomatic.\",\"readability\":\"The haddock comment on `buildTable` and the comment on the backtrack explain the intent. Names such as `step`, `base`, `took`, `tbl` and `itemArr` are clear and the functions are short. It loses a little because the `solve` where-block is dense, the `(tbl ! i) ! c` double indexing is noisy, and `c'` is terse. Pulling the backtrack step into a named helper would earn one more point.\",\"design\":\"Table construction is shared by `maxValue` and `solve`, which avoids duplication. The pure helper `buildTable` is separate and the DP is well factored. However, the padding of values and the zipping into `items` are duplicated in `maxValue` and `solve`. `solve` rebuilds an `Array` of rows and an item array from lists. `totalW` re-zips instead of being tracked during backtracking. A shared `prepare` helper and a 2D table would earn a 5.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":3,\"anti_patterns\":[\"duplicated input-normalisation (`take n (values ++ repeat 0)`, `zip`) in both `maxValue` and `solve`\",\"array of arrays instead of a single 2D array\",\"magic 0/1 flag conversion via `if took then 1 else 0` and `f == 1`\",\"ad hoc silent handling of negative weights\"],\"justification\":\"This is a clean, pure DP: `scanl` builds immutable `Array` rows and a tail-recursive `go` backtracks with an accumulator. The main weaknesses are the duplicated setup between `maxValue` and `solve`, the nested array-of-arrays indexing, and the manual flag handling, which together keep it from top marks. Overall it is idiomatic and readable with modest structural redundancy.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3305,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3305,
+          "model": null,
+          "output_tokens": 984,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 984,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

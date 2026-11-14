@@ -1,0 +1,103 @@
+% =============================================================================
+\chapter{Tło i prace pokrewne}
+\label{ch:background}
+% =============================================================================
+
+\section{Paradygmaty programowania}
+\label{sec:paradigms}
+
+Paradygmat programowania to sposób strukturyzowania obliczeń, który język wspiera i do którego
+zachęca~\cite{floyd1979paradigms,vanroy2004ctm}. Rozważamy cztery klasyczne paradygmaty i tam,
+gdzie to możliwe, wybieramy po dwa języki na paradygmat. Jeden z nich jest szeroko stosowany,
+a drugi jest mniej popularnym, „czystszym” przedstawicielem. Pozwala to oddzielić wpływ paradygmatu
+od wpływu popularności pojedynczego języka.
+
+\paragraph{Imperatywny (proceduralny): C i Pascal} Programy są ciągami instrukcji modyfikujących
+stan. Dane to rekordy i tablice, a przepływ sterowania opiera się na pętlach i instrukcjach
+warunkowych. W C pamięcią zarządza się ręcznie za pomocą \code{malloc}/\code{free}, więc wycieki
+i niepoprawne dostępy stanowią odrębną klasę defektów. Pascal wprowadza silniejsze typowanie
+i zarządzane tablice dynamiczne, ale zachowuje \code{New}/\code{Dispose} dla wskaźników.
+
+\paragraph{Obiektowy: Java i Smalltalk} Zachowanie znajduje się w obiektach, które hermetyzują stan
+i komunikują się za pomocą komunikatów. Java jest typowana statycznie i ma bogatą bibliotekę
+standardową. Smalltalk to typowany dynamicznie język, w którym „wszystko jest obiektem”, a nawet
+struktury sterujące (\code{ifTrue:}, \code{do:}) są komunikatami wysyłanymi do obiektów i bloków.
+
+\paragraph{Funkcyjny: Haskell i Scala} Obliczenie polega na wartościowaniu wyrażeń bez efektów
+ubocznych. Haskell jest czysty i leniwy. Brak wartości i błędy modeluje algebraicznymi typami danych
+(\code{Maybe}, \code{Either}) i preferuje zwinięcia, dopasowanie wzorców oraz trwałe struktury
+danych. Scala łączy cechy funkcyjne i obiektowe na JVM, oferując niemodyfikowalne kolekcje, klasy
+przypadków (ang.~\emph{case classes}) i \code{Option}.
+
+\paragraph{Logiczny: Prolog} Program jest zbiorem relacji (faktów i reguł), a obliczenie polega na
+poszukiwaniu dowodu za pomocą unifikacji i nawracania. Idiomatyczny Prolog używa głów klauzul do
+analizy przypadków, akumulatorów do iteracji oraz porażki (a nie wyjątków) do wyrażenia „braku
+odpowiedzi”. Odcięć i stanu globalnego używa się oszczędnie.
+
+\section{Benchmarki generowania kodu}
+\label{sec:related-benchmarks}
+
+\paragraph{Benchmarki na poziomie funkcji} HumanEval~\cite{chen2021codex} zawiera 164 ręcznie
+napisane problemy w Pythonie, z których każdy składa się z sygnatury funkcji, docstringu i średnio
+7,7 testu jednostkowego. Wprowadził metrykę pass@$k$. MBPP~\cite{austin2021mbpp} zawiera 974 krótkie
+problemy w Pythonie zebrane metodą crowdsourcingu. Oba stały się domyślnymi miarami dla modeli
+kodu. \citet{liu2023evalplus} pokazali, że ich testy są często zbyt słabe: rozszerzenie HumanEval
+o wiele dodatkowych testów (HumanEval+) wyraźnie obniża raportowane wyniki, ponieważ rozwiązania
+wyglądające wiarygodnie, lecz błędne, przestają być akceptowane.
+
+\paragraph{Benchmarki wielojęzyczne} MultiPL-E~\cite{cassano2023multiple} tłumaczy problemy i testy
+z HumanEval i MBPP na 18 kolejnych języków za pomocą kompilatorów z Pythona do każdego z języków
+docelowych. HumanEval-X~\cite{zheng2023codegeex} i MBXP~\cite{athiwaratkun2023mbxp} realizują tę
+samą ideę. Benchmarki te pokazały, że wyniki spadają wraz z ilością danych treningowych dostępnych
+dla danego języka~\cite{cassano2023multiple,cassano2024knowledge}. Problemy pozostają jednak
+przetłumaczonymi problemami z Pythona. Są to krótkie, bezstanowe funkcje na listach, napisach
+i liczbach, które rzadko wymagają projektowania specyficznego dla paradygmatu. Programowanie
+logiczne jest w nich niemal nieobecne.
+
+\paragraph{Większe jednostki i kontaminacja} ClassEval~\cite{du2023classeval} ocenia generowanie
+całych klas, a SWE-bench~\cite{jimenez2024swebench} rozwiązywanie rzeczywistych zgłoszeń z GitHuba.
+LiveCodeBench~\cite{jain2024livecodebench} z czasem dobiera nowe problemy z konkursów, aby uniknąć
+kontaminacji, czyli obecności problemów z benchmarku i ich rozwiązań w danych treningowych, co
+zawyża wyniki popularnych benchmarków~\cite{riddell2024contamination}.
+
+Nasz benchmark sytuuje się między tymi nurtami. Jego zadania są większe niż problemy HumanEval
+(kontrakty z wieloma funkcjami, struktury danych, własność pamięci), ale wystarczająco małe, by
+zaimplementować je od zera w siedmiu językach z \emph{identycznymi} testami. Według naszej wiedzy
+żaden istniejący benchmark nie utrzymuje jednocześnie stałego zadania i stałych testów we wszystkich
+czterech klasycznych paradygmatach ani nie ocenia przy tym idiomatyczności wyniku.
+
+\section{Samonaprawa z informacją zwrotną z wykonania}
+\label{sec:related-repair}
+
+Gdy wygenerowany kod zawodzi, można pokazać modelowi błąd i poprosić o poprawkę.
+Self-Debugging~\cite{chen2024selfdebug} uczy modele wyjaśniać i naprawiać swój kod na podstawie
+wyników wykonania, a Reflexion~\cite{shinn2023reflexion} pozwala agentowi przechowywać werbalną
+informację zwrotną między próbami. \citet{olausson2024selfrepair} stwierdzili, że korzyść
+z samonaprawy jest rzeczywista, lecz mniejsza, niż się często zakłada. Ogranicza ją przede wszystkim
+jakość informacji zwrotnej, a tę kontroluje właśnie program uruchamiający testy. Nasz system
+realizuje samonaprawę z informacją zwrotną z wykonania w ramach jednej konwersacji. Model widzi
+komunikaty kompilatora, logi testów i nazwy niezaliczonych testów, ale nigdy kodu testów
+(\cref{sec:repair-loop}).
+
+\section{LLM jako sędziowie}
+\label{sec:related-judge}
+
+Użycie silnego modelu LLM do oceniania wyników (ang.~\emph{LLM-as-a-judge}) skaluje ewaluację tam,
+gdzie nie istnieje odpowiedź wzorcowa. \citet{zheng2023judging} raportują zgodność między silnymi
+sędziami LLM a ludźmi porównywalną ze zgodnością między ludźmi. Dokumentują też obciążenia związane
+z pozycją, rozwlekłością i preferowaniem własnych odpowiedzi. \citet{panickssery2024selfpreference}
+pokazują, że ewaluatory LLM potrafią rozpoznawać i faworyzować własne generacje. W przypadku kodu
+ICE-Score~\cite{zhuo2024icescore} używa LLM do oceny użyteczności i poprawności funkcjonalnej bez
+wykonywania kodu. My używamy sędziego wyłącznie do tego, czego testy nie mogą zmierzyć, czyli
+idiomatyczności, czytelności i projektu, i ograniczamy go rubryką właściwą dla języka,
+ustrukturyzowaną odpowiedzią w formacie JSON i zaślepieniem (\cref{sec:judge}).
+
+\section{Języki programowania a jakość kodu}
+\label{sec:related-quality}
+
+Spór o to, czy wybór języka wpływa na jakość oprogramowania, toczył się na długo przed pojawieniem
+się LLM. \citet{ray2014largescale} raportowali niewielkie, lecz istotne związki między językami
+a commitami naprawiającymi defekty na GitHubie. Późniejsza replikacja \citet{berger2019impact}
+wykazała, że większość tych efektów znika po skorygowaniu danych i analizy statystycznej. Ta historia
+skłania do ostrożności: efekty języka łatwo pomylić z efektami projektu, danych i pomiaru, a ich
+badanie wymaga starannej statystyki. Wracamy do tej kwestii w \cref{sec:threats}.

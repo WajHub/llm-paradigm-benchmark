@@ -1,0 +1,51 @@
+=== Running benchmark for folder: test-10 ===
+gst -g `ls test-10/*.st 2>/dev/null | grep -v Tests.st | sort`
+=== START ===
+
+--- Algorithm A: Median of Medians ---
+[FAIL] Test A01 (Empty)
+[FAIL] Test A02 (Single)
+[FAIL] Test A03 (Out Of Range)
+[FAIL] Test A04 (One Group)
+[FAIL] Test A05 (Pivot Is Not Median)
+[FAIL] Test A06 (Partial Last Group)
+[FAIL] Test A07 (Many Duplicates)
+[FAIL] Test A08 (Stable Partition Order)
+[FAIL] Test A09 (All Ranks)
+[FAIL] Test A10 (Stress)
+
+--- Algorithm B: Median of Two Sorted Arrays ---
+[FAIL] Test B01 (Both Empty)
+[FAIL] Test B02 (One Empty)
+[FAIL] Test B03 (Single Each)
+[FAIL] Test B04 (Odd Total Interleaved)
+[FAIL] Test B05 (Disjoint Ranges)
+[FAIL] Test B06 (Duplicates)
+[FAIL] Test B07 (No Overflow)
+[FAIL] Test B08 (Huge Interleaved)
+[FAIL] Test B09 (Huge Unbalanced)
+[FAIL] Test B10 (Huge Duplicates)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Empty)
+ - Test A02 (Single)
+ - Test A03 (Out Of Range)
+ - Test A04 (One Group)
+ - Test A05 (Pivot Is Not Median)
+ - Test A06 (Partial Last Group)
+ - Test A07 (Many Duplicates)
+ - Test A08 (Stable Partition Order)
+ - Test A09 (All Ranks)
+ - Test A10 (Stress)
+ - Test B01 (Both Empty)
+ - Test B02 (One Empty)
+ - Test B03 (Single Each)
+ - Test B04 (Odd Total Interleaved)
+ - Test B05 (Disjoint Ranges)
+ - Test B06 (Duplicates)
+ - Test B07 (No Overflow)
+ - Test B08 (Huge Interleaved)
+ - Test B09 (Huge Unbalanced)
+ - Test B10 (Huge Duplicates)

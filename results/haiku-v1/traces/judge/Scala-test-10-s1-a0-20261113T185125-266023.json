@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:25+00:00",
+  "kind": "judge",
+  "label": "Scala-test-10-s1-a0",
+  "request_id": "req_011Ch1Rw3Ry6jsbHBJQhVJAM",
+  "duration_s": 7.9,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement order-statistics algorithms in Scala 2.11 in the object OrderStats\n(file OrderStats.scala): deterministic median-of-medians selection (BFPRT) that\nalso reports the pivots it used, and the median of two sorted sequences that\ncan only be read through a counting probe. The object already defines\nSelectResult(value: Int, pivots: Vector[Int]) and the trait SortedSource;\nimplement medianOfMedians, selectKth and medianTwoSorted.\n\nPart A - Median of medians (Ints, duplicates allowed):\n  * Lower median of a non-empty group g: the element at 0-based index\n    (g.length - 1) / 2 of g sorted ascending.\n\n- Implement `medianOfMedians(xs: Vector[Int]): Option[Int]`:\n  * None if xs is empty.\n  * Otherwise split xs IN ITS CURRENT ORDER into consecutive groups of 5\n    (xs(0..4), xs(5..9), ...; the last group may have 1-4 elements), take the\n    lower median of every group, and return Some(lower median of the list of\n    group medians). How that final median is computed does not matter, only\n    its value.\n\n- Implement `selectKth(xs: Vector[Int], k: Int): Option[SelectResult]`:\n  * k is 0-based (k = 0 is the minimum). None if k < 0 or k >= xs.length.\n  * Otherwise the result is defined by EXACTLY this procedure, starting with\n    cur = xs, pivots = empty:\n      1. If cur.length <= 5: value = (cur sorted ascending)(k); stop\n         (no pivot is recorded at this level).\n      2. p = medianOfMedians(cur); append p to pivots.\n      3. Stable three-way partition: L = the elements < p IN THEIR ORDER in cur,\n         E = the number of elements == p, G = the elements > p in their order\n         in cur.\n      4. If k < L.length: cur = L, go to 1.\n         Else if k < L.length + E: value = p; stop.\n         Else: k = k - L.length - E, cur = G, go to 1.\n  * Return Some(SelectResult(value, pivots)) with pivots in the order they were\n    chosen (top level first). value is the k-th smallest element of xs.\n  * Only these top-level pivots are recorded, never pivots used internally\n    while computing a median of medians.\n  * The pivots Vector is compared exactly. An in-place / Dutch-national-flag\n    partition that reorders elements changes the order of L and G and\n    therefore later pivots: it is wrong. Sorting xs gives the right value but\n    not the right pivots.\n\nPart B - Median of two sorted sources:\n  * trait SortedSource { def length: Int; def get(index: Int): Int }\n    A source is a read-only, sorted (non-decreasing) sequence of Ints of\n    length >= 0. Lengths can be up to 2 * 10^9 and\n    a.length + b.length <= 2147483647. The sequences are virtual (computed\n    on demand) and can only be read with get(index), 0 <= index < length.\n    Reading length is free.\n\n- Implement `medianTwoSorted(a: SortedSource, b: SortedSource): Option[Double]`:\n  * None if both sources are empty.\n  * Otherwise the median of the merged multiset of both sequences:\n    odd total -> the middle element (as a Double);\n    even total -> the arithmetic mean of the two middle elements as a Double,\n    e.g. 1 and 2 -> 1.5, -2147483648 and 2147483647 -> -0.5. The mean must not\n    overflow 32-bit arithmetic: 2147483647 and 2147483647 -> 2147483647.0.\n  * READ BUDGET: every get call counts (reading the same index again counts\n    again). The total number of get calls on both sources must be at most\n    16 * (bitlen(a.length + b.length) + 1), where bitlen(x) is the number of\n    binary digits of x (bitlen(0) = 0, bitlen(7) = 3, bitlen(2*10^9) = 31,\n    i.e. a budget of 512 reads).\n  * The test sources throw an exception when the budget is exceeded or when an\n    index outside 0..length-1 is read; that aborts the call and fails the test.\n    Do NOT catch or suppress exceptions thrown by get, do NOT copy the sources\n    into collections, and do not access the data in any other way.\n  * A linear merge is far too slow and exceeds the budget. Use binary search:\n    a partition search on the shorter source (O(log min(m, n)) reads) or the\n    k-th element by halving k (O(log(m + n)) reads).\n  * Use Long arithmetic for index computations: lengths are close to 2^31 and\n    sums like (m + n + 1) or lo + hi can overflow Int.\n\nNotes:\n  - Floating-point results are compared with a 1e-9 tolerance.\n  - The input Vector of selectKth / medianOfMedians must not be modified.\n  - Use Scala 2.11 syntax and standard library only (no Scala 3 syntax, no\n    2.12/2.13-only APIs such as LazyList or .to(List)).\n\n## Stub module given to the author (OrderStats.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject OrderStats {\n  case class SelectResult(value: Int, pivots: Vector[Int])\n\n  // Read-only sorted (non-decreasing) sequence; get(index) is 0-based, 0 <= index < length.\n  // Every get call is counted by the tests; reading length is free.\n  trait SortedSource {\n    def length: Int\n    def get(index: Int): Int\n  }\n\n  def medianOfMedians(xs: Vector[Int]): Option[Int] =\n    sys.error(\"OrderStats.medianOfMedians not implemented\")\n\n  def selectKth(xs: Vector[Int], k: Int): Option[SelectResult] =\n    sys.error(\"OrderStats.selectKth not implemented\")\n\n  def medianTwoSorted(a: SortedSource, b: SortedSource): Option[Double] =\n    sys.error(\"OrderStats.medianTwoSorted not implemented\")\n}\n\n```\n\n## Code to evaluate (OrderStats.scala)\n```scala\nobject OrderStats {\n  case class SelectResult(value: Int, pivots: Vector[Int])\n\n  // Read-only sorted (non-decreasing) sequence; get(index) is 0-based, 0 <= index < length.\n  // Every get call is counted by the tests; reading length is free.\n  trait SortedSource {\n    def length: Int\n    def get(index: Int): Int\n  }\n\n  private def lowerMedian(group: Vector[Int]): Int = {\n    val sorted = group.sorted\n    sorted((sorted.length - 1) / 2)\n  }\n\n  def medianOfMedians(xs: Vector[Int]): Option[Int] =\n    if (xs.isEmpty) None\n    else Some(lowerMedian(xs.grouped(5).map(lowerMedian).toVector))\n\n  def selectKth(xs: Vector[Int], k: Int): Option[SelectResult] =\n    if (k < 0 || k >= xs.length) None\n    else {\n      @annotation.tailrec\n      def loop(cur: Vector[Int], kk: Int, pivots: Vector[Int]): SelectResult =\n        if (cur.length <= 5) SelectResult(cur.sorted.apply(kk), pivots)\n        else {\n          val p = medianOfMedians(cur).get\n          val l = cur.filter(_ < p)\n          val e = cur.count(_ == p)\n          val g = cur.filter(_ > p)\n          val np = pivots :+ p\n          if (kk < l.length) loop(l, kk, np)\n          else if (kk < l.length + e) SelectResult(p, np)\n          else loop(g, kk - l.length - e, np)\n        }\n      Some(loop(xs, k, Vector.empty))\n    }\n\n  def medianTwoSorted(a0: SortedSource, b0: SortedSource): Option[Double] = {\n    val total: Long = a0.length.toLong + b0.length.toLong\n    if (total == 0L) None\n    else {\n      val (a, b) = if (a0.length <= b0.length) (a0, b0) else (b0, a0)\n      val m: Long = a.length.toLong\n      val n: Long = b.length.toLong\n      val half: Long = (total + 1L) / 2L\n\n      def readA(i: Long): Long = a.get(i.toInt).toLong\n      def readB(j: Long): Long = b.get(j.toInt).toLong\n\n      // Binary search for the smallest i in [0, m] such that a(i) >= b(j-1), j = half - i.\n      var lo = 0L\n      var hi = m\n      while (lo < hi) {\n        val mid = (lo + hi) / 2L\n        val j = half - mid\n        if (mid < m && j > 0L && readA(mid) < readB(j - 1L)) lo = mid + 1L\n        else hi = mid\n      }\n\n      val i = lo\n      val j = half - i\n\n      val leftA = if (i == 0L) Long.MinValue else readA(i - 1L)\n      val leftB = if (j == 0L) Long.MinValue else readB(j - 1L)\n      val rightA = if (i == m) Long.MaxValue else readA(i)\n      val rightB = if (j == n) Long.MaxValue else readB(j)\n\n      val maxLeft = math.max(leftA, leftB)\n      val minRight = math.min(rightA, rightB)\n\n      if (total % 2L == 1L) Some(maxLeft.toDouble)\n      else Some((maxLeft.toDouble + minRight.toDouble) / 2.0)\n    }\n  }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rw3ja3oJNJmirGoE9N",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Parts A is written functionally: `lowerMedian` is a pure helper, `medianOfMedians` uses `grouped(5).map(lowerMedian)`, and `selectKth` uses an immutable `@tailrec loop(cur, kk, pivots)` with `filter`/`count` for the stable partition. Part B uses `var lo`/`var hi` with a `while` loop, which is local and justified for a binary search, but a tail-recursive helper would be more in the functional style. That would earn the 5.\",\"language_idiomaticity\":\"Uses `Option`, `grouped`, `@annotation.tailrec`, and `Vector` combinators, all compatible with 2.11. Small departures: `medianOfMedians(cur).get` on an Option known to be non-empty, `cur.sorted.apply(kk)` instead of `cur.sorted(kk)`, and the `(a, b)` swap by tuple pattern is fine. The `Some(...)` branches at the end of `medianTwoSorted` could be a single `Some(if ... else ...)`. The `.get` and the `var` loop keep it at 4.\",\"readability\":\"Names are clear (`lowerMedian`, `maxLeft`, `minRight`, `leftA`/`rightB`), and there is a helpful comment on the binary search invariant. The `medianTwoSorted` body is a long block with nested local defs and sentinel handling, but still easy to follow. Splitting the partition search into a named function would earn a 5.\",\"design\":\"Good decomposition for Part A: shared `lowerMedian`, reuse of `medianOfMedians` in `selectKth`. Partition is stable and single-pass per filter (three traversals, minor inefficiency). `medianTwoSorted` puts the search, sentinel handling and mean computation in one function rather than separate helpers; it does use Long arithmetic and swaps to search the shorter source. Extracting the partition search and the result combination into private helpers would improve it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"mutable var/while loop for binary search instead of tail recursion\",\"Option.get on a known non-empty result\",\"sentinel Long.MinValue/MaxValue instead of Option\"],\"justification\":\"Part A is clean functional Scala: `grouped(5).map(lowerMedian)` and an immutable `@tailrec loop` with stable `filter` partitioning that reproduces the specified procedure. Part B is a correct-looking partition binary search with Long arithmetic but written with `var lo/hi` and a `while` loop, and everything lives in a single long function. Minor nits like `.get` and `.sorted.apply(kk)` keep it from a top score.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5182,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5182,
+          "model": null,
+          "output_tokens": 932,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 932,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

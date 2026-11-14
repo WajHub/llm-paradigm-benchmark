@@ -1,0 +1,36 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-8",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Most of the code is functional. `mstParents` uses a `@tailrec loop` with immutable `Vector` and `Map`. `doubleTree` builds the preorder with a recursive `pre` and `flatMap`. `oddVertices`, `mstWeight` and the shortcut are folds over immutable values. `matchingPairs` mutates a `HashMap` memo, which is defensible for DP. The Hierholzer step in `christofides` is a `while` loop with `Array` and `mutable.Stack` and a `ListBuffer`. It is local but imperative, and a tail-recursive version over an immutable adjacency structure would earn another point. The Prim tie-breaking relies on lexicographic tuple `.min`, which is neat.",
+    "language_idiomaticity": "The code uses tuple pattern matching in folds, `collect` with guards, `Option` for the empty input, `getOrElse`, `groupBy` and `@annotation.tailrec`. It stays within Scala 2.11. Minor departures: `tree.contains` on a Vector inside `filterNot` is O(n); `(0 until n).map {...}.toVector` mixes ranges and vectors; `mutable.Stack` is used; `acc._1` access sits next to tuple destructuring; `tour.length` is shadowed as `n` in `tourCost`. Overall it is natural Scala.",
+    "readability": "Names such as `mstParents`, `oddVertices`, `matchingPairs`, `tourCost` and `adj` are clear, and short comments mark Prim, the matching DP and Hierholzer. The `val (_, v, u) = ... .min` Prim step is dense and relies on tuple ordering for the tie-breaks without a comment explaining it. `matchingPairs` has a nested fold with a memo match and returns a tuple of cost and list, which takes some effort to read. The `christofides` body is long and mixes graph construction, Euler circuit and shortcut, which hurts a little.",
+    "design": "Shared helpers (`dist`, `mstParents`, `tourCost`, `oddVertices`, `matchingPairs`) are reused across the four public functions, so there is no duplication. The memoised bitmask DP returns both cost and pairs, so `matchingWeight` and `christofides` share it. Weaknesses: `christofides` is a monolith and the Euler circuit is not extracted into its own function; the adjacency construction is O(n·E); Prim is O(n^3) (harmless for n<=40); the parent map is converted to edge vectors ad hoc rather than through a small graph type."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "imperative while loops with mutable Array/Stack/ListBuffer for Hierholzer instead of a tail-recursive version",
+    "mutable HashMap memo in matchingPairs",
+    "Euler circuit logic inlined in christofides rather than extracted into a helper",
+    "tree.contains on a Vector inside the Prim loop (O(n) membership test)"
+  ],
+  "justification": "The solution is largely functional: Prim runs as a `@tailrec` loop over immutable collections, the DFS preorder is a recursive `flatMap`, and the shortcut is a `foldLeft` with a `Set`. The weakest part is the Hierholzer implementation in `christofides`, which uses `while` loops, mutable arrays and a stack, and which sits inside a long function instead of its own helper. Decomposition into shared helpers is good, and naming is clear, but the dense Prim step and the monolithic `christofides` keep the scores at 4 and 3.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RwAUdfc52dboZumuoT",
+  "judge_s": 9.9,
+  "input_tokens": 5851,
+  "output_tokens": 1227,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

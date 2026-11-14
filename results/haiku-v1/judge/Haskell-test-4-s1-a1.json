@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 1,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and immutable. `buildTable` uses `scanl step base items` to produce DP rows as a fold over the items, and `Data.Array` handles the lookups. Backtracking is a tail-recursive `go` with an accumulator that conses flags. It would earn a 5 if the backtrack were a fold or unfold (e.g. `foldr` over indices) and the array-of-arrays were replaced by a single 2D array or a lazy-array DP.",
+    "language_idiomaticity": "It uses `scanl`, `listArray`, list comprehensions, guards and `where`, and the `Result` record comes from the stub. Weaker points: `last rows ! cap` is partial, though safe here. The padding idiom `take n (values ++ repeat 0)` is a little hacky. `length weights` is duplicated. `if took then 1 else 0` and `f == 1` are manual flag handling. Negative weights are silently skipped with `w < 0 = prev`, which is ad hoc. A 2D `Array (Int,Int) Int` or `foldl'` with a strict step would be more idiomatic.",
+    "readability": "The haddock comment on `buildTable` and the comment on the backtrack explain the intent. Names such as `step`, `base`, `took`, `tbl` and `itemArr` are clear and the functions are short. It loses a little because the `solve` where-block is dense, the `(tbl ! i) ! c` double indexing is noisy, and `c'` is terse. Pulling the backtrack step into a named helper would earn one more point.",
+    "design": "Table construction is shared by `maxValue` and `solve`, which avoids duplication. The pure helper `buildTable` is separate and the DP is well factored. However, the padding of values and the zipping into `items` are duplicated in `maxValue` and `solve`. `solve` rebuilds an `Array` of rows and an item array from lists. `totalW` re-zips instead of being tracked during backtracking. A shared `prepare` helper and a 2D table would earn a 5."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 3,
   "anti_patterns": [
-    "duplicated setup logic (padding values, zipping items, building table) in maxValue and solve",
-    "w < 0 silently skipped in buildTable, a special case without clear handling",
-    "maxValue could reuse solve or a shared helper rather than repeating the table-building preamble",
-    "padding values with `values ++ repeat 0` silently masks mismatched input lengths"
+    "duplicated input-normalisation (`take n (values ++ repeat 0)`, `zip`) in both `maxValue` and `solve`",
+    "array of arrays instead of a single 2D array",
+    "magic 0/1 flag conversion via `if took then 1 else 0` and `f == 1`",
+    "ad hoc silent handling of negative weights"
   ],
-  "justification": "The DP is expressed purely with `scanl` over items and immutable `Array` rows built from list comprehensions, which is a clean functional formulation. Backtracking is a tail-recursive helper that conses flags, with a type signature and a clear comment. Weaknesses are the duplicated preamble in `maxValue` and `solve` (padding, zipping, table building), the odd `w < 0` handling, and the use of `last rows` with an `Array` of arrays rebuilt from the list; a shared helper would improve the design. Totality is mostly kept, and the use of `!` is safe given the construction.",
+  "justification": "This is a clean, pure DP: `scanl` builds immutable `Array` rows and a tail-recursive `go` backtracks with an accumulator. The main weaknesses are the duplicated setup between `maxValue` and `solve`, the nested array-of-arrays indexing, and the manual flag handling, which together keep it from top marks. Overall it is idiomatic and readable with modest structural redundancy.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 2968,
-  "output_tokens": 365,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SEdy5Ei1SS87pYj1nH",
+  "judge_s": 8.6,
+  "input_tokens": 3305,
+  "output_tokens": 984,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

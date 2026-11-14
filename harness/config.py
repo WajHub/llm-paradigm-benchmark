@@ -42,6 +42,17 @@ JUDGE_FALLBACK = True               # retry a refused request on Anthropic's fal
 CALIBRATION_REPEAT = 2              # judge.py --calibrate: judgements per solution
 CALIBRATION_SAMPLES = 3             # judge.py --calibrate: run solutions included
 
+# ----------------------------------------------------------------------------- tracing
+
+# Claude 5.x models return their thinking EMPTY unless asked ("omitted" is the API default).
+# "summarized" returns a readable summary of the reasoning, saved next to each answer and in the
+# judge's results. It does not change the answers or the cost: thinking is billed either way.
+THINKING_DISPLAY = "summarized"     # "summarized" | "omitted"
+
+# Save every API call (request, response, reasoning, request id, timing, tokens) to
+# results/<RUN_ID>/traces/ with an index in results/<RUN_ID>/traces.jsonl.
+TRACE_ENABLED = True
+
 # ----------------------------------------------------------------------------- report
 
 REPORT_ENABLED = True               # write results/<RUN_ID>/report.md after the run

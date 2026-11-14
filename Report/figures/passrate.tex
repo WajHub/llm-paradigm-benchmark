@@ -1,0 +1,33 @@
+% Share of tests passed at the first and at the final attempt, per language (dumbbell plot).
+% Data: results/haiku-v1/summary.csv (first_n_pass, final_n_pass; 200 tests per language).
+\begin{tikzpicture}
+\begin{axis}[
+  reportchart,
+  width=0.86\textwidth, height=6.4cm,
+  xmin=65, xmax=102, ymin=0.4, ymax=7.6,
+  xtick={70,75,80,85,90,95,100},
+  xlabel={Zaliczone testy (\%)},
+  ytick={1,...,7},
+  yticklabels={Prolog (log.), Scala (funk.), Haskell (funk.), Smalltalk (ob.), Java (ob.), Pascal (imp.), C (imp.)},
+  xmajorgrids=true, ymajorgrids=false,
+  axis x line*=bottom, axis y line*=left,
+  y axis line style={draw=none}, ytick style={draw=none},
+  legend style={at={(0.0,1.02)}, anchor=south west, legend columns=2, /tikz/every even column/.append style={column sep=10pt}},
+  clip=false,
+]
+  % connectors (first -> final)
+  \foreach \y/\a/\b in {7/100/100, 6/90.0/98.0, 5/70.5/100, 4/85.5/96.0, 3/78.0/99.5, 2/99.0/100, 1/91.5/94.0}{
+    \edef\temp{\noexpand\draw[draw=neutral, line width=2pt] (axis cs:\a,\y) -- (axis cs:\b,\y);}
+    \temp
+  }
+  \addplot[only marks, mark=*, mark size=3.4pt, mark options={fill=seq250, draw=white, line width=0.8pt}]
+    coordinates {(100,7) (90.0,6) (70.5,5) (85.5,4) (78.0,3) (99.0,2) (91.5,1)};
+  \addlegendentry{pierwsza próba}
+  \addplot[only marks, mark=*, mark size=3.4pt, mark options={fill=seq600, draw=white, line width=0.8pt}]
+    coordinates {(100,7) (98.0,6) (100,5) (96.0,4) (99.5,3) (100,2) (94.0,1)};
+  \addlegendentry{po samonaprawie (końcowo)}
+  % selective direct labels: the two largest repair gains
+  \node[font=\scriptsize, text=inksec, anchor=south] at (axis cs:70.5,5.18) {70,5};
+  \node[font=\scriptsize, text=inksec, anchor=south] at (axis cs:78.0,3.18) {78,0};
+\end{axis}
+\end{tikzpicture}

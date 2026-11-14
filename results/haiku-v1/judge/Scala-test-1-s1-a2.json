@@ -6,20 +6,29 @@
   "sample": 1,
   "attempt": 2,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is functional: immutable Vectors and Lists, the monotone-chain hull built with `foldLeft(List.empty[Point])(pushHull)` where `pushHull` is a pure pattern-matching recursion, and no `var` or loops. The Minkowski sum is a for-comprehension over Option and Vectors. A 5 would need little more; the `insideConvex`/`edgesOf` index-modulo edge construction is slightly imperative in flavour, which holds this to a 4.",
+    "language_idiomaticity": "It uses Option for-comprehension with `=` bindings, `case class.copy`, `exists`, `forall`, tuple pattern matching in `{ case (a, b) => ... }`, and named arguments, all natural Scala. Minor points: `poly.indices.map(i => (poly(i), poly((i+1)%n))).toVector` could be `poly.zip(poly.tail :+ poly.head)`; `lower.reverse.init` is a bit cryptic. Overall a solid 4.",
+    "readability": "Helper names (`cross`, `sign`, `onBox`, `segmentsIntersect`, `insideConvex`, `pushHull`, `convexHull`) are clear and each function is short. The `Eps` constant is named. There are no comments explaining the CSpace reduction (obstacle ⊕ −robot, ray from origin to velocity) or the hull stitching, which would help a reader. Hence 4.",
+    "design": "Good decomposition: geometric primitives, hull, Minkowski sum, and collision reuse `calculateCleanMinkowskiSum` through reflection of the robot. Collision is correctly framed as segment-vs-CSpace-polygon, with the containment case handled separately. Weaknesses: the Minkowski sum computes the full O(nm) point cloud rather than merging edges (acceptable given the task's 'point cloud' wording), and the hull uses `<= 0` without Eps, mixing tolerance policies. Overall a 4."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "Option for-comprehension mixes `=` bindings, which is slightly unusual and hurts clarity",
-    "Degenerate hulls (fewer than 3 points) are not handled explicitly in collision checks",
-    "Edge construction uses index-based access with modulo instead of zip/sliding"
+    "edge construction via index/modulo arithmetic instead of zip with rotated vector",
+    "inconsistent epsilon use (hull uses exact `<= 0`, others use Eps)"
   ],
-  "justification": "The solution is mostly pure and immutable. The Minkowski sum is built from the vertex cross-product, then reduced with a monotone-chain hull implemented as `foldLeft` over a recursive `pushHull` on a List stack. Option is handled with a for-comprehension and pattern matching, and the collision check uses the Minkowski difference with a segment-versus-polygon test. Small weaknesses: `edgesOf` indexes with modulo (could use `zip` with a rotated vector), the `sums = ...` and `hull = ...` bindings in the for-comprehension are slightly awkward, and there are no `@tailrec` annotations. Helpers are well decomposed and private, with sensible names, and the epsilon tolerance is handled consistently via `sign`.",
+  "justification": "A clean, immutable, expression-oriented solution: the hull is a fold over a pure recursive `pushHull`, the sum is an Option/Vector for-comprehension, and collision reuses the Minkowski sum with the reflected robot. Small departures include index-based `edgesOf`, no explanatory comments for the CSpace trick, and inconsistent tolerance handling. Overall it is idiomatic with only minor polish needed.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3938,
-  "output_tokens": 400,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SJ17Pf63rTF5F22qim",
+  "judge_s": 8.0,
+  "input_tokens": 4275,
+  "output_tokens": 936,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

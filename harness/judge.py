@@ -7,6 +7,7 @@ Examples:
     python harness/judge.py --calibrate       # stability check: same code judged twice
     python harness/judge.py                   # attempts selected by config.JUDGE_WHICH
     python harness/judge.py --which both      # first and final attempt
+    python harness/judge.py --rejudge         # redo judgements from an older judge version
 """
 
 from __future__ import annotations
@@ -24,21 +25,34 @@ import llm
 import prompts
 import store
 import tasks
+import tracing
 from tasks import LANGUAGES, Task
 
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 RUBRIC = Path(__file__).with_name("rubrics.md")
 
 CRITERIA = ["paradigm_idiomaticity", "language_idiomaticity", "readability", "design"]
+# Version 2 adds a rationale per criterion, written before the scores. Rows without
+# "judge_version" are version 1 (one overall justification only).
+JUDGE_VERSION = 2
 _SCORE = {"type": "integer", "enum": [1, 2, 3, 4, 5]}
+# Property order matters: the model writes the rationale first and scores after it.
 SCHEMA = {
     "type": "object",
     "properties": {
+        "rationale": {
+            "type": "object",
+            "description": "Per criterion: the concrete code (names, constructs) behind the score and "
+                           "what would earn one point more, or why it already deserves a 5.",
+            "properties": {c: {"type": "string"} for c in CRITERIA},
+            "required": CRITERIA,
+            "additionalProperties": False,
+        },
         **{c: _SCORE for c in CRITERIA},
         "anti_patterns": {"type": "array", "items": {"type": "string"}},
-        "justification": {"type": "string"},
+        "justification": {"type": "string", "description": "Overall summary of the assessment."},
     },
-    "required": [*CRITERIA, "anti_patterns", "justification"],
+    "required": ["rationale", *CRITERIA, "anti_patterns", "justification"],
     "additionalProperties": False,
 }
 
@@ -68,7 +82,12 @@ def rubric_for(lang: str) -> str:
 def build_messages(task: Task, code: str, code_name: str) -> tuple[str, str]:
     system = (f"You are an expert reviewer of {task.lang} code and of the {task.paradigm} programming "
               f"paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric "
-              f"below and answer only with the requested JSON.\n\n{rubric_for(task.lang)}")
+              f"below and answer only with the requested JSON.\n\n"
+              f"Before the scores, write a rationale for each criterion: point to the concrete code that "
+              f"decided the score (function, type or predicate names, specific constructs) and say what "
+              f"would have earned one point more, or why the code already deserves a 5. A reader must be "
+              f"able to check every score against the code from its rationale alone.\n\n"
+              f"{rubric_for(task.lang)}")
     tag = FENCE_TAGS[task.lang]
     contract = task.contract.read_text(encoding="utf-8")
     if task.contract.name != task.target:
@@ -85,30 +104,33 @@ def build_messages(task: Task, code: str, code_name: str) -> tuple[str, str]:
     return system, user
 
 
-def judge_code(client, model: str, effort: str, task: Task, code: str, code_name: str) -> dict:
+def judge_code(client, model: str, effort: str, task: Task, code: str, code_name: str,
+               trace_ctx: tuple[Path, str, str] | None = None) -> dict:
     system, user = build_messages(task, code, code_name)
     request = dict(
         model=model,
         max_tokens=config.JUDGE_MAX_TOKENS,
-        thinking={"type": "adaptive"},
+        thinking={"type": "adaptive", "display": config.THINKING_DISPLAY},
         output_config={"effort": effort, "format": {"type": "json_schema", "schema": SCHEMA}},
         system=system,
         messages=[{"role": "user", "content": user}],
     )
     # Server-side fallback re-runs a refused request on another model; Haiku models do not support it.
     if config.JUDGE_FALLBACK and not model.startswith("claude-haiku"):
-        stream = client.beta.messages.stream(betas=[FALLBACK_BETA], fallbacks="default", **request)
+        request |= {"betas": [FALLBACK_BETA], "fallbacks": "default"}
+        open_stream = client.beta.messages.stream
     else:
-        stream = client.messages.stream(**request)
-    with stream as s:
-        response = s.get_final_message()
+        open_stream = client.messages.stream
+    response, request_id, duration = tracing.stream_message(open_stream, request, trace_ctx)
     if response.stop_reason in ("refusal", "max_tokens"):
-        raise RuntimeError(f"judge stopped with {response.stop_reason}")
+        raise RuntimeError(f"judge stopped with {response.stop_reason} (request {request_id})")
     data = json.loads(llm.response_text(response))
     for c in CRITERIA:
         if data.get(c) not in (1, 2, 3, 4, 5):
             raise ValueError(f"invalid score {c}={data.get(c)!r}")
-    return data | {"judge_model": response.model, "judge_effort": effort, **llm.usage_dict(response.usage)}
+    return data | {"judge_model": response.model, "judge_effort": effort, "judge_version": JUDGE_VERSION,
+                   "judge_reasoning": tracing.thinking_text(response), "request_id": request_id,
+                   "judge_s": duration, **llm.usage_dict(response.usage)}
 
 
 def judge_items(run_dir: Path, which: str) -> list[dict]:
@@ -133,18 +155,24 @@ def _name(it: dict) -> str:
     return f"{it['task'].lang}-{it['task'].test}-s{it['sample']}-a{it['attempt']}.json"
 
 
-def pending_items(run_dir: Path, which: str) -> list[dict]:
-    return [it for it in judge_items(run_dir, which) if not (run_dir / "judge" / _name(it)).exists()]
+def pending_items(run_dir: Path, which: str, rejudge: bool = False) -> list[dict]:
+    """Attempts without a judge file; with `rejudge`, also those judged by an older judge version."""
+    def done(it: dict) -> bool:
+        path = run_dir / "judge" / _name(it)
+        return path.exists() and (not rejudge or store.read_json(path).get("judge_version", 1) >= JUDGE_VERSION)
+    return [it for it in judge_items(run_dir, which) if not done(it)]
 
 
-def run_judging(run_dir: Path, client, model: str, effort: str, which: str, workers: int) -> int:
+def run_judging(run_dir: Path, client, model: str, effort: str, which: str, workers: int,
+                rejudge: bool = False) -> int:
     out_dir = run_dir / "judge"
-    todo = pending_items(run_dir, which)
+    todo = pending_items(run_dir, which, rejudge)
     log(f"Judging {len(todo)} solutions with {model} (effort {effort}, attempts: {which})")
 
     def work(it: dict) -> dict:
         task = it["task"]
-        result = judge_code(client, model, effort, task, it["code_path"].read_text(encoding="utf-8"), task.target)
+        result = judge_code(client, model, effort, task, it["code_path"].read_text(encoding="utf-8"), task.target,
+                            trace_ctx=(run_dir, "judge", _name(it).removesuffix(".json")))
         row = {"run_id": run_dir.name, "lang": task.lang, "paradigm": task.paradigm, "test": task.test,
                "sample": it["sample"], "attempt": it["attempt"], "category": it["category"]} | result
         store.write_json(out_dir / _name(it), row)
@@ -169,8 +197,39 @@ def run_judging(run_dir: Path, client, model: str, effort: str, which: str, work
 
     rows = [store.read_json(p) for p in sorted(out_dir.glob("*.json"))] if out_dir.exists() else []
     store.write_jsonl(run_dir / "judge.jsonl", rows)
-    log(f"judge.jsonl: {len(rows)} rows, {errors} errors")
+    review = write_review(run_dir, rows)
+    log(f"judge.jsonl: {len(rows)} rows, {errors} errors. Why each score: {review}")
     return 1 if errors else 0
+
+
+def write_review(run_dir: Path, rows: list[dict]) -> Path:
+    """judge_review.md: every judged solution with its scores and the judge's reasons, to read through."""
+    short = {c: c.split("_")[0] for c in CRITERIA}
+    md = [f"# Judge review: {run_dir.name}", "",
+          "Scores 1-5 per criterion with the judge's reason for each. *Reasoning summary* is the judge's "
+          "own summarized thinking before it answered. Judge version 1 rows have no per-criterion rationale "
+          "(rerun `python harness/judge.py --rejudge` to get it).", ""]
+    for r in sorted(rows, key=lambda r: (r["lang"], int(r["test"].split("-")[1]), r["sample"], r["attempt"])):
+        ext = tasks.EXTENSIONS[r["lang"]]
+        code = f"{r['lang']}/{r['test']}/sample-{r['sample']}/attempt-{r['attempt']}/solution{ext}"
+        mean = sum(r[c] for c in CRITERIA) / len(CRITERIA)
+        md += [f"## {r['lang']} {r['test']} (sample {r['sample']}, attempt {r['attempt']}): mean {mean:.2f}", "",
+               f"Code: [{code}]({code}) · tests: {r['category']} · judge: {r['judge_model']} "
+               f"v{r.get('judge_version', 1)}" + (f" · request `{r['request_id']}`" if r.get("request_id") else ""), "",
+               "| criterion | score | why |", "|---|---|---|"]
+        rationale = r.get("rationale") or {}
+        for c in CRITERIA:
+            why = " ".join(rationale.get(c, "").split()).replace("|", "\\|") or "(not recorded)"
+            md.append(f"| {short[c]} | {r[c]} | {why} |")
+        md += ["", f"**Overall:** {r['justification']}", ""]
+        if r["anti_patterns"]:
+            md += ["**Anti-patterns:**", *[f"- {a}" for a in r["anti_patterns"]], ""]
+        if r.get("judge_reasoning"):
+            md += ["<details><summary>Reasoning summary</summary>", "", r["judge_reasoning"].strip(), "",
+                   "</details>", ""]
+    path = run_dir / "judge_review.md"
+    path.write_text("\n".join(md), encoding="utf-8", newline="\n")
+    return path
 
 
 def calibration_items(run_dir: Path, samples: int) -> list[tuple[str, Task, str]]:
@@ -190,7 +249,8 @@ def calibrate(run_dir: Path, client, model: str, effort: str, repeat: int, sampl
     jobs = [(label, task, code) for label, task, code in items for _ in range(repeat)]
     results: dict[str, list[dict]] = {}
     with ThreadPoolExecutor(workers) as pool:
-        futures = {pool.submit(judge_code, client, model, effort, task, code, task.target): label
+        futures = {pool.submit(judge_code, client, model, effort, task, code, task.target,
+                               (run_dir, "calibration", label.replace(" ", "-"))): label
                    for label, task, code in jobs}
         for fut in as_completed(futures):
             results.setdefault(futures[fut], []).append(fut.result())
@@ -221,6 +281,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--effort", default=config.JUDGE_EFFORT, choices=["low", "medium", "high", "xhigh", "max"])
     p.add_argument("--workers", type=int, default=config.WORKERS)
     p.add_argument("--calibrate", action="store_true", help="stability check instead of judging the run")
+    p.add_argument("--rejudge", action="store_true",
+                   help=f"judge again solutions judged by an older judge version (now v{JUDGE_VERSION})")
     p.add_argument("--yes", action="store_true", help="do not ask before making API calls")
     args = p.parse_args(sys.argv[1:] if argv is None else argv)
 
@@ -232,7 +294,7 @@ def main(argv: list[str] | None = None) -> int:
         calls = len(calibration_items(run_dir, config.CALIBRATION_SAMPLES)) * config.CALIBRATION_REPEAT
         what = f"Calibration of {args.model}"
     else:
-        calls = len(pending_items(run_dir, args.which))
+        calls = len(pending_items(run_dir, args.which, args.rejudge))
         what = f"Judging {run_dir.name} with {args.model}"
     estimate = llm.format_cost(llm.estimate_cost(args.model, calls, config.ESTIMATE_TOKENS_JUDGE))
     llm.confirm_api_use([f"{what}: {calls} API calls, estimated {estimate}"], assume_yes=args.yes)
@@ -240,7 +302,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.calibrate:
         return calibrate(run_dir, client, args.model, args.effort, config.CALIBRATION_REPEAT,
                          config.CALIBRATION_SAMPLES, args.workers)
-    return run_judging(run_dir, client, args.model, args.effort, args.which, args.workers)
+    return run_judging(run_dir, client, args.model, args.effort, args.which, args.workers, args.rejudge)
 
 
 if __name__ == "__main__":

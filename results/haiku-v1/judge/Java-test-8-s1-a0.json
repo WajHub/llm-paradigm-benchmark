@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-8",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Behaviour is split into private nested classes with state and methods: SpanningTree (edges, adj, degree, preorder, oddDegreeVertices), MinMatching (solve, pairs, minCost) and EulerCircuit. The public methods just orchestrate them. A point is lost because EulerCircuit is a class with only a static method (a function holder), SpanningTree exposes package-private mutable fields (weight, edges), and the outer class keeps static helpers dist/tourCost instead of a Point or Graph abstraction. A 5 would model points and edges as small types and keep the nested classes' state encapsulated.",
+    "language_idiomaticity": "Uses generics without raw types, @Override, final nested classes, List/ArrayList, Collections.sort and reverse, IntStream.range(...).filter(...).toArray(), and Integer.numberOfTrailingZeros for the bitmask DP. Departures: the fully qualified java.util.stream.IntStream inline instead of an import, a List<Integer> used as the Euler stack instead of Deque/ArrayDeque, edges as int[] pairs, and a memo array with -1 sentinels. Using ArrayDeque and an import would earn a 5.",
+    "readability": "Names are clear (SpanningTree, MinMatching, EulerCircuit, oddDegreeVertices, preorder, tourCost) and each method is short. Javadoc comments are brief and useful, e.g. 'Minimum cost to pair all vertices not contained in mask'. Weaker points are the `found` flag loop in pairs(), which is a little awkward, the long SpanningTree.of with its three inner loops, and the stack manipulation via get(size-1)/remove(size-1). Splitting Prim's steps into helpers would improve it.",
+    "design": "Decomposition is good: MST construction is shared by all four public methods, matching reconstruction reuses the memoised DP, and Euler circuit and shortcutting are separate. Prim's tie-breaking is handled explicitly: the smallest-index parent comes from scanning u in ascending order, and the adjacency lists are sorted for the preorder. Weaknesses: SpanningTree.of recomputes distances with a repeated O(n) scan, and the SpanningTree is rebuilt in each method (acceptable). The shortcutting is inline in christofides rather than in its own method, and there is duplicated edge-index bookkeeping. Overall it is clean and appropriate for the task."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "List<Integer> used as a stack instead of Deque/ArrayDeque",
+    "Edges represented as raw int[] pairs rather than a small type",
+    "Fully qualified java.util.stream.IntStream inline instead of an import",
+    "Static-only EulerCircuit class acting as a function holder",
+    "Boolean `found` flag loop in MinMatching.pairs()"
+  ],
+  "justification": "The solution is well decomposed into SpanningTree, MinMatching and EulerCircuit nested classes, with the public methods orchestrating them and sharing the MST. It uses standard collections, generics and a streams call where natural, and handles the tie-breaking rules correctly through the ordered parent scan and sorted adjacency lists. Minor departures are the List-as-stack, int[] edges, the inline fully qualified stream import and the `found` flag loop in pairs().",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RtoiuHtpNH33m9KRVs",
+  "judge_s": 9.7,
+  "input_tokens": 6641,
+  "output_tokens": 1158,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:19+00:00",
+  "kind": "judge",
+  "label": "Scala-test-6-s1-a0",
+  "request_id": "req_011Ch1SJgN3kq3hy5xKfQY24",
+  "duration_s": 8.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement a 9x9 Sudoku validator and solver in Scala in the object Sudoku\n(file Sudoku.scala). Implement isValid, candidates, solve and countSolutions.\n\nBoard representation:\n  * A board is a Vector[Int] of 81 cells in row-major order:\n    index = row * 9 + col, with row and col 0-based (0..8).\n  * 0 means an empty cell; 1..9 are filled cells.\n  * The nine 3x3 boxes start at rows/columns 0, 3 and 6\n    (the box of (row, col) starts at (row / 3 * 3, col / 3 * 3)).\n\n- Implement `isValid(grid: Vector[Int]): Boolean`: Return true if and only if\n  * grid has exactly 81 cells,\n  * every cell is in 0..9, and\n  * no digit 1..9 appears more than once in any row, any column or any of the\n    nine 3x3 boxes. Zeros are ignored (an all-zero board is valid).\n  Otherwise return false (wrong length, value outside 0..9, or a duplicate).\n  A complete, correct board is valid. Validity does NOT imply solvability.\n\n- Implement `candidates(grid: Vector[Int], row: Int, col: Int): List[Int]`:\n  Precondition: grid has 81 cells and row, col are in 0..8.\n  * If grid(row * 9 + col) != 0 (the cell is filled), return Nil.\n  * Otherwise return the digits 1..9 that do not appear in that row, that\n    column, or that cell's 3x3 box, in ascending order.\n  Only that row, column and box matter; the rest of the board does not have to\n  be valid.\n\n- Implement `solve(grid: Vector[Int]): Option[Vector[Int]]`:\n  * Return None if isValid(grid) is false or if the board has no completion.\n  * Otherwise return Some(new board): 81 cells, no zeros, valid, and every\n    non-zero cell of the input unchanged. If the input is already complete and\n    valid, return Some of an equal board.\n  * The input must not be modified.\n  * If several solutions exist, any one of them is acceptable.\n\n- Implement `countSolutions(grid: Vector[Int], limit: Int): Int`: Return the\n  number of distinct complete valid boards extending grid, but stop searching\n  as soon as `limit` solutions have been found, so the result is\n  min(total number of solutions, limit).\n  * Return 0 if limit <= 0 or isValid(grid) is false.\n  * Example: the all-zero board with limit 2 gives 2 (the search must stop early;\n    it can never enumerate all solutions of an empty board).\n\nSearch requirements:\n  - Use recursive backtracking that always branches on the empty cell with the\n    FEWEST candidates (MRV heuristic). An empty cell with zero candidates is a\n    dead end: backtrack immediately.\n  - Naive backtracking that fills cells in row-major order is too slow for some\n    of the test puzzles. Additional constraint propagation is allowed.\n  - Solving only by forced moves (cells with a single candidate) is not enough;\n    hard puzzles require search.\n\n## Stub module given to the author (Sudoku.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject Sudoku {\n  def isValid(grid: Vector[Int]): Boolean =\n    sys.error(\"Sudoku.isValid not implemented\")\n\n  def candidates(grid: Vector[Int], row: Int, col: Int): List[Int] =\n    sys.error(\"Sudoku.candidates not implemented\")\n\n  def solve(grid: Vector[Int]): Option[Vector[Int]] =\n    sys.error(\"Sudoku.solve not implemented\")\n\n  def countSolutions(grid: Vector[Int], limit: Int): Int =\n    sys.error(\"Sudoku.countSolutions not implemented\")\n}\n\n```\n\n## Code to evaluate (Sudoku.scala)\n```scala\nobject Sudoku {\n\n  private val units: Vector[Vector[Int]] = {\n    val rows = (0 until 9).map(r => (0 until 9).map(c => r * 9 + c))\n    val cols = (0 until 9).map(c => (0 until 9).map(r => r * 9 + c))\n    val boxes = for {\n      br <- 0 until 9 by 3\n      bc <- 0 until 9 by 3\n    } yield (0 until 9).map(k => (br + k / 3) * 9 + bc + k % 3)\n    (rows ++ cols ++ boxes).map(_.toVector).toVector\n  }\n\n  def isValid(grid: Vector[Int]): Boolean =\n    grid.size == 81 &&\n      grid.forall(v => v >= 0 && v <= 9) &&\n      units.forall { unit =>\n        val vals = unit.map(grid).filter(_ != 0)\n        vals.distinct.size == vals.size\n      }\n\n  def candidates(grid: Vector[Int], row: Int, col: Int): List[Int] = {\n    val idx = row * 9 + col\n    if (grid(idx) != 0) Nil\n    else {\n      val br = row / 3 * 3\n      val bc = col / 3 * 3\n      val used = (0 until 9).flatMap { k =>\n        List(\n          grid(row * 9 + k),\n          grid(k * 9 + col),\n          grid((br + k / 3) * 9 + bc + k % 3)\n        )\n      }.toSet\n      (1 to 9).filterNot(used.contains).toList\n    }\n  }\n\n  // None: no empty cells (complete board).\n  // Some((idx, Nil)): dead end.\n  // Some((idx, cands)): empty cell with fewest candidates.\n  private def mrv(grid: Vector[Int]): Option[(Int, List[Int])] = {\n    val empties = (0 until 81).iterator\n      .filter(i => grid(i) == 0)\n      .map(i => (i, candidates(grid, i / 9, i % 9)))\n      .toList\n    if (empties.isEmpty) None\n    else Some(empties.minBy(_._2.size))\n  }\n\n  def solve(grid: Vector[Int]): Option[Vector[Int]] = {\n    def search(g: Vector[Int]): Option[Vector[Int]] = mrv(g) match {\n      case None => Some(g)\n      case Some((_, Nil)) => None\n      case Some((idx, cands)) =>\n        cands.iterator\n          .map(d => search(g.updated(idx, d)))\n          .collectFirst { case Some(s) => s }\n    }\n\n    if (!isValid(grid)) None\n    else search(grid)\n  }\n\n  def countSolutions(grid: Vector[Int], limit: Int): Int = {\n    def count(g: Vector[Int], remaining: Int): Int =\n      if (remaining <= 0) 0\n      else mrv(g) match {\n        case None => 1\n        case Some((_, Nil)) => 0\n        case Some((idx, cands)) =>\n          cands.foldLeft(0) { (acc, d) =>\n            if (acc >= remaining) acc\n            else acc + count(g.updated(idx, d), remaining - acc)\n          }\n      }\n\n    if (limit <= 0 || !isValid(grid)) 0\n    else count(grid, limit)\n  }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJgfR34PGoASzJiDCp",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is pure and immutable: boards are Vector values, and `g.updated(idx, d)` creates new states for the search. Backtracking is expressed as recursion over `Option`, with `cands.iterator.map(...).collectFirst { case Some(s) => s }` giving lazy short-circuiting. `countSolutions` uses `foldLeft` with the remaining budget passed down. There are no vars or mutation. One point is lost for the awkward early-exit fold (`if (acc >= remaining) acc` still traverses the rest of the candidates) and because `mrv` recomputes candidates for every empty cell by scanning from scratch instead of threading propagation state. That is acceptable but not elegant.\",\"language_idiomaticity\":\"The code uses `Option`, pattern matching on `Option[(Int, List[Int])]`, `collectFirst`, `minBy`, for-comprehension generators with `by`, and `unit.map(grid)` (a Vector used as a function). The private `units` val is precomputed. It is Scala 2.11 compatible. Small blemishes: the tuple `Option[(Int, List[Int])]` is less expressive than a small case class, `(0 until 81).iterator.filter.map.toList` mixes iterator and list needlessly, `flatMap` over `List(...)` allocates, and `candidates` ignores the precomputed `units`.\",\"readability\":\"Names are clear (`units`, `mrv`, `search`, `count`, `remaining`), the functions are short, and the comment above `mrv` explains the tri-state result. The `search` and `count` nested functions are easy to follow. It would reach 5 if the tuple result were named, or if the index arithmetic `(br + k / 3) * 9 + bc + k % 3` were not duplicated between `units` and `candidates`.\",\"design\":\"The decomposition is clean: `units`, `isValid`, `candidates`, a shared `mrv` used by both `solve` and `countSolutions`, and nested search functions. The validity check is done once at the entry point. Weaknesses: the box index arithmetic is duplicated, `candidates` does not reuse `units` or peers, `mrv` recomputes candidates for all empty cells at each node with no early exit when a cell has 0 or 1 candidates, and the search structure is duplicated across `solve` and `countSolutions` (though their results differ). A case class or ADT for the MRV result would improve clarity.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"Option[(Int, List[Int])] tuple encoding three states instead of a small ADT\",\"duplicated box index arithmetic between units and candidates\",\"fold that keeps iterating after the limit is reached instead of short-circuiting\"],\"justification\":\"The solution is pure and immutable, uses Option, pattern matching, collectFirst and foldLeft naturally, and shares an `mrv` helper between `solve` and `countSolutions`. Minor issues are the tuple-based MRV result, duplicated box index arithmetic with `candidates` not reusing `units`, and a fold that continues iterating after the limit instead of short-circuiting. Overall it is idiomatic and readable with small design refinements possible.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4349,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4349,
+          "model": null,
+          "output_tokens": 1099,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1099,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

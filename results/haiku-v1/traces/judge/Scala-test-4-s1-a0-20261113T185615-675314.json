@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:15+00:00",
+  "kind": "judge",
+  "label": "Scala-test-4-s1-a0",
+  "request_id": "req_011Ch1SJUAawdS4ZdtMMHmGg",
+  "duration_s": 7.2,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\n- Implement `maxValue`: Return the maximum value attainable with sum of selected weights ≤ capacity. Use DP. Return 0 if weights.isEmpty or capacity <= 0.\n- Implement `solve`: Return Result(maxValue, selected, totalWeight) where selected is a Vector[Int] of 0/1 length n.\n- DO NOT use greedy heuristics — they fail on w=[10,20,30], v=[60,100,120], cap=50 (optimum=220, greedy=160).\n- Selection invariants: sum(selected.zip(weights).map(p => p._1 * p._2)) ≤ capacity; sum of selected values = maxValue.\n- Use idiomatic immutable Scala.\n\n## Stub module given to the author (Knapsack.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject Knapsack {\n  case class Result(maxValue: Int, selected: Vector[Int], totalWeight: Int)\n\n  def maxValue(weights: Vector[Int], values: Vector[Int], capacity: Int): Int =\n    sys.error(\"Knapsack.maxValue not implemented\")\n\n  def solve(weights: Vector[Int], values: Vector[Int], capacity: Int): Result =\n    sys.error(\"Knapsack.solve not implemented\")\n}\n\n```\n\n## Code to evaluate (Knapsack.scala)\n```scala\nobject Knapsack {\n  case class Result(maxValue: Int, selected: Vector[Int], totalWeight: Int)\n\n  // Builds the full DP table: row i holds best values using the first i items\n  // for every capacity in 0..capacity.\n  private def table(weights: Vector[Int], values: Vector[Int], capacity: Int): Vector[Vector[Int]] =\n    weights.zip(values).foldLeft(Vector(Vector.fill(capacity + 1)(0))) { case (rows, (w, v)) =>\n      val prev = rows.last\n      val next = Vector.tabulate(capacity + 1) { c =>\n        if (w <= c) math.max(prev(c), prev(c - w) + v) else prev(c)\n      }\n      rows :+ next\n    }\n\n  def maxValue(weights: Vector[Int], values: Vector[Int], capacity: Int): Int =\n    if (weights.isEmpty || capacity <= 0) 0\n    else table(weights, values, capacity).last.last\n\n  def solve(weights: Vector[Int], values: Vector[Int], capacity: Int): Result =\n    if (weights.isEmpty || capacity <= 0) Result(0, Vector.fill(weights.length)(0), 0)\n    else {\n      val dp = table(weights, values, capacity)\n      val n = weights.length\n\n      // Backtrack from the last item to the first to recover the selection.\n      val (selectedRev, _) =\n        (n to 1 by -1).foldLeft((List.empty[Int], capacity)) { case ((acc, c), i) =>\n          val w = weights(i - 1)\n          if (dp(i)(c) != dp(i - 1)(c)) (1 :: acc, c - w)\n          else (0 :: acc, c)\n        }\n\n      val selected = selectedRev.toVector\n      val totalWeight = selected.zip(weights).collect { case (1, w) => w }.sum\n\n      Result(dp.last.last, selected, totalWeight)\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJUUh6YoodMJeH2pAL",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The DP table comes from a `foldLeft` over `weights.zip(values)`, with each row built by `Vector.tabulate` from the previous row. Backtracking is another `foldLeft` that threads `(acc, c)`. There is no `var`, no mutation and no `return`, and everything is an expression. A 5 is blocked by the use of `rows.last` and `dp(i)(c)` indexing, which is slightly index-oriented, and by the `(n to 1 by -1)` fold. It is still close to ideal.\",\"language_idiomaticity\":\"The code uses `Vector.fill`, `Vector.tabulate`, `collect` with a pattern literal `case (1, w)`, and tuple destructuring in `case` blocks. The name `selectedRev` is misleading, because prepending while iterating from n down to 1 already gives the forward order. `math.max` is fine. The guard clause is repeated in `maxValue` and `solve`. There is no use of `Option` or `Either`, which this task does not need.\",\"readability\":\"Names are clear (`table`, `prev`, `next`, `dp`), and the two comments are useful and not excessive. The functions are short. `selectedRev` misleads, since the list is not reversed. The condition `dp(i)(c) != dp(i - 1)(c)` is also slightly cryptic and would benefit from a short note. Overall it is easy to follow.\",\"design\":\"A private `table` helper is shared by `maxValue` and `solve`, so the DP is not duplicated. `solve` separates table building, backtracking and the weight sum. Storing the full table is needed for reconstruction, but `maxValue` could use a rolling row to save memory. The early-return guard is duplicated. `totalWeight` is recomputed from the selection instead of being tracked in the fold, which is fine. The `case (1, w)` match works but is a bit cute.\"},\"paradigm_idiomaticity\":5,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"misleading name `selectedRev` (list is already in forward order)\",\"duplicated guard condition in `maxValue` and `solve`\"],\"justification\":\"The solution is purely functional, with `foldLeft` building the DP table and recovering the selection from it, and it has no mutable state. `Vector.tabulate` and `collect` are used naturally, and the shared private `table` helper avoids duplication. Minor blemishes are the misleading `selectedRev` name, the repeated guard and the full table kept even for `maxValue`.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3033,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3033,
+          "model": null,
+          "output_tokens": 853,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 853,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

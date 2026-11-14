@@ -1,0 +1,58 @@
+=== Running benchmark for folder: test-10 ===
+rm -f test-10/*.class *.class
+javac -g -d test-10 test-10/OrderStatsImpl.java test-10/OrderStats.java test-10/Tests.java
+test-10/OrderStatsImpl.java:5: error: cannot find symbol
+public final class OrderStatsImpl extends OrderStats {
+                                          ^
+  symbol: class OrderStats
+test-10/OrderStatsImpl.java:30: error: cannot find symbol
+    public SelectResult selectKth(int[] xs, int k) {
+           ^
+  symbol:   class SelectResult
+  location: class OrderStatsImpl
+test-10/OrderStatsImpl.java:86: error: cannot find symbol
+    public Double medianTwoSorted(SortedSource a, SortedSource b) {
+                                  ^
+  symbol:   class SortedSource
+  location: class OrderStatsImpl
+test-10/OrderStatsImpl.java:86: error: cannot find symbol
+    public Double medianTwoSorted(SortedSource a, SortedSource b) {
+                                                  ^
+  symbol:   class SortedSource
+  location: class OrderStatsImpl
+test-10/OrderStatsImpl.java:11: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+test-10/OrderStatsImpl.java:29: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+test-10/OrderStatsImpl.java:42: error: cannot find symbol
+                return new SelectResult(sorted[k], Arrays.copyOf(pivotBuffer, pivotCount));
+                           ^
+  symbol:   class SelectResult
+  location: class OrderStatsImpl
+test-10/OrderStatsImpl.java:77: error: cannot find symbol
+                return new SelectResult(p, Arrays.copyOf(pivotBuffer, pivotCount));
+                           ^
+  symbol:   class SelectResult
+  location: class OrderStatsImpl
+test-10/OrderStatsImpl.java:85: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+test-10/OrderStatsImpl.java:94: error: cannot find symbol
+        SortedSource src1 = a;
+        ^
+  symbol:   class SortedSource
+  location: class OrderStatsImpl
+test-10/OrderStatsImpl.java:95: error: cannot find symbol
+        SortedSource src2 = b;
+        ^
+  symbol:   class SortedSource
+  location: class OrderStatsImpl
+test-10/Tests.java:7: error: cannot find symbol
+    private static final OrderStats OS = new OrderStatsImpl();
+                                             ^
+  symbol:   class OrderStatsImpl
+  location: class Tests
+12 errors
+make: *** [Makefile:10: test] Error 1

@@ -6,19 +6,29 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The class extends the abstract Knapsack and overrides both methods, with a private validate helper and no mutable instance state. The core algorithms are procedural DP loops inside two large methods, which is natural for this task. A 5 would need more object decomposition, for example a private table-building helper or a reconstruction method, instead of everything inline.",
+    "language_idiomaticity": "Uses @Override, a final class, Objects.requireNonNull with messages, IllegalArgumentException, Math.max, and the 1D rolling-array optimisation in maxValue. It caches row references (prev, curr) and uses a `continue` guard. Small departures: the inconsistent candidate>best check versus Math.max, and indexed loops that are fine here. Nothing in it is truly non-idiomatic, so it is close to a 5.",
+    "readability": "Names are clear (best, skip, take, remaining, candidate, dp). Structure is easy to follow and the validate helper keeps the entry points short. There are no comments explaining the reverse reconstruction trick (dp[i][r] != dp[i-1][r]). solve is a bit long because the table fill and backtracking are inline, so it falls just short of a 5.",
+    "design": "The shared validation is extracted. maxValue uses the space-optimised 1D array while solve uses the full table needed for reconstruction, which is a sensible choice. The table-filling logic is duplicated across the two methods rather than factored out, and solve does not reuse a helper for table building or backtracking. Extracting private methods such as buildTable and reconstruct would earn a 5."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
-  "readability": 5,
+  "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "index-based loops with primitive arrays for DP table (common but C-style)",
-    "DP table fill logic not shared between maxValue and solve"
+    "solve mixes table construction and backtracking in one long method",
+    "DP transition logic duplicated between maxValue and solve"
   ],
-  "justification": "The class extends the abstract contract, uses @Override, is final, and extracts a private static validate helper using Objects.requireNonNull and IllegalArgumentException. The DP is clear: a rolling 1D array in maxValue and a full 2D table in solve with a clean backtrack. Minor shortcomings are the primitive-array index loops, which are natural for DP, and the two separate DP implementations, which duplicate some of the recurrence logic rather than sharing it. Names are good and the code is compact and easy to follow.",
+  "justification": "A clean, correct-looking OOP implementation of the contract: final subclass, @Override, a private validate helper with Objects.requireNonNull and IllegalArgumentException. It uses a 1D DP in maxValue and a 2D table in solve with backtracking via dp[i][remaining] != dp[i-1][remaining]. The main shortfalls are the long solve method and the lack of extracted helpers for table building and reconstruction.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3041,
-  "output_tokens": 270,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SFLAJAaqgeLnWbjUjN",
+  "judge_s": 6.8,
+  "input_tokens": 3378,
+  "output_tokens": 767,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

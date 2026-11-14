@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:38+00:00",
+  "kind": "judge",
+  "label": "Smalltalk-test-8-s1-a0",
+  "request_id": "req_011Ch1RwuBuDgLWynzoERsH8",
+  "duration_s": 9.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Smalltalk code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Smalltalk\n\n- Message passing and polymorphism; small methods with intention-revealing selectors.\n- Collection protocols instead of index loops: `do:`, `collect:`, `select:`, `reject:`, `detect:ifNone:`,\n  `inject:into:`, `with:collect:`; `to:do:` only where indices are really needed.\n- Blocks used idiomatically (`ifTrue:ifFalse:`, `ifNil:`, `and:`/`or:` with blocks), early returns with `^`.\n- Domain logic in objects rather than long procedural methods; no redefinition of built-in classes.\n- GNU Smalltalk bracket syntax used cleanly; temporaries declared where used.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Smalltalk (object-oriented paradigm)\n\n## Task specification given to the author\nImplement two approximation algorithms for the metric Travelling Salesman Problem (MST\ndouble tree and Christofides) in GNU Smalltalk in the class TspApproxImpl (file\nTspApproxImpl.st), which subclasses the abstract class TspApprox. The result class\nTspTourResult (class-side constructor `TspTourResult tour: anArray cost: anInteger`,\naccessors tour and cost) is already defined. Implement mstWeight:, doubleTree:,\nmatchingWeight: and christofides:. Put the solution in TspApproxImpl.st.\n\nInput and conventions:\n  * points is an Array of 2-element Arrays #(x y) of Integers, e.g. #(#(0 0) #(3 4)).\n    0 <= points size <= 40. Points may coincide (distance 0).\n  * Vertices are numbered 1..n (1-BASED): vertex i is `points at: i`.\n  * Distance is Manhattan: d(p, q) = |px - qx| + |py - qy| (an Integer).\n  * A tour is an Array (any SequenceableCollection is accepted) containing every vertex\n    number 1..n exactly once and STARTING WITH 1. It is a closed cycle; its cost is\n    the sum of d(tour at: i, tour at: i + 1) for i = 1..n-1 plus d(tour at: n, tour at: 1).\n    For n = 1 the tour is #(1) with cost 0; for n = 2 the cost is 2 * d(1, 2).\n  * The cost stored in TspTourResult must equal the cost of its tour (Integer).\n\nThe MST (unique by these rules) - Prim's algorithm started from vertex 1:\n  repeat n-1 times: among the vertices v not yet in the tree choose the one with the\n  smallest key(v) = min over tree vertices u of d(u, v); ties -> the SMALLEST vertex\n  number v. Its parent is the tree vertex u with d(u, v) = key(v); ties -> the SMALLEST\n  vertex number u (not the first one found, not the most recently added).\n\n- Implement `mstWeight: points`: the sum of the MST edge weights. Answer 0 for 0 or 1\n  points.\n\n- Implement `doubleTree: points`: answer nil for an empty Array. Otherwise answer a\n  TspTourResult whose tour is the PREORDER of the MST rooted at vertex 1, visiting the\n  children of every vertex in ASCENDING vertex-number order (a vertex is listed before\n  its children). The tour is unique and is compared exactly.\n\n- Implement `matchingWeight: points`: let O be the vertices of odd degree in that MST\n  (always an even number of them). Answer the MINIMUM total weight (distance d) of a\n  perfect matching of O (pairs of distinct vertices of O, every vertex of O in exactly\n  one pair). It must be exact - greedy nearest-pair matching is wrong. At most 16 odd\n  vertices occur, so an exact bitmask DP over subsets is fine (no blossom needed).\n  Answer 0 for 0 or 1 points.\n\n- Implement `christofides: points`: answer nil for an empty Array; for one point the\n  tour #(1) with cost 0. Otherwise:\n    1. build the multigraph = the MST edges + the edges of a minimum-weight perfect\n       matching of O. An edge present in both is a DOUBLE edge - keep both copies\n       (parallel edges must be traversed separately);\n    2. find an Eulerian circuit of that multigraph starting at vertex 1 (Hierholzer);\n    3. shortcut it: keep only the first occurrence of every vertex.\n  The tour must start with 1. Any minimum matching and any Eulerian circuit are\n  accepted; the tests check that the tour is valid, that cost equals the cost of the\n  tour, that cost <= mstWeight + matchingWeight and the 1.5-approximation bound.\n\nConstraints:\n  - Integer arithmetic only; do not modify the input Array.\n\n## Contract given to the author (TspApprox.st, not written by the author)\n```smalltalk\nObject subclass: TspTourResult [\n    | tour cost |\n\n    TspTourResult class >> tour: aTour cost: aCost [\n        ^self new initTour: aTour cost: aCost\n    ]\n\n    initTour: aTour cost: aCost [\n        tour := aTour.\n        cost := aCost.\n        ^self\n    ]\n\n    tour [ ^tour ]\n    cost [ ^cost ]\n]\n\nObject subclass: TspApprox [\n    mstWeight: points [\n        ^self subclassResponsibility\n    ]\n\n    doubleTree: points [\n        ^self subclassResponsibility\n    ]\n\n    matchingWeight: points [\n        ^self subclassResponsibility\n    ]\n\n    christofides: points [\n        ^self subclassResponsibility\n    ]\n]\n\n```\n\n## Code to evaluate (TspApproxImpl.st)\n```smalltalk\nTspApprox subclass: TspApproxImpl [\n\n    dist: p to: q [\n        ^((p at: 1) - (q at: 1)) abs + ((p at: 2) - (q at: 2)) abs\n    ]\n\n    tourCost: tour points: points [\n        | n |\n        n := tour size.\n        n = 0 ifTrue: [^0].\n        ^(1 to: n) inject: 0 into: [:acc :i |\n            acc + (self dist: (points at: (tour at: i))\n                          to: (points at: (tour at: i \\\\ n + 1)))]\n    ]\n\n    mstParentsOf: points [\n        | n parent key inTree bestV parentU d |\n        n := points size.\n        parent := Array new: n withAll: 0.\n        n < 2 ifTrue: [^parent].\n        key := Array new: n withAll: 0.\n        inTree := Array new: n withAll: false.\n        inTree at: 1 put: true.\n        2 to: n do: [:v |\n            key at: v put: (self dist: (points at: 1) to: (points at: v))].\n        1 to: n - 1 do: [:step |\n            bestV := nil.\n            2 to: n do: [:v |\n                ((inTree at: v) not and: [bestV isNil or: [(key at: v) < (key at: bestV)]])\n                    ifTrue: [bestV := v]].\n            parentU := nil.\n            1 to: n do: [:u |\n                (parentU isNil and: [(inTree at: u)\n                    and: [(self dist: (points at: u) to: (points at: bestV)) = (key at: bestV)]])\n                        ifTrue: [parentU := u]].\n            parent at: bestV put: parentU.\n            inTree at: bestV put: true.\n            2 to: n do: [:w |\n                (inTree at: w) not ifTrue: [\n                    d := self dist: (points at: bestV) to: (points at: w).\n                    d < (key at: w) ifTrue: [key at: w put: d]]]].\n        ^parent\n    ]\n\n    mstWeight: points [\n        | n parent |\n        n := points size.\n        parent := self mstParentsOf: points.\n        ^(2 to: n) inject: 0 into: [:acc :v |\n            acc + (self dist: (points at: v) to: (points at: (parent at: v)))]\n    ]\n\n    preorderFrom: u children: ch into: oc [\n        oc add: u.\n        (ch at: u) do: [:c | self preorderFrom: c children: ch into: oc]\n    ]\n\n    doubleTree: points [\n        | n parent ch oc tour |\n        n := points size.\n        n = 0 ifTrue: [^nil].\n        parent := self mstParentsOf: points.\n        ch := (1 to: n) collect: [:x | OrderedCollection new].\n        2 to: n do: [:x | (ch at: (parent at: x)) add: x].\n        oc := OrderedCollection new.\n        self preorderFrom: 1 children: ch into: oc.\n        tour := oc asArray.\n        ^TspTourResult tour: tour cost: (self tourCost: tour points: points)\n    ]\n\n    oddVerticesOf: parent [\n        | n deg |\n        n := parent size.\n        deg := Array new: n withAll: 0.\n        2 to: n do: [:v |\n            deg at: v put: (deg at: v) + 1.\n            deg at: (parent at: v) put: (deg at: (parent at: v)) + 1].\n        ^((1 to: n) select: [:v | (deg at: v) \\\\ 2 = 1]) asArray\n    ]\n\n    lowestBitIndexOf: mask [\n        | i |\n        i := 0.\n        [(mask bitAnd: (1 bitShift: i)) = 0] whileTrue: [i := i + 1].\n        ^i\n    ]\n\n    removeBits: i and: j from: mask [\n        ^mask bitAnd: (((1 bitShift: i) bitOr: (1 bitShift: j)) bitInvert)\n    ]\n\n    matchCost: mask pts: pts memo: memo [\n        | m i best cand rest |\n        mask = 0 ifTrue: [^0].\n        (memo includesKey: mask) ifTrue: [^memo at: mask].\n        m := pts size.\n        i := self lowestBitIndexOf: mask.\n        best := nil.\n        i + 1 to: m - 1 do: [:j |\n            (mask bitAnd: (1 bitShift: j)) = 0 ifFalse: [\n                rest := self removeBits: i and: j from: mask.\n                cand := (self dist: (pts at: i + 1) to: (pts at: j + 1))\n                    + (self matchCost: rest pts: pts memo: memo).\n                (best isNil or: [cand < best]) ifTrue: [best := cand]]].\n        memo at: mask put: best.\n        ^best\n    ]\n\n    minimumMatchingOf: oddVerts points: points [\n        | pts memo pairs mask i bestJ best cand rest m |\n        m := oddVerts size.\n        pts := oddVerts collect: [:v | points at: v].\n        memo := Dictionary new.\n        pairs := OrderedCollection new.\n        mask := (1 bitShift: m) - 1.\n        [mask = 0] whileFalse: [\n            i := self lowestBitIndexOf: mask.\n            bestJ := nil.\n            best := nil.\n            i + 1 to: m - 1 do: [:j |\n                (mask bitAnd: (1 bitShift: j)) = 0 ifFalse: [\n                    rest := self removeBits: i and: j from: mask.\n                    cand := (self dist: (pts at: i + 1) to: (pts at: j + 1))\n                        + (self matchCost: rest pts: pts memo: memo).\n                    (bestJ isNil or: [cand < best]) ifTrue: [\n                        best := cand.\n                        bestJ := j]]].\n            pairs add: (Array with: (oddVerts at: i + 1) with: (oddVerts at: bestJ + 1)).\n            mask := self removeBits: i and: bestJ from: mask].\n        ^pairs\n    ]\n\n    matchingWeight: points [\n        | parent odd pairs |\n        points size < 2 ifTrue: [^0].\n        parent := self mstParentsOf: points.\n        odd := self oddVerticesOf: parent.\n        pairs := self minimumMatchingOf: odd points: points.\n        ^pairs inject: 0 into: [:acc :p |\n            acc + (self dist: (points at: (p at: 1)) to: (points at: (p at: 2)))]\n    ]\n\n    christofides: points [\n        | n parent odd pairs edges adj used ptr stack circuit v w k e seen tour tourArr |\n        n := points size.\n        n = 0 ifTrue: [^nil].\n        n = 1 ifTrue: [^TspTourResult tour: #(1) cost: 0].\n        parent := self mstParentsOf: points.\n        odd := self oddVerticesOf: parent.\n        pairs := self minimumMatchingOf: odd points: points.\n        edges := OrderedCollection new.\n        2 to: n do: [:x | edges add: (Array with: x with: (parent at: x))].\n        edges addAll: pairs.\n        adj := (1 to: n) collect: [:x | OrderedCollection new].\n        edges keysAndValuesDo: [:idx :edge |\n            (adj at: (edge at: 1)) add: idx.\n            (adj at: (edge at: 2)) add: idx].\n        used := Array new: edges size withAll: false.\n        ptr := Array new: n withAll: 1.\n        stack := OrderedCollection with: 1.\n        circuit := OrderedCollection new.\n        [stack isEmpty] whileFalse: [\n            v := stack last.\n            [(ptr at: v) <= (adj at: v) size\n                and: [used at: ((adj at: v) at: (ptr at: v))]]\n                    whileTrue: [ptr at: v put: (ptr at: v) + 1].\n            (ptr at: v) > (adj at: v) size\n                ifTrue: [circuit add: stack removeLast]\n                ifFalse: [\n                    k := (adj at: v) at: (ptr at: v).\n                    used at: k put: true.\n                    e := edges at: k.\n                    w := (e at: 1) = v ifTrue: [e at: 2] ifFalse: [e at: 1].\n                    stack addLast: w]].\n        seen := Array new: n withAll: false.\n        tour := OrderedCollection new.\n        circuit do: [:x |\n            (seen at: x) ifFalse: [\n                seen at: x put: true.\n                tour add: x]].\n        tourArr := tour asArray.\n        ^TspTourResult tour: tourArr cost: (self tourCost: tourArr points: points)\n    ]\n]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RwuWz8a4LvXcSW4yVB",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The solution is a class with small helper methods (dist:to:, tourCost:points:, mstParentsOf:, preorderFrom:children:into:, oddVerticesOf:), and it uses the provided TspTourResult. The helpers are message sends to self, but there is no domain modelling. Graph, matching and Euler circuit are passed around as raw parallel Arrays (parent, key, inTree, ptr, used) and index arithmetic. The long christofides: method is a procedural Hierholzer inline. It would earn a 4 if the Euler circuit, matching and MST were separate objects or at least separate methods.\",\"language_idiomaticity\":\"Uses inject:into:, collect:, select:, keysAndValuesDo:, Dictionary memo, bitAnd:/bitShift:, and ifNil-style tests. But index loops with to:do: appear where a collection protocol would work, and `bestV isNil or:` is used instead of detect:/inject. `(1 to: n) collect:` answers an Array, which is fine. Eleven temporaries are declared at the top of christofides:. Memo-based recursion is reasonable. `(mask bitAnd: ...) = 0 ifFalse:` is an awkward double negative where `anyMask:` or `allMask:` would be cleaner; lowestBitIndexOf: reimplements a loop.\",\"readability\":\"Method names are mostly meaningful, but the code is dense. The Prim loop is nested with long and:-chains. christofides: is about 45 lines with single-letter variables (v, w, k, e) and no comments. The 0-based bit index vs 1-based pts access (`i + 1`, `j + 1`) is confusing. The matching reconstruction duplicates matchCost:'s loop logic, which makes it harder to follow.\",\"design\":\"Decomposition is decent: MST parents are shared by all four public methods, and tourCost and preorder are reused. However, minimumMatchingOf: duplicates the search loop of matchCost:memo: (including the nearly identical best-selection with different nil checks). christofides: mixes multigraph construction, Hierholzer and shortcutting in one method that should be split into e.g. eulerCircuitFrom:edges: and shortcut:. Prim is O(n^2) with a redundant parent rescan, which is acceptable. The parallel-array data structures are weak.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"monolithic christofides: method with a long temporaries list and inline Hierholzer\",\"parallel arrays (key, inTree, parent, used, ptr) instead of small objects\",\"duplicated search loop in minimumMatchingOf: and matchCost:pts:memo:\",\"double-negative `= 0 ifFalse:` for bit tests\",\"index-based to:do: loops in Prim instead of collection protocols\",\"mixed 0-based bit indices and 1-based array access (i + 1)\"],\"justification\":\"The code decomposes into reasonable helper methods and uses collection messages such as inject:into:, select: and keysAndValuesDo:, with sound DP and Hierholzer logic. But it is largely procedural: parallel arrays, nested index loops, and a 45-line christofides: that does the Euler circuit inline. minimumMatchingOf: duplicates the matchCost recursion, and the bit/index offsets reduce clarity.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6587,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6587,
+          "model": null,
+          "output_tokens": 1151,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1151,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

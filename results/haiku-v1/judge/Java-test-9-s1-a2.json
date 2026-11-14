@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Java",
+  "paradigm": "object-oriented",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 2,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The contract's Node is a passive data holder with public final lists, so the author could not put behaviour on it. They chose a class full of `private static` helpers (`insert`, `splitChild`, `deleteFrom`, `isLeaf`, `isFull`) that mutate Nodes from outside, and `t` is threaded through every call. This is procedural code on data structs. A 4 would need an encapsulating object, such as a private helper class holding `t` with instance methods for split, merge and rotate, or at least a clear internal abstraction.",
+    "language_idiomaticity": "The code uses `List`/`ArrayList`, `subList(...).clear()`, `addAll`, `@Override`, `final` on the class, and diamond generics. The Integer/int unboxing in `x.keys.get(i) == k` is safe because k is an int. `keys.remove(int)` is used correctly for index removal. Small departures: `while (true)` loops with early returns, and a hand-rolled linear `lowerBound` instead of `Collections.binarySearch`. Naming and formatting follow conventions. Handling of absence is correct per the contract (null for t < 2).",
+    "readability": "Short helpers (`isLeaf`, `isFull`, `maxKey`, `minKey`, `splitChild`) are clear, and `insert` is easy to follow. `deleteFrom` is about 60 lines and mixes cases 1, 2a, 2b, 2c, 3a and 3b, with inline rotations and merges using nested `x.children.get(i - 1)` expressions. There are no comments mapping the code to the CLRS cases. Extracting `rotateRight`, `rotateLeft`, `mergeChildren` and `fixChild` would raise this to a 4.",
+    "design": "The decomposition is reasonable: a separate membership check, `splitChild`, and `maxKey`/`minKey`. Root handling is placed correctly in `deleteAll` and `insert`. Weaknesses: `deleteFrom` is monolithic, the merge logic appears twice (2c and 3b, twice again within 3b) without a shared helper, `t` is passed everywhere instead of being held as state, and `contains` plus the descent walk the tree twice. There is no abstraction around the mutation of the node lists."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 4,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "static utility methods operating on passive Node data instead of an encapsulating object",
+    "parameter `t` threaded through every helper instead of held as state",
+    "monolithic deleteFrom handling all CLRS cases inline",
+    "duplicated merge/rotate logic not extracted into helpers",
+    "hand-rolled linear search instead of Collections.binarySearch"
+  ],
+  "justification": "The solution is correct in structure and uses the Java collections well (`subList().clear()`, `addAll`, index-based `remove`). It reads as procedural code, though: a pile of static helpers taking `t` and mutating contract Nodes, with no encapsulating class. The `deleteFrom` method packs all the deletion cases and the rotation and merge code into one long body without comments, which hurts readability and design.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "I'm evaluating the code's design. The static helpers operate on Node, which is fixed by contract with mutable public lists, so the procedural style is partly forced. Still, passing `t` through every method feels like a smell, and a helper class holding `t` as a field might be cleaner.\n\nThe next stretch is a checklist of small observations: the Integer-versus-int comparisons and removals all check out as fine. I also note the linear lookup is acceptable for a small branching factor, the membership check is repeated, and the long delete method could be split into a few smaller pieces with some duplicated merge logic pulled out. Overall I'd rate paradigm and design a 3, language a 4, and readability a 3.\n\n",
+  "request_id": "req_011Ch1RuK9DP127zCzdxygAn",
+  "judge_s": 13.5,
+  "input_tokens": 6216,
+  "output_tokens": 1509,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

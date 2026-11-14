@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:56+00:00",
+  "kind": "judge",
+  "label": "Java-test-8-s1-a0",
+  "request_id": "req_011Ch1RtoiuHtpNH33m9KRVs",
+  "duration_s": 9.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\nImplement two approximation algorithms for the metric Travelling Salesman Problem in Java\nin the class TspApproxImpl (file TspApproxImpl.java), which extends the abstract class\nTspApprox: the MST double-tree 2-approximation and Christofides' 1.5-approximation.\nThe base class already defines the result type TspApprox.TourResult; implement\nmstWeight, doubleTree, matchingWeight and christofides.\n\nInput: int[][] points, where points[i] = {x, y} (integer coordinates, |coord| < 10^4,\nat most 40 points). Vertex i is the point points[i]; vertices are numbered 0..n-1 in\ninput order. Points may coincide (distance 0). The input array must not be modified.\nDistance is the Manhattan distance d(p, q) = |p.x - q.x| + |p.y - q.y| (an integer).\n\nTours: a tour is an int[] containing every vertex index exactly once and starting with\nvertex 0. It is a closed cycle; its cost is d(tour[0], tour[1]) + ... +\nd(tour[n-2], tour[n-1]) + d(tour[n-1], tour[0]). For n = 1 the tour is [0] with cost 0;\nfor n = 2 the tour is [0, 1] with cost 2 * d(0, 1).\nTourResult(tour, cost): tour as described, cost = the cost of exactly that tour.\n\nThe MST (unique by these rules) - Prim's algorithm started from vertex 0:\n  * Repeat n-1 times: among the vertices v not yet in the tree, choose the one with the\n    smallest key(v) = min over tree vertices u of d(u, v); ties -> the smallest index v.\n  * The parent of v is the tree vertex u with d(u, v) = key(v); if several tree vertices\n    are at that distance, the parent is the one with the SMALLEST INDEX (not the first\n    one found, not the most recently added).\n  * The MST edges are the n-1 pairs (parent(v), v).\n\n- Implement `int mstWeight(int[][] points)`: the total weight of that MST.\n  Return 0 for 0 or 1 points.\n\n- Implement `TourResult doubleTree(int[][] points)`: the tour is the preorder sequence of\n  a depth-first traversal of that MST rooted at vertex 0, visiting the children of every\n  vertex in ASCENDING index order. The tour is unique and is compared exactly.\n  Return null for 0 points.\n\n- Implement `int matchingWeight(int[][] points)`: let O be the set of vertices that have\n  odd degree in that MST (|O| is always even). Return the MINIMUM total weight (distance d)\n  of a perfect matching of O (O partitioned into pairs of distinct vertices). The result\n  must be exact - greedy nearest-pair matching is wrong. |O| <= 16 in all inputs, so an\n  exact bitmask DP over subsets is fine (a blossom algorithm is not required).\n  Return 0 for 0 or 1 points.\n\n- Implement `TourResult christofides(int[][] points)`:\n  1. Build a MULTIGRAPH from the MST edges plus the edges of a minimum-weight perfect\n     matching of O. If an edge is present in both, keep BOTH copies (parallel edges).\n  2. Find an Eulerian circuit of that multigraph starting at vertex 0 (e.g. Hierholzer),\n     using every edge copy exactly once.\n  3. Shortcut: keep only the first occurrence of each vertex in the circuit; the result\n     is the tour (it starts with 0).\n  Return null for 0 points; n = 1 gives tour [0], cost 0.\n  Any minimum matching and any Eulerian circuit are accepted. By the triangle inequality\n  the cost never exceeds mstWeight + matchingWeight.\n\nKeep the contract in TspApprox.java; put the solution in TspApproxImpl.java.\n\n## Contract given to the author (TspApprox.java, not written by the author)\n```java\npublic abstract class TspApprox {\n    protected TspApprox() {}\n\n    public static final class TourResult {\n        public final int[] tour;   // permutation of 0..n-1, tour[0] == 0\n        public final int cost;     // closed-tour cost (returns to tour[0])\n        public TourResult(int[] tour, int cost) {\n            this.tour = tour;\n            this.cost = cost;\n        }\n    }\n\n    // points[i] = {x, y}; distance is Manhattan |x1 - x2| + |y1 - y2|\n    public abstract int mstWeight(int[][] points);\n    public abstract TourResult doubleTree(int[][] points);\n    public abstract int matchingWeight(int[][] points);\n    public abstract TourResult christofides(int[][] points);\n}\n\n```\n\n## Code to evaluate (TspApproxImpl.java)\n```java\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.Collections;\nimport java.util.List;\n\npublic class TspApproxImpl extends TspApprox {\n\n    @Override\n    public int mstWeight(int[][] points) {\n        if (points == null || points.length <= 1) {\n            return 0;\n        }\n        return SpanningTree.of(points).weight;\n    }\n\n    @Override\n    public TourResult doubleTree(int[][] points) {\n        if (points == null || points.length == 0) {\n            return null;\n        }\n        SpanningTree tree = SpanningTree.of(points);\n        List<Integer> order = new ArrayList<>(points.length);\n        tree.preorder(0, -1, order);\n        int[] tour = order.stream().mapToInt(Integer::intValue).toArray();\n        return new TourResult(tour, tourCost(points, tour));\n    }\n\n    @Override\n    public int matchingWeight(int[][] points) {\n        if (points == null || points.length <= 1) {\n            return 0;\n        }\n        SpanningTree tree = SpanningTree.of(points);\n        int[] odd = tree.oddDegreeVertices();\n        return new MinMatching(points, odd).minCost();\n    }\n\n    @Override\n    public TourResult christofides(int[][] points) {\n        if (points == null || points.length == 0) {\n            return null;\n        }\n        int n = points.length;\n        if (n == 1) {\n            return new TourResult(new int[] {0}, 0);\n        }\n\n        SpanningTree tree = SpanningTree.of(points);\n        int[] odd = tree.oddDegreeVertices();\n        List<int[]> multiEdges = new ArrayList<>(tree.edges);\n        multiEdges.addAll(new MinMatching(points, odd).pairs());\n\n        List<Integer> circuit = EulerCircuit.find(n, multiEdges, 0);\n\n        boolean[] seen = new boolean[n];\n        int[] tour = new int[n];\n        int idx = 0;\n        for (int v : circuit) {\n            if (!seen[v]) {\n                seen[v] = true;\n                tour[idx++] = v;\n            }\n        }\n        return new TourResult(tour, tourCost(points, tour));\n    }\n\n    private static int dist(int[] p, int[] q) {\n        return Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]);\n    }\n\n    private static int tourCost(int[][] points, int[] tour) {\n        int n = tour.length;\n        int cost = 0;\n        for (int i = 0; i < n; i++) {\n            cost += dist(points[tour[i]], points[tour[(i + 1) % n]]);\n        }\n        return cost;\n    }\n\n    /** Minimum spanning tree built by Prim's algorithm started from vertex 0. */\n    private static final class SpanningTree {\n        final int n;\n        final List<int[]> edges = new ArrayList<>();\n        final List<List<Integer>> adj = new ArrayList<>();\n        final int[] degree;\n        int weight;\n\n        private SpanningTree(int n) {\n            this.n = n;\n            this.degree = new int[n];\n            for (int i = 0; i < n; i++) {\n                adj.add(new ArrayList<>());\n            }\n        }\n\n        static SpanningTree of(int[][] pts) {\n            int n = pts.length;\n            SpanningTree t = new SpanningTree(n);\n            if (n <= 1) {\n                return t;\n            }\n            boolean[] inTree = new boolean[n];\n            int[] key = new int[n];\n            inTree[0] = true;\n            for (int v = 1; v < n; v++) {\n                key[v] = dist(pts[0], pts[v]);\n            }\n            for (int step = 1; step < n; step++) {\n                int v = -1;\n                for (int c = 0; c < n; c++) {\n                    if (!inTree[c] && (v == -1 || key[c] < key[v])) {\n                        v = c;\n                    }\n                }\n                int parent = -1;\n                for (int u = 0; u < n; u++) {\n                    if (inTree[u] && dist(pts[u], pts[v]) == key[v]) {\n                        parent = u;\n                        break;\n                    }\n                }\n                t.addEdge(parent, v);\n                t.weight += key[v];\n                inTree[v] = true;\n                for (int w = 0; w < n; w++) {\n                    if (!inTree[w]) {\n                        int d = dist(pts[v], pts[w]);\n                        if (d < key[w]) {\n                            key[w] = d;\n                        }\n                    }\n                }\n            }\n            for (List<Integer> list : t.adj) {\n                Collections.sort(list);\n            }\n            return t;\n        }\n\n        private void addEdge(int u, int v) {\n            edges.add(new int[] {u, v});\n            adj.get(u).add(v);\n            adj.get(v).add(u);\n            degree[u]++;\n            degree[v]++;\n        }\n\n        int[] oddDegreeVertices() {\n            return java.util.stream.IntStream.range(0, n)\n                    .filter(i -> degree[i] % 2 == 1)\n                    .toArray();\n        }\n\n        void preorder(int v, int parent, List<Integer> order) {\n            order.add(v);\n            for (int u : adj.get(v)) {\n                if (u != parent) {\n                    preorder(u, v, order);\n                }\n            }\n        }\n    }\n\n    /** Exact minimum-weight perfect matching over a small vertex set via bitmask DP. */\n    private static final class MinMatching {\n        private final int[][] pts;\n        private final int[] odd;\n        private final int full;\n        private final int[] memo;\n\n        MinMatching(int[][] pts, int[] odd) {\n            this.pts = pts;\n            this.odd = odd;\n            this.full = (1 << odd.length) - 1;\n            this.memo = new int[1 << odd.length];\n            Arrays.fill(memo, -1);\n        }\n\n        int minCost() {\n            return solve(0);\n        }\n\n        List<int[]> pairs() {\n            List<int[]> result = new ArrayList<>();\n            int mask = 0;\n            while (mask != full) {\n                int i = Integer.numberOfTrailingZeros(~mask);\n                int current = solve(mask);\n                boolean found = false;\n                for (int j = i + 1; j < odd.length && !found; j++) {\n                    if ((mask & (1 << j)) != 0) {\n                        continue;\n                    }\n                    int next = mask | (1 << i) | (1 << j);\n                    int c = dist(pts[odd[i]], pts[odd[j]]);\n                    if (c + solve(next) == current) {\n                        result.add(new int[] {odd[i], odd[j]});\n                        mask = next;\n                        found = true;\n                    }\n                }\n            }\n            return result;\n        }\n\n        /** Minimum cost to pair all vertices not contained in mask. */\n        private int solve(int mask) {\n            if (mask == full) {\n                return 0;\n            }\n            if (memo[mask] >= 0) {\n                return memo[mask];\n            }\n            int i = Integer.numberOfTrailingZeros(~mask);\n            int best = Integer.MAX_VALUE;\n            for (int j = i + 1; j < odd.length; j++) {\n                if ((mask & (1 << j)) != 0) {\n                    continue;\n                }\n                int c = dist(pts[odd[i]], pts[odd[j]]) + solve(mask | (1 << i) | (1 << j));\n                if (c < best) {\n                    best = c;\n                }\n            }\n            memo[mask] = best;\n            return best;\n        }\n    }\n\n    /** Hierholzer's algorithm on a multigraph given as an edge list. */\n    private static final class EulerCircuit {\n        static List<Integer> find(int n, List<int[]> edges, int start) {\n            List<List<Integer>> incident = new ArrayList<>(n);\n            for (int i = 0; i < n; i++) {\n                incident.add(new ArrayList<>());\n            }\n            for (int e = 0; e < edges.size(); e++) {\n                int[] ed = edges.get(e);\n                incident.get(ed[0]).add(e);\n                incident.get(ed[1]).add(e);\n            }\n            boolean[] used = new boolean[edges.size()];\n            int[] ptr = new int[n];\n            List<Integer> circuit = new ArrayList<>();\n            List<Integer> stack = new ArrayList<>();\n            stack.add(start);\n            while (!stack.isEmpty()) {\n                int v = stack.get(stack.size() - 1);\n                List<Integer> inc = incident.get(v);\n                while (ptr[v] < inc.size() && used[inc.get(ptr[v])]) {\n                    ptr[v]++;\n                }\n                if (ptr[v] < inc.size()) {\n                    int e = inc.get(ptr[v]);\n                    used[e] = true;\n                    int[] ed = edges.get(e);\n                    int other = ed[0] == v ? ed[1] : ed[0];\n                    stack.add(other);\n                } else {\n                    circuit.add(stack.remove(stack.size() - 1));\n                }\n            }\n            Collections.reverse(circuit);\n            return circuit;\n        }\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rtp5EpeQtYSo8shLzr",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Behaviour is split into private nested classes with state and methods: SpanningTree (edges, adj, degree, preorder, oddDegreeVertices), MinMatching (solve, pairs, minCost) and EulerCircuit. The public methods just orchestrate them. A point is lost because EulerCircuit is a class with only a static method (a function holder), SpanningTree exposes package-private mutable fields (weight, edges), and the outer class keeps static helpers dist/tourCost instead of a Point or Graph abstraction. A 5 would model points and edges as small types and keep the nested classes' state encapsulated.\",\"language_idiomaticity\":\"Uses generics without raw types, @Override, final nested classes, List/ArrayList, Collections.sort and reverse, IntStream.range(...).filter(...).toArray(), and Integer.numberOfTrailingZeros for the bitmask DP. Departures: the fully qualified java.util.stream.IntStream inline instead of an import, a List<Integer> used as the Euler stack instead of Deque/ArrayDeque, edges as int[] pairs, and a memo array with -1 sentinels. Using ArrayDeque and an import would earn a 5.\",\"readability\":\"Names are clear (SpanningTree, MinMatching, EulerCircuit, oddDegreeVertices, preorder, tourCost) and each method is short. Javadoc comments are brief and useful, e.g. 'Minimum cost to pair all vertices not contained in mask'. Weaker points are the `found` flag loop in pairs(), which is a little awkward, the long SpanningTree.of with its three inner loops, and the stack manipulation via get(size-1)/remove(size-1). Splitting Prim's steps into helpers would improve it.\",\"design\":\"Decomposition is good: MST construction is shared by all four public methods, matching reconstruction reuses the memoised DP, and Euler circuit and shortcutting are separate. Prim's tie-breaking is handled explicitly: the smallest-index parent comes from scanning u in ascending order, and the adjacency lists are sorted for the preorder. Weaknesses: SpanningTree.of recomputes distances with a repeated O(n) scan, and the SpanningTree is rebuilt in each method (acceptable). The shortcutting is inline in christofides rather than in its own method, and there is duplicated edge-index bookkeeping. Overall it is clean and appropriate for the task.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"List<Integer> used as a stack instead of Deque/ArrayDeque\",\"Edges represented as raw int[] pairs rather than a small type\",\"Fully qualified java.util.stream.IntStream inline instead of an import\",\"Static-only EulerCircuit class acting as a function holder\",\"Boolean `found` flag loop in MinMatching.pairs()\"],\"justification\":\"The solution is well decomposed into SpanningTree, MinMatching and EulerCircuit nested classes, with the public methods orchestrating them and sharing the MST. It uses standard collections, generics and a streams call where natural, and handles the tie-breaking rules correctly through the ordered parent scan and sorted adjacency lists. Minor departures are the List-as-stack, int[] edges, the inline fully qualified stream import and the `found` flag loop in pairs().\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6641,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6641,
+          "model": null,
+          "output_tokens": 1158,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1158,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

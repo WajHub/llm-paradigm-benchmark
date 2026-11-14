@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:03+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-7-s1-a0",
+  "request_id": "req_011Ch1RuRRzYDaPzCcUKegDg",
+  "duration_s": 8.6,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement global sequence alignment with an affine gap penalty (Gotoh's algorithm) in\nFree Pascal in the unit sequence_alignment (file sequence_alignment.pas). The unit already\ndeclares the result type and the three routines; keep the interface unchanged and\nimplement AlignmentScore, AlignmentAlign and FreeAlignmentResult in the implementation\nsection.\n\nDefinitions (every rule below is checked by the tests):\n  * Inputs: two AnsiStrings A and B (possibly empty) of ASCII letters; they never contain\n    '-'. Characters are compared exactly (case-sensitive). The four parameters MatchScore,\n    MismatchPenalty, GapOpen, GapExtend are all >= 0 (GapExtend may be 0).\n  * An alignment of A and B is a pair of equal-length strings A', B' over the letters\n    plus the gap character '-' such that deleting every '-' from A' gives A and from B'\n    gives B, and NO column has '-' in both rows.\n  * Score of an alignment:\n      - every column with two characters: +MatchScore if they are equal, -MismatchPenalty\n        otherwise;\n      - every gap, i.e. every MAXIMAL run of consecutive '-' in the same row, of length\n        L >= 1, costs GapOpen + L * GapExtend (subtracted). So a gap of length 3 costs\n        GapOpen + 3*GapExtend: the first gap character also pays GapExtend.\n  * A gap in one row may be immediately followed (or preceded) by a gap in the other row,\n    e.g. the columns  A-  over  -C . These are two separate gaps and each pays its own\n    GapOpen. Your DP must allow these transitions (gap-in-A <-> gap-in-B), otherwise some\n    optimal alignments are missed.\n  * Global alignment: leading and trailing gaps are penalised exactly like inner gaps\n    (no free end gaps, no local alignment, no clamping at 0). Scores may be negative.\n\n- Implement `AlignmentScore(const A, B: AnsiString; MatchScore, MismatchPenalty, GapOpen,\n  GapExtend: LongInt): LongInt`: return the maximum score over all alignments.\n  * '' vs '' -> 0.\n  * '' vs a string of length L (either order) -> -(GapOpen + L * GapExtend).\n\n- Implement `AlignmentAlign(<same parameters>): PAlignmentResult`: return a newly\n  allocated record (New) with\n  * Score    = the maximum score (same value as AlignmentScore),\n  * AlignedA = A', AlignedB = B' : one optimal alignment, with '-' as gap character, whose\n    score by the definition above equals Score.\n  * Never return nil. '' vs '' -> Score 0, AlignedA = '' and AlignedB = ''.\n    'ACG' vs '' -> AlignedA = 'ACG', AlignedB = '---'.\n  * If several optimal alignments exist, any of them is accepted (the tests recompute the\n    score of your strings and check all the rules above).\n\n- Implement `FreeAlignmentResult(var R: PAlignmentResult)`: Dispose the record (its\n  AnsiString fields are released by Dispose) and set R to nil. FreeAlignmentResult(nil)\n  is a no-op. The caller owns every returned record and frees it with this procedure.\n\nAlgorithm requirements:\n  - Use Gotoh's O(Length(A) * Length(B)) dynamic programming with three tables (column\n    of two characters / A-character over gap / gap over B-character, or an equivalent\n    formulation) and a traceback that switches between the tables. Do NOT enumerate\n    alignments; inputs have more than 100 characters.\n  - Use a \"minus infinity\" sentinel that cannot overflow LongInt when penalties are\n    subtracted from it.\n  - Strings are 1-based in Pascal (A[1] .. A[Length(A)]).\n\nPascal notes:\n  - Pascal is case-insensitive: the parameters are named A and B, so do NOT declare local\n    variables named a or b (or anything else that clashes with a parameter name), and do\n    not name anything Result except the function result.\n  - The program is run under valgrind and must not leak memory.\n\n## Stub module given to the author (sequence_alignment.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit sequence_alignment;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  { One optimal global alignment. AlignedA / AlignedB have equal length and use '-'\n    as the gap character. Allocated by AlignmentAlign, freed with FreeAlignmentResult. }\n  PAlignmentResult = ^TAlignmentResult;\n  TAlignmentResult = record\n    Score: LongInt;\n    AlignedA: AnsiString;\n    AlignedB: AnsiString;\n  end;\n\nfunction AlignmentScore(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): LongInt;\nfunction AlignmentAlign(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): PAlignmentResult;\nprocedure FreeAlignmentResult(var R: PAlignmentResult);\n\nimplementation\n\nfunction AlignmentScore(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): LongInt;\nbegin\n  raise Exception.Create('AlignmentScore not implemented');\n  Result := -1;\nend;\n\nfunction AlignmentAlign(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): PAlignmentResult;\nbegin\n  raise Exception.Create('AlignmentAlign not implemented');\n  Result := nil;\nend;\n\nprocedure FreeAlignmentResult(var R: PAlignmentResult);\nbegin\n  if R <> nil then begin\n    Dispose(R);\n    R := nil;\n  end;\nend;\n\nend.\n\n```\n\n## Code to evaluate (sequence_alignment.pas)\n```pascal\nunit sequence_alignment;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  { One optimal global alignment. AlignedA / AlignedB have equal length and use '-'\n    as the gap character. Allocated by AlignmentAlign, freed with FreeAlignmentResult. }\n  PAlignmentResult = ^TAlignmentResult;\n  TAlignmentResult = record\n    Score: LongInt;\n    AlignedA: AnsiString;\n    AlignedB: AnsiString;\n  end;\n\nfunction AlignmentScore(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): LongInt;\nfunction AlignmentAlign(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): PAlignmentResult;\nprocedure FreeAlignmentResult(var R: PAlignmentResult);\n\nimplementation\n\ntype\n  TDPTable = array of array of LongInt;\n\nconst\n  NegInf: LongInt = -500000000;\n\nfunction Max3(x, y, z: LongInt): LongInt;\nbegin\n  Result := x;\n  if y > Result then\n    Result := y;\n  if z > Result then\n    Result := z;\nend;\n\n{ MM: best score ending with a letter/letter column.\n  XX: best score ending with A-letter over a gap (gap in B).\n  YY: best score ending with a gap over B-letter (gap in A). }\nprocedure FillTables(const SeqA, SeqB: AnsiString; Match, Mismatch, GOpen,\n  GExt: LongInt; var MM, XX, YY: TDPTable);\nvar\n  n, m, i, j, s, openExt: LongInt;\nbegin\n  n := Length(SeqA);\n  m := Length(SeqB);\n  SetLength(MM, n + 1, m + 1);\n  SetLength(XX, n + 1, m + 1);\n  SetLength(YY, n + 1, m + 1);\n  for i := 0 to n do\n    for j := 0 to m do begin\n      MM[i, j] := NegInf;\n      XX[i, j] := NegInf;\n      YY[i, j] := NegInf;\n    end;\n  MM[0, 0] := 0;\n  for i := 1 to n do\n    XX[i, 0] := -(GOpen + i * GExt);\n  for j := 1 to m do\n    YY[0, j] := -(GOpen + j * GExt);\n  openExt := GOpen + GExt;\n  for i := 1 to n do\n    for j := 1 to m do begin\n      if SeqA[i] = SeqB[j] then\n        s := Match\n      else\n        s := -Mismatch;\n      MM[i, j] := Max3(MM[i - 1, j - 1], XX[i - 1, j - 1], YY[i - 1, j - 1]) + s;\n      XX[i, j] := Max3(MM[i - 1, j] - openExt, XX[i - 1, j] - GExt,\n        YY[i - 1, j] - openExt);\n      YY[i, j] := Max3(MM[i, j - 1] - openExt, YY[i, j - 1] - GExt,\n        XX[i, j - 1] - openExt);\n    end;\nend;\n\nfunction AlignmentScore(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): LongInt;\nvar\n  MM, XX, YY: TDPTable;\n  n, m: LongInt;\nbegin\n  n := Length(A);\n  m := Length(B);\n  FillTables(A, B, MatchScore, MismatchPenalty, GapOpen, GapExtend, MM, XX, YY);\n  Result := Max3(MM[n, m], XX[n, m], YY[n, m]);\nend;\n\nfunction AlignmentAlign(const A, B: AnsiString; MatchScore, MismatchPenalty,\n  GapOpen, GapExtend: LongInt): PAlignmentResult;\nvar\n  MM, XX, YY: TDPTable;\n  n, m, i, j, s, pos, st, best, openExt: LongInt;\n  ra, rb: AnsiString;\n  R: PAlignmentResult;\n  v: LongInt;\nbegin\n  n := Length(A);\n  m := Length(B);\n  openExt := GapOpen + GapExtend;\n  FillTables(A, B, MatchScore, MismatchPenalty, GapOpen, GapExtend, MM, XX, YY);\n\n  st := 0;\n  best := MM[n, m];\n  if XX[n, m] > best then begin\n    best := XX[n, m];\n    st := 1;\n  end;\n  if YY[n, m] > best then begin\n    best := YY[n, m];\n    st := 2;\n  end;\n\n  SetLength(ra, n + m);\n  SetLength(rb, n + m);\n  pos := n + m + 1;\n  i := n;\n  j := m;\n  while (i > 0) or (j > 0) do begin\n    case st of\n      0:\n        begin\n          if A[i] = B[j] then\n            s := MatchScore\n          else\n            s := -MismatchPenalty;\n          v := MM[i, j] - s;\n          Dec(pos);\n          ra[pos] := A[i];\n          rb[pos] := B[j];\n          if MM[i - 1, j - 1] = v then\n            st := 0\n          else if XX[i - 1, j - 1] = v then\n            st := 1\n          else\n            st := 2;\n          Dec(i);\n          Dec(j);\n        end;\n      1:\n        begin\n          v := XX[i, j];\n          Dec(pos);\n          ra[pos] := A[i];\n          rb[pos] := '-';\n          if XX[i - 1, j] - GapExtend = v then\n            st := 1\n          else if MM[i - 1, j] - openExt = v then\n            st := 0\n          else\n            st := 2;\n          Dec(i);\n        end;\n      2:\n        begin\n          v := YY[i, j];\n          Dec(pos);\n          ra[pos] := '-';\n          rb[pos] := B[j];\n          if YY[i, j - 1] - GapExtend = v then\n            st := 2\n          else if MM[i, j - 1] - openExt = v then\n            st := 0\n          else\n            st := 1;\n          Dec(j);\n        end;\n    end;\n  end;\n\n  New(R);\n  R^.Score := best;\n  R^.AlignedA := Copy(ra, pos, n + m + 1 - pos);\n  R^.AlignedB := Copy(rb, pos, n + m + 1 - pos);\n  Result := R;\nend;\n\nprocedure FreeAlignmentResult(var R: PAlignmentResult);\nbegin\n  if R <> nil then begin\n    Dispose(R);\n    R := nil;\n  end;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RuRic4ehck2mKRAQnD",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The structure is procedural: FillTables fills the three DP tables, AlignmentAlign does an explicit state-machine traceback with a while loop and case on st, and results are written into preallocated buffers. Data flow goes through var parameters and plain loops, as expected for imperative Pascal. It would reach 5 with named state constants or an enum in place of the magic 0/1/2 and with the shared logic factored out more cleanly.\",\"language_idiomaticity\":\"It uses SetLength with 2D dynamic arrays, Copy, Dec, New/Dispose, a typed const NegInf, and case. Naming is reasonable. Several things hold it back: Math is imported but Max3 is hand-written, NegInf is a typed const instead of a plain const, and lowercase locals like n, m and ra clash stylistically with the PascalCase used elsewhere. AlignmentAlign has an unused variable pattern (v reused across states). `Exit` and an enum type for states are not used. Arrays are freed automatically, so there are no leaks.\",\"readability\":\"A comment explains the MM/XX/YY meaning, and the identifiers are mostly clear. The traceback uses integer literals 0/1/2 for states and a long case body, and `pos` counts backwards from n+m+1, which takes some effort to follow. Short names like s, v and st are only moderately descriptive. Named state constants and a smaller traceback would earn a 5.\",\"design\":\"FillTables is shared by AlignmentScore and AlignmentAlign, so there is no duplication of the DP. Max3 is a sensible helper kept in the implementation section. The weaknesses are that AlignmentScore allocates full O(nm) tables where two rows would do, the traceback is a single large procedure body, and the three tables are passed as separate var parameters instead of being grouped in a record.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":3,\"design\":4,\"anti_patterns\":[\"magic integers 0/1/2 for traceback states instead of an enumerated type\",\"hand-written Max3 although Math is already imported (MaxIntValue could be used)\",\"full O(nm) tables allocated even for score-only computation\",\"one long traceback procedure with a large case body\"],\"justification\":\"This is a clean procedural Gotoh implementation: FillTables is shared, the traceback uses a case-driven state machine, and result memory is handled with New and Dispose. Readability suffers from the magic state numbers 0/1/2, the terse names s, v and st, and the backward-counting pos. Small design points hold it back: the score-only path stores full tables, and the traceback is a single long block.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6356,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6356,
+          "model": null,
+          "output_tokens": 890,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 890,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

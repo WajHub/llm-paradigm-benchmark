@@ -6,24 +6,33 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The search is nondeterministic in `solve_one` (`member(D, Ds)` with backtracking, committed by `->` in `sudoku_solve`), and `count_sol` threads an accumulator. However, the board is a mutable compound updated with `duplicate_term` and `setarg/3`, and `mrv_` is an imperative scan with nested if-then-else carrying a running best. `count_sol/branch` is manual state passing rather than `aggregate_all(count)` or `findnsols/4`. `sudoku_is_valid` uses a negated generate-and-test, which is fine. A logic-style version would use list-based pure data, `nth0`/`foldl`, `findnsols` or `limit/2`, and pairs-keyed MRV selection (`min_member`) to earn a 4.",
+    "language_idiomaticity": "Uses `maplist`, `between`, `findall`, `memberchk`, `arg/3` and `=..` to build the board, with correct `is`/`=:=`. But it hand-rolls things the library provides (`min_member`, `findnsols`, `aggregate_all(count)`, `sumlist`, `nth0`). `setarg` on `duplicate_term` copies is un-Prolog-like, and `=..` with 81 args is clumsy. `sudoku_candidates` does not validate list length or `is_list`, so malformed input throws. `peer/2` has a comment that is muddled and mentions the I==J case confusingly.",
+    "readability": "Predicate names are clear (`peer`, `cands`, `mrv`, `solve_one`, `count_sol`, `branch`), there are section headers and a header comment explaining the b/81 representation. `mrv_/4` has deeply nested if-then-else and `R0 = cell(_, D0)` unification inside a branch, which is hard to follow. The `peer` comment is confusing. Overall it is mostly readable.",
+    "design": "Reasonable decomposition into validation, candidates, MRV, solve and count. `peer/2` is recomputed with `//` and `mod` on every call, and `cands/3` scans all 81 cells for each empty cell, so the per-node cost is high and there is no precomputed peer table. There is some duplication between `sudoku_is_valid` and `cands` in the peer scanning. There is no constraint propagation beyond MRV, and the copy-per-branch approach is costly. Using precomputed row/col/box unit lists would make it cleaner and faster."
+  },
   "paradigm_idiomaticity": 3,
   "language_idiomaticity": 3,
   "readability": 4,
   "design": 3,
   "anti_patterns": [
-    "setarg/3 with duplicate_term/2 for destructive board updates instead of pure state passing",
-    "imperative-style scan loop with an accumulator in mrv_/4 (index counter, running best)",
-    "nested if-then-else chains in mrv_ and count_sol instead of clause-head dispatch",
-    "O(81) generate-and-test peer scan via between/3 and arithmetic instead of explicit row/column/box lists",
-    "validity check done by a double between/3 loop over cell pairs",
-    "sudoku_candidates does not check that the grid is a valid 81-element list (to_board with =.. on arbitrary input)",
-    "board conversion through =.. and compound b/81 rather than list or library(clpfd)"
+    "destructive setarg/3 on duplicate_term copies instead of pure data",
+    "imperative scan loop in mrv_ with a running-best accumulator",
+    "manual counting loop instead of findnsols/aggregate_all",
+    "peer computed via arithmetic over all 81 cells instead of precomputed units",
+    "sudoku_candidates does not validate input shape",
+    "reimplementing min selection instead of using min_member"
   ],
-  "justification": "The code does the job with a sensible MRV and branching structure, and the top-level predicates are cleanly separated. However, it leans on imperative techniques: a compound term mutated with setarg/3 after duplicate_term/2, an index-driven scan with a running best in mrv_/4, and nested if-then-else blocks. The peer test recomputes row/column/box arithmetic for all 81 cells on every candidate query, and validity is a pairwise between/3 scan; this is not the declarative style of rows/columns/boxes lists, maplist, or clpfd/all_distinct. The comment on peer/2 is also confusing. It is readable and reasonably modular, but only moderately idiomatic for Prolog.",
+  "justification": "The solution has a sensible structure and correct MRV backtracking with `member/2` and an if-then-else commit, but it relies on a mutable `b/81` term with `setarg`/`duplicate_term` and imperative-style loops (`mrv_`, `branch`). It reinvents library functionality (`min_member`, `findnsols`) and recomputes peers by arithmetic across all 81 cells for each query. It is readable, but a more declarative, list-based design with precomputed units would be more idiomatic.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 5483,
-  "output_tokens": 512,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SHiqN5iqKb2MWtJaun",
+  "judge_s": 10.1,
+  "input_tokens": 5820,
+  "output_tokens": 1177,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

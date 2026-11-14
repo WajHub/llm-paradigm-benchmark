@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:52+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-5-s1-a3",
+  "request_id": "req_011Ch1SGWALB22RqdNVhZTwn",
+  "duration_s": 10.9,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement a mathematical expression parser and evaluator in Free Pascal in the unit\nexpression (file expression.pas). The parser turns a string into an abstract syntax\ntree (PAstNode), and the evaluator computes the numeric value of that AST given a set\nof variables. The unit already defines the types; implement ParseExpression, Evaluate\nand FreeAst.\n\n- Implement `ParseExpression(const Expr: AnsiString): PAstNode`: Parse the input string\n  and return a pointer to the root node, or nil if the string is not a syntactically\n  valid expression. Whitespace is insignificant.\n\n  Grammar (highest precedence last; `^` is right-associative, everything else is\n  left-associative):\n\n      expr    := term   (('+' | '-') term)*\n      term    := unary  (('*' | '/' | '%') unary)*\n      unary   := ('+' | '-') unary | power\n      power   := primary ('^' unary)?\n      primary := NUMBER | IDENT | IDENT '(' args ')' | '(' expr ')'\n      args    := expr (',' expr)*\n\n  * NUMBER: a non-negative decimal literal, e.g. `42` or `3.14` (TAstNodeKind ankNumber,\n    stored in NumValue).\n  * IDENT: a variable name matching `[A-Za-z_][A-Za-z0-9_]*` (ankVariable, name in\n    StrValue).\n  * A call `IDENT '(' args ')'` is only valid for these functions, with the exact\n    argument count shown: `sqrt`/1, `abs`/1, `sin`/1, `cos`/1, `min`/2, `max`/2,\n    `pow`/2 (ankFunction, name in StrValue, arguments in Children). Any other function\n    name, or a wrong number of arguments, is a parse error (nil).\n  * Binary operators are ankBinaryOp (operator in StrValue, two Children); unary +/- are\n    ankUnaryOp (operator in StrValue, one Child).\n  * Precedence consequences: `-2^2` parses as `-(2^2)` and `2^3^2` as `2^(3^2)`.\n\n- Implement `Evaluate(Ast: PAstNode; const Vars: TVariableArray): TEvalResult`: Evaluate\n  the AST using the given variable bindings and return a TEvalResult (Status + Value).\n  If any sub-expression produces a non-esOk status, propagate the first such status\n  upward (short-circuit) and leave Value at 0.0.\n\n  Semantics:\n  * A number evaluates to its literal value with status esOk.\n  * A variable evaluates to its bound value, or esUndefinedVar if no binding with that\n    name exists.\n  * Unary '-' negates, unary '+' is identity.\n  * '+' '-' '*' are ordinary arithmetic.\n  * '/' and '%' return esDivByZero when the divisor is 0. '%' is the floating-point\n    remainder.\n  * '^' and pow(x, y) compute x raised to y; if the result is not a finite real number\n    (e.g. a negative base with a non-integer exponent), return esDomainError.\n  * sqrt(x) returns esDomainError when x < 0.\n  * abs, sin, cos, min, max behave as usual (angles in radians).\n\n- Implement `FreeAst(var Ast: PAstNode)`: Free the whole AST (including all Children)\n  and set Ast to nil. FreeAst(nil) is a no-op.\n\nConstraints:\n  - ParseExpression('') must return nil.\n  - Floating-point results are compared with a small epsilon tolerance.\n\n## Stub module given to the author (expression.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit expression;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TAstNodeKind = (ankNumber, ankVariable, ankBinaryOp, ankUnaryOp, ankFunction);\n\n  PAstNode = ^TAstNode;\n  TAstNodeArray = array of PAstNode;\n\n  TAstNode = record\n    Kind: TAstNodeKind;\n    NumValue: Double;\n    StrValue: AnsiString;\n    Children: TAstNodeArray;\n  end;\n\n  TVariable = record\n    Name: AnsiString;\n    Value: Double;\n  end;\n\n  TVariableArray = array of TVariable;\n\n  TEvalStatus = (esOk, esDivByZero, esUndefinedVar, esInvalidOp, esDomainError);\n\n  TEvalResult = record\n    Status: TEvalStatus;\n    Value: Double;\n  end;\n\nfunction ParseExpression(const Expr: AnsiString): PAstNode;\nfunction Evaluate(Ast: PAstNode; const Vars: TVariableArray): TEvalResult;\nprocedure FreeAst(var Ast: PAstNode);\n\nimplementation\n\nfunction ParseExpression(const Expr: AnsiString): PAstNode;\nbegin\n  raise Exception.Create('ParseExpression not implemented');\n  Result := nil;\nend;\n\nfunction Evaluate(Ast: PAstNode; const Vars: TVariableArray): TEvalResult;\nbegin\n  raise Exception.Create('Evaluate not implemented');\n  Result.Status := esInvalidOp;\n  Result.Value := 0.0;\nend;\n\nprocedure FreeAst(var Ast: PAstNode);\nbegin\n  if Ast <> nil then begin\n    Dispose(Ast);\n    Ast := nil;\n  end;\nend;\n\nend.\n\n```\n\n## Code to evaluate (expression.pas)\n```pascal\n{$mode objfpc}{$H+}\n\nunit expression;\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TAstNodeKind = (ankNumber, ankVariable, ankBinaryOp, ankUnaryOp, ankFunction);\n\n  PAstNode = ^TAstNode;\n  TAstNodeArray = array of PAstNode;\n\n  TAstNode = record\n    Kind: TAstNodeKind;\n    NumValue: Double;\n    StrValue: AnsiString;\n    Children: TAstNodeArray;\n  end;\n\n  TVariable = record\n    Name: AnsiString;\n    Value: Double;\n  end;\n\n  TVariableArray = array of TVariable;\n\n  TEvalStatus = (esOk, esDivByZero, esUndefinedVar, esInvalidOp, esDomainError);\n\n  TEvalResult = record\n    Status: TEvalStatus;\n    Value: Double;\n  end;\n\nfunction ParseExpression(const Expr: AnsiString): PAstNode;\nfunction Evaluate(Ast: PAstNode; const Vars: TVariableArray): TEvalResult;\nprocedure FreeAst(var Ast: PAstNode);\n\nimplementation\n\nvar\n  GSrc: AnsiString;\n  GPos: Integer;\n\nfunction ParseExpr: PAstNode; forward;\nfunction ParsePower: PAstNode; forward;\nfunction ParseUnary: PAstNode; forward;\n\nprocedure SkipWhitespace;\nbegin\n  while (GPos <= Length(GSrc)) and (GSrc[GPos] in [' ', #9, #10, #13]) do\n    Inc(GPos);\nend;\n\nfunction PeekChar: AnsiChar;\nbegin\n  SkipWhitespace;\n  if GPos <= Length(GSrc) then\n    Result := GSrc[GPos]\n  else\n    Result := #0;\nend;\n\nfunction NewNode(AKind: TAstNodeKind): PAstNode;\nbegin\n  New(Result);\n  Result^.Kind := AKind;\n  Result^.NumValue := 0.0;\n  Result^.StrValue := '';\n  SetLength(Result^.Children, 0);\nend;\n\nfunction MakeBinary(const Op: AnsiString; L, R: PAstNode): PAstNode;\nbegin\n  Result := NewNode(ankBinaryOp);\n  Result^.StrValue := Op;\n  SetLength(Result^.Children, 2);\n  Result^.Children[0] := L;\n  Result^.Children[1] := R;\nend;\n\nfunction MakeUnary(const Op: AnsiString; C: PAstNode): PAstNode;\nbegin\n  Result := NewNode(ankUnaryOp);\n  Result^.StrValue := Op;\n  SetLength(Result^.Children, 1);\n  Result^.Children[0] := C;\nend;\n\nprocedure FreeAst(var Ast: PAstNode);\nvar\n  i: Integer;\nbegin\n  if Ast <> nil then begin\n    for i := 0 to High(Ast^.Children) do\n      FreeAst(Ast^.Children[i]);\n    SetLength(Ast^.Children, 0);\n    Dispose(Ast);\n    Ast := nil;\n  end;\nend;\n\nprocedure FreeArgs(var Args: TAstNodeArray);\nvar\n  i: Integer;\nbegin\n  for i := 0 to High(Args) do\n    FreeAst(Args[i]);\n  SetLength(Args, 0);\nend;\n\nfunction FunctionArity(const AName: AnsiString): Integer;\nbegin\n  if (AName = 'sqrt') or (AName = 'abs') or (AName = 'sin') or (AName = 'cos') then\n    Result := 1\n  else if (AName = 'min') or (AName = 'max') or (AName = 'pow') then\n    Result := 2\n  else\n    Result := -1;\nend;\n\nfunction ParsePrimary: PAstNode;\nvar\n  C: AnsiChar;\n  Start, N, Expected: Integer;\n  Name, S: AnsiString;\n  Args: TAstNodeArray;\n  E, Node: PAstNode;\n  Ok: Boolean;\n  Code: Integer;\nbegin\n  Result := nil;\n  C := PeekChar;\n\n  if C in ['0'..'9'] then begin\n    Start := GPos;\n    while (GPos <= Length(GSrc)) and (GSrc[GPos] in ['0'..'9']) do\n      Inc(GPos);\n    if (GPos <= Length(GSrc)) and (GSrc[GPos] = '.') then begin\n      Inc(GPos);\n      if not ((GPos <= Length(GSrc)) and (GSrc[GPos] in ['0'..'9'])) then\n        Exit;\n      while (GPos <= Length(GSrc)) and (GSrc[GPos] in ['0'..'9']) do\n        Inc(GPos);\n    end;\n    S := Copy(GSrc, Start, GPos - Start);\n    Node := NewNode(ankNumber);\n    Val(S, Node^.NumValue, Code);\n    if Code <> 0 then begin\n      FreeAst(Node);\n      Exit;\n    end;\n    Result := Node;\n    Exit;\n  end;\n\n  if C in ['A'..'Z', 'a'..'z', '_'] then begin\n    Start := GPos;\n    while (GPos <= Length(GSrc)) and\n          (GSrc[GPos] in ['A'..'Z', 'a'..'z', '0'..'9', '_']) do\n      Inc(GPos);\n    Name := Copy(GSrc, Start, GPos - Start);\n\n    if PeekChar = '(' then begin\n      Expected := FunctionArity(Name);\n      if Expected < 0 then\n        Exit;\n      Inc(GPos);\n      SetLength(Args, 0);\n      Ok := True;\n      repeat\n        E := ParseExpr;\n        if E = nil then begin\n          Ok := False;\n          Break;\n        end;\n        N := Length(Args);\n        SetLength(Args, N + 1);\n        Args[N] := E;\n        if PeekChar <> ',' then\n          Break;\n        Inc(GPos);\n      until False;\n      if not Ok then begin\n        FreeArgs(Args);\n        Exit;\n      end;\n      if PeekChar <> ')' then begin\n        FreeArgs(Args);\n        Exit;\n      end;\n      Inc(GPos);\n      if Length(Args) <> Expected then begin\n        FreeArgs(Args);\n        Exit;\n      end;\n      Node := NewNode(ankFunction);\n      Node^.StrValue := Name;\n      Node^.Children := Args;\n      Args := nil;\n      Result := Node;\n    end\n    else begin\n      Node := NewNode(ankVariable);\n      Node^.StrValue := Name;\n      Result := Node;\n    end;\n    Exit;\n  end;\n\n  if C = '(' then begin\n    Inc(GPos);\n    E := ParseExpr;\n    if E = nil then\n      Exit;\n    if PeekChar <> ')' then begin\n      FreeAst(E);\n      Exit;\n    end;\n    Inc(GPos);\n    Result := E;\n  end;\nend;\n\nfunction ParsePower: PAstNode;\nvar\n  Base, Expo: PAstNode;\nbegin\n  Result := nil;\n  Base := ParsePrimary;\n  if Base = nil then\n    Exit;\n  if PeekChar = '^' then begin\n    Inc(GPos);\n    Expo := ParseUnary;\n    if Expo = nil then begin\n      FreeAst(Base);\n      Exit;\n    end;\n    Result := MakeBinary('^', Base, Expo);\n  end\n  else\n    Result := Base;\nend;\n\nfunction ParseUnary: PAstNode;\nvar\n  Op: AnsiChar;\n  Operand: PAstNode;\n  C: AnsiChar;\nbegin\n  Result := nil;\n  C := PeekChar;\n  if (C = '+') or (C = '-') then begin\n    Op := C;\n    Inc(GPos);\n    Operand := ParseUnary;\n    if Operand = nil then\n      Exit;\n    Result := MakeUnary(Op, Operand);\n  end\n  else\n    Result := ParsePower;\nend;\n\nfunction ParseTerm: PAstNode;\nvar\n  Left, Right: PAstNode;\n  Op, C: AnsiChar;\nbegin\n  Result := nil;\n  Left := ParseUnary;\n  if Left = nil then\n    Exit;\n  C := PeekChar;\n  while (C = '*') or (C = '/') or (C = '%') do begin\n    Op := C;\n    Inc(GPos);\n    Right := ParseUnary;\n    if Right = nil then begin\n      FreeAst(Left);\n      Exit;\n    end;\n    Left := MakeBinary(Op, Left, Right);\n    C := PeekChar;\n  end;\n  Result := Left;\nend;\n\nfunction ParseExpr: PAstNode;\nvar\n  Left, Right: PAstNode;\n  Op, C: AnsiChar;\nbegin\n  Result := nil;\n  Left := ParseTerm;\n  if Left = nil then\n    Exit;\n  C := PeekChar;\n  while (C = '+') or (C = '-') do begin\n    Op := C;\n    Inc(GPos);\n    Right := ParseTerm;\n    if Right = nil then begin\n      FreeAst(Left);\n      Exit;\n    end;\n    Left := MakeBinary(Op, Left, Right);\n    C := PeekChar;\n  end;\n  Result := Left;\nend;\n\nfunction ParseExpression(const Expr: AnsiString): PAstNode;\nvar\n  Root: PAstNode;\nbegin\n  GSrc := Expr;\n  GPos := 1;\n  Root := ParseExpr;\n  if Root <> nil then begin\n    SkipWhitespace;\n    if GPos <= Length(GSrc) then\n      FreeAst(Root);\n  end;\n  Result := Root;\nend;\n\nfunction IsFiniteValue(V: Double): Boolean;\nbegin\n  Result := not (IsNan(V) or IsInfinite(V));\nend;\n\nfunction FindVar(const Vars: TVariableArray; const AName: AnsiString;\n  out Value: Double): Boolean;\nvar\n  i: Integer;\nbegin\n  Result := False;\n  Value := 0.0;\n  for i := 0 to High(Vars) do\n    if Vars[i].Name = AName then begin\n      Value := Vars[i].Value;\n      Result := True;\n      Exit;\n    end;\nend;\n\nfunction PowerChecked(X, Y: Double): TEvalResult;\nvar\n  Res, Acc, B: Double;\n  N: Int64;\nbegin\n  Result.Status := esOk;\n  Result.Value := 0.0;\n  Res := 0.0;\n\n  if Y = 0.0 then\n    Res := 1.0\n  else if X = 0.0 then begin\n    if Y < 0.0 then begin\n      Result.Status := esDomainError;\n      Exit;\n    end;\n    Res := 0.0;\n  end\n  else if (Int(Y) = Y) and (Abs(Y) <= 1.0e9) then begin\n    N := Trunc(Abs(Y));\n    B := X;\n    Acc := 1.0;\n    while N > 0 do begin\n      if (N and 1) = 1 then\n        Acc := Acc * B;\n      B := B * B;\n      N := N shr 1;\n    end;\n    if Y < 0.0 then\n      Res := 1.0 / Acc\n    else\n      Res := Acc;\n  end\n  else if X < 0.0 then begin\n    Result.Status := esDomainError;\n    Exit;\n  end\n  else\n    Res := Exp(Y * Ln(X));\n\n  if not IsFiniteValue(Res) then\n    Result.Status := esDomainError\n  else\n    Result.Value := Res;\nend;\n\nfunction ApplyBinary(const Op: AnsiString; X, Y: Double): TEvalResult;\nbegin\n  Result.Status := esOk;\n  Result.Value := 0.0;\n  if Op = '+' then\n    Result.Value := X + Y\n  else if Op = '-' then\n    Result.Value := X - Y\n  else if Op = '*' then\n    Result.Value := X * Y\n  else if Op = '/' then begin\n    if Y = 0.0 then\n      Result.Status := esDivByZero\n    else\n      Result.Value := X / Y;\n  end\n  else if Op = '%' then begin\n    if Y = 0.0 then\n      Result.Status := esDivByZero\n    else\n      Result.Value := X - Y * Int(X / Y);\n  end\n  else if Op = '^' then\n    Result := PowerChecked(X, Y)\n  else\n    Result.Status := esInvalidOp;\nend;\n\nfunction Evaluate(Ast: PAstNode; const Vars: TVariableArray): TEvalResult;\nvar\n  L, R: TEvalResult;\n  Name: AnsiString;\nbegin\n  Result.Status := esOk;\n  Result.Value := 0.0;\n\n  if Ast = nil then begin\n    Result.Status := esInvalidOp;\n    Exit;\n  end;\n\n  case Ast^.Kind of\n    ankNumber:\n      Result.Value := Ast^.NumValue;\n\n    ankVariable:\n      if not FindVar(Vars, Ast^.StrValue, Result.Value) then\n        Result.Status := esUndefinedVar;\n\n    ankUnaryOp: begin\n      L := Evaluate(Ast^.Children[0], Vars);\n      if L.Status <> esOk then begin\n        Result := L;\n        Exit;\n      end;\n      if Ast^.StrValue = '-' then\n        Result.Value := -L.Value\n      else\n        Result.Value := L.Value;\n    end;\n\n    ankBinaryOp: begin\n      L := Evaluate(Ast^.Children[0], Vars);\n      if L.Status <> esOk then begin\n        Result := L;\n        Exit;\n      end;\n      R := Evaluate(Ast^.Children[1], Vars);\n      if R.Status <> esOk then begin\n        Result := R;\n        Exit;\n      end;\n      Result := ApplyBinary(Ast^.StrValue, L.Value, R.Value);\n    end;\n\n    ankFunction: begin\n      Name := Ast^.StrValue;\n      L := Evaluate(Ast^.Children[0], Vars);\n      if L.Status <> esOk then begin\n        Result := L;\n        Exit;\n      end;\n      R.Status := esOk;\n      R.Value := 0.0;\n      if Length(Ast^.Children) = 2 then begin\n        R := Evaluate(Ast^.Children[1], Vars);\n        if R.Status <> esOk then begin\n          Result := R;\n          Exit;\n        end;\n      end;\n\n      if Name = 'sqrt' then begin\n        if L.Value < 0.0 then\n          Result.Status := esDomainError\n        else\n          Result.Value := Sqrt(L.Value);\n      end\n      else if Name = 'abs' then\n        Result.Value := Abs(L.Value)\n      else if Name = 'sin' then\n        Result.Value := Sin(L.Value)\n      else if Name = 'cos' then\n        Result.Value := Cos(L.Value)\n      else if Name = 'min' then\n        Result.Value := Min(L.Value, R.Value)\n      else if Name = 'max' then\n        Result.Value := Max(L.Value, R.Value)\n      else if Name = 'pow' then\n        Result := PowerChecked(L.Value, R.Value)\n      else\n        Result.Status := esInvalidOp;\n    end;\n\n  else\n    Result.Status := esInvalidOp;\n  end;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SGWUS7jJCkgzxsCsc4",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is structured procedural recursive descent. ParseExpr, ParseTerm, ParseUnary, ParsePower and ParsePrimary map one-to-one onto the grammar, using while loops for left-associative levels. Evaluate recurses over the AST with a `case` on Kind and early-exit status propagation. Parser state sits in unit globals (GSrc, GPos), which is a common procedural shortcut but makes the parser non-reentrant. A parser record or object passed by var parameter would earn a 5.\",\"language_idiomaticity\":\"Uses New/Dispose, SetLength, High, Exit, Val, Copy, `in` sets, `out` parameter in FindVar, Math's Min/Max/IsNan/IsInfinite, and forward declarations. Weaknesses: the unit header puts `{$mode objfpc}` before `unit`, which is acceptable; string-comparison chains (`if Op = '+' ... else if`) in ApplyBinary and function dispatch where `case` on a char or enum would be better; a hand-rolled PowerChecked with square-and-multiply instead of Math.Power; `Result.Value := X - Y*Int(X/Y)` instead of Math.FMod or a similar routine. The repeated `GPos <= Length(GSrc)` checks could be wrapped in a helper.\",\"readability\":\"Names are meaningful and the functions are short, except ParsePrimary, which is long with many locals and deep nesting. It handles numbers, identifiers, function calls and parentheses inline. Many repeated `if X = nil then FreeAst... Exit` blocks add noise. Evaluate's ankFunction branch is a little awkward: it dummy-initializes R and evaluates the second arg conditionally on child count. There are no comments, but the code is mostly self-explanatory. Splitting ParsePrimary into ParseNumber, ParseIdentOrCall and so on would earn a 5.\",\"design\":\"Decomposition is decent: NewNode, MakeBinary, MakeUnary, FreeArgs, FunctionArity, FindVar, PowerChecked and ApplyBinary are separate helpers kept in the implementation section. Memory handling is careful, freeing partial results on failure and handing Args ownership to the node. Weaknesses: global mutable parser state; ParsePrimary does too much; operator and function dispatch uses string compares rather than a case or table; PowerChecked reinvents Power; ankFunction evaluation evaluates children generically but dispatches by name in one block.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"global mutable parser state (GSrc, GPos)\",\"long monolithic ParsePrimary with many responsibilities\",\"string-comparison if/else chains for operator and function dispatch instead of case\",\"reimplementing power and remainder instead of using Math routines\",\"repeated manual free-on-failure boilerplate\"],\"justification\":\"The solution is a clean procedural recursive-descent parser whose routines mirror the grammar, with careful manual memory management and early-exit error propagation in Evaluate. It is held back by global parser state, an overlong ParsePrimary, and string if-chains for dispatch. PowerChecked and the manual `%` formula reinvent RTL facilities, which lowers language idiomaticity.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 9127,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 9127,
+          "model": null,
+          "output_tokens": 1138,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1138,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

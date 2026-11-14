@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:36+00:00",
+  "kind": "judge",
+  "label": "C-test-7-s1-a0",
+  "request_id": "req_011Ch1RsJ7te2ccQ48AeKcdb",
+  "duration_s": 10.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\nImplement global sequence alignment with an affine gap penalty (Gotoh's algorithm)\nin C using the header file sequence_alignment.h.\n\nInputs: two NUL-terminated strings `a` and `b` (never NULL, possibly empty) made of\nprintable ASCII letters; they never contain '-'. Characters are compared exactly\n(case-sensitive). The four parameters `match_score`, `mismatch_penalty`, `gap_open`\nand `gap_extend` are all >= 0.\n\nDefinitions:\n  * An alignment of a and b is a pair of equal-length strings A', B' over the\n    alphabet plus the gap character '-', such that removing every '-' from A'\n    gives a and removing every '-' from B' gives b, and NO column has '-' in both\n    rows.\n  * Score of an alignment:\n      - every column without '-' scores +match_score if the two characters are\n        equal and -mismatch_penalty otherwise;\n      - every gap, i.e. every MAXIMAL run of consecutive '-' in the same row, of\n        length L >= 1 costs gap_open + L * gap_extend (subtracted from the score).\n        So a gap of length 3 costs gap_open + 3 * gap_extend (the first gap\n        character also pays gap_extend).\n  * A gap in one row may be immediately followed by a gap in the other row\n    (e.g. columns \"A-\" over \"-C\"); these are two separate gaps and each pays its\n    own gap_open. Your DP must allow this transition (gap-in-a <-> gap-in-b),\n    otherwise some optimal alignments are missed.\n  * Global alignment: leading and trailing gaps are penalised like any other gap\n    (no free end gaps, no local alignment). The score may be negative; never clamp\n    it at 0.\n\n- Implement `alignment_score`: Return the maximum score over all alignments of a\n  and b. Empty vs empty gives 0; empty vs a string of length L gives\n  -(gap_open + L * gap_extend).\n\n- Implement `alignment_align`: Return a freshly malloc'd AlignmentResult holding\n  one optimal alignment: `aligned_a` and `aligned_b` are freshly malloc'd,\n  NUL-terminated strings (A' and B' above, equal length, '-' as gap character) and\n  `score` is the optimal score, which must equal the score of the returned strings\n  under the definition above. If several optimal alignments exist, any one of them\n  is accepted. Empty vs empty gives score 0 and two empty strings (\"\" - still heap\n  allocated, not NULL). Never return NULL for valid input. The caller owns the\n  result and releases it with `free_alignment_result`.\n\n- Implement `free_alignment_result`: Free the result and both strings.\n  `free_alignment_result(NULL)` is a no-op.\n\nAlgorithm requirement:\n  - Use Gotoh's O(len(a) * len(b)) dynamic programming with three matrices (best\n    score ending in a match/mismatch column, ending with a gap in b, ending with a\n    gap in a) or an equivalent formulation; the traceback must move between the\n    three matrices. Do NOT enumerate alignments - inputs of length > 100 are tested.\n\nConstraints:\n  - No memory leaks (verified by valgrind); free every temporary allocation.\n  - All functions must handle their edge cases (empty strings) without crashing.\n\n## Contract given to the author (sequence_alignment.h, not written by the author)\n```c\n#ifndef SEQUENCE_ALIGNMENT_H\n#define SEQUENCE_ALIGNMENT_H\n\n/*\n * Global alignment of two strings with an affine gap penalty (Gotoh).\n * Strings are NUL-terminated, never NULL, and never contain '-'.\n * All four scoring parameters are >= 0.\n */\n\ntypedef struct {\n    int score;          /* optimal global alignment score */\n    char* aligned_a;    /* NUL-terminated, heap; a with '-' inserted */\n    char* aligned_b;    /* NUL-terminated, heap; b with '-' inserted, same length as aligned_a */\n} AlignmentResult;\n\n/* Maximum score over all global alignments of a and b. */\nint alignment_score(const char* a, const char* b,\n                    int match_score, int mismatch_penalty, int gap_open, int gap_extend);\n\n/* One optimal alignment and its score. Never NULL for valid input.\n   Caller frees with free_alignment_result. */\nAlignmentResult* alignment_align(const char* a, const char* b,\n                                 int match_score, int mismatch_penalty, int gap_open, int gap_extend);\n\n/* Frees the result and both strings. Accepts NULL. */\nvoid free_alignment_result(AlignmentResult* result);\n\n#endif\n\n```\n\n## Code to evaluate (sequence_alignment.c)\n```c\n#include <stdlib.h>\n#include <string.h>\n#include \"sequence_alignment.h\"\n\n#define GOTOH_NEG (-(1LL << 60))\n\ntypedef long long ll;\n\nstatic ll ll_max3(ll x, ll y, ll z)\n{\n    ll r = x;\n    if (y > r) r = y;\n    if (z > r) r = z;\n    return r;\n}\n\n/* Allocates and fills the three Gotoh matrices. Returns 0 on success. */\nstatic int gotoh_fill(const char *a, size_t n, const char *b, size_t m,\n                      ll ma, ll mi, ll go, ll ge,\n                      ll **Mout, ll **Xout, ll **Yout)\n{\n    size_t W = m + 1;\n    size_t total = (n + 1) * W;\n    ll open = go + ge;\n    ll *M = (ll *)malloc(total * sizeof(ll));\n    ll *X = (ll *)malloc(total * sizeof(ll));\n    ll *Y = (ll *)malloc(total * sizeof(ll));\n    size_t i, j;\n\n    if (!M || !X || !Y) {\n        free(M);\n        free(X);\n        free(Y);\n        return -1;\n    }\n\n    for (i = 0; i <= n; i++) {\n        for (j = 0; j <= m; j++) {\n            size_t idx = i * W + j;\n            if (i == 0 && j == 0) {\n                M[idx] = 0;\n                X[idx] = GOTOH_NEG;\n                Y[idx] = GOTOH_NEG;\n                continue;\n            }\n            /* M: column a[i-1] over b[j-1] */\n            if (i > 0 && j > 0) {\n                size_t p = (i - 1) * W + (j - 1);\n                ll s = (a[i - 1] == b[j - 1]) ? ma : -mi;\n                M[idx] = ll_max3(M[p], X[p], Y[p]) + s;\n            } else {\n                M[idx] = GOTOH_NEG;\n            }\n            /* X: column a[i-1] over '-' (gap in b) */\n            if (i > 0) {\n                size_t p = (i - 1) * W + j;\n                X[idx] = ll_max3(M[p] - open, X[p] - ge, Y[p] - open);\n            } else {\n                X[idx] = GOTOH_NEG;\n            }\n            /* Y: column '-' over b[j-1] (gap in a) */\n            if (j > 0) {\n                size_t p = i * W + (j - 1);\n                Y[idx] = ll_max3(M[p] - open, Y[p] - ge, X[p] - open);\n            } else {\n                Y[idx] = GOTOH_NEG;\n            }\n        }\n    }\n\n    *Mout = M;\n    *Xout = X;\n    *Yout = Y;\n    return 0;\n}\n\nint alignment_score(const char *a, const char *b,\n                    int match_score, int mismatch_penalty, int gap_open, int gap_extend)\n{\n    size_t n = strlen(a);\n    size_t m = strlen(b);\n    ll *M = NULL, *X = NULL, *Y = NULL;\n    ll best;\n    size_t idx;\n\n    if (gotoh_fill(a, n, b, m, match_score, mismatch_penalty,\n                   gap_open, gap_extend, &M, &X, &Y) != 0)\n        return 0;\n\n    idx = n * (m + 1) + m;\n    best = M[idx];\n    if (X[idx] > best) best = X[idx];\n    if (Y[idx] > best) best = Y[idx];\n\n    free(M);\n    free(X);\n    free(Y);\n    return (int)best;\n}\n\nAlignmentResult *alignment_align(const char *a, const char *b,\n                                 int match_score, int mismatch_penalty, int gap_open, int gap_extend)\n{\n    size_t n = strlen(a);\n    size_t m = strlen(b);\n    size_t W = m + 1;\n    ll ma = match_score, mi = mismatch_penalty, go = gap_open, ge = gap_extend;\n    ll open = go + ge;\n    ll *M = NULL, *X = NULL, *Y = NULL;\n    ll best;\n    int state;\n    size_t i, j, k;\n    char *buf_a, *buf_b;\n    AlignmentResult *res;\n\n    if (gotoh_fill(a, n, b, m, ma, mi, go, ge, &M, &X, &Y) != 0)\n        return NULL;\n\n    buf_a = (char *)malloc(n + m + 1);\n    buf_b = (char *)malloc(n + m + 1);\n    res = (AlignmentResult *)malloc(sizeof(AlignmentResult));\n    if (!buf_a || !buf_b || !res) {\n        free(buf_a);\n        free(buf_b);\n        free(res);\n        free(M);\n        free(X);\n        free(Y);\n        return NULL;\n    }\n\n    i = n;\n    j = m;\n    best = M[i * W + j];\n    state = 0;\n    if (X[i * W + j] > best) { best = X[i * W + j]; state = 1; }\n    if (Y[i * W + j] > best) { best = Y[i * W + j]; state = 2; }\n\n    k = 0;\n    while (i > 0 || j > 0) {\n        size_t idx = i * W + j;\n        if (state == 0) {\n            size_t p = (i - 1) * W + (j - 1);\n            ll s = (a[i - 1] == b[j - 1]) ? ma : -mi;\n            ll v = M[idx] - s;\n            buf_a[k] = a[i - 1];\n            buf_b[k] = b[j - 1];\n            if (M[p] == v) state = 0;\n            else if (X[p] == v) state = 1;\n            else state = 2;\n            i--;\n            j--;\n        } else if (state == 1) {\n            size_t p = (i - 1) * W + j;\n            ll v = X[idx];\n            buf_a[k] = a[i - 1];\n            buf_b[k] = '-';\n            if (M[p] - open == v) state = 0;\n            else if (X[p] - ge == v) state = 1;\n            else state = 2;\n            i--;\n        } else {\n            size_t p = i * W + (j - 1);\n            ll v = Y[idx];\n            buf_a[k] = '-';\n            buf_b[k] = b[j - 1];\n            if (M[p] - open == v) state = 0;\n            else if (Y[p] - ge == v) state = 2;\n            else state = 1;\n            j--;\n        }\n        k++;\n    }\n\n    /* reverse into final strings */\n    {\n        size_t len = k;\n        char *out_a = (char *)malloc(len + 1);\n        char *out_b = (char *)malloc(len + 1);\n        size_t t;\n        if (!out_a || !out_b) {\n            free(out_a);\n            free(out_b);\n            free(buf_a);\n            free(buf_b);\n            free(res);\n            free(M);\n            free(X);\n            free(Y);\n            return NULL;\n        }\n        for (t = 0; t < len; t++) {\n            out_a[t] = buf_a[len - 1 - t];\n            out_b[t] = buf_b[len - 1 - t];\n        }\n        out_a[len] = '\\0';\n        out_b[len] = '\\0';\n        res->score = (int)best;\n        res->aligned_a = out_a;\n        res->aligned_b = out_b;\n    }\n\n    free(buf_a);\n    free(buf_b);\n    free(M);\n    free(X);\n    free(Y);\n    return res;\n}\n\nvoid free_alignment_result(AlignmentResult *result)\n{\n    if (!result)\n        return;\n    free(result->aligned_a);\n    free(result->aligned_b);\n    free(result);\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RsJTEXxbazqp7NTDmu",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is plainly procedural. `gotoh_fill` fills the three flat matrices with nested loops, and `alignment_align` runs an explicit traceback state machine over M/X/Y. Data flows through pointers and mutable indices, and a helper has a clear job. The traceback uses magic ints (0/1/2) for the state instead of an enum, and `alignment_align` is long, doing traceback, reversal and allocation in one body. An enum and a separate traceback helper would earn a 5.\",\"language_idiomaticity\":\"Uses `static` helpers, `size_t` indices, `const char*` parameters, a flat row-major array, and checked mallocs. It also frees correctly on every error path, and `free_alignment_result(NULL)` is handled. Weaknesses: a `ll` typedef and `GOTOH_NEG` macro instead of `long long` or `int64_t` and a `static const`, casts of malloc results (unneeded in C), C89-style declarations at the top, a bare `{}` block in the middle of the function, and a failed allocation returning 0 from `alignment_score`. The traceback also loses the `(int)` score check, which is minor. The `i>0&&j>0` and `i>0` guards inside `gotoh_fill` are partly redundant. The duplicated cleanup is also not done with a `goto cleanup` idiom.\",\"readability\":\"Comments mark each matrix (`M: column a[i-1] over b[j-1]`, `X`, `Y`) and names like `gotoh_fill` and `ll_max3` are clear. Single-letter names (M, X, Y, p, s, v) and the numeric state codes 0/1/2 make the traceback harder to follow. The long `alignment_align` with nested blocks and a repeated cleanup sequence hurts readability.\",\"design\":\"Sharing `gotoh_fill` between `alignment_score` and `alignment_align` avoids duplicating the DP. Using three full matrices is acceptable for the task. However, `alignment_align` mixes traceback, buffer management and result construction, and the cleanup code is repeated across three exit paths. `alignment_score` could use O(m) memory but allocates the full matrices. The traceback could be extracted into its own function.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"magic integer state codes (0/1/2) instead of an enum\",\"long function mixing traceback, reversal and allocation\",\"duplicated cleanup code on multiple error paths instead of goto cleanup\",\"casting malloc results\",\"anonymous block in the middle of a function for the reversal step\",\"full O(nm) matrices allocated for score-only computation\"],\"justification\":\"The solution is a clean procedural Gotoh implementation: `gotoh_fill` is shared by both entry points, allocation failures are checked, and everything is freed. The traceback in `alignment_align` relies on magic state numbers and is one long function with repeated cleanup blocks. Minor C-style issues such as malloc casts, the `ll` typedef, and a bare reversal block keep it from being fully idiomatic.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6104,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6104,
+          "model": null,
+          "output_tokens": 1056,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1056,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

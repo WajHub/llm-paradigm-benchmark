@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:32+00:00",
+  "kind": "judge",
+  "label": "Java-test-4-s1-a0",
+  "request_id": "req_011Ch1SFLAJAaqgeLnWbjUjN",
+  "duration_s": 6.8,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\n- Implement `maxValue`: Solve the 0/1 knapsack problem and return the maximum value attainable within the given capacity. Use dynamic programming (O(n * capacity)).\n  * Return 0 if weights.length == 0 or capacity <= 0.\n  * Each item may be selected at most once.\n- Implement `solve`: Return a Result containing maxValue, a 0/1 selected array of length n, and totalWeight of selected items.\n  * If n == 0 return Result(0, new int[0], 0). If capacity <= 0 return Result(0, new int[n], 0).\n- DO NOT use greedy heuristics — they fail on cases like w=[10,20,30], v=[60,100,120], cap=50 (optimum = 220, greedy by ratio = 160).\n- Selection must satisfy: sum(selected[i]*weights[i]) <= capacity; sum(selected[i]*values[i]) == maxValue.\n- Keep the contract in Knapsack.java; put the solution in KnapsackImpl.java.\n\n## Contract given to the author (Knapsack.java, not written by the author)\n```java\npublic abstract class Knapsack {\n    protected Knapsack() {}\n\n    public static final class Result {\n        public final int maxValue;\n        public final int[] selected;      // length n; entries 0 or 1\n        public final int totalWeight;\n        public Result(int maxValue, int[] selected, int totalWeight) {\n            this.maxValue = maxValue;\n            this.selected = selected;\n            this.totalWeight = totalWeight;\n        }\n    }\n\n    public abstract int maxValue(int[] weights, int[] values, int capacity);\n    public abstract Result solve(int[] weights, int[] values, int capacity);\n}\n\n```\n\n## Code to evaluate (KnapsackImpl.java)\n```java\nimport java.util.Objects;\n\npublic final class KnapsackImpl extends Knapsack {\n\n    public KnapsackImpl() {\n        super();\n    }\n\n    @Override\n    public int maxValue(int[] weights, int[] values, int capacity) {\n        validate(weights, values);\n        if (weights.length == 0 || capacity <= 0) {\n            return 0;\n        }\n\n        int[] best = new int[capacity + 1];\n        for (int i = 0; i < weights.length; i++) {\n            int w = weights[i];\n            int v = values[i];\n            if (w > capacity) {\n                continue;\n            }\n            for (int c = capacity; c >= w; c--) {\n                int candidate = best[c - w] + v;\n                if (candidate > best[c]) {\n                    best[c] = candidate;\n                }\n            }\n        }\n        return best[capacity];\n    }\n\n    @Override\n    public Result solve(int[] weights, int[] values, int capacity) {\n        validate(weights, values);\n        int n = weights.length;\n        if (n == 0) {\n            return new Result(0, new int[0], 0);\n        }\n        if (capacity <= 0) {\n            return new Result(0, new int[n], 0);\n        }\n\n        int[][] dp = new int[n + 1][capacity + 1];\n        for (int i = 1; i <= n; i++) {\n            int w = weights[i - 1];\n            int v = values[i - 1];\n            int[] prev = dp[i - 1];\n            int[] curr = dp[i];\n            for (int c = 0; c <= capacity; c++) {\n                int skip = prev[c];\n                if (w <= c) {\n                    int take = prev[c - w] + v;\n                    curr[c] = Math.max(skip, take);\n                } else {\n                    curr[c] = skip;\n                }\n            }\n        }\n\n        int[] selected = new int[n];\n        int remaining = capacity;\n        int totalWeight = 0;\n        for (int i = n; i >= 1; i--) {\n            if (dp[i][remaining] != dp[i - 1][remaining]) {\n                selected[i - 1] = 1;\n                remaining -= weights[i - 1];\n                totalWeight += weights[i - 1];\n            }\n        }\n\n        return new Result(dp[n][capacity], selected, totalWeight);\n    }\n\n    private static void validate(int[] weights, int[] values) {\n        Objects.requireNonNull(weights, \"weights must not be null\");\n        Objects.requireNonNull(values, \"values must not be null\");\n        if (weights.length != values.length) {\n            throw new IllegalArgumentException(\"weights and values must have the same length\");\n        }\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SFLUtV5RqRYAUNojuY",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The class extends the abstract Knapsack and overrides both methods, with a private validate helper and no mutable instance state. The core algorithms are procedural DP loops inside two large methods, which is natural for this task. A 5 would need more object decomposition, for example a private table-building helper or a reconstruction method, instead of everything inline.\",\"language_idiomaticity\":\"Uses @Override, a final class, Objects.requireNonNull with messages, IllegalArgumentException, Math.max, and the 1D rolling-array optimisation in maxValue. It caches row references (prev, curr) and uses a `continue` guard. Small departures: the inconsistent candidate>best check versus Math.max, and indexed loops that are fine here. Nothing in it is truly non-idiomatic, so it is close to a 5.\",\"readability\":\"Names are clear (best, skip, take, remaining, candidate, dp). Structure is easy to follow and the validate helper keeps the entry points short. There are no comments explaining the reverse reconstruction trick (dp[i][r] != dp[i-1][r]). solve is a bit long because the table fill and backtracking are inline, so it falls just short of a 5.\",\"design\":\"The shared validation is extracted. maxValue uses the space-optimised 1D array while solve uses the full table needed for reconstruction, which is a sensible choice. The table-filling logic is duplicated across the two methods rather than factored out, and solve does not reuse a helper for table building or backtracking. Extracting private methods such as buildTable and reconstruct would earn a 5.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"solve mixes table construction and backtracking in one long method\",\"DP transition logic duplicated between maxValue and solve\"],\"justification\":\"A clean, correct-looking OOP implementation of the contract: final subclass, @Override, a private validate helper with Objects.requireNonNull and IllegalArgumentException. It uses a 1D DP in maxValue and a 2D table in solve with backtracking via dp[i][remaining] != dp[i-1][remaining]. The main shortfalls are the long solve method and the lack of extracted helpers for table building and reconstruction.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3378,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3378,
+          "model": null,
+          "output_tokens": 767,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 767,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

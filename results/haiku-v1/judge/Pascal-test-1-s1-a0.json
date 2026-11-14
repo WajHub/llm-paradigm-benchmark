@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The solution is structured procedural code: small helper routines (Cross, PointLess, ConvexHull, MinkowskiPoints, SegmentsIntersect, PointInConvex) with explicit data flow and plain loops. Const parameters are used deliberately and early Exit keeps control flow simple. For a 5 it would need to drop the hand-rolled quicksort and the redundant Result/Exit flags, but the paradigm fit is strong.",
+    "language_idiomaticity": "It uses SetLength, Copy, High, Min/Max from Math, Exit, dynamic arrays and {$mode objfpc}, and keeps helpers in the implementation section. Weak points: a hand-written QuickSortPoints where the RTL or a generic sort would do. free_polygon manually nils the dynamic array and string before Dispose, which is unnecessary because Dispose finalizes managed fields. `Result^.Vertices := nil` before SetLength is also redundant, and `Exit` is used where `Exit(value)` could have been. Naming mixes snake_case from the contract with PascalCase helpers, which is fine.",
+    "readability": "Names are clear (ConvexHull, MinkowskiPoints, OnSegment, PointInConvex), functions are short, and the comments are useful and not excessive ('Configuration space obstacle: Obstacle (+) (-Robot)', 'Closed segment intersection test'). SegmentsIntersect has a dense boolean condition, and the monotone chain's T := K + 1 is a bit cryptic. Otherwise it reads easily.",
+    "design": "The decomposition is good. MinkowskiPoints is shared between calculate_clean_minkowski_sum and check_dynamic_collision, and the CSpace reduction to segment-versus-polygon is sound. Memory ownership is documented (the layer owns its polygons). Weaknesses: the O(n*m) point cloud plus hull rather than an edge merge, an inconsistent GEOM_EPS (exact comparisons in the hull versus epsilon elsewhere), and the two-step create-then-overwrite Vertices in calculate_clean_minkowski_sum, which allocates an array and then replaces it."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "hand-written quicksort instead of a library sort routine",
-    "redundant manual clearing of managed fields (Vertices := nil, ZoneName := '') before Dispose",
-    "O(n*m) cartesian point cloud plus hull instead of merging edges for convex Minkowski sum",
-    "exact floating-point equality in PointLess and duplicate removal alongside epsilon comparisons elsewhere"
+    "hand-rolled quicksort instead of an RTL or generic sort",
+    "redundant manual clearing of managed fields before Dispose",
+    "create_polygon allocates a vertex array that is immediately replaced in calculate_clean_minkowski_sum",
+    "mixed exact and epsilon floating-point comparisons"
   ],
-  "justification": "The code is a clean procedural decomposition: small helpers (Cross, PointLess, ConvexHull with monotone chain, MinkowskiPoints, SegmentsIntersect, PointInConvex) are kept in the implementation section and reused by both public routines. Free Pascal facilities are used well (SetLength, Copy, High, Exit, Min/Max, Result), and memory handling in create/free polygon and layer is consistent, with ownership documented. Minor weaknesses are the hand-rolled quicksort, brute-force pairwise sums instead of an edge-merge, redundant clearing of managed fields before Dispose, and mixed exact and epsilon float comparisons.",
+  "justification": "This is a clean structured-procedural solution that reuses MinkowskiPoints and ConvexHull (monotone chain) for both required operations, and the CSpace segment test in check_dynamic_collision is clearly expressed. It makes good use of Free Pascal facilities such as SetLength, Copy, High and Math.Min/Max. Small blemishes include the custom QuickSortPoints, the redundant nil/empty assignments in free_polygon, and the extra allocation in create_polygon followed by overwrite.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 6679,
-  "output_tokens": 409,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SFvr7fweRpQC7kfbcB",
+  "judge_s": 8.8,
+  "input_tokens": 7016,
+  "output_tokens": 1070,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

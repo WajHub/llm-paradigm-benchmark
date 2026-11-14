@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:44+00:00",
+  "kind": "judge",
+  "label": "C-test-9-s1-a0",
+  "request_id": "req_011Ch1RsxavB53smWrqK3HLW",
+  "duration_s": 9.2,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\nImplement a CLRS B-tree of int keys (top-down insertion and top-down deletion) in C\nusing the header file btree.h. The tests compare the EXACT shape of the resulting\ntree, so follow the algorithm and every tie rule below precisely.\n\nRepresentation (BTreeNode):\n  * `keys`: strictly ascending; only the first `num_keys` entries count (the array\n    may have spare capacity).\n  * `children`: only the first `num_children` entries count. A leaf has\n    num_children == 0 (`children` may then be NULL); an internal node with k keys\n    has exactly k + 1 children.\n  * The EMPTY tree is a root leaf with num_keys == 0 and num_children == 0 - it is\n    NOT NULL.\n  * Every node holds at most 2t-1 keys; every non-root node at least t-1 keys\n    (t = minimum degree).\n  * Every node and every keys/children array is heap-allocated.\n\n- Implement `btree_insert_all(t, keys, n)`: Return NULL if t < 2. Otherwise start\n  from the empty tree and insert keys[0..n-1] one by one, in order, and return the\n  root. `keys` may be NULL when n == 0. Insertion of key k:\n  * Duplicates: if k is already in the tree, do nothing. Check membership BEFORE\n    any splitting (a pre-emptive split triggered by a duplicate would change the\n    shape).\n  * CLRS B-TREE-INSERT (top-down, pre-emptive splitting): if the root is full\n    (2t-1 keys), create a new root whose only child is the old root and split that\n    child. Then descend from the root: at an internal node x find the child index i\n    (the first index with k < x.keys[i], or the last child if there is none); if\n    that child is full (2t-1 keys), split it first, and move to the new right half\n    if k is greater than the key that moved up. Finally insert k into the leaf at\n    its sorted position.\n  * Split of a full node y (2t-1 keys) that is child i of x: the median key\n    y.keys[t-1] (0-based) moves up into x at key position i; y keeps keys 0..t-2\n    (and children 0..t-1); a new right sibling, inserted as child i+1 of x, gets\n    keys t..2t-2 (and children t..2t-1).\n  * Full nodes are split on the way down even if they would not overflow. This is\n    NOT the bottom-up \"split after overflow\" variant - the two give different trees.\n\n- Implement `btree_delete_all(t, keys, n, deletions, m)`: Return NULL if t < 2.\n  Otherwise build the tree exactly like btree_insert_all(t, keys, n), then delete\n  deletions[0..m-1] one by one, in order, and return the root. `keys`/`deletions`\n  may be NULL when n == 0 / m == 0. Deletion of key k:\n  * If k is not in the tree, the tree stays UNCHANGED. Check membership first - a\n    CLRS descent for an absent key would still rebalance nodes.\n  * Otherwise run delete(root, k), where delete(x, k) is:\n    1. k is in x and x is a leaf: remove it from x.\n    2. k == x.keys[i] and x is internal; y = children[i], z = children[i+1]:\n       (2a) if y has >= t keys: let k' be the predecessor of k (the maximum key in\n            y's subtree); recursively delete(y, k'), then replace x.keys[i] by k'.\n            The predecessor is preferred whenever y has >= t keys, even if z also\n            has >= t keys.\n       (2b) else if z has >= t keys: symmetric with the successor k'' (the minimum\n            key in z's subtree): delete(z, k''), then replace x.keys[i] by k''.\n       (2c) else (both have t-1 keys): merge y, k and z into y (k and z are\n            removed from x; y's keys become y.keys + k + z.keys and its children\n            y.children + z.children; z is freed), then delete(y, k).\n    3. k is not in internal node x: let c = children[i] be the child whose subtree\n       must contain k (i = the first index with k < x.keys[i], or the last child).\n       If c has exactly t-1 keys, fix it BEFORE descending:\n       (3a) if the LEFT sibling children[i-1] exists and has >= t keys: rotate\n            right - the separator x.keys[i-1] moves down to the front of c, the\n            left sibling's last key moves up to replace it, and the left sibling's\n            last child (if it is internal) becomes c's first child.\n            Otherwise, if the RIGHT sibling children[i+1] exists and has >= t keys:\n            rotate left - the separator x.keys[i] moves down to the end of c, the\n            right sibling's first key moves up to replace it, and the right\n            sibling's first child (if internal) becomes c's last child.\n            The left sibling is always tried first.\n       (3b) otherwise (no sibling has >= t keys): merge c with its RIGHT sibling\n            (c + separator x.keys[i] + right sibling, into c) if a right sibling\n            exists; only if c is the last child, merge it into its LEFT sibling\n            (left + separator x.keys[i-1] + c, into the left sibling).\n       Then continue with delete(node, k) on the (possibly merged) child that now\n       covers the range of k.\n  * After each deletion, if the root has no keys but has a child, that child\n    becomes the new root (the height shrinks) and the old root is freed.\n  * Deleting the last key leaves the empty tree (a root leaf with no keys).\n\n- Implement `free_btree`: Free the whole tree (every node and its keys/children\n  arrays). `free_btree(NULL)` is a no-op.\n\nOwnership: the returned tree is owned by the caller and released with\n`free_btree`. The input arrays must not be modified.\n\nComplexity: O(t * log_t n) per operation; up to 2000 keys are inserted.\n\nConstraints:\n  - No memory leaks (verified by valgrind), including nodes removed by merges and\n    root shrinking.\n  - All functions must handle their edge cases without crashing.\n\n## Contract given to the author (btree.h, not written by the author)\n```c\n#ifndef BTREE_H\n#define BTREE_H\n\n/*\n * CLRS B-tree of int keys with minimum degree t (t >= 2).\n * Every node holds at most 2t-1 keys; every non-root node at least t-1 keys.\n *\n * keys:         strictly ascending; only the first num_keys entries count\n *               (the array may be larger, i.e. have spare capacity).\n * children:     only the first num_children entries count; may be NULL for a leaf.\n * num_children: 0 for a leaf, otherwise num_keys + 1.\n *\n * The empty tree is a root leaf with num_keys == 0 (not NULL).\n * Every node and every keys/children array is heap-allocated.\n */\ntypedef struct BTreeNode {\n    int* keys;\n    int num_keys;\n    struct BTreeNode** children;\n    int num_children;\n} BTreeNode;\n\n/* Starts from the empty tree and inserts keys[0..n-1] in order (top-down CLRS\n   insertion; duplicates ignored). Returns the root, or NULL if t < 2.\n   Caller frees with free_btree. */\nBTreeNode* btree_insert_all(int t, const int* keys, int n);\n\n/* Builds the tree exactly like btree_insert_all(t, keys, n), then deletes\n   deletions[0..m-1] in order (top-down CLRS deletion; absent keys ignored).\n   Returns the root, or NULL if t < 2. Caller frees with free_btree. */\nBTreeNode* btree_delete_all(int t, const int* keys, int n, const int* deletions, int m);\n\n/* Frees the whole tree (all nodes and arrays). Accepts NULL. */\nvoid free_btree(BTreeNode* root);\n\n#endif\n\n```\n\n## Code to evaluate (btree.c)\n```c\n#include <stdlib.h>\n#include \"btree.h\"\n\nstatic BTreeNode* new_node(int t) {\n    BTreeNode* n = (BTreeNode*)calloc(1, sizeof(BTreeNode));\n    if (!n) return NULL;\n    n->keys = (int*)calloc((size_t)(2 * t), sizeof(int));\n    n->children = (BTreeNode**)calloc((size_t)(2 * t + 1), sizeof(BTreeNode*));\n    n->num_keys = 0;\n    n->num_children = 0;\n    return n;\n}\n\nstatic void free_shell(BTreeNode* n) {\n    if (!n) return;\n    free(n->keys);\n    free(n->children);\n    free(n);\n}\n\nstatic int contains(const BTreeNode* x, int k) {\n    while (x) {\n        int i = 0;\n        while (i < x->num_keys && k > x->keys[i]) i++;\n        if (i < x->num_keys && x->keys[i] == k) return 1;\n        if (x->num_children == 0) return 0;\n        x = x->children[i];\n    }\n    return 0;\n}\n\n/* Split full child i of x (x is not full). */\nstatic void split_child(BTreeNode* x, int i, int t) {\n    BTreeNode* y = x->children[i];\n    BTreeNode* z = new_node(t);\n    int j;\n\n    z->num_keys = t - 1;\n    for (j = 0; j < t - 1; j++) z->keys[j] = y->keys[j + t];\n    if (y->num_children > 0) {\n        z->num_children = t;\n        for (j = 0; j < t; j++) z->children[j] = y->children[j + t];\n        y->num_children = t;\n    }\n    y->num_keys = t - 1;\n\n    for (j = x->num_children - 1; j >= i + 1; j--) x->children[j + 1] = x->children[j];\n    x->children[i + 1] = z;\n    x->num_children++;\n\n    for (j = x->num_keys - 1; j >= i; j--) x->keys[j + 1] = x->keys[j];\n    x->keys[i] = y->keys[t - 1];\n    x->num_keys++;\n}\n\nstatic void insert_nonfull(BTreeNode* x, int k, int t) {\n    for (;;) {\n        if (x->num_children == 0) {\n            int i = x->num_keys;\n            while (i > 0 && x->keys[i - 1] > k) {\n                x->keys[i] = x->keys[i - 1];\n                i--;\n            }\n            x->keys[i] = k;\n            x->num_keys++;\n            return;\n        }\n        int i = 0;\n        while (i < x->num_keys && k > x->keys[i]) i++;\n        if (x->children[i]->num_keys == 2 * t - 1) {\n            split_child(x, i, t);\n            if (k > x->keys[i]) i++;\n        }\n        x = x->children[i];\n    }\n}\n\nstatic void insert_key(BTreeNode** rootp, int k, int t) {\n    if (contains(*rootp, k)) return;\n    if ((*rootp)->num_keys == 2 * t - 1) {\n        BTreeNode* s = new_node(t);\n        s->children[0] = *rootp;\n        s->num_children = 1;\n        split_child(s, 0, t);\n        *rootp = s;\n    }\n    insert_nonfull(*rootp, k, t);\n}\n\nstatic int max_key(BTreeNode* x) {\n    while (x->num_children > 0) x = x->children[x->num_children - 1];\n    return x->keys[x->num_keys - 1];\n}\n\nstatic int min_key(BTreeNode* x) {\n    while (x->num_children > 0) x = x->children[0];\n    return x->keys[0];\n}\n\nstatic void remove_key_at(BTreeNode* x, int i) {\n    int j;\n    for (j = i; j < x->num_keys - 1; j++) x->keys[j] = x->keys[j + 1];\n    x->num_keys--;\n}\n\n/* Merge child i+1 and separator x.keys[i] into child i. */\nstatic void merge_children(BTreeNode* x, int i) {\n    BTreeNode* y = x->children[i];\n    BTreeNode* z = x->children[i + 1];\n    int ynk = y->num_keys;\n    int base = y->num_children;\n    int j;\n\n    y->keys[ynk] = x->keys[i];\n    for (j = 0; j < z->num_keys; j++) y->keys[ynk + 1 + j] = z->keys[j];\n    y->num_keys = ynk + 1 + z->num_keys;\n\n    if (base > 0) {\n        for (j = 0; j < z->num_children; j++) y->children[base + j] = z->children[j];\n        y->num_children = base + z->num_children;\n    }\n\n    free_shell(z);\n\n    for (j = i; j < x->num_keys - 1; j++) x->keys[j] = x->keys[j + 1];\n    x->num_keys--;\n    for (j = i + 1; j < x->num_children - 1; j++) x->children[j] = x->children[j + 1];\n    x->num_children--;\n}\n\n/* Move separator x.keys[ci-1] down into children[ci]; left's last key up. */\nstatic void rotate_right(BTreeNode* x, int ci) {\n    BTreeNode* c = x->children[ci];\n    BTreeNode* left = x->children[ci - 1];\n    int j;\n\n    for (j = c->num_keys; j > 0; j--) c->keys[j] = c->keys[j - 1];\n    c->keys[0] = x->keys[ci - 1];\n    x->keys[ci - 1] = left->keys[left->num_keys - 1];\n    left->num_keys--;\n    c->num_keys++;\n\n    if (c->num_children > 0) {\n        for (j = c->num_children; j > 0; j--) c->children[j] = c->children[j - 1];\n        c->children[0] = left->children[left->num_children - 1];\n        left->num_children--;\n        c->num_children++;\n    }\n}\n\n/* Move separator x.keys[ci] down into children[ci]; right's first key up. */\nstatic void rotate_left(BTreeNode* x, int ci) {\n    BTreeNode* c = x->children[ci];\n    BTreeNode* right = x->children[ci + 1];\n    int j;\n\n    c->keys[c->num_keys] = x->keys[ci];\n    c->num_keys++;\n    x->keys[ci] = right->keys[0];\n    for (j = 0; j < right->num_keys - 1; j++) right->keys[j] = right->keys[j + 1];\n    right->num_keys--;\n\n    if (c->num_children > 0) {\n        c->children[c->num_children] = right->children[0];\n        c->num_children++;\n        for (j = 0; j < right->num_children - 1; j++) right->children[j] = right->children[j + 1];\n        right->num_children--;\n    }\n}\n\nstatic void delete_key(BTreeNode* x, int k, int t) {\n    for (;;) {\n        int i = 0;\n        while (i < x->num_keys && k > x->keys[i]) i++;\n\n        if (i < x->num_keys && x->keys[i] == k) {\n            if (x->num_children == 0) {\n                remove_key_at(x, i);\n                return;\n            }\n            BTreeNode* y = x->children[i];\n            BTreeNode* z = x->children[i + 1];\n            if (y->num_keys >= t) {\n                int kp = max_key(y);\n                delete_key(y, kp, t);\n                x->keys[i] = kp;\n                return;\n            } else if (z->num_keys >= t) {\n                int kpp = min_key(z);\n                delete_key(z, kpp, t);\n                x->keys[i] = kpp;\n                return;\n            } else {\n                merge_children(x, i);\n                x = y;\n                continue;\n            }\n        }\n\n        if (x->num_children == 0) return;\n\n        int ci = i;\n        BTreeNode* c = x->children[ci];\n        if (c->num_keys == t - 1) {\n            BTreeNode* left = (ci > 0) ? x->children[ci - 1] : NULL;\n            BTreeNode* right = (ci < x->num_keys) ? x->children[ci + 1] : NULL;\n            if (left && left->num_keys >= t) {\n                rotate_right(x, ci);\n            } else if (right && right->num_keys >= t) {\n                rotate_left(x, ci);\n            } else if (right) {\n                merge_children(x, ci);\n            } else {\n                merge_children(x, ci - 1);\n                ci--;\n            }\n            c = x->children[ci];\n        }\n        x = c;\n    }\n}\n\nstatic void free_tree_rec(BTreeNode* n) {\n    int i;\n    if (!n) return;\n    for (i = 0; i < n->num_children; i++) free_tree_rec(n->children[i]);\n    free_shell(n);\n}\n\nvoid free_btree(BTreeNode* root) {\n    free_tree_rec(root);\n}\n\nBTreeNode* btree_insert_all(int t, const int* keys, int n) {\n    BTreeNode* root;\n    int i;\n    if (t < 2) return NULL;\n    root = new_node(t);\n    if (!root) return NULL;\n    for (i = 0; i < n; i++) insert_key(&root, keys[i], t);\n    return root;\n}\n\nBTreeNode* btree_delete_all(int t, const int* keys, int n, const int* deletions, int m) {\n    BTreeNode* root;\n    int i;\n    if (t < 2) return NULL;\n    root = btree_insert_all(t, keys, n);\n    if (!root) return NULL;\n    for (i = 0; i < m; i++) {\n        int k = deletions[i];\n        if (!contains(root, k)) continue;\n        delete_key(root, k, t);\n        while (root->num_keys == 0 && root->num_children > 0) {\n            BTreeNode* old = root;\n            root = root->children[0];\n            free_shell(old);\n        }\n    }\n    return root;\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RsyKLBNou2xZGD3fx8",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is procedural: small static helpers (split_child, merge_children, rotate_left/right, remove_key_at) mutate nodes in place, and the root is updated through a BTreeNode** in insert_key. Iterative descent in insert_nonfull and delete_key avoids needless recursion, with recursion only where the predecessor/successor delete needs it. It would reach 5 with less manual shifting and the shared logic factored out, but the paradigm fit is already strong.\",\"language_idiomaticity\":\"Uses static helpers, const on contains' parameter, size_t casts in calloc, and a free_btree that accepts NULL. Departures: the manual shift loops could be memmove, the calloc results for keys/children in new_node are never checked, split_child and insert_key dereference new_node results unchecked, and there are C99 mid-block declarations alongside C89-style `int j;` declarations. Using memmove and checking every allocation would earn a 5.\",\"readability\":\"Names are clear (max_key, min_key, rotate_right, merge_children), the functions are short, and the comments on split/merge/rotate are useful. Case 2 and case 3 of delete_key sit inside one loop with a continue after the merge, which is a little dense. The unchecked `int ci = i;` aliasing and the manual shifting loops add noise. Splitting delete_key into a helper like ensure_child_has_t_keys would bring it to 5.\",\"design\":\"Decomposition follows the CLRS operations, with a shared merge_children used for both 2c and 3b, rotations separated out, and contains used for the membership pre-checks. Nodes are allocated with a uniform capacity (2t keys, 2t+1 children) and free_shell handles ownership consistently, so merges and root shrinking don't leak. Weaknesses: the shifting code is duplicated across many helpers, there is no allocation-failure handling, and delete_key is long. Extracting a fix-child helper and array-shift helpers would improve it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":4,\"design\":4,\"anti_patterns\":[\"unchecked calloc results in new_node (keys/children) and unchecked new_node in split_child/insert_key\",\"hand-rolled element-shifting loops instead of memmove\",\"long delete_key function mixing cases 2 and 3 including child rebalancing\"],\"justification\":\"This is a clean procedural CLRS B-tree with static helpers, iterative descent, and consistent ownership through free_shell and free_tree_rec. The algorithm decomposition (split_child, merge_children, rotate_left/right, contains pre-checks) is sound. It loses points for missing allocation-failure handling, hand-written shift loops rather than memmove, and a long delete_key that inlines the child-fixing logic.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7907,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7907,
+          "model": null,
+          "output_tokens": 945,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 945,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

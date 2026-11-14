@@ -1,0 +1,53 @@
+% =============================================================================
+\chapter{Podsumowanie i dalsze prace}
+\label{ch:conclusions}
+% =============================================================================
+
+Zapytaliśmy, czy paradygmat programowania wpływa na kod pisany przez LLM. Aby odpowiedzieć na to
+pytanie, zbudowaliśmy benchmark dziesięciu zadań algorytmicznych z identycznymi ukrytymi testami
+w siedmiu językach z czterech paradygmatów, wraz z systemem, który automatycznie generuje, testuje,
+naprawia i ocenia rozwiązania. Pełny przebieg modelu \haiku{} daje następujący obraz:
+
+\begin{itemize}
+  \item \textbf{Poprawność zależy bardziej od języka niż od paradygmatu.} 80\,\% zadań rozwiązano za
+    pierwszym podejściem, a 93\,\% po samonaprawie. Różnice między dwoma językami jednego
+    paradygmatu są równie duże jak różnice między paradygmatami i żadna nie jest istotna przy
+    jednej próbce na zadanie. Prolog wypada najsłabiej, częściowo z powodu dwóch defektów w jego
+    zestawach testów.
+  \item \textbf{Samonaprawa jest skuteczna, ale ograniczona przez informację zwrotną.} Dwie rundy
+    naprawy usunęły 64\,\% błędów, a trzecia runda nic nie dodała. Naprawa utykała tam, gdzie
+    informacja zwrotna nie ujawniała przyczyny.
+  \item \textbf{Idiomatyczność zależy od paradygmatu.} Kod funkcyjny był najbardziej idiomatyczny,
+    a obiektowy i logiczny najmniej. Oba języki każdego paradygmatu są tu zgodne, więc jest to
+    najbardziej spójny efekt paradygmatu, jaki zaobserwowaliśmy. Domyślny styl modelu jest
+    proceduralny.
+  \item \textbf{Format odpowiedzi to sprawa pierwszorzędna.} Przez niego lokalne modele o otwartych
+    wagach okazały się dla nas bezużyteczne, a nawet model hostowany wstawił prozę do pięciu
+    odpowiedzi, co spowodowało połowę wszystkich błędów kompilacji.
+  \item \textbf{Zadania w stylu HumanEval są zbyt łatwe}, by porównywać paradygmaty; potrzebne są
+    trudniejsze, precyzyjnie wyspecyfikowane zadania.
+\end{itemize}
+
+\section{Dalsze prace}
+
+\begin{enumerate}
+  \item \textbf{Poprawienie benchmarku.} Poprawić predykat pomocniczy budujący łańcuch w Prologu
+    (zadanie 2), udokumentować nazwy i tryby argumentów w kontrakcie zadania 1 dla Prologu, sprawić,
+    by program testowy w Smalltalku raportował komunikaty wyjątków, i ponownie uruchomić dotknięte
+    zadania.
+  \item \textbf{Powtórzone próbki.} Uruchomić od pięciu do dziesięciu próbek na zadanie, aby
+    oszacować pass@$k$ i przedziały ufności, a wyniki analizować z zadaniem i językiem jako efektami
+    losowymi i stałymi.
+  \item \textbf{Więcej modeli.} Ocenić większe modele (Sonnet, Opus) i inne rodziny modeli, w tym
+    modele o otwartych wagach udostępniane przez hostowanego dostawcę inferencji, co pozwala uniknąć
+    problemów z wydajnością wdrożenia lokalnego.
+  \item \textbf{Walidacja sędziego.} Zebrać oceny ludzkich ekspertów dla warstwowej próbki
+    rozwiązań, użyć sędziego z innej rodziny modeli i porównać oceny bezwzględne z preferencjami
+    parami.
+  \item \textbf{Zadania natywne dla paradygmatów.} Dodać zadania, których naturalnym rozwiązaniem
+    jest model obiektowy lub zbiór relacji (symulacje, silniki reguł, problemy z ograniczeniami),
+    a także kolejne paradygmaty lub języki (np.\ OCaml, Erlang/Elixir, Rust).
+  \item \textbf{Ablacje promptów.} Zmierzyć, w jakim stopniu krótkie wskazówki dotyczące paradygmatu
+    w promptach (\cref{tab:guidance}) zmieniają idiomatyczność, oraz czy ściślejszy kontrakt
+    odpowiedzi (np.\ pole z kodem w ustrukturyzowanej odpowiedzi) eliminuje błędy formatu.
+\end{enumerate}

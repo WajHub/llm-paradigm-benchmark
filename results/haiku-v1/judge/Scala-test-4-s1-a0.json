@@ -6,19 +6,29 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The DP table comes from a `foldLeft` over `weights.zip(values)`, with each row built by `Vector.tabulate` from the previous row. Backtracking is another `foldLeft` that threads `(acc, c)`. There is no `var`, no mutation and no `return`, and everything is an expression. A 5 is blocked by the use of `rows.last` and `dp(i)(c)` indexing, which is slightly index-oriented, and by the `(n to 1 by -1)` fold. It is still close to ideal.",
+    "language_idiomaticity": "The code uses `Vector.fill`, `Vector.tabulate`, `collect` with a pattern literal `case (1, w)`, and tuple destructuring in `case` blocks. The name `selectedRev` is misleading, because prepending while iterating from n down to 1 already gives the forward order. `math.max` is fine. The guard clause is repeated in `maxValue` and `solve`. There is no use of `Option` or `Either`, which this task does not need.",
+    "readability": "Names are clear (`table`, `prev`, `next`, `dp`), and the two comments are useful and not excessive. The functions are short. `selectedRev` misleads, since the list is not reversed. The condition `dp(i)(c) != dp(i - 1)(c)` is also slightly cryptic and would benefit from a short note. Overall it is easy to follow.",
+    "design": "A private `table` helper is shared by `maxValue` and `solve`, so the DP is not duplicated. `solve` separates table building, backtracking and the weight sum. Storing the full table is needed for reconstruction, but `maxValue` could use a rolling row to save memory. The early-return guard is duplicated. `totalWeight` is recomputed from the selection instead of being tracked in the fold, which is fine. The `case (1, w)` match works but is a bit cute."
+  },
   "paradigm_idiomaticity": 5,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "variable named selectedRev is misleading, since prepending during a backward fold already yields forward order",
-    "full 2D table stored when only the last row is needed for maxValue"
+    "misleading name `selectedRev` (list is already in forward order)",
+    "duplicated guard condition in `maxValue` and `solve`"
   ],
-  "justification": "The DP table is built with foldLeft and Vector.tabulate, and backtracking is a foldLeft over a reversed range, so there are no vars or mutation. The shared private `table` helper avoids duplication, and the comments are helpful. Minor issues: `selectedRev` is misnamed because prepending while walking backward already yields forward order. `maxValue` also builds the full 2D table when a rolling row would suffice. Tuple accumulators are slightly dense, and `rows.last` and `dp.last.last` are a little cryptic.",
+  "justification": "The solution is purely functional, with `foldLeft` building the DP table and recovering the selection from it, and it has no mutable state. `Vector.tabulate` and `collect` are used naturally, and the shared private `table` helper avoids duplication. Minor blemishes are the misleading `selectedRev` name, the repeated guard and the full table kept even for `maxValue`.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 2696,
-  "output_tokens": 284,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SJUAawdS4ZdtMMHmGg",
+  "judge_s": 7.2,
+  "input_tokens": 3033,
+  "output_tokens": 853,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

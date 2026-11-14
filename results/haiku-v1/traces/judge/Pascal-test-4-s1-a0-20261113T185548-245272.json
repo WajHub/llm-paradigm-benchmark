@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:48+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-4-s1-a0",
+  "request_id": "req_011Ch1SGS7VbSNnUPFRiXKra",
+  "duration_s": 8.5,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\n- Implement `KnapsackMaxValue`: Return the maximum value attainable within capacity using DP. Return 0 if Length(Weights)=0 or Capacity<=0.\n- Implement `KnapsackSolve`: Return a PKnapsackResult with MaxValue, Selected (0/1 array of length n), TotalWeight.\n  * If n=0 return a result with MaxValue=0, empty Selected, TotalWeight=0 (or nil — tests for n=0 use MaxValue only via KnapsackMaxValue).\n  * If Capacity<=0 return Selected all zeros, MaxValue=0, TotalWeight=0.\n- Implement `FreeKnapsackResult(var AResult)`: Free the result. Must handle nil. Do NOT name the parameter `Result`.\n- DO NOT use greedy heuristics — they fail on w=[10,20,30], v=[60,100,120], cap=50 (optimum=220).\n- Selection invariants: sum of selected weights <= capacity; sum of selected values = MaxValue.\n\n## Stub module given to the author (knapsack.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit knapsack;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  PKnapsackResult = ^TKnapsackResult;\n  TKnapsackResult = record\n    MaxValue: LongInt;\n    Selected: TIntArray;\n    N: LongInt;\n    TotalWeight: LongInt;\n  end;\n\nfunction KnapsackMaxValue(const Weights, Values: TIntArray; Capacity: LongInt): LongInt;\nfunction KnapsackSolve(const Weights, Values: TIntArray; Capacity: LongInt): PKnapsackResult;\nprocedure FreeKnapsackResult(var AResult: PKnapsackResult);\n\nimplementation\n\nfunction KnapsackMaxValue(const Weights, Values: TIntArray; Capacity: LongInt): LongInt;\nbegin\n  raise Exception.Create('KnapsackMaxValue not implemented');\n  Result := -1;\nend;\n\nfunction KnapsackSolve(const Weights, Values: TIntArray; Capacity: LongInt): PKnapsackResult;\nbegin\n  raise Exception.Create('KnapsackSolve not implemented');\n  Result := nil;\nend;\n\nprocedure FreeKnapsackResult(var AResult: PKnapsackResult);\nbegin\n  if AResult <> nil then begin\n    AResult^.Selected := nil;\n    Dispose(AResult);\n    AResult := nil;\n  end;\nend;\n\nend.\n\n```\n\n## Code to evaluate (knapsack.pas)\n```pascal\nunit knapsack;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TIntArray = array of LongInt;\n\n  PKnapsackResult = ^TKnapsackResult;\n  TKnapsackResult = record\n    MaxValue: LongInt;\n    Selected: TIntArray;\n    N: LongInt;\n    TotalWeight: LongInt;\n  end;\n\nfunction KnapsackMaxValue(const Weights, Values: TIntArray; Capacity: LongInt): LongInt;\nfunction KnapsackSolve(const Weights, Values: TIntArray; Capacity: LongInt): PKnapsackResult;\nprocedure FreeKnapsackResult(var AResult: PKnapsackResult);\n\nimplementation\n\nfunction KnapsackMaxValue(const Weights, Values: TIntArray; Capacity: LongInt): LongInt;\nvar\n  dp: array of LongInt;\n  i, j, n, w, v: LongInt;\nbegin\n  Result := 0;\n  n := Min(Length(Weights), Length(Values));\n  if (n = 0) or (Capacity <= 0) then\n    Exit;\n\n  SetLength(dp, Capacity + 1);\n  for j := 0 to Capacity do\n    dp[j] := 0;\n\n  for i := 0 to n - 1 do\n  begin\n    w := Weights[i];\n    v := Values[i];\n    if (w < 0) or (v <= 0) then\n      Continue;\n    for j := Capacity downto w do\n      if dp[j - w] + v > dp[j] then\n        dp[j] := dp[j - w] + v;\n  end;\n\n  Result := dp[Capacity];\nend;\n\nfunction KnapsackSolve(const Weights, Values: TIntArray; Capacity: LongInt): PKnapsackResult;\nvar\n  res: PKnapsackResult;\n  dp: array of array of LongInt;\n  i, j, n, w, v: LongInt;\n  total: LongInt;\nbegin\n  New(res);\n  res^.MaxValue := 0;\n  res^.N := 0;\n  res^.TotalWeight := 0;\n  SetLength(res^.Selected, 0);\n\n  n := Min(Length(Weights), Length(Values));\n  res^.N := n;\n  SetLength(res^.Selected, n);\n  for i := 0 to n - 1 do\n    res^.Selected[i] := 0;\n\n  if (n = 0) or (Capacity <= 0) then\n  begin\n    Result := res;\n    Exit;\n  end;\n\n  SetLength(dp, n + 1, Capacity + 1);\n  for j := 0 to Capacity do\n    dp[0][j] := 0;\n\n  for i := 1 to n do\n  begin\n    w := Weights[i - 1];\n    v := Values[i - 1];\n    for j := 0 to Capacity do\n    begin\n      dp[i][j] := dp[i - 1][j];\n      if (w >= 0) and (v > 0) and (w <= j) and (dp[i - 1][j - w] + v > dp[i][j]) then\n        dp[i][j] := dp[i - 1][j - w] + v;\n    end;\n  end;\n\n  res^.MaxValue := dp[n][Capacity];\n\n  total := 0;\n  j := Capacity;\n  for i := n downto 1 do\n  begin\n    if dp[i][j] <> dp[i - 1][j] then\n    begin\n      res^.Selected[i - 1] := 1;\n      total := total + Weights[i - 1];\n      j := j - Weights[i - 1];\n    end;\n  end;\n  res^.TotalWeight := total;\n\n  Result := res;\nend;\n\nprocedure FreeKnapsackResult(var AResult: PKnapsackResult);\nbegin\n  if AResult <> nil then begin\n    AResult^.Selected := nil;\n    Dispose(AResult);\n    AResult := nil;\n  end;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SGSXJm6P13y8MHiTmp",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is structured procedural style: a 1D rolling dp array in KnapsackMaxValue and a 2D table with backtracking in KnapsackSolve, using for/downto loops and early Exit. Control flow is clear and uses the right DP shape. One more point would need less ad-hoc state, such as dropping the redundant zero-fill loops and the double initialisation of res^ fields.\",\"language_idiomaticity\":\"It uses Min from Math, SetLength with 2D dimensions, New/Dispose, Exit and Continue, and the free procedure handles nil. Weaknesses: SetLength already zero-fills, so the explicit `dp[j] := 0` and `Selected[i] := 0` loops are redundant. `SetLength(res^.Selected, 0)` followed by another SetLength is redundant. Result is assigned from `res` rather than directly. `Exit(value)` is not used. The `if ... then dp[j] := ...` could be written with Max.\",\"readability\":\"Names (dp, w, v, total, res) are short but conventional for DP. The functions are moderately sized and the backtracking is easy to follow. The single long condition in the table-fill loop packs four checks together, and there are no comments explaining the guard for invalid weights/values. Adding a brief comment and using Max would earn the extra point.\",\"design\":\"The code is split into the three required routines. The dp logic is duplicated in two forms: a 1D version for the value and a 2D version for the selection. This is partly justified by memory use but means invalid-input handling is written twice with slightly different forms. A local helper or reusing KnapsackSolve's table would avoid the duplication. The 2D table is O(n*C) memory, which is necessary for backtracking. FreeKnapsackResult is correct and handles nil.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":4,\"design\":3,\"anti_patterns\":[\"redundant manual zero-initialisation after SetLength\",\"duplicated DP logic and validity guards across two routines\",\"redundant double initialisation of res^.Selected\",\"long combined condition inside the inner loop\"],\"justification\":\"The solution is a correct-looking procedural DP with a rolling 1D array for the value and a 2D table with backtracking for the selection, and memory is handled properly through New/SetLength/Dispose. It is somewhat undermined by redundant initialisation (SetLength already zero-fills, Selected is set twice) and by not using Max or Exit(value). The two DP routines duplicate the item-validity guard and recurrence rather than sharing code, which lowers the design score slightly.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4171,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4171,
+          "model": null,
+          "output_tokens": 879,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 879,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

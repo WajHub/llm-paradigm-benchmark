@@ -1,0 +1,90 @@
+% =============================================================================
+%  main.tex -- składa raport: strona tytułowa, streszczenie, rozdziały, dodatki
+%
+%  Budowanie (z tego katalogu):   latexmk -pdf main.tex
+%  lub ręcznie:                   pdflatex main && bibtex main && pdflatex main && pdflatex main
+%
+%  Tabele z danymi w tables/ są generowane z wyników przebiegu:
+%      python Report/tools/make_tables.py results/haiku-v1
+% =============================================================================
+\documentclass[11pt,a4paper,oneside]{report}
+
+\newcommand{\ReportTitle}{Czy paradygmat programowania ma znaczenie?\\[2pt]
+  \Large Ocena kodu generowanego przez LLM w językach imperatywnych,\\
+  obiektowych, funkcyjnych i logicznych}
+\newcommand{\ShortTitle}{Czy paradygmat programowania ma znaczenie?}
+
+% Autorzy. TODO(autorzy): uzupełnić imiona i nazwiska pozostałych członków zespołu
+% (strona tytułowa i metadane PDF poniżej korzystają z tych makr).
+\newcommand{\AuthorOne}{Hubert Wajda}
+\newcommand{\AuthorTwo}{Stanisław Lemański}
+\newcommand{\AuthorThree}{Bartosz Kopania}
+\newcommand{\AuthorFour}{[Imię i nazwisko 4]}
+\newcommand{\AuthorFive}{[Imię i nazwisko 5]}
+\newcommand{\AuthorSix}{[Imię i nazwisko 6]}
+
+\input{preamble}
+
+\hypersetup{
+  pdftitle={Czy paradygmat programowania ma znaczenie? Ocena kodu generowanego przez LLM w różnych paradygmatach},
+  pdfauthor={\AuthorOne, \AuthorTwo, \AuthorThree, \AuthorFour, \AuthorFive, \AuthorSix},
+  pdfkeywords={duże modele językowe, generowanie kodu, paradygmaty programowania, benchmark, LLM jako sędzia},
+}
+
+\begin{document}
+
+% ------------------------------------------------------------------ strona tytułowa
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{0.6cm}
+  {\small\scshape Raport z projektu badawczego\par}
+  \vspace{1.2cm}
+  {\huge\bfseries \ReportTitle\par}
+  \vspace{1.2cm}
+  {\large \AuthorOne \quad \AuthorTwo \quad \AuthorThree\par}
+  \vspace{0.2cm}
+  {\large \AuthorFour \quad \AuthorFive \quad \AuthorSix\par}
+  \vspace{0.35cm}
+  % TODO(autorzy): potwierdzić afiliację i kolejność autorów.
+  {\normalsize\itshape Politechnika Gdańska\par}
+  \vspace{0.25cm}
+  {\small \today\par}
+  \vspace{1.1cm}
+  \begin{minipage}{0.86\textwidth}
+    \input{chapters/00-abstract}
+  \end{minipage}
+  \vfill
+  {\footnotesize Kod, zadania benchmarku i surowe wyniki: repozytorium \texttt{llm-paradigm-benchmark},
+   przebieg \texttt{haiku-v1} (commity \texttt{072ea49} i \texttt{dc7f1d4}).\par}
+\end{titlepage}
+
+% ------------------------------------------------------------------ część wstępna
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+% ------------------------------------------------------------------ rozdziały
+\input{chapters/01-introduction}
+\input{chapters/02-background}
+\input{chapters/03-preliminary}
+\input{chapters/04-benchmark}
+\input{chapters/05-harness}
+\input{chapters/06-results}
+\input{chapters/07-discussion}
+\input{chapters/08-conclusions}
+
+% ------------------------------------------------------------------ część końcowa
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliografia}
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\input{appendices/A-prompts}
+\input{appendices/B-judge}
+\input{appendices/C-full-results}
+
+\end{document}

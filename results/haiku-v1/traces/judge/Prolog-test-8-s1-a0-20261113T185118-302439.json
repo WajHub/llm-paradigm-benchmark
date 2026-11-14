@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:18+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-8-s1-a0",
+  "request_id": "req_011Ch1RvK3nc7KhcQC9NrHEX",
+  "duration_s": 11.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\nImplement two approximation algorithms for the metric Travelling Salesman Problem\n(MST double tree and Christofides) in SWI-Prolog in the module tsp_approx (file\ntsp_approx.pl). Implement tsp_mst_weight/2, tsp_double_tree/2,\ntsp_matching_weight/2 and tsp_christofides/2.\n\nInput: Points is a list of X-Y pairs of integers, e.g. [0-0, 3-4, 1-0]\n(|coordinate| < 10000, at most 40 points). Vertices are identified by their\n0-based position in the list. Points may coincide (distance 0).\nDistance: Manhattan, d(X1-Y1, X2-Y2) = |X1 - X2| + |Y1 - Y2| (an integer).\n\nTours: a tour result is the term tour(Order, Cost) where Order is a list containing\nevery vertex index exactly once (a permutation of 0..N-1) and starting with 0, and\nCost is the integer length of the closed tour: the sum of d over consecutive\nvertices of Order plus d(last, first). For N = 1 the result is tour([0], 0); for\nN = 2 the cost is 2 * d(0, 1). For an empty point list the result is the atom none.\n\nThe MST (unique by these rules) is built by Prim's algorithm starting at vertex 0:\nrepeat N-1 times: among the vertices not yet in the tree choose the vertex V with\nthe smallest key(V) = min over tree vertices U of d(U, V); ties -> the smallest\nindex V. Its parent is the tree vertex U with d(U, V) = key(V); ties -> the\nSMALLEST index U (not the first one found, not the most recently added one).\n\n- Implement `tsp_mst_weight(+Points, -W)`: W is the total weight of that MST\n  (integer); 0 for 0 or 1 points.\n\n- Implement `tsp_double_tree(+Points, -Result)`: Result = tour(Order, Cost) where\n  Order is the preorder sequence of a depth-first walk of that MST rooted at 0 that\n  visits the children of every vertex in ascending index order. This tour is unique\n  and is compared exactly. Result = none for an empty list.\n\n- Implement `tsp_matching_weight(+Points, -W)`: let O be the set of vertices with\n  odd degree in that MST (always an even number of vertices). W is the minimum total\n  weight (sum of d) of a perfect matching of O (pairs of distinct vertices of O,\n  every vertex of O in exactly one pair). It must be exact: greedy nearest-pair\n  matching is wrong. |O| <= 16 in all tests, so an exact algorithm over subsets\n  (bitmask / memoised DP) is fine; blossom is not required. W = 0 for 0 or 1 points.\n\n- Implement `tsp_christofides(+Points, -Result)`: build the multigraph made of the\n  MST edges plus the edges of a minimum-weight perfect matching of O; an edge that\n  is in both is a double edge (keep both copies). Find an Eulerian circuit of this\n  multigraph starting at vertex 0 (Hierholzer), then shortcut it: keep only the\n  first occurrence of every vertex. Result = tour(Order, Cost) with Order starting\n  with 0. Result = none for an empty list; tour([0], 0) for one point.\n  * Any minimum matching and any Eulerian circuit are accepted. The tests check\n    that the tour is valid (permutation starting with 0, Cost equal to the\n    recomputed closed-tour cost) and that Cost =< MST weight + matching weight.\n\nConstraints:\n  - All predicates are deterministic (a single answer).\n  - Results are compared with == / =:=: W and Cost are integers, Order is a proper\n    list of integers.\n\n## Stub module given to the author (tsp_approx.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(tsp_approx, [\n    tsp_mst_weight/2,\n    tsp_double_tree/2,\n    tsp_matching_weight/2,\n    tsp_christofides/2\n]).\n\n% Metric TSP approximations on points with Manhattan distance\n%   d(X1-Y1, X2-Y2) = |X1 - X2| + |Y1 - Y2|   (integer)\n%\n% Points: a list of X-Y pairs of integers, e.g. [0-0, 3-4]. Vertex indices are\n% 0-based positions in that list. Points may coincide.\n%\n% Tour result: tour(Order, Cost)\n%   Order - list of all vertex indices (a permutation of 0..N-1) starting with 0\n%   Cost  - integer length of the closed tour (including the edge back to 0)\n% For N = 0 the result is the atom `none`; for N = 1 it is tour([0], 0).\n%\n% MST: Prim's algorithm from vertex 0; next vertex = smallest key, ties ->\n% smallest index; parent = tree vertex at distance key with the smallest index.\n%\n% tsp_mst_weight(+Points, -W)\n%   W = total weight of that MST (0 for 0 or 1 points).\n%\n% tsp_double_tree(+Points, -Result)\n%   Result = tour(Order, Cost): preorder walk of the MST rooted at 0, children\n%   visited in ascending index order; `none` for an empty list.\n%\n% tsp_matching_weight(+Points, -W)\n%   W = weight of a minimum-weight perfect matching of the odd-degree vertices\n%   of that MST (0 for 0 or 1 points).\n%\n% tsp_christofides(+Points, -Result)\n%   Result = tour(Order, Cost) built by Christofides' algorithm (MST + minimum\n%   matching as a multigraph, Eulerian circuit from 0, shortcutting);\n%   `none` for an empty list.\n\ntsp_mst_weight(_, _) :-\n    throw(error(existence_error(procedure, tsp_mst_weight/2), _)).\n\ntsp_double_tree(_, _) :-\n    throw(error(existence_error(procedure, tsp_double_tree/2), _)).\n\ntsp_matching_weight(_, _) :-\n    throw(error(existence_error(procedure, tsp_matching_weight/2), _)).\n\ntsp_christofides(_, _) :-\n    throw(error(existence_error(procedure, tsp_christofides/2), _)).\n\n```\n\n## Code to evaluate (tsp_approx.pl)\n```prolog\n:- module(tsp_approx, [\n    tsp_mst_weight/2,\n    tsp_double_tree/2,\n    tsp_matching_weight/2,\n    tsp_christofides/2\n]).\n\n:- use_module(library(assoc)).\n\n% Metric TSP approximations on points with Manhattan distance.\n\ndist(Pts, A, B, D) :-\n    nth0(A, Pts, X1-Y1),\n    nth0(B, Pts, X2-Y2),\n    D is abs(X1 - X2) + abs(Y1 - Y2).\n\n% ---------------------------------------------------------------------\n% Prim's MST from vertex 0.\n% Edges are edge(Parent, Child, Weight).\n\nmst([], [], 0).\nmst([_], [], 0).\nmst(Pts, Edges, Total) :-\n    Pts = [_, _ | _],\n    length(Pts, N),\n    N1 is N - 1,\n    numlist(1, N1, Vs),\n    maplist(init_front(Pts), Vs, Frontier),\n    prim(Frontier, Pts, [], Edges, 0, Total).\n\ninit_front(Pts, V, V-K-0) :-\n    dist(Pts, 0, V, K).\n\nprim([], _, E, E, T, T).\nprim(F, Pts, E0, E, T0, T) :-\n    F = [X | Xs],\n    pick_min(Xs, X, V-K-P),\n    selectchk(V-K-P, F, Rest),\n    maplist(upd_front(Pts, V), Rest, Rest1),\n    T1 is T0 + K,\n    prim(Rest1, Pts, [edge(P, V, K) | E0], E, T1, T).\n\npick_min([], M, M).\npick_min([V-K-P | T], V0-K0-P0, M) :-\n    (   K < K0\n    ->  pick_min(T, V-K-P, M)\n    ;   pick_min(T, V0-K0-P0, M)\n    ).\n\nupd_front(Pts, V, W-K2-P2, W-K-P) :-\n    dist(Pts, V, W, D),\n    (   D < K2\n    ->  K = D, P = V\n    ;   D =:= K2, V < P2\n    ->  K = K2, P = V\n    ;   K = K2, P = P2\n    ).\n\n% ---------------------------------------------------------------------\n% Tree utilities\n\nneighbor(V, Es, U) :-\n    (   member(edge(V, U, _), Es)\n    ;   member(edge(U, V, _), Es)\n    ).\n\nchildren(V, P, Es, Cs) :-\n    findall(U, neighbor(V, Es, U), Ns),\n    exclude(==(P), Ns, Ms),\n    sort(Ms, Cs).\n\n% Preorder depth-first walk with children in ascending order.\npre(V, P, Es, [V | L1], L) :-\n    children(V, P, Es, Cs),\n    pre_children(Cs, V, Es, L1, L).\n\npre_children([], _, _, L, L).\npre_children([C | Cs], V, Es, L0, L) :-\n    pre(C, V, Es, L0, L1),\n    pre_children(Cs, V, Es, L1, L).\n\n% ---------------------------------------------------------------------\n% Tour cost of a closed tour given by Order.\n\ntour_cost(Order, Pts, C) :-\n    Order = [F | _],\n    append(Order, [F], Cyc),\n    sum_edges(Cyc, Pts, C).\n\nsum_edges([_], _, 0) :- !.\nsum_edges([A, B | T], Pts, C) :-\n    dist(Pts, A, B, D),\n    sum_edges([B | T], Pts, C1),\n    C is C1 + D.\n\n% ---------------------------------------------------------------------\n% Odd-degree vertices of the MST.\n\nodd_vertices(Pts, Es, Os) :-\n    length(Pts, N),\n    N1 is N - 1,\n    findall(V,\n            ( between(0, N1, V),\n              aggregate_all(count,\n                            ( member(edge(A, B, _), Es),\n                              ( A =:= V ; B =:= V )\n                            ), D),\n              D mod 2 =:= 1\n            ),\n            Os).\n\n% ---------------------------------------------------------------------\n% Exact minimum-weight perfect matching by memoised bitmask DP.\n% Memo maps Mask (over indices into Os) to Cost-Pairs.\n\nbits_of(0, _, []) :- !.\nbits_of(M, I, Bs) :-\n    M1 is M >> 1,\n    I1 is I + 1,\n    bits_of(M1, I1, T),\n    (   M /\\ 1 =:= 1\n    ->  Bs = [I | T]\n    ;   Bs = T\n    ).\n\nmin_match(0, _, _, M, M, 0-[]) :- !.\nmin_match(Mask, _, _, M0, M0, Best) :-\n    get_assoc(Mask, M0, Best),\n    !.\nmin_match(Mask, Os, Pts, M0, M, Best) :-\n    bits_of(Mask, 0, [I | Js]),\n    nth0(I, Os, VI),\n    Mask1 is Mask /\\ \\(1 << I),\n    best_pair(Js, Mask1, Os, Pts, VI, M0, M1, none, Best),\n    put_assoc(Mask, M1, Best, M).\n\nbest_pair([], _, _, _, _, M, M, B, B).\nbest_pair([J | Js], Mask1, Os, Pts, VI, M0, M, B0, B) :-\n    Mask2 is Mask1 /\\ \\(1 << J),\n    min_match(Mask2, Os, Pts, M0, M1, C1-Ps1),\n    nth0(J, Os, VJ),\n    dist(Pts, VI, VJ, D),\n    C is D + C1,\n    P = [VI-VJ | Ps1],\n    (   B0 == none\n    ->  B1 = C-P\n    ;   B0 = BC-_, C < BC\n    ->  B1 = C-P\n    ;   B1 = B0\n    ),\n    best_pair(Js, Mask1, Os, Pts, VI, M1, M, B1, B).\n\nmatching(Pts, Os, Best) :-\n    empty_assoc(E),\n    length(Os, K),\n    Full is (1 << K) - 1,\n    min_match(Full, Os, Pts, E, _, Best).\n\n% ---------------------------------------------------------------------\n% Eulerian circuit (Hierholzer) on a multigraph given as A-B pairs.\n\ntake_edge(V, [A-B | T], U, Rest) :-\n    (   A =:= V\n    ->  U = B, Rest = T\n    ;   B =:= V\n    ->  U = A, Rest = T\n    ;   Rest = [A-B | R],\n        take_edge(V, T, U, R)\n    ).\n\nhier([], _, C, C).\nhier([V | S], Es, C0, C) :-\n    (   take_edge(V, Es, U, Es1)\n    ->  hier([U, V | S], Es1, C0, C)\n    ;   hier(S, Es, [V | C0], C)\n    ).\n\n% Keep first occurrence of each vertex.\nshortcut([], _, []).\nshortcut([V | T], Seen, Out) :-\n    (   memberchk(V, Seen)\n    ->  Out = R, Seen1 = Seen\n    ;   Out = [V | R], Seen1 = [V | Seen]\n    ),\n    shortcut(T, Seen1, R).\n\n% ---------------------------------------------------------------------\n% Public predicates\n\ntsp_mst_weight(Points, W) :-\n    mst(Points, _, W).\n\ntsp_double_tree(Points, Result) :-\n    (   Points == []\n    ->  Result = none\n    ;   mst(Points, Es, _),\n        pre(0, -1, Es, Order, []),\n        tour_cost(Order, Points, C),\n        Result = tour(Order, C)\n    ).\n\ntsp_matching_weight(Points, W) :-\n    mst(Points, Es, _),\n    odd_vertices(Points, Es, Os),\n    matching(Points, Os, W-_).\n\ntsp_christofides(Points, Result) :-\n    (   Points == []\n    ->  Result = none\n    ;   mst(Points, Es, _),\n        odd_vertices(Points, Es, Os),\n        matching(Points, Os, _-Pairs),\n        findall(A-B, member(edge(A, B, _), Es), E1),\n        append(E1, Pairs, Multi),\n        hier([0], Multi, [], Circ),\n        shortcut(Circ, [], Order),\n        tour_cost(Order, Points, C),\n        Result = tour(Order, C)\n    ).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RvKLQhwmoNn69LgLzp",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is relational in places: Prim runs by recursion with accumulators, `pre/pre_children` use difference lists, and the matching DP threads the assoc state explicitly with no assert. Against that, `mst/3` has overlapping clauses (the third relies on its `Pts = [_,_|_]` guard), and `pick_min`, `upd_front` and `best_pair` are chains of if-then-else on comparisons. `hier` and `take_edge` also use if-then-else where head pattern matching would be more declarative. One point more would need cleaner clause-head dispatch, with min-selection and edge removal done via `select/3` or `foldl`.\",\"language_idiomaticity\":\"Standard libraries are used: `assoc`, `maplist`, `exclude`, `selectchk`, `aggregate_all`, `numlist`, `nth0`, `findall`, `sort`. The `sum_edges` predicate has a red cut that is only correct because the clause order is fixed; `sum_list` over `maplist` would be better. `dist/4` uses `nth0` on every call, which is O(n) per lookup, and `bits_of` has a cut and is not tail-recursive. The `nth0` calls inside the DP, `odd_vertices` using an `aggregate_all` count per vertex, and `member` plus `=:=` for edge lookup all show list-based handling where better structures exist. `none` is handled with `==` checks inside the public predicates instead of via clause heads.\",\"readability\":\"Names are mostly meaningful (`pick_min`, `upd_front`, `odd_vertices`, `shortcut`, `min_match`) and the section comments help. Terms like `V-K-P` and `Cost-Pairs` are positional and a little cryptic. The 9-argument `best_pair` and the 6-argument `min_match` with threaded memo state are dense, and `hier` has no comment explaining what its stack means.\",\"design\":\"The decomposition is clear: MST, tree walk, cost, odd vertices, matching DP, Euler circuit and shortcut are separate predicates, and the `tour_cost` and `matching` helpers are reused by both public predicates. The matching DP is exact and memoised on bitmasks. Weaknesses are the repeated O(n) `nth0` distance lookups with no precomputed matrix or array, the Euler edge list that is scanned linearly, and the way `none` is handled separately in each public predicate. The `mst/3` clauses are not mutually exclusive, so a choicepoint may be left on `mst([_],...)`, which is relevant to the determinism requirement.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"red cut in sum_edges relying on clause order\",\"overlapping mst/3 clauses leaving choicepoints\",\"if-then-else chains instead of clause-head dispatch (take_edge, upd_front, pick_min)\",\"repeated nth0 index lookups instead of a precomputed distance structure\",\"manual recursion where sum_list/foldl would do\",\"many-argument state-threading predicates (best_pair/9)\"],\"justification\":\"The solution is a working, well-sectioned decomposition that uses assoc-based memoisation and accumulator recursion without assert. Several stretches are imperative-flavoured: if-then-else chains in `take_edge`, `upd_front` and `best_pair`, and the red cut in `sum_edges`. Positional `V-K-P` triples and the 9-argument `best_pair` hurt readability. The O(n) `nth0` distance lookups and the overlapping `mst/3` clauses also keep it from the higher scores.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7109,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7109,
+          "model": null,
+          "output_tokens": 1232,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1232,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

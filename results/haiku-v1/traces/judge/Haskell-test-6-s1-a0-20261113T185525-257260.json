@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:25+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-6-s1-a0",
+  "request_id": "req_011Ch1SEiwDv4pzMfWUQ8xCQ",
+  "duration_s": 8.1,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\nImplement a 9x9 Sudoku validator and solver in Haskell in the module Sudoku\n(file Sudoku.hs). Implement isValid, candidates, solve and countSolutions with\nexactly the signatures given in the module interface.\n\nBoard representation: a board is a flat `[Int]` of 81 cells in row-major order,\n`index = row * 9 + col` (row and col are 0-based, 0..8). The value 0 means an empty\ncell, 1..9 are digits. The nine 3x3 boxes start at rows/columns 0, 3 and 6.\n\n- Implement `isValid :: [Int] -> Bool`: return True iff\n  * the list has exactly 81 elements,\n  * every element is in 0..9, and\n  * no digit 1..9 appears more than once in any row, any column or any 3x3 box.\n  Zeros are ignored (an all-zero board is valid). A complete, correct board is valid.\n  Validity does NOT imply solvability.\n\n- Implement `candidates :: [Int] -> Int -> Int -> [Int]` (`candidates grid row col`):\n  precondition: the grid has 81 cells and row, col are in 0..8.\n  * If the cell `grid !! (row * 9 + col)` is non-zero, return [].\n  * Otherwise return the digits 1..9 that do not appear in that row, that column or\n    that 3x3 box, in ascending order.\n  Only the row, column and box of that cell matter; the rest of the grid does not\n  have to be valid.\n\n- Implement `solve :: [Int] -> Maybe [Int]`: return `Just` a complete board (81 cells,\n  no zeros, valid, every non-zero input cell unchanged) that extends the input, or\n  `Nothing` if `isValid grid` is False or no completion exists. An already complete\n  valid board is returned unchanged (`Just grid`). If several solutions exist, any\n  one of them is acceptable.\n\n- Implement `countSolutions :: [Int] -> Int -> Int` (`countSolutions grid limit`):\n  return the number of distinct complete valid boards extending the grid, but stop\n  searching as soon as `limit` solutions have been found, so the result is\n  `min total limit`. Return 0 when `limit <= 0` or `isValid grid` is False.\n  For the empty board, `countSolutions (replicate 81 0) 2 == 2` and it must return\n  promptly (the search must stop early, never enumerate everything).\n\nSearch requirements:\n  - Use recursive backtracking that always branches on the empty cell with the\n    FEWEST candidates (MRV heuristic). A cell with zero candidates is a dead end\n    (backtrack immediately).\n  - Naive backtracking over cells in row-major order is far too slow for some test\n    puzzles (millions of nodes); with MRV they take only a few hundred nodes.\n    Additional constraint propagation is allowed.\n  - A board can be valid and still have no solution (an empty cell with no\n    candidate, or a contradiction found only deeper in the search) -> Nothing / 0.\n\n## Stub module given to the author (Sudoku.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule Sudoku\n  ( isValid\n  , candidates\n  , solve\n  , countSolutions\n  ) where\n\nisValid :: [Int] -> Bool\nisValid _ = error \"Sudoku.isValid not implemented\"\n\ncandidates :: [Int] -> Int -> Int -> [Int]\ncandidates _ _ _ = error \"Sudoku.candidates not implemented\"\n\nsolve :: [Int] -> Maybe [Int]\nsolve _ = error \"Sudoku.solve not implemented\"\n\ncountSolutions :: [Int] -> Int -> Int\ncountSolutions _ _ = error \"Sudoku.countSolutions not implemented\"\n\n```\n\n## Code to evaluate (Sudoku.hs)\n```haskell\nmodule Sudoku\n  ( isValid\n  , candidates\n  , solve\n  , countSolutions\n  ) where\n\nimport Data.Array (Array, listArray, elems, (!), (//))\nimport Data.List (nub, minimumBy)\nimport Data.Ord (comparing)\n\n-- | All 27 units (9 rows, 9 columns, 9 boxes) as lists of cell indices.\nunits :: [[Int]]\nunits =\n  [ [r * 9 + c | c <- [0 .. 8]] | r <- [0 .. 8] ]\n  ++ [ [r * 9 + c | r <- [0 .. 8]] | c <- [0 .. 8] ]\n  ++ [ [(br + i) * 9 + bc + j | i <- [0 .. 2], j <- [0 .. 2]]\n     | br <- [0, 3, 6], bc <- [0, 3, 6] ]\n\n-- | For each cell, the indices of all distinct peers (same row, column or box).\npeerTable :: Array Int [Int]\npeerTable = listArray (0, 80) [peersOf i | i <- [0 .. 80]]\n  where\n    peersOf i =\n      [ j | j <- [0 .. 80], j /= i\n          , any (\\u -> i `elem` u && j `elem` u) units ]\n\nisValid :: [Int] -> Bool\nisValid g =\n  length g == 81\n    && all (`elem` [0 .. 9]) g\n    && all unitOk units\n  where\n    arr = listArray (0, 80) g :: Array Int Int\n    unitOk u =\n      let ds = filter (/= 0) [arr ! i | i <- u]\n      in length ds == length (nub ds)\n\ncandidates :: [Int] -> Int -> Int -> [Int]\ncandidates grid row col\n  | grid !! i /= 0 = []\n  | otherwise = [d | d <- [1 .. 9], d `notElem` used]\n  where\n    i = row * 9 + col\n    used = [grid !! j | j <- peerTable ! i]\n\n-- | Candidates for a cell in the array representation.\ncandA :: Array Int Int -> Int -> [Int]\ncandA arr i = [d | d <- [1 .. 9], d `notElem` [arr ! j | j <- peerTable ! i]]\n\n-- | Lazily enumerates all complete boards extending the given array,\n-- branching on the empty cell with the fewest candidates (MRV).\nsolutions :: Array Int Int -> [Array Int Int]\nsolutions arr =\n  case [(i, cs) | i <- [0 .. 80], arr ! i == 0, let cs = candA arr i] of\n    [] -> [arr]\n    open ->\n      let (i, cs) = minimumBy (comparing (length . snd)) open\n      in concat [solutions (arr // [(i, d)]) | d <- cs]\n\nsolve :: [Int] -> Maybe [Int]\nsolve grid\n  | not (isValid grid) = Nothing\n  | otherwise =\n      case take 1 (solutions (listArray (0, 80) grid)) of\n        [a] -> Just (elems a)\n        _ -> Nothing\n\ncountSolutions :: [Int] -> Int -> Int\ncountSolutions grid limit\n  | limit <= 0 || not (isValid grid) = 0\n  | otherwise = length (take limit (solutions (listArray (0, 80) grid)))\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SEjGpXhVNKS1nxGNNJ",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The search is pure and declarative: `solutions` returns a lazy list of all completions, built with list comprehensions and `concat`. `solve` uses `take 1` and `countSolutions` uses `take limit`, so laziness provides the early cut-off with no mutable state or flags. The data flow is immutable, with `arr // [(i,d)]` producing new boards. A 5 would need a slightly more refined state, e.g. propagation or `concatMap`, but this is already close to ideal.\",\"language_idiomaticity\":\"It uses `Data.Array`, list comprehensions, `minimumBy (comparing ...)`, `take`, and pattern matching on `case` with `[]`. Weaknesses: `candidates` uses `!!` on lists (acceptable given the precondition), and `candidates` and `candA` duplicate logic. `nub` and `elem` on lists are fine at size 9. `minimumBy (comparing (length . snd))` recomputes lengths, and the `[(i,cs) | ... let cs = ...]` form is fine. `length g == 81` is checked first, and `&&` short-circuits before the array is built. The `peerTable` construction is O(81*81*27*9), but it is computed once as a CAF. `concat [..]` could be `concatMap`, a minor point.\",\"readability\":\"Names are clear (`units`, `peerTable`, `candA`, `solutions`, `unitOk`), and haddock comments are placed where they help. Functions are short and each does one thing. The `peersOf` comprehension with `any (\\\\u -> i `elem` u && j `elem` u) units` is a little dense but understandable. A small shortcoming is that `candidates` and `candA` are near duplicates, which makes the reader compare them.\",\"design\":\"The decomposition is good: `units` and `peerTable` are shared by validation and candidate computation, and `solutions` is a single lazy generator reused by `solve` and `countSolutions`. Using `Array` for lookups is appropriate. The main flaw is the duplication between `candidates` (list-based, `!!`) and `candA` (array-based). `candidates` could be implemented by converting to an array and calling `candA`, or both could share a helper. The `peerTable` is precomputed, which is a sensible choice. There is also no dead-end short-circuit for zero candidates, although the MRV pick naturally yields an empty branch list.\"},\"paradigm_idiomaticity\":5,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"duplicated candidate logic in `candidates` and `candA`\",\"`!!` indexing on lists in `candidates`\"],\"justification\":\"The solution is a pure, lazy-list-based backtracking search, where `take 1` and `take limit` give early termination without any imperative control. It shares `units` and `peerTable` between validation and candidate computation, and uses `Array` for lookup. The main blemishes are the near-duplicate `candidates` and `candA`, the `!!` indexing, and a few minor inefficiencies such as recomputing `length` in `minimumBy`.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4365,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4365,
+          "model": null,
+          "output_tokens": 1039,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1039,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

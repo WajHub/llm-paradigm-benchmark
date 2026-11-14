@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:53+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-9-s1-a0",
+  "request_id": "req_011Ch1RtemtUvNcGNf4je8XV",
+  "duration_s": 8.8,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\nImplement a B-tree with minimum degree t (exactly as in CLRS: single-pass\ntop-down insertion and single-pass top-down deletion) in Haskell in the module\nBTree (file BTree.hs). The module already defines\n  data BNode = BNode { nodeKeys :: [Int], nodeChildren :: [BNode] }\nimplement insertAll and deleteAll. Build the trees persistently (pure\nfunctions that return new nodes); the tests compare the EXACT SHAPE of the\nresulting tree, so every rule below matters.\n\nRepresentation:\n  * nodeKeys is strictly ascending. A leaf has nodeChildren == []. An internal\n    node with k keys has exactly k+1 children; all keys in children[i] lie\n    between keys[i-1] and keys[i].\n  * The empty tree is a root leaf with no keys: BNode [] [] (NOT Nothing).\n  * Every node holds at most 2t-1 keys; every non-root node at least t-1 keys.\n\n- Implement `insertAll :: Int -> [Int] -> Maybe BNode` (`insertAll t keys`):\n  Nothing if t < 2. Otherwise start from the empty tree and insert the keys\n  one by one, in list order, with the insertion below; return the root.\n\n- Implement `deleteAll :: Int -> [Int] -> [Int] -> Maybe BNode`\n  (`deleteAll t keys deletions`): Nothing if t < 2. Otherwise build the tree\n  exactly like `insertAll t keys`, then delete the keys of `deletions` one by\n  one, in list order, with the deletion below; return the root.\n\nInsertion of k (CLRS B-TREE-INSERT, top-down, pre-emptive splitting):\n  0. If k is already in the tree, do nothing. Check membership BEFORE any\n     splitting (a split triggered by a duplicate would change the shape).\n  1. If the root is full (2t-1 keys): create a new root with no keys whose only\n     child is the old root, and split that child (rule below).\n  2. Descend from the root: at an internal node x find the child index i =\n     the first index with k < keys[i] (or the last child if there is none).\n     If children[i] is full (2t-1 keys), split it first, and then go to the\n     right half if k is greater than the key that moved up into x.\n     Nodes are split on the way down even if they would not overflow -- this is\n     NOT the bottom-up \"split on overflow\" variant (it gives different trees).\n  3. At the leaf, insert k at its sorted position.\n  Split of a full node y (2t-1 keys) that is child i of x: the median key\n  y.keys[t-1] (0-based) moves up into x at key position i; y keeps keys\n  0..t-2 (and children 0..t-1), a new right sibling z placed at child\n  position i+1 gets keys t..2t-2 (and children t..2t-1).\n\nDeletion of k:\n  0. If k is not in the tree, the tree is returned UNCHANGED. Check\n     membership first (a CLRS descent for an absent key would still\n     rebalance nodes).\n  Otherwise run delete(root, k):\n  1. k is in node x and x is a leaf: remove k from x.\n  2. k = x.keys[i] in internal node x; y = children[i] (left of k),\n     z = children[i+1] (right of k):\n     (2a) if y has >= t keys: k' = predecessor of k (the maximum key in y's\n          subtree); recursively delete(y, k'), then replace x.keys[i] by k'.\n          The predecessor is preferred whenever y has >= t keys, even if z\n          also has >= t keys.\n     (2b) else if z has >= t keys: symmetric with the successor k'' (the\n          minimum key in z's subtree): delete(z, k''), replace x.keys[i] by k''.\n     (2c) else (both have t-1 keys): merge y, k and z into one node in place\n          of y (k and z are removed from x), then delete(merged node, k).\n  3. k is not in internal node x: let c = children[i] be the child whose\n     subtree must contain k. If c has exactly t-1 keys, fix it BEFORE\n     descending:\n     (3a) if the LEFT sibling children[i-1] exists and has >= t keys: rotate\n          right -- the separator x.keys[i-1] moves down to the front of c,\n          the left sibling's last key moves up to replace it in x, and the\n          left sibling's last child (if any) becomes c's first child.\n          Otherwise, if the RIGHT sibling children[i+1] exists and has >= t\n          keys: rotate left (symmetric: separator x.keys[i] moves to the end\n          of c, the right sibling's first key moves up, its first child (if\n          any) becomes c's last child). The LEFT sibling is tried first.\n     (3b) otherwise (no sibling has >= t keys): merge c with its RIGHT\n          sibling (c, separator x.keys[i], right sibling -> one node at\n          position i) if a right sibling exists; only if c is the last child,\n          merge it into its LEFT sibling (left sibling, x.keys[i-1], c -> one\n          node at position i-1).\n     Then recurse into the (possibly merged) child that now contains the\n     range of k.\n  After each deletion, if the root has no keys but has a child, that child\n  becomes the new root (the height shrinks). Deleting the last key gives the\n  empty tree BNode [] [].\n\nRequirements:\n  - O(t * log_t n) per operation; tests insert up to 2000 keys.\n  - Only the libraries shipped with GHC (base, containers, array).\n\n## Stub module given to the author (BTree.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule BTree\n  ( BNode (..)\n  , insertAll\n  , deleteAll\n  ) where\n\n-- A B-tree node: strictly ascending keys; a leaf has no children, an internal\n-- node with k keys has exactly k+1 children. The empty tree is BNode [] [].\ndata BNode = BNode\n  { nodeKeys     :: [Int]\n  , nodeChildren :: [BNode]\n  } deriving (Eq, Show)\n\n-- insertAll t keys\ninsertAll :: Int -> [Int] -> Maybe BNode\ninsertAll _ _ = error \"BTree.insertAll not implemented\"\n\n-- deleteAll t keys deletions\ndeleteAll :: Int -> [Int] -> [Int] -> Maybe BNode\ndeleteAll _ _ _ = error \"BTree.deleteAll not implemented\"\n\n```\n\n## Code to evaluate (BTree.hs)\n```haskell\nmodule BTree\n  ( BNode (..)\n  , insertAll\n  , deleteAll\n  ) where\n\nimport Data.List (foldl')\n\n-- A B-tree node: strictly ascending keys; a leaf has no children, an internal\n-- node with k keys has exactly k+1 children. The empty tree is BNode [] [].\ndata BNode = BNode\n  { nodeKeys     :: [Int]\n  , nodeChildren :: [BNode]\n  } deriving (Eq, Show)\n\nemptyTree :: BNode\nemptyTree = BNode [] []\n\n-- Helpers ---------------------------------------------------------------\n\nsetAt :: Int -> a -> [a] -> [a]\nsetAt i x xs = take i xs ++ [x] ++ drop (i + 1) xs\n\ncountLess :: Int -> [Int] -> Int\ncountLess k = length . takeWhile (< k)\n\ninsertSorted :: Int -> [Int] -> [Int]\ninsertSorted k xs = let (a, b) = span (< k) xs in a ++ k : b\n\nmember :: Int -> BNode -> Bool\nmember k (BNode ks cs) =\n  k `elem` ks || (not (null cs) && member k (cs !! countLess k ks))\n\nmaxKey :: BNode -> Int\nmaxKey (BNode ks cs)\n  | null cs = last ks\n  | otherwise = maxKey (last cs)\n\nminKey :: BNode -> Int\nminKey (BNode ks cs)\n  | null cs = head ks\n  | otherwise = minKey (head cs)\n\nisFull :: Int -> BNode -> Bool\nisFull t n = length (nodeKeys n) == 2 * t - 1\n\n-- Insertion -------------------------------------------------------------\n\n-- Split child i (which must be full) of the given node.\nsplitChild :: Int -> BNode -> Int -> BNode\nsplitChild t (BNode ks cs) i =\n  let y = cs !! i\n      yk = nodeKeys y\n      yc = nodeChildren y\n      med = yk !! (t - 1)\n      yLeft = BNode (take (t - 1) yk) (take t yc)\n      yRight = BNode (drop t yk) (drop t yc)\n      ks' = take i ks ++ [med] ++ drop i ks\n      cs' = take i cs ++ [yLeft, yRight] ++ drop (i + 1) cs\n  in BNode ks' cs'\n\n-- Insert into a node that is known not to be full.\ninsertNonFull :: Int -> BNode -> Int -> BNode\ninsertNonFull t node@(BNode ks cs) k\n  | null cs = BNode (insertSorted k ks) []\n  | otherwise =\n      let i = countLess k ks\n          c = cs !! i\n      in if isFull t c\n           then\n             let BNode ks' cs' = splitChild t node i\n                 j = if k > ks' !! i then i + 1 else i\n                 child' = insertNonFull t (cs' !! j) k\n             in BNode ks' (setAt j child' cs')\n           else BNode ks (setAt i (insertNonFull t c k) cs)\n\ninsertKey :: Int -> BNode -> Int -> BNode\ninsertKey t root k\n  | member k root = root\n  | isFull t root = insertNonFull t (splitChild t (BNode [] [root]) 0) k\n  | otherwise = insertNonFull t root k\n\n-- insertAll t keys\ninsertAll :: Int -> [Int] -> Maybe BNode\ninsertAll t keys\n  | t < 2 = Nothing\n  | otherwise = Just (foldl' (insertKey t) emptyTree keys)\n\n-- Deletion --------------------------------------------------------------\n\n-- Shrink the height if the root has no keys but a child.\nshrink :: BNode -> BNode\nshrink (BNode [] [c]) = c\nshrink n = n\n\n-- Delete k from the subtree rooted at node; k must be present in it.\ndeleteFrom :: Int -> Int -> BNode -> BNode\ndeleteFrom t k (BNode ks cs)\n  | null cs = BNode (filter (/= k) ks) []\n  | k `elem` ks = deleteInternal\n  | otherwise = deleteDescend\n  where\n    deleteInternal =\n      let i = countLess k ks\n          y = cs !! i\n          z = cs !! (i + 1)\n      in if length (nodeKeys y) >= t\n           then\n             let k' = maxKey y\n             in BNode (setAt i k' ks) (setAt i (deleteFrom t k' y) cs)\n           else if length (nodeKeys z) >= t\n             then\n               let k'' = minKey z\n               in BNode (setAt i k'' ks) (setAt (i + 1) (deleteFrom t k'' z) cs)\n             else\n               let merged = BNode (nodeKeys y ++ [k] ++ nodeKeys z)\n                                  (nodeChildren y ++ nodeChildren z)\n                   ks' = take i ks ++ drop (i + 1) ks\n                   cs' = take i cs ++ [merged] ++ drop (i + 2) cs\n               in BNode ks' (setAt i (deleteFrom t k merged) cs')\n\n    deleteDescend =\n      let i = countLess k ks\n          c = cs !! i\n          hasLeft = i > 0\n          hasRight = i < length cs - 1\n          leftRich = hasLeft && length (nodeKeys (cs !! (i - 1))) >= t\n          rightRich = hasRight && length (nodeKeys (cs !! (i + 1))) >= t\n          (ks', cs', j)\n            | length (nodeKeys c) >= t = (ks, cs, i)\n            | leftRich = rotateRight i c\n            | rightRich = rotateLeft i c\n            | hasRight = mergeRight i c\n            | otherwise = mergeLeft i c\n      in BNode ks' (setAt j (deleteFrom t k (cs' !! j)) cs')\n\n    rotateRight i c =\n      let l = cs !! (i - 1)\n          lk = nodeKeys l\n          lc = nodeChildren l\n          l' = BNode (init lk) (if null lc then [] else init lc)\n          c' = BNode (ks !! (i - 1) : nodeKeys c)\n                     (if null lc then nodeChildren c else last lc : nodeChildren c)\n          ks' = setAt (i - 1) (last lk) ks\n          cs' = setAt (i - 1) l' (setAt i c' cs)\n      in (ks', cs', i)\n\n    rotateLeft i c =\n      let r = cs !! (i + 1)\n          rk = nodeKeys r\n          rc = nodeChildren r\n          r' = BNode (tail rk) (drop 1 rc)\n          c' = BNode (nodeKeys c ++ [ks !! i]) (nodeChildren c ++ take 1 rc)\n          ks' = setAt i (head rk) ks\n          cs' = setAt (i + 1) r' (setAt i c' cs)\n      in (ks', cs', i)\n\n    mergeRight i c =\n      let r = cs !! (i + 1)\n          m = BNode (nodeKeys c ++ [ks !! i] ++ nodeKeys r)\n                    (nodeChildren c ++ nodeChildren r)\n          ks' = take i ks ++ drop (i + 1) ks\n          cs' = take i cs ++ [m] ++ drop (i + 2) cs\n      in (ks', cs', i)\n\n    mergeLeft i c =\n      let l = cs !! (i - 1)\n          m = BNode (nodeKeys l ++ [ks !! (i - 1)] ++ nodeKeys c)\n                    (nodeChildren l ++ nodeChildren c)\n          ks' = take (i - 1) ks ++ drop i ks\n          cs' = take (i - 1) cs ++ [m] ++ drop (i + 1) cs\n      in (ks', cs', i - 1)\n\n-- deleteAll t keys deletions\ndeleteAll :: Int -> [Int] -> [Int] -> Maybe BNode\ndeleteAll t keys deletions\n  | t < 2 = Nothing\n  | otherwise = Just (foldl' step root0 deletions)\n  where\n    root0 = foldl' (insertKey t) emptyTree keys\n    step r k\n      | member k r = shrink (deleteFrom t k r)\n      | otherwise = r\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rtf7ECr2bWYnMbrgAR",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is pure and persistent: the tree is rebuilt with `BNode` values, `foldl'` drives `insertAll` and `deleteAll`, and there is no mutable state. Remaining weaknesses: `setAt`/`take`/`drop` index surgery stands in for pattern matching or zipper-style splitting of children, and `!!` indexing is used heavily. Splitting lists with `splitAt` and pattern matching on the pieces would earn one more point.\",\"language_idiomaticity\":\"Uses `foldl'`, guards, `where`, `span` and `takeWhile`, and returns `Maybe` for t < 2. But it leans on partial functions (`head`, `last`, `init`, `tail`, `!!`) in `maxKey`, `minKey`, `rotateRight`, `rotateLeft` and `splitChild`. It also uses `length . takeWhile` instead of `span` or `splitAt`, and `length` for counts. There are no signatures on the local `where` helpers (`rotateRight`, `mergeRight`, etc.), which is acceptable. Avoiding partial functions and using `splitAt` would earn one more point.\",\"readability\":\"Top-level helpers are well named (`countLess`, `insertSorted`, `splitChild`, `shrink`) and the CLRS cases are easy to map (`deleteInternal`, `deleteDescend`, `rotate*`, `merge*`). However, `deleteFrom` is long with deeply nested if/else chains in `deleteInternal`. The `(ks', cs', j)` triples and index arithmetic like `i - 1` and `i + 2` are fiddly. There are almost no comments. Flattening the nested if-chain into guards and returning a small record instead of a triple would help.\",\"design\":\"The decomposition is reasonable: separate `member`, `splitChild`, `insertNonFull`, `insertKey`, `deleteFrom` and `shrink`. Duplication remains: merge logic is repeated in `deleteInternal` (2c), `mergeRight` and `mergeLeft`, and the list-removal expression `take i ks ++ drop (i+1) ks` recurs. `splitChild` and `insertNonFull` take the node and index as separate arguments. `member` and `deleteFrom` repeatedly scan the same node. A shared `merge` helper and a `removeAt` helper would earn one more point.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"partial functions (head, last, init, tail, !!) throughout\",\"index-based list surgery with take/drop/setAt instead of splitAt and pattern matching\",\"duplicated merge logic in deleteInternal and mergeRight/mergeLeft\",\"length . takeWhile instead of span/splitAt\",\"tuple of (keys, children, index) returned from rotate/merge helpers\",\"deeply nested if/else chain in deleteInternal instead of guards\"],\"justification\":\"The solution is pure and persistent, with `foldl'` driving the operations and `Maybe` for invalid t, which fits the functional paradigm. However, it relies on `!!`, `head`, `last` and `init` and on index arithmetic with `take`/`drop`/`setAt`, which are non-idiomatic and fragile. `deleteFrom` is long and nested, and merge logic is duplicated between case 2c and `mergeRight`/`mergeLeft`, so structure and readability are middling.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6986,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6986,
+          "model": null,
+          "output_tokens": 1176,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1176,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

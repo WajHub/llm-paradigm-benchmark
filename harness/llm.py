@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import os
 import re
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
 import anthropic
 
 import config
+import tracing
 
 ENV_FILE = Path(__file__).with_name(".env")
 PLACEHOLDER_KEY = "sk-ant-PLACEHOLDER"
@@ -106,19 +106,20 @@ class Generation:
     usage: dict
     duration_s: float
     raw: dict                  # full response for the record
+    request_id: str | None     # Anthropic's id of this call ("req_..."), also in the trace
+    thinking: str              # summarized reasoning (empty with THINKING_DISPLAY = "omitted")
 
 
 def generate(client: anthropic.Anthropic, model: str, effort: str, messages: list[dict],
-             max_tokens: int) -> Generation:
-    start = time.monotonic()
-    with client.messages.stream(
+             max_tokens: int, trace_ctx: tuple[Path, str, str] | None = None) -> Generation:
+    request = dict(
         model=model,
         max_tokens=max_tokens,          # thinking counts toward max_tokens
-        thinking={"type": "adaptive"},
+        thinking={"type": "adaptive", "display": config.THINKING_DISPLAY},
         output_config={"effort": effort},
-        messages=messages,
-    ) as stream:
-        response = stream.get_final_message()
+        messages=list(messages),        # snapshot: the caller keeps appending to its list
+    )
+    response, request_id, duration = tracing.stream_message(client.messages.stream, request, trace_ctx)
     code, violation = extract_code(response_text(response))
     return Generation(
         content=response.content,
@@ -126,6 +127,8 @@ def generate(client: anthropic.Anthropic, model: str, effort: str, messages: lis
         format_violation=violation,
         stop_reason=response.stop_reason,
         usage=usage_dict(response.usage),
-        duration_s=round(time.monotonic() - start, 1),
+        duration_s=duration,
         raw=response.model_dump(mode="json"),
+        request_id=request_id,
+        thinking=tracing.thinking_text(response),
     )

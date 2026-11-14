@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:28+00:00",
+  "kind": "judge",
+  "label": "Smalltalk-test-4-s1-a0",
+  "request_id": "req_011Ch1SKL4SqhZqNVLAqKMoU",
+  "duration_s": 8.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Smalltalk code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Smalltalk\n\n- Message passing and polymorphism; small methods with intention-revealing selectors.\n- Collection protocols instead of index loops: `do:`, `collect:`, `select:`, `reject:`, `detect:ifNone:`,\n  `inject:into:`, `with:collect:`; `to:do:` only where indices are really needed.\n- Blocks used idiomatically (`ifTrue:ifFalse:`, `ifNil:`, `and:`/`or:` with blocks), early returns with `^`.\n- Domain logic in objects rather than long procedural methods; no redefinition of built-in classes.\n- GNU Smalltalk bracket syntax used cleanly; temporaries declared where used.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Smalltalk (object-oriented paradigm)\n\n## Task specification given to the author\n- Implement `maxValueOf: weights values: values capacity: capacity`: Return max attainable value via DP. Return 0 if empty or capacity <= 0.\n- Implement `solveWeights: weights values: values capacity: capacity`: Return KnapsackResult with maxValue, selected (Array/OrderedCollection of 0/1 length n), totalWeight.\n- DO NOT use greedy heuristics — they fail on w=[10,20,30], v=[60,100,120], cap=50 (optimum=220).\n- Selection invariants: sum(selected_i * weights_i) <= capacity; sum(selected_i * values_i) = maxValue.\n- Put the solution in KnapsackImpl.st. Idiomatic GNU Smalltalk.\n\n## Contract given to the author (Knapsack.st, not written by the author)\n```smalltalk\nObject subclass: KnapsackResult [\n    | maxValue selected totalWeight |\n\n    KnapsackResult class >> maxValue: mv selected: s totalWeight: tw [\n        ^self new initMaxValue: mv selected: s totalWeight: tw\n    ]\n\n    initMaxValue: mv selected: s totalWeight: tw [\n        maxValue := mv.\n        selected := s.\n        totalWeight := tw.\n        ^self\n    ]\n\n    maxValue [ ^maxValue ]\n    selected [ ^selected ]\n    totalWeight [ ^totalWeight ]\n]\n\nObject subclass: Knapsack [\n    maxValueOf: weights values: values capacity: capacity [\n        ^self subclassResponsibility\n    ]\n\n    solveWeights: weights values: values capacity: capacity [\n        ^self subclassResponsibility\n    ]\n]\n\n```\n\n## Code to evaluate (KnapsackImpl.st)\n```smalltalk\nKnapsack subclass: KnapsackImpl [\n    maxValueOf: weights values: values capacity: capacity [\n        | n table |\n        n := weights size.\n        (n = 0 or: [capacity <= 0]) ifTrue: [^0].\n        table := self buildTableWeights: weights values: values capacity: capacity.\n        ^(table at: n + 1) at: capacity + 1\n    ]\n\n    solveWeights: weights values: values capacity: capacity [\n        | n selected totalWeight maxValue table c |\n        n := weights size.\n        selected := Array new: n withAll: 0.\n        totalWeight := 0.\n        (n = 0 or: [capacity <= 0]) ifTrue: [\n            ^KnapsackResult maxValue: 0 selected: selected totalWeight: 0\n        ].\n        table := self buildTableWeights: weights values: values capacity: capacity.\n        maxValue := (table at: n + 1) at: capacity + 1.\n        c := capacity + 1.\n        n to: 1 by: -1 do: [:i | | cur prev wi |\n            cur := table at: i + 1.\n            prev := table at: i.\n            (cur at: c) ~= (prev at: c) ifTrue: [\n                wi := weights at: i.\n                selected at: i put: 1.\n                totalWeight := totalWeight + wi.\n                c := c - wi\n            ]\n        ].\n        ^KnapsackResult maxValue: maxValue selected: selected totalWeight: totalWeight\n    ]\n\n    buildTableWeights: weights values: values capacity: capacity [\n        | n table prev |\n        n := weights size.\n        table := Array new: n + 1.\n        prev := Array new: capacity + 1 withAll: 0.\n        table at: 1 put: prev.\n        1 to: n do: [:i | | row wi vi |\n            row := Array new: capacity + 1 withAll: 0.\n            wi := weights at: i.\n            vi := values at: i.\n            1 to: capacity + 1 do: [:c | | best cand |\n                best := prev at: c.\n                (wi < c) ifTrue: [\n                    cand := (prev at: c - wi) + vi.\n                    cand > best ifTrue: [best := cand]\n                ].\n                row at: c put: best\n            ].\n            table at: i + 1 put: row.\n            prev := row\n        ].\n        ^table\n    ]\n]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SKLNK34bQPaZeuspMQ",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Logic lives in a KnapsackImpl subclass of the contract's Knapsack, overriding the two required selectors, and the DP table is built by a separate helper message. The algorithm is still procedural: a table of Arrays, nested index loops and mutable temporaries, with no domain objects such as an item or a table object. A 4 would need a little more object decomposition, for example a table or item abstraction, or collection-style iteration for the traceback.\",\"language_idiomaticity\":\"Uses `Array new:withAll:`, `to:do:` with block-local temporaries, `ifTrue:`, `or:` with a block, `^` early returns and the contract's class-side constructor. The `to:do:` loops are justified because indices are needed. Weak spots: the 1-based offset arithmetic (`capacity + 1`, `c - wi`, `wi < c`) is confusing, `max:` is replaced by a manual compare-and-assign, and the `(cur at: c) ~= (prev at: c)` condition is not parenthesised in a way that signals intent. Using `max:` and `Array new: withAll:` consistently would earn a 4.\",\"readability\":\"Selectors such as `buildTableWeights:values:capacity:` and temporaries such as `prev`, `cur` and `row` are clear enough. The `c` index with its +1 offset is the hard part, and `c` means different things in `solveWeights:` (a mutable column) and `buildTable` (a loop index). There are no comments explaining the offset or the traceback. Short methods and consistent layout help.\",\"design\":\"The table-building code is shared by both public methods, which avoids duplication. The traceback is a sound way to recover the selection. The duplicated empty/capacity guard in both public methods could be factored out. The helper is public rather than private, since there is no `<category: 'private'>`. The full 2D table is kept even though only the traceback needs it, which is fine. The `wi < c` condition is a subtle but correct 1-based check.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":3,\"design\":4,\"anti_patterns\":[\"procedural nested index loops with mutable accumulators in the DP\",\"manual compare-and-assign instead of `max:`\",\"duplicated guard clause in both public methods\",\"helper method not marked private\",\"1-based offset arithmetic (`capacity + 1`) scattered through the code\"],\"justification\":\"The solution is a correct, structured DP: `buildTableWeights:values:capacity:` is shared, and `solveWeights:values:capacity:` recovers the selection by traceback. It is mostly procedural in style, using index loops and mutable temporaries, with few Smalltalk collection idioms such as `max:`. The `+1` offsets, the duplicated guard and the public helper keep it from scoring higher on idiom and readability.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 3349,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 3349,
+          "model": null,
+          "output_tokens": 950,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 950,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}
