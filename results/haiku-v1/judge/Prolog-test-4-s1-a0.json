@@ -6,24 +6,32 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
-  "paradigm_idiomaticity": 3,
+  "rationale": {
+    "paradigm_idiomaticity": "The DP is a pure fold over items (fold_items/4) that threads an immutable table through step/4 and combine/4, with no assert/retract and no global state. Clause heads pattern-match on lists. Weaknesses: the table is a list shifted by padding with `none` and append, which is an awkward functional encoding. Combine uses nested if-then-else, and knapsack_max_value runs the full solve with reconstruction. A 5 would use a clearer recurrence, such as tabling or recursion on (Index, Capacity), with a cleaner relational formulation.",
+    "language_idiomaticity": "Uses maplist(=(0)), length/2 as a generator, last/2, reverse/2, and append/3 with a partial list for taking a prefix. It does not use foldl/4 for fold_items, which reimplements it by hand. `maplist(=(none), Pad)` and `append(Shifted,_,Ext)` for prefix-taking are tricks that are legal but not common. The `S == none` sentinel in place of a proper absence representation is un-Prolog-like. `(N =:= 0 ; Cap =< 0) -> ...` is acceptable. Using foldl and a nth-based or pairs-based representation would score higher. There is no handling of W=0 (length(Pad,0) works) or of negative W (length throws).",
+    "readability": "Predicates are small, and there are comments on the signatures and on step/4 describing the table layout. The shift-by-padding trick in step/4 takes effort to understand, and combine/4 has nested if-then-else with the none sentinel. The names best, RevSel, Shifted and Pad are reasonable. A short comment explaining the shift would earn the 4th point.",
+    "design": "Decomposition is reasonable: fold_items, step, combine and sum_weights are separate, and reconstruction rides along in the table through reversed selection lists, so no backtracking array is needed. max_value delegates to solve, which avoids duplication. The cost is that O(Cap) lists carry selections, and the shift is done via append, which is wasteful. The sum_weights recursion is not tail-recursive, and it could have been computed with foldl or sum_list. Mixing the sentinel `none` in with best terms weakens the data model."
+  },
+  "paradigm_idiomaticity": 4,
   "language_idiomaticity": 3,
   "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "DP table as list shifted via length/append padding, emulating array operations on lists",
-    "sentinel atom `none` mixed with best/2 terms in the shifted list",
-    "if-then-else chains in combine/4 instead of clause-head pattern matching",
-    "special-case branch duplicating result construction instead of letting the general case handle it",
-    "fold_items/4 hand-rolled instead of foldl/4 or a more direct recursion",
-    "knapsack_max_value computes the full selection just to discard it",
-    "negative or zero weight not handled (length(Pad, W) with W<0 errors)"
+    "hand-written fold_items instead of foldl/4",
+    "`none` sentinel atom mixed into data and tested with ==",
+    "if-then-else chains in combine/4 instead of clause-head dispatch",
+    "append-based list shifting to emulate array indexing",
+    "non-tail-recursive sum_weights that could use a library predicate"
   ],
-  "justification": "The solution uses a bottom-up DP over capacity indexed lists, which is an imperative array-style DP forced onto lists via padding with `none`, appending, and truncating with `append(Shifted,_,Ext)`. It does use maplist, last, reverse and a clean fold over items, and tracks selection with reversed lists, which is reasonable. However, `combine/4` relies on nested if-then-else and a `none` sentinel rather than clause-head matching, and the shifting trick is obscure. Decomposition into fold_items, step, combine and sum_weights is clear, but a simple recursive include/exclude or tabled approach would be more idiomatic Prolog.",
+  "justification": "The solution is a pure, assert-free DP that threads an immutable capacity table through fold_items/step/combine and reconstructs the selection by carrying reversed choices, which fits the logic paradigm reasonably. Idiomatic touches include maplist, last and length-as-generator. It loses points for reimplementing foldl, using the `none` sentinel with `==`, nested if-then-else in combine/4, and the obscure padding-and-append shift trick. Its structure is sensible but somewhat awkward and inefficient.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3223,
-  "output_tokens": 455,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SHKTg4pqiudRPrmNBT",
+  "judge_s": 10.3,
+  "input_tokens": 3560,
+  "output_tokens": 1080,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

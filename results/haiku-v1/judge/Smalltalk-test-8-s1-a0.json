@@ -1,0 +1,38 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Smalltalk",
+  "paradigm": "object-oriented",
+  "test": "test-8",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The solution is a class with small helper methods (dist:to:, tourCost:points:, mstParentsOf:, preorderFrom:children:into:, oddVerticesOf:), and it uses the provided TspTourResult. The helpers are message sends to self, but there is no domain modelling. Graph, matching and Euler circuit are passed around as raw parallel Arrays (parent, key, inTree, ptr, used) and index arithmetic. The long christofides: method is a procedural Hierholzer inline. It would earn a 4 if the Euler circuit, matching and MST were separate objects or at least separate methods.",
+    "language_idiomaticity": "Uses inject:into:, collect:, select:, keysAndValuesDo:, Dictionary memo, bitAnd:/bitShift:, and ifNil-style tests. But index loops with to:do: appear where a collection protocol would work, and `bestV isNil or:` is used instead of detect:/inject. `(1 to: n) collect:` answers an Array, which is fine. Eleven temporaries are declared at the top of christofides:. Memo-based recursion is reasonable. `(mask bitAnd: ...) = 0 ifFalse:` is an awkward double negative where `anyMask:` or `allMask:` would be cleaner; lowestBitIndexOf: reimplements a loop.",
+    "readability": "Method names are mostly meaningful, but the code is dense. The Prim loop is nested with long and:-chains. christofides: is about 45 lines with single-letter variables (v, w, k, e) and no comments. The 0-based bit index vs 1-based pts access (`i + 1`, `j + 1`) is confusing. The matching reconstruction duplicates matchCost:'s loop logic, which makes it harder to follow.",
+    "design": "Decomposition is decent: MST parents are shared by all four public methods, and tourCost and preorder are reused. However, minimumMatchingOf: duplicates the search loop of matchCost:memo: (including the nearly identical best-selection with different nil checks). christofides: mixes multigraph construction, Hierholzer and shortcutting in one method that should be split into e.g. eulerCircuitFrom:edges: and shortcut:. Prim is O(n^2) with a redundant parent rescan, which is acceptable. The parallel-array data structures are weak."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "monolithic christofides: method with a long temporaries list and inline Hierholzer",
+    "parallel arrays (key, inTree, parent, used, ptr) instead of small objects",
+    "duplicated search loop in minimumMatchingOf: and matchCost:pts:memo:",
+    "double-negative `= 0 ifFalse:` for bit tests",
+    "index-based to:do: loops in Prim instead of collection protocols",
+    "mixed 0-based bit indices and 1-based array access (i + 1)"
+  ],
+  "justification": "The code decomposes into reasonable helper methods and uses collection messages such as inject:into:, select: and keysAndValuesDo:, with sound DP and Hierholzer logic. But it is largely procedural: parallel arrays, nested index loops, and a 45-line christofides: that does the Euler circuit inline. minimumMatchingOf: duplicates the matchCost recursion, and the bit/index offsets reduce clarity.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RwuBuDgLWynzoERsH8",
+  "judge_s": 9.7,
+  "input_tokens": 6587,
+  "output_tokens": 1151,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

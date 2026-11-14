@@ -6,22 +6,31 @@
   "sample": 1,
   "attempt": 1,
   "category": "pass",
-  "paradigm_idiomaticity": 4,
-  "language_idiomaticity": 3,
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and declarative: the hull is a fold (`foldl step []`) over sorted points, the Minkowski cloud is a list comprehension, and collision is a disjunction of predicates (`containsPoint`, `segmentsIntersect` via `any`). There is no mutation or imperative emulation. A 5 would need a few rough spots fixed, such as the partial `head` and the `length` checks, and a stricter fold.",
+    "language_idiomaticity": "It uses `Maybe` with pattern matching, `comparing`, `on`, `groupBy`, `sortBy` and `where` clauses. `map head . groupBy` is a partial function, even though groupBy never yields empty groups. `step` is written as a function with a guard that falls through to a second equation, which is clever but unusual. `foldl` is used lazily instead of `foldl'`. `length sorted < 3` and `length poly < 3` traverse whole lists where a pattern match would do. Using `Data.List.nub` or `NonEmpty.group` would avoid `head`.",
+    "readability": "Names are clear (`cross`, `minkowskiCloud`, `containsPoint`, `segmentsIntersect`, `onSegment`), signatures are present, and the haddock comments are useful. The `step` fall-through trick and the `init (reverse ...)` hull construction need a moment of thought. The `cfg` case in `checkDynamicCollision` is clear enough.",
+    "design": "Small reusable helpers (`cross`, `convexHull`, `minkowskiCloud`, `edges`) are shared between the two public functions, so there is no duplication. The configuration-space approach follows the spec. Weaknesses: `calculateCleanMinkowskiSum` is not reused in `checkDynamicCollision`, which calls `convexHull` and `minkowskiCloud` directly, so the zone-name and record wrapping are bypassed. The hull is also recomputed on every call. The motion check is split cleanly into containment plus edge intersection."
+  },
+  "paradigm_idiomaticity": 5,
+  "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "partial function `head` used in `map head . groupBy` (safe here, but partial)",
-    "`step` defined with a fall-through clause relying on guard fallthrough, which is subtle",
-    "`length` used for size checks instead of pattern matching",
-    "Degenerate hulls (1 or 2 points) produce a polygon with fewer than 3 vertices instead of Nothing, and `containsPoint` returns False for them",
-    "Parameter name `as` shadows a keyword-like identifier"
+    "partial `head` in `map head . groupBy`",
+    "`length xs < 3` instead of pattern matching",
+    "lazy `foldl` instead of `foldl'`",
+    "`checkDynamicCollision` duplicates the hull construction instead of reusing `calculateCleanMinkowskiSum`"
   ],
-  "justification": "The solution is pure and decomposed into small, composable helpers (`cross`, `convexHull`, `minkowskiCloud`, `segmentsIntersect`) with type signatures and `Maybe` pattern matching. The monotone-chain hull is expressed as folds with a guard-based `step`, though it relies on guard fallthrough and `map head . groupBy` for deduplication, which is less idiomatic than pattern matching or `map NE.head`/`nub`. The Minkowski sum uses an O(nm) cloud plus a hull rather than an edge merge, which is simple and clear. The collision test via configuration-space point-in-polygon plus segment intersection is well structured, but degenerate cases are handled loosely and `length` checks are used where pattern matching would be cleaner.",
+  "justification": "The solution is pure and functional: a monotone-chain hull built as a fold, list comprehensions for the point cloud, and `any` over edges for intersection. Helpers are small and well named, and `Maybe` models absent polygons. Small blemishes are the partial `head`, `length` used for size checks, lazy `foldl`, and `checkDynamicCollision` not reusing `calculateCleanMinkowskiSum`.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4558,
-  "output_tokens": 466,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SE2wR9P8ohXi5boe5r",
+  "judge_s": 8.0,
+  "input_tokens": 4895,
+  "output_tokens": 970,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

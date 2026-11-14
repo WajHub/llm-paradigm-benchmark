@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:17+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-2-s1-a0",
+  "request_id": "req_011Ch1SE4aPyA5DRr2teSGpq",
+  "duration_s": 9.3,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\n- Implement `createGraph`: Create a directed weighted graph with the given number of vertices (0-indexed). Return a Graph with empty adjacency lists.\n- Implement `addEdge`: Return a new Graph with the directed edge added. Support multiple edges between same vertices.\n- Implement `dijkstra`: Run Dijkstra's algorithm. Takes Maybe Graph and source Int. Return Nothing if graph is Nothing or source out of bounds. Unreachable vertices must have distance Infinity (1/0).\n- Implement `getShortestDistance`: Takes Maybe PathResult and target. Return Infinity if Nothing or out of bounds.\n- Implement `reconstructPath`: Return Maybe [Int] — Just path or Nothing if unreachable/invalid.\n- Use a priority queue or efficient data structure.\n- Use idiomatic Haskell (immutable data, pure functions where possible).\n\n## Stub module given to the author (ShortestPath.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule ShortestPath\n  ( Edge (..)\n  , Graph (..)\n  , PathResult (..)\n  , createGraph\n  , addEdge\n  , dijkstra\n  , getShortestDistance\n  , reconstructPath\n  ) where\n\ndata Edge = Edge\n  { edgeTo     :: Int\n  , edgeWeight :: Double\n  } deriving (Eq, Show)\n\ndata Graph = Graph\n  { graphAdjacency   :: [[Edge]]\n  , graphNumVertices  :: Int\n  } deriving (Eq, Show)\n\ndata PathResult = PathResult\n  { prDistances    :: [Double]\n  , prPredecessors :: [Int]\n  , prSource       :: Int\n  } deriving (Eq, Show)\n\ncreateGraph :: Int -> Graph\ncreateGraph _ = error \"ShortestPath.createGraph not implemented\"\n\naddEdge :: Graph -> Int -> Int -> Double -> Graph\naddEdge _ _ _ _ = error \"ShortestPath.addEdge not implemented\"\n\ndijkstra :: Maybe Graph -> Int -> Maybe PathResult\ndijkstra _ _ = error \"ShortestPath.dijkstra not implemented\"\n\ngetShortestDistance :: Maybe PathResult -> Int -> Double\ngetShortestDistance _ _ = error \"ShortestPath.getShortestDistance not implemented\"\n\nreconstructPath :: Maybe PathResult -> Int -> Maybe [Int]\nreconstructPath _ _ = error \"ShortestPath.reconstructPath not implemented\"\n\n```\n\n## Code to evaluate (ShortestPath.hs)\n```haskell\nmodule ShortestPath\n  ( Edge (..)\n  , Graph (..)\n  , PathResult (..)\n  , createGraph\n  , addEdge\n  , dijkstra\n  , getShortestDistance\n  , reconstructPath\n  ) where\n\nimport qualified Data.Map.Strict as M\nimport qualified Data.Set as S\n\ndata Edge = Edge\n  { edgeTo     :: Int\n  , edgeWeight :: Double\n  } deriving (Eq, Show)\n\ndata Graph = Graph\n  { graphAdjacency   :: [[Edge]]\n  , graphNumVertices  :: Int\n  } deriving (Eq, Show)\n\ndata PathResult = PathResult\n  { prDistances    :: [Double]\n  , prPredecessors :: [Int]\n  , prSource       :: Int\n  } deriving (Eq, Show)\n\ninfinity :: Double\ninfinity = 1 / 0\n\ncreateGraph :: Int -> Graph\ncreateGraph n = Graph (replicate n' []) n'\n  where\n    n' = max 0 n\n\naddEdge :: Graph -> Int -> Int -> Double -> Graph\naddEdge g u v w\n  | u < 0 || u >= n = g\n  | v < 0 || v >= n = g\n  | otherwise = g { graphAdjacency = adj' }\n  where\n    n = graphNumVertices g\n    adj = graphAdjacency g\n    (before, rest) = splitAt u adj\n    adj' = case rest of\n      (lst : after) -> before ++ (lst ++ [Edge v w]) : after\n      []            -> adj\n\ndijkstra :: Maybe Graph -> Int -> Maybe PathResult\ndijkstra Nothing _ = Nothing\ndijkstra (Just g) src\n  | src < 0 || src >= n = Nothing\n  | otherwise = Just PathResult\n      { prDistances    = [M.findWithDefault infinity i dist | i <- [0 .. n - 1]]\n      , prPredecessors = [M.findWithDefault (-1) i preds | i <- [0 .. n - 1]]\n      , prSource       = src\n      }\n  where\n    n = graphNumVertices g\n    adjM = M.fromList (zip [0 ..] (graphAdjacency g))\n    initDist = M.singleton src 0\n    initPreds = M.empty :: M.Map Int Int\n    (dist, preds) = go (S.singleton (0, src)) initDist initPreds\n\n    go :: S.Set (Double, Int) -> M.Map Int Double -> M.Map Int Int\n       -> (M.Map Int Double, M.Map Int Int)\n    go pq ds ps = case S.minView pq of\n      Nothing -> (ds, ps)\n      Just ((d, u), pq')\n        | d > M.findWithDefault infinity u ds -> go pq' ds ps\n        | otherwise ->\n            let relax (q, dm, pm) (Edge v w) =\n                  let nd = d + w\n                  in if nd < M.findWithDefault infinity v dm\n                       then (S.insert (nd, v) q, M.insert v nd dm, M.insert v u pm)\n                       else (q, dm, pm)\n                (pq'', ds', ps') =\n                  foldl relax (pq', ds, ps) (M.findWithDefault [] u adjM)\n            in go pq'' ds' ps'\n\ngetShortestDistance :: Maybe PathResult -> Int -> Double\ngetShortestDistance Nothing _ = infinity\ngetShortestDistance (Just pr) t\n  | t < 0 = infinity\n  | otherwise = case drop t (prDistances pr) of\n      (x : _) -> x\n      []      -> infinity\n\nreconstructPath :: Maybe PathResult -> Int -> Maybe [Int]\nreconstructPath Nothing _ = Nothing\nreconstructPath (Just pr) t\n  | t < 0 || t >= length ds = Nothing\n  | isInfinite (ds !! t) = Nothing\n  | otherwise = go (length ds) t []\n  where\n    ds = prDistances pr\n    ps = prPredecessors pr\n    src = prSource pr\n\n    go :: Int -> Int -> [Int] -> Maybe [Int]\n    go fuel v acc\n      | v == src = Just (v : acc)\n      | fuel <= 0 = Nothing\n      | otherwise = case drop v ps of\n          (p : _) | p >= 0 -> go (fuel - 1) p (v : acc)\n          _                -> Nothing\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SE4uz2ErAAWKcptkdk",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is pure and immutable. Dijkstra threads a Set-based priority queue plus Map state through a recursive `go` and relaxes edges with a fold, which is a sound functional shape. Small blemishes: the lazy `foldl` with a 3-tuple accumulator, a hand-rolled `fuel` counter in `reconstructPath`, and `addEdge` rebuilding the list with `splitAt` and `++`. A strict `foldl'`, a small record or State-free helper for the relax step, and a cleaner list update would earn a 5.\",\"language_idiomaticity\":\"It uses `Data.Map.Strict`, `Data.Set`, `S.minView`, `M.findWithDefault`, guards and `where` correctly. Less idiomatic are `foldl` instead of `foldl'`, the `-1` sentinel for predecessors (forced by the contract), `drop t xs` pattern-matching in place of `!!` or a safe index, and `ds !! t` after bounds checks. `length ds` is recomputed. Silently ignoring invalid edges in `addEdge` is acceptable. Using `foldl'`, `Data.Array` or `Data.Sequence` for O(1) indexing, and `M.adjust` or `zipWith` for the update, would give a 5.\",\"readability\":\"Names are clear (`relax`, `go`, `initDist`, `adjM`). The nested `let` inside a guard branch in `go`, with a tuple accumulator, is dense. The fuel parameter in `reconstructPath` is not explained by a comment. Signatures are given on the local `go` functions. Extracting `relax` into a named top-level or where-bound function and adding a comment would improve it.\",\"design\":\"The decomposition is reasonable: public API functions, an `infinity` constant, and a local `go` in each of `dijkstra` and `reconstructPath`. Using `Set (Double, Int)` as the priority queue with lazy deletion is efficient. Weaknesses: `dijkstra` is one large function with the relaxation inlined, `addEdge` is O(n + deg) because of list append and `splitAt`, `getShortestDistance` and `reconstructPath` do list-indexed O(n) lookups, and the fuel guard against cycles is clumsy. Separating a `relaxEdges` helper and building a distance array for lookups would raise it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":3,\"anti_patterns\":[\"lazy foldl with tuple accumulator instead of foldl'\",\"fuel counter to guard recursion\",\"O(n) list indexing via drop/!! for lookups\",\"list append (++ [Edge v w]) to add an edge\"],\"justification\":\"The solution is pure and uses Set as a priority queue with Map-based state, so the Dijkstra core is idiomatic Haskell. It loses points for the lazy `foldl` on a tuple accumulator, list-based indexing with `drop` and `!!`, and the awkward fuel parameter in `reconstructPath`. `addEdge` using `splitAt` and `++` is workable but clumsy, and `dijkstra` inlines the relaxation logic instead of factoring it out.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4377,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4377,
+          "model": null,
+          "output_tokens": 1087,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1087,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

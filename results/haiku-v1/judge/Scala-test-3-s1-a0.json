@@ -6,21 +6,30 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
-  "paradigm_idiomaticity": 4,
+  "rationale": {
+    "paradigm_idiomaticity": "The build is a pure `foldLeft` over indices with an immutable `BuildState`. `insert` returns a new state, `propagate` is a fold over `updated`, and the suffix-link walk is a `@tailrec` function. There are no vars and no mutation. A 5 would need a few small refinements: `propagate` could be built more directly, and the occurrence lookup is a linear scan where a tree walk would be more natural.",
+    "language_idiomaticity": "It uses `Option` pattern matching with guards, `@tailrec`, `copy`, `Vector.updated`, `sortBy`, `find`, and `map/getOrElse`. Guard cases in `eertreeBuild` and `eertreeCountOccurrences` are used well. Small departures: `(0 until n).foldLeft(0)(math.max)` could be `.map(...).max`, and `getOrElse` after `map` could be `fold`. `(2 until n).sortBy(i => -len)` is fine. The `s(i) - 'a'` index arithmetic is acceptable. The `eertreeBuild(None, n<=0)` case is handled.",
+    "readability": "Names are clear (`findExtendable`, `insert`, `propagate`, `buildFrom`, `BuildState`) and the functions are short. The comment on `findExtendable` helps, but it mentions `start` while the parameter is `cur`. The node index 0 serving both as the 'no child' sentinel and as the odd root is slightly implicit, though this follows from the contract. The link computation in `insert` is a little dense.",
+    "design": "Responsibilities are split into walking links, inserting, propagating, building, and the public API. `Roots` is shared as a constant. The `BuildState` private case class is a sensible choice. Weaknesses: `Vector.fill(EertreeAlpha)(0)` is duplicated across several sites, and there is no `emptyNode` helper. Occurrence lookup scans all nodes with substring comparisons, which is O(n·m) instead of walking the tree from the roots using the pattern. `eertreeCountDistinct` includes a redundant `math.max`. Node copying makes each insertion O(26) per update, which is acceptable.."
+  },
+  "paradigm_idiomaticity": 5,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "linear scan over all nodes to look up a pattern instead of walking the tree via children",
-    "per-node Vector.fill(26) allocation and repeated Vector.updated copying (inefficient, though dictated by contract)",
-    "sortBy over nodes instead of a counting or reverse-creation order",
-    "eertreeLongestLength uses foldLeft with max instead of maxOption or map(_.len).max"
+    "linear scan with substring comparison for occurrence lookup instead of walking the tree",
+    "duplicated `Vector.fill(EertreeAlpha)(0)` construction instead of a helper",
+    "index 0 doubles as the 'no child' sentinel (contract-driven)"
   ],
-  "justification": "The build is a pure foldLeft over indices with an immutable BuildState, and suffix-link traversal is a @tailrec function, so the code is functional and clear. Option is handled through pattern matching and map/getOrElse, and propagation uses a foldLeft over nodes sorted by length. Weaknesses are that pattern lookup scans all nodes instead of descending the children, that propagate sorts when creation order reversed would suffice, and that longest length uses a verbose fold. The separation into findExtendable, insert, propagate and buildFrom is good.",
+  "justification": "The solution is a clean functional implementation: a `foldLeft` over an immutable `BuildState`, a `@tailrec` suffix-link walk, and propagation by fold. It uses `Option` matching with guards well. Minor flaws are the repeated empty-children construction, the linear-scan lookup in `eertreeCountOccurrences`, and a stale comment on `findExtendable`.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4496,
-  "output_tokens": 363,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SJDr7NGwqi63xv5CV1",
+  "judge_s": 8.4,
+  "input_tokens": 4833,
+  "output_tokens": 1013,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

@@ -6,20 +6,30 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "State and behaviour are encapsulated in a private static nested class `Search` (masks, `apply`/`undo`, `dfs`) built per call, and the public methods delegate to it. The outer class is stateless, which is reasonable. The mask-based design is more algorithmic than object-oriented: there is no `Board` type, and `Search` exposes its `found` field directly. A small `Board` abstraction, or encapsulating `found` behind accessors, would earn a 5.",
+    "language_idiomaticity": "Uses `Arrays.copyOf`, `Integer.bitCount`, `Integer.numberOfTrailingZeros`, `@Override`, `final` fields, private constants and a Javadoc comment. The lowest-set-bit idiom `m & -m` is standard. Minor departures: `search.found` is read from the outer class, `run()` is a pointless wrapper around `dfs()`, and `candidates` does not null-check (allowed by the precondition). Otherwise very idiomatic.",
+    "readability": "Names are clear (`rowMask`, `bestIdx`, `bestMask`, `apply`/`undo`, `boxOf`, `bitOf`). Methods are short, and `dfs` is the longest but linear and easy to follow. The `ALL_DIGITS` binary literal has a comment. The `dfs` return value is documented as 'true when the search should stop'. The magic `3` and `9` remain in places, and `dfs` mixes cell selection with branching; extracting `selectCell` would earn a 5.",
+    "design": "Validation, candidates and search are separated. Bitmasks give efficient MRV, and the early stop is propagated through a boolean return. The input is copied, so it is never mutated. `solve` and `countSolutions` share `Search`. The weaknesses are that `candidates` and `isValid` duplicate the mask logic that `Search` also has, `dfs` combines cell selection with branching, and `found` and `firstSolution` are accessed directly from outside."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "bitmask and index arithmetic where small abstractions could read better",
-    "candidates() does not reuse Search or shared mask-computation logic, so the used-digit calculation is duplicated",
-    "run() is a trivial wrapper around dfs(), and the stateful Search with public-ish fields (found) is accessed directly from the outer class"
+    "outer class reads Search's `found` field directly instead of using an accessor",
+    "trivial `run()` wrapper around `dfs()`",
+    "mask-building logic duplicated between isValid, candidates and Search"
   ],
-  "justification": "Search state is encapsulated in a private static nested class with final mask arrays, apply/undo methods, and a recursive dfs that implements MRV and early stopping; solve and countSolutions are thin and defensive-copy the input. Bitmasks are standard efficient Java and the code is clean. Minor weaknesses: the used-digit logic is duplicated between candidates, isValid and Search, the outer class reads search.found directly, and the run() wrapper adds nothing. Overall, the design is good and idiomatic.}",
+  "justification": "The solution isolates the mutable backtracking state in a private nested `Search` class and keeps the public API stateless, using idiomatic bit tricks and `Arrays` utilities. It is clean and efficient, with clear naming and short methods. Small blemishes are the direct field access to `found`, the redundant `run()`, and no dedicated board abstraction or extracted cell-selection method.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4776,
-  "output_tokens": 331,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SFqPwYWnxjNJLLeLHy",
+  "judge_s": 8.0,
+  "input_tokens": 5113,
+  "output_tokens": 921,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

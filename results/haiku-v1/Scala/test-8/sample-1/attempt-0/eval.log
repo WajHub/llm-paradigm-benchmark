@@ -1,0 +1,34 @@
+=== Running benchmark for folder: test-8 ===
+rm -rf test-8/test_runner test-8/*.class test-8/*.log
+mkdir -p test-8/test_runner
+scalac -deprecation -feature -unchecked -d test-8/test_runner test-8/Tests.scala test-8/TspApprox.scala
+=== START ===
+
+--- Algorithm A: MST Double Tree ---
+[PASS] Test A01 (Empty)
+[PASS] Test A02 (Single Point)
+[PASS] Test A03 (Two Points)
+[PASS] Test A04 (Collinear Unsorted)
+[PASS] Test A05 (Square)
+[PASS] Test A06 (Parent Tie Breaking)
+[PASS] Test A07 (Grid Ties)
+[PASS] Test A08 (Duplicate Points)
+[PASS] Test A09 (Clusters Two Approx)
+[PASS] Test A10 (Stress)
+
+--- Algorithm B: Christofides ---
+[PASS] Test B01 (Empty)
+[PASS] Test B02 (Two Points Double Edge)
+[PASS] Test B03 (Star Parallel Edges)
+[PASS] Test B04 (Collinear)
+[PASS] Test B05 (Grid)
+[PASS] Test B06 (Beats Double Tree)
+[PASS] Test B07 (Spiral Bound)
+[PASS] Test B08 (Greedy Matching Trap)
+[PASS] Test B09 (Duplicate Points)
+[PASS] Test B10 (Stress)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 20
+Failed: 0

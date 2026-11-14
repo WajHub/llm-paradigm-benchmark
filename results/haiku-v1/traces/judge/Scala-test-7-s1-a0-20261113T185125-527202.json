@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:25+00:00",
+  "kind": "judge",
+  "label": "Scala-test-7-s1-a0",
+  "request_id": "req_011Ch1Rw7CgGZFmD9Z2NPwgE",
+  "duration_s": 7.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement global sequence alignment with an affine gap penalty (Gotoh's\nalgorithm) in Scala 2.11 in the object SequenceAlignment (file\nSequenceAlignment.scala). The object already defines the result type\nAlignResult(score: Int, alignedA: String, alignedB: String); implement\nalignmentScore and align.\n\nParameters (both functions): a: String, b: String, matchScore: Int,\nmismatchPenalty: Int, gapOpen: Int, gapExtend: Int.\n  * All four numeric parameters are >= 0.\n  * a and b contain only ASCII letters (never '-'); they may be empty.\n    Characters are compared exactly (case-sensitive).\n\nDefinitions:\n  * An alignment of a and b is a pair of strings (A', B') of equal length over\n    the input characters plus the gap character '-', such that removing every\n    '-' from A' gives a, removing every '-' from B' gives b, and NO column has\n    '-' in both rows.\n  * Score of an alignment:\n      - every column without '-' adds +matchScore if the two characters are\n        equal, and -mismatchPenalty otherwise;\n      - every gap, i.e. a MAXIMAL run of consecutive '-' in the same row, of\n        length L >= 1 subtracts gapOpen + L * gapExtend.\n        (A gap of length 3 costs gapOpen + 3 * gapExtend: the first gap\n        character also pays gapExtend.)\n  * A gap in one row may be immediately followed by a gap in the other row,\n    e.g. the columns\n        A-\n        -C\n    These are two separate gaps and each pays its own gapOpen. Such\n    alignments must be reachable by your DP (allow transitions between the\n    \"gap in a\" and \"gap in b\" states), otherwise some optima are missed.\n  * This is GLOBAL alignment: leading and trailing gaps are penalised exactly\n    like any other gap (no free end gaps, no local alignment, no clamping of\n    scores at 0). Scores may be negative.\n\n- Implement `alignmentScore(...): Int`: return the maximum score over all\n  alignments of a and b.\n  * a == \"\" and b == \"\": 0.\n  * One string empty, the other of length L > 0: -(gapOpen + L * gapExtend).\n\n- Implement `align(...): AlignResult`: return one optimal alignment:\n  * score = the maximum score (same value as alignmentScore),\n  * alignedA / alignedB = the two rows A' and B' of an alignment whose score\n    (computed by the definition above) equals that maximum.\n  * Use '-' as the gap character.\n  * a == \"\" and b == \"\": AlignResult(0, \"\", \"\").\n  * If several optimal alignments exist, any one of them is accepted.\n\nRequirements:\n  - Use Gotoh's O(len(a) * len(b)) dynamic programming with three tables\n    (best score ending in a match/mismatch column, ending with a gap in b,\n    ending with a gap in a) or an equivalent formulation, and a traceback\n    that follows the table/state the optimum came from. Do NOT enumerate\n    alignments; the inputs can be over 100 characters long.\n  - The tests recompute the score of the returned rows from the definition\n    above and compare it with the score field.\n  - Use Scala 2.11 syntax and standard library only (no Scala 3 syntax, no\n    2.12/2.13-only APIs such as LazyList or .to(List)).\n\n## Stub module given to the author (SequenceAlignment.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject SequenceAlignment {\n  case class AlignResult(score: Int, alignedA: String, alignedB: String)\n\n  def alignmentScore(a: String, b: String, matchScore: Int, mismatchPenalty: Int,\n                     gapOpen: Int, gapExtend: Int): Int =\n    sys.error(\"SequenceAlignment.alignmentScore not implemented\")\n\n  def align(a: String, b: String, matchScore: Int, mismatchPenalty: Int,\n            gapOpen: Int, gapExtend: Int): AlignResult =\n    sys.error(\"SequenceAlignment.align not implemented\")\n}\n\n```\n\n## Code to evaluate (SequenceAlignment.scala)\n```scala\nimport scala.annotation.tailrec\n\nobject SequenceAlignment {\n  case class AlignResult(score: Int, alignedA: String, alignedB: String)\n\n  // Sentinel for unreachable DP states; large enough negative to never win,\n  // small enough in magnitude that adding/subtracting penalties cannot overflow.\n  private val NEG: Int = Int.MinValue / 4\n\n  // DP state identifiers\n  private val MatchState = 0 // column pairs a[i-1] with b[j-1]\n  private val GapInB = 1     // column pairs a[i-1] with '-'\n  private val GapInA = 2     // column pairs '-' with b[j-1]\n\n  private def subst(x: Char, y: Char, matchScore: Int, mismatchPenalty: Int): Int =\n    if (x == y) matchScore else -mismatchPenalty\n\n  private case class Tables(m: Array[Array[Int]], x: Array[Array[Int]], y: Array[Array[Int]])\n\n  /** Gotoh's three-table DP. Tables are filled in row-major order. */\n  private def fill(a: String, b: String, matchScore: Int, mismatchPenalty: Int,\n                   gapOpen: Int, gapExtend: Int): Tables = {\n    val n = a.length\n    val k = b.length\n    val open = gapOpen + gapExtend\n    val mt = Array.fill(n + 1, k + 1)(NEG)\n    val xt = Array.fill(n + 1, k + 1)(NEG)\n    val yt = Array.fill(n + 1, k + 1)(NEG)\n    mt(0)(0) = 0\n\n    for (i <- 0 to n; j <- 0 to k) {\n      if (i > 0 && j > 0) {\n        val best = math.max(mt(i - 1)(j - 1), math.max(xt(i - 1)(j - 1), yt(i - 1)(j - 1)))\n        mt(i)(j) = best + subst(a(i - 1), b(j - 1), matchScore, mismatchPenalty)\n      }\n      if (i > 0) {\n        xt(i)(j) = math.max(mt(i - 1)(j) - open,\n          math.max(xt(i - 1)(j) - gapExtend, yt(i - 1)(j) - open))\n      }\n      if (j > 0) {\n        yt(i)(j) = math.max(mt(i)(j - 1) - open,\n          math.max(yt(i)(j - 1) - gapExtend, xt(i)(j - 1) - open))\n      }\n    }\n    Tables(mt, xt, yt)\n  }\n\n  def alignmentScore(a: String, b: String, matchScore: Int, mismatchPenalty: Int,\n                     gapOpen: Int, gapExtend: Int): Int = {\n    val t = fill(a, b, matchScore, mismatchPenalty, gapOpen, gapExtend)\n    val n = a.length\n    val k = b.length\n    math.max(t.m(n)(k), math.max(t.x(n)(k), t.y(n)(k)))\n  }\n\n  def align(a: String, b: String, matchScore: Int, mismatchPenalty: Int,\n            gapOpen: Int, gapExtend: Int): AlignResult = {\n    val t = fill(a, b, matchScore, mismatchPenalty, gapOpen, gapExtend)\n    val n = a.length\n    val k = b.length\n    val open = gapOpen + gapExtend\n\n    val best = math.max(t.m(n)(k), math.max(t.x(n)(k), t.y(n)(k)))\n    val startState =\n      if (t.m(n)(k) == best) MatchState\n      else if (t.x(n)(k) == best) GapInB\n      else GapInA\n\n    // Traceback: follow the predecessor that produced each table value.\n    @tailrec\n    def trace(i: Int, j: Int, state: Int, acc: List[(Char, Char)]): List[(Char, Char)] = {\n      if (i == 0 && j == 0) acc\n      else state match {\n        case MatchState =>\n          val v = t.m(i)(j) - subst(a(i - 1), b(j - 1), matchScore, mismatchPenalty)\n          val prev =\n            if (t.m(i - 1)(j - 1) == v) MatchState\n            else if (t.x(i - 1)(j - 1) == v) GapInB\n            else GapInA\n          trace(i - 1, j - 1, prev, (a(i - 1), b(j - 1)) :: acc)\n        case GapInB =>\n          val v = t.x(i)(j)\n          val prev =\n            if (t.m(i - 1)(j) - open == v) MatchState\n            else if (t.x(i - 1)(j) - gapExtend == v) GapInB\n            else GapInA\n          trace(i - 1, j, prev, (a(i - 1), '-') :: acc)\n        case _ => // GapInA\n          val v = t.y(i)(j)\n          val prev =\n            if (t.m(i)(j - 1) - open == v) MatchState\n            else if (t.y(i)(j - 1) - gapExtend == v) GapInA\n            else GapInB\n          trace(i, j - 1, prev, ('-', b(j - 1)) :: acc)\n      }\n    }\n\n    val columns = trace(n, k, startState, Nil)\n    AlignResult(best, columns.map(_._1).mkString, columns.map(_._2).mkString)\n  }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rw7Xn8cdRosaauapYa",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The traceback is a pure @tailrec function that builds an immutable List[(Char, Char)] by prepending, and the final result is assembled with map/mkString. The Tables case class bundles the DP state, and subst and the traceback are pure. The DP fill, however, is imperative: mutable 2D arrays updated in a nested for loop, with no fold or lazy formulation. This is local and typical of DP, but a 5 would need a more functional fill, such as row-wise folds producing immutable rows.\",\"language_idiomaticity\":\"The code uses case classes, @tailrec, pattern matching on state, a private case class, Array.fill with two dimensions, and Scala 2.11-compatible syntax. State IDs are Int constants (MatchState = 0, ...) matched in a `match`. Matching against capitalized vals works as a stable identifier, but it is a pseudo-enum where a sealed trait with case objects would be more idiomatic. The final `case _` hides the GapInA case. `for (i <- 0 to n; j <- 0 to k)` is fine but not ideal for side effects.\",\"readability\":\"Names are clear (fill, trace, subst, open, startState) and comments explain the sentinel and the states. Functions are short and the structure is easy to follow. The traceback's three branches are repetitive, and the Int constants lose some self-documentation. The tie-breaking if/else chains for predecessors are compact but slightly dense.\",\"design\":\"Fill is separated from scoring and traceback, and alignmentScore reuses fill. The Tables case class is a sensible grouping. The sentinel NEG is guarded against overflow. Weaknesses: the best/startState computation is duplicated between alignmentScore and align, the three-way max is repeated many times without a helper, and states are Ints rather than an ADT. alignmentScore also allocates full tables, though that is acceptable.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":4,\"readability\":4,\"design\":3,\"anti_patterns\":[\"mutable 2D arrays filled in nested for loop with side effects\",\"Int constants as pseudo-enum instead of sealed trait/case objects\",\"repeated nested math.max for three-way max instead of a helper\",\"duplicated best-score computation in alignmentScore and align\"],\"justification\":\"The traceback is a clean @tailrec function over an immutable list and the code is well named, but the DP fill uses mutable arrays in a for loop, which keeps it only partly functional. DP state is encoded with Int constants rather than a sealed ADT, and the three-way max and best-score computation are duplicated. Overall it is solid, readable Scala with moderate functional purity.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5157,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5157,
+          "model": null,
+          "output_tokens": 897,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 897,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

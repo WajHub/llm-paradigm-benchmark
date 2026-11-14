@@ -1,0 +1,51 @@
+=== Running benchmark for folder: test-9 ===
+gst -g `ls test-9/*.st 2>/dev/null | grep -v Tests.st | sort`
+=== START ===
+
+--- Algorithm A: Insertion ---
+[FAIL] Test A01 (Empty)
+[FAIL] Test A02 (Invalid Degree)
+[FAIL] Test A03 (Single Leaf)
+[FAIL] Test A04 (Root Split)
+[FAIL] Test A05 (Duplicate On Full Root)
+[FAIL] Test A06 (Ascending)
+[FAIL] Test A07 (Proactive Split)
+[FAIL] Test A08 (Textbook t3)
+[FAIL] Test A09 (Invariants)
+[FAIL] Test A10 (Stress)
+
+--- Algorithm B: Deletion ---
+[FAIL] Test B01 (Delete From Leaf)
+[FAIL] Test B02 (Absent Key Unchanged)
+[FAIL] Test B03 (Delete All)
+[FAIL] Test B04 (Predecessor Preferred)
+[FAIL] Test B05 (Successor)
+[FAIL] Test B06 (Merge Children)
+[FAIL] Test B07 (Borrow Left First)
+[FAIL] Test B08 (Merge Right First)
+[FAIL] Test B09 (Root Shrink)
+[FAIL] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Empty)
+ - Test A02 (Invalid Degree)
+ - Test A03 (Single Leaf)
+ - Test A04 (Root Split)
+ - Test A05 (Duplicate On Full Root)
+ - Test A06 (Ascending)
+ - Test A07 (Proactive Split)
+ - Test A08 (Textbook t3)
+ - Test A09 (Invariants)
+ - Test A10 (Stress)
+ - Test B01 (Delete From Leaf)
+ - Test B02 (Absent Key Unchanged)
+ - Test B03 (Delete All)
+ - Test B04 (Predecessor Preferred)
+ - Test B05 (Successor)
+ - Test B06 (Merge Children)
+ - Test B07 (Borrow Left First)
+ - Test B08 (Merge Right First)
+ - Test B09 (Root Shrink)
+ - Test B10 (Stress Invariants)

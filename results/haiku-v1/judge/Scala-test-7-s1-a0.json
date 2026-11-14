@@ -1,0 +1,36 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-7",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The traceback is a pure @tailrec function that builds an immutable List[(Char, Char)] by prepending, and the final result is assembled with map/mkString. The Tables case class bundles the DP state, and subst and the traceback are pure. The DP fill, however, is imperative: mutable 2D arrays updated in a nested for loop, with no fold or lazy formulation. This is local and typical of DP, but a 5 would need a more functional fill, such as row-wise folds producing immutable rows.",
+    "language_idiomaticity": "The code uses case classes, @tailrec, pattern matching on state, a private case class, Array.fill with two dimensions, and Scala 2.11-compatible syntax. State IDs are Int constants (MatchState = 0, ...) matched in a `match`. Matching against capitalized vals works as a stable identifier, but it is a pseudo-enum where a sealed trait with case objects would be more idiomatic. The final `case _` hides the GapInA case. `for (i <- 0 to n; j <- 0 to k)` is fine but not ideal for side effects.",
+    "readability": "Names are clear (fill, trace, subst, open, startState) and comments explain the sentinel and the states. Functions are short and the structure is easy to follow. The traceback's three branches are repetitive, and the Int constants lose some self-documentation. The tie-breaking if/else chains for predecessors are compact but slightly dense.",
+    "design": "Fill is separated from scoring and traceback, and alignmentScore reuses fill. The Tables case class is a sensible grouping. The sentinel NEG is guarded against overflow. Weaknesses: the best/startState computation is duplicated between alignmentScore and align, the three-way max is repeated many times without a helper, and states are Ints rather than an ADT. alignmentScore also allocates full tables, though that is acceptable."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "mutable 2D arrays filled in nested for loop with side effects",
+    "Int constants as pseudo-enum instead of sealed trait/case objects",
+    "repeated nested math.max for three-way max instead of a helper",
+    "duplicated best-score computation in alignmentScore and align"
+  ],
+  "justification": "The traceback is a clean @tailrec function over an immutable list and the code is well named, but the DP fill uses mutable arrays in a for loop, which keeps it only partly functional. DP state is encoded with Int constants rather than a sealed ADT, and the three-way max and best-score computation are duplicated. Overall it is solid, readable Scala with moderate functional purity.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1Rw7CgGZFmD9Z2NPwgE",
+  "judge_s": 7.4,
+  "input_tokens": 5157,
+  "output_tokens": 897,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

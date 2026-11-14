@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 1,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "State is threaded through pure predicates and foldl/4 drives the insert and delete sequences; there is no assert/retract. Dispatch uses if-then-else inside single clauses (insert_key, ins_nonfull, del_internal, fix_child) rather than clause-head matching. The first clause of del/4 uses a red cut with select/3. In del/4 the clause order and the cut in clause 2 make leaf versus internal dispatch depend on ordering. Predicates are mostly deterministic and functional, but they follow an imperative 'compute indices, then replace_nth' style. Clause-head pattern matching on key position, and splitting the nodes into separate clauses, would earn one more point.",
+    "language_idiomaticity": "The code uses nth0/4 in both insert and delete modes, foldl/4, append/3, select/3, memberchk, last/2 and length/2 as generators. It reimplements a few things: count_less is a hand-written recursion, which is not tail-recursive, and replace_nth is a thin wrapper over nth0/4. Naming is conventional (snake_case) and the comments are in the expected form. One departure is rot_right, which uses append(LKs0,[LKm],LKs) to take the last element where last/2 or append would be more explicit. Overall it is solid SWI-Prolog.",
+    "readability": "Predicates are small and named after CLRS operations (split_child, fix_child, rot_right, merge_left). Mode comments appear on some predicates but not all, and the index arithmetic (I1, I2, NI) is dense. del_internal and ins_nonfull are long, with nested if-then-else. The insert_key comment on the root split is missing; split_child is used with parent keys [] and children [R0], a trick that needs explanation. A decent comment block exists at the top. Splitting the long predicates and adding mode docs would improve it.",
+    "design": "The decomposition is sensible: membership check, split, insertion into a non-full node, and deletion split into del, del_internal and fix_child, with four small rotation and merge helpers. split_child is shared by root and child splitting. Structural duplication remains: rot_left and rot_right, and merge_left and merge_right, are near-mirror copies, and the membership check is repeated at each level. Data are plain lists with nth0 index access (O(T) per node), which meets the complexity bound. A cleaner design would use list-splitting helpers or a view of the node as left/separator/right."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 4,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "if-then-else chains inside single clauses instead of clause-head pattern matching",
+    "index-based access with nth0/replace_nth throughout, in an imperative style",
+    "red cut in del/4 to separate leaf, key-present and descend cases",
+    "hand-rolled count_less instead of a library predicate (partition or take_while style)",
+    "near-duplicate mirrored predicates (rot_left/rot_right, merge_left/merge_right)"
+  ],
+  "justification": "The solution is pure, uses foldl/4 for the key sequences, and passes state explicitly with no assert. It is organised around the CLRS operations. However, much of the control flow is if-then-else inside single clauses, and the index-driven nth0/replace_nth style makes it feel imperative. A red cut orders the clauses of del/4, and the mirrored rotation and merge predicates duplicate logic, so it lands in the middle of the range.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RvX4bUm8ixA4mJ1WAu",
+  "judge_s": 10.5,
+  "input_tokens": 8698,
+  "output_tokens": 1153,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

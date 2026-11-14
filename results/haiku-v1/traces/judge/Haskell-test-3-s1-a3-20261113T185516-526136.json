@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:16+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-3-s1-a3",
+  "request_id": "req_011Ch1SE5C6ciFGX3VFvjmkt",
+  "duration_s": 8.6,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\nImplement a Palindrome Tree (also known as Eertree) data structure in Haskell using the\nmodule PalindromeTree. The Eertree is a linear-time data structure that implicitly\nrepresents all distinct palindromic substrings of a string. It was introduced by\nMikhail Rubinchik and Arseny M. Shur in 2014.\n\n- Implement `eertreeBuild :: Maybe String -> Int -> Maybe Eertree`: Build the palindrome\n  tree for a given string of length `len` in O(n) time. The tree must include two\n  imaginary root nodes at indices 0 and 1: root 0 has len = -1 (the \"odd root\"), root 1\n  has len = 0 (the \"even root\"). After building, propagate occurrence counts from longer\n  palindromes to shorter ones by traversing nodes in decreasing order of `len` and adding\n  each node's `nodeCnt` to its `nodeSuffixLink`'s `nodeCnt`. The final `nodeCnt` of each\n  node must equal the total number of times that palindrome appears as a substring in the\n  input.\n\n- Implement `eertreeCountDistinct :: Maybe Eertree -> Int`: Return the number of distinct\n  palindromic substrings (i.e., the number of real nodes, excluding the two imaginary\n  roots).\n\n- Implement `eertreeCountOccurrences :: Maybe Eertree -> Maybe String -> Int -> Int`:\n  Find the node in the tree whose palindrome matches `pattern` (using `nodeEndPos` to\n  locate the substring in the stored string) and return its propagated `nodeCnt`. Return\n  0 if the pattern is not found, not a palindrome, or any argument is Nothing.\n\n- Implement `eertreeLongestLength :: Maybe Eertree -> Int`: Return the maximum `nodeLen`\n  among all real nodes.\n\nConstraints:\n  - Input strings contain only lowercase Latin letters ('a'..'z').\n  - `eertreeBuild Nothing n` with n > 0 must return Nothing.\n  - `eertreeBuild (Just \"\") 0` must return a valid Eertree with only the two imaginary\n    roots.\n  - All query functions must return 0 on Nothing input without throwing.\n  - Keep the contract (type definitions and exports) in `PalindromeTree.hs`.\n  - Use idiomatic Haskell (immutable data, pure functions where possible).\n\n## Stub module given to the author (PalindromeTree.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule PalindromeTree\n  ( EertreeNode (..)\n  , Eertree (..)\n  , eertreeAlpha\n  , eertreeBuild\n  , eertreeCountDistinct\n  , eertreeCountOccurrences\n  , eertreeLongestLength\n  ) where\n\neertreeAlpha :: Int\neertreeAlpha = 26\n\ndata EertreeNode = EertreeNode\n  { nodeLen        :: Int\n  , nodeSuffixLink :: Int\n  , nodeChildren   :: [Int]\n  , nodeCnt        :: Int\n  , nodeEndPos     :: Int\n  } deriving (Eq, Show)\n\ndata Eertree = Eertree\n  { eertreeNodes  :: [EertreeNode]\n  , eertreeSize   :: Int\n  , eertreeLast   :: Int\n  , eertreeStr    :: String\n  , eertreeStrLen :: Int\n  } deriving (Eq, Show)\n\neertreeBuild :: Maybe String -> Int -> Maybe Eertree\neertreeBuild _ _ = error \"PalindromeTree.eertreeBuild not implemented\"\n\neertreeCountDistinct :: Maybe Eertree -> Int\neertreeCountDistinct _ = error \"PalindromeTree.eertreeCountDistinct not implemented\"\n\neertreeCountOccurrences :: Maybe Eertree -> Maybe String -> Int -> Int\neertreeCountOccurrences _ _ _ = error \"PalindromeTree.eertreeCountOccurrences not implemented\"\n\neertreeLongestLength :: Maybe Eertree -> Int\neertreeLongestLength _ = error \"PalindromeTree.eertreeLongestLength not implemented\"\n\n```\n\n## Code to evaluate (PalindromeTree.hs)\n```haskell\nmodule PalindromeTree\n  ( EertreeNode (..)\n  , Eertree (..)\n  , eertreeAlpha\n  , eertreeBuild\n  , eertreeCountDistinct\n  , eertreeCountOccurrences\n  , eertreeLongestLength\n  ) where\n\nimport qualified Data.IntMap.Strict as IM\nimport qualified Data.Map.Strict as M\nimport Data.Array (Array, listArray, (!))\nimport Data.List (foldl', sortBy)\nimport Data.Ord (Down (..), comparing)\n\neertreeAlpha :: Int\neertreeAlpha = 26\n\ndata EertreeNode = EertreeNode\n  { nodeLen        :: Int\n  , nodeSuffixLink :: Int\n  , nodeChildren   :: [Int]\n  , nodeCnt        :: Int\n  , nodeEndPos     :: Int\n  } deriving (Eq, Show)\n\ndata Eertree = Eertree\n  { eertreeNodes  :: [EertreeNode]\n  , eertreeSize   :: Int\n  , eertreeLast   :: Int\n  , eertreeStr    :: String\n  , eertreeStrLen :: Int\n  } deriving (Eq, Show)\n\n-- Internal build state\ndata BState = BState\n  { bNodes :: IM.IntMap EertreeNode\n  , bTrans :: M.Map (Int, Char) Int\n  , bSize  :: Int\n  , bLast  :: Int\n  }\n\ninitState :: BState\ninitState = BState\n  { bNodes = IM.fromList\n      [ (0, EertreeNode (-1) 0 [] 0 (-1))\n      , (1, EertreeNode 0 0 [] 0 (-1))\n      ]\n  , bTrans = M.empty\n  , bSize  = 2\n  , bLast  = 1\n  }\n\nstepBuild :: Array Int Char -> BState -> (Int, Char) -> BState\nstepBuild arr st (i, c) =\n  let nodes = bNodes st\n      lenOf v = nodeLen (nodes IM.! v)\n      linkOf v = nodeSuffixLink (nodes IM.! v)\n      findLink v =\n        let j = i - lenOf v - 1\n        in if j >= 0 && arr ! j == c then v else findLink (linkOf v)\n      cur = findLink (bLast st)\n  in case M.lookup (cur, c) (bTrans st) of\n       Just w ->\n         st { bNodes = IM.adjust bump w nodes\n            , bLast  = w\n            }\n       Nothing ->\n         let newLen = lenOf cur + 2\n             newId  = bSize st\n             lnk\n               | newLen == 1 = 1\n               | otherwise   =\n                   M.findWithDefault 1 (findLink (linkOf cur), c) (bTrans st)\n             node   = EertreeNode newLen lnk [] 1 i\n         in st { bNodes = IM.insert newId node nodes\n               , bTrans = M.insert (cur, c) newId (bTrans st)\n               , bSize  = newId + 1\n               , bLast  = newId\n               }\n  where\n    bump nd = nd { nodeCnt = nodeCnt nd + 1 }\n\nbuildTree :: String -> Eertree\nbuildTree s =\n  Eertree\n    { eertreeNodes  = IM.elems finalNodes\n    , eertreeSize   = bSize st\n    , eertreeLast   = bLast st\n    , eertreeStr    = s\n    , eertreeStrLen = n\n    }\n  where\n    n   = length s\n    arr = listArray (0, n - 1) s :: Array Int Char\n    st  = foldl' (stepBuild arr) initState (zip [0 ..] s)\n\n    order = map fst\n          $ sortBy (comparing (Down . nodeLen . snd))\n          [ (v, nd) | (v, nd) <- IM.toList (bNodes st), v >= 2 ]\n\n    propagate m v =\n      let nd  = m IM.! v\n          c   = nodeCnt nd\n          l   = nodeSuffixLink nd\n      in IM.adjust (\\x -> x { nodeCnt = nodeCnt x + c }) l m\n\n    propagated = foldl' propagate (bNodes st) order\n\n    childMap = IM.fromListWith (++)\n      [ (p, [w]) | ((p, _), w) <- M.toList (bTrans st) ]\n\n    finalNodes = IM.mapWithKey\n      (\\k nd -> nd { nodeChildren = IM.findWithDefault [] k childMap })\n      propagated\n\neertreeBuild :: Maybe String -> Int -> Maybe Eertree\neertreeBuild Nothing n\n  | n == 0    = Just (buildTree \"\")\n  | otherwise = Nothing\neertreeBuild (Just s) n\n  | n < 0          = Nothing\n  | length s == n  = Just (buildTree s)\n  | otherwise      = Nothing\n\neertreeCountDistinct :: Maybe Eertree -> Int\neertreeCountDistinct Nothing = 0\neertreeCountDistinct (Just t) = max 0 (eertreeSize t - 2)\n\neertreeCountOccurrences :: Maybe Eertree -> Maybe String -> Int -> Int\neertreeCountOccurrences (Just t) (Just p) _\n  | pl == 0 = 0\n  | otherwise =\n      case [ nodeCnt nd\n           | nd <- drop 2 (eertreeNodes t)\n           , nodeLen nd == pl\n           , matches nd\n           ] of\n        (x : _) -> x\n        []      -> 0\n  where\n    pl = length p\n    matches nd =\n      let start = nodeEndPos nd - pl + 1\n      in start >= 0 && take pl (drop start (eertreeStr t)) == p\neertreeCountOccurrences _ _ _ = 0\n\neertreeLongestLength :: Maybe Eertree -> Int\neertreeLongestLength Nothing = 0\neertreeLongestLength (Just t) =\n  maximum (0 : [ nodeLen nd | nd <- drop 2 (eertreeNodes t) ])\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SE5WhBT9o7XYbZ49oV",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The build is a pure `foldl'` over `zip [0 ..] s` with an immutable `BState`, and `stepBuild` returns a new state by record update. Count propagation is a second fold over nodes sorted by `Down . nodeLen`, and children are derived afterwards with `IM.fromListWith`. There is no IO, IORef or State monad. Two things keep it from a 5: `findLink` is a hand-written local recursion that is partial in spirit (it relies on the roots terminating it), and the state-record threading is slightly imperative in flavour.\",\"language_idiomaticity\":\"It uses `Data.IntMap.Strict`, `Data.Map.Strict`, `Data.Array`, `foldl'`, `comparing`/`Down`, record update syntax, list comprehensions and guards. Both `IM.!` and `arr !` are partial, but they are safe by construction. The `Maybe` handling follows the contract. `buildTree \\\"\\\"` makes `listArray (0,-1)` an empty array, which is fine. Imports are tidy. Minor blemishes are the `drop 2 (eertreeNodes t)` assumption and the `eertreeBuild Nothing 0` case, which the spec did not require.\",\"readability\":\"Names are clear (`stepBuild`, `findLink`, `propagate`, `childMap`, `finalNodes`). The `where` blocks are organised logically and the BState comment helps. `stepBuild` packs a lot into one `let` and `buildTree` has a long `where`, but both stay followable. Neither is split into smaller named helpers such as `addNode` or `propagateCounts`.\",\"design\":\"A separate internal `BState` keeps the build apart from the exported `Eertree`. Transitions live in a `Map (Int, Char)`, and the exported `nodeChildren` is derived once at the end. The build is O(n log n) rather than O(n), because of the sort and the Map, which is a minor departure. `eertreeCountOccurrences` scans the node list linearly, so it is O(nodes) rather than using a lookup. `buildTree` is a large function that could be split. The result is sound overall, with some duplication of `lenOf`/`linkOf` against the node accessors.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"linear scan of node list for pattern lookup instead of a keyed structure\",\"buildTree is a large function with a long where block that could be split into helpers\",\"partial IM.! / array ! lookups relied on as invariants\"],\"justification\":\"The solution is a pure fold-based build over immutable `BState`, using IntMap/Map and `foldl'`, with propagation as a second sorted fold and children derived at the end. It reads well, with clear names and sensible helpers. It loses points for linear node scans in the queries, partial lookups, and a monolithic `buildTree`/`stepBuild`.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5517,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5517,
+          "model": null,
+          "output_tokens": 990,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 990,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

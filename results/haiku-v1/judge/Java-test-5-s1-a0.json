@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The AST is polymorphic: an abstract Node with eval(), and NumberNode, VariableNode, UnaryNode, BinaryNode, CallNode each carry their own evaluation, so evaluate() just delegates. State is encapsulated in final fields. The loss of one point comes from BinaryNode and UnaryNode dispatching on a char op through a switch, and CallNode switching on a String name, instead of per-operator or per-function polymorphism (an enum with abstract apply, or lambdas). That would have earned a 5.",
+    "language_idiomaticity": "The code uses an enum Kind, List/ArrayList/Map generics, a private static final ParseException with stack trace disabled, and string switch. The static initializer block for FUNCTIONS could be Map.of, and the hand-rolled isDigit/isIdentStart could use Character methods. The varargs isOp(String...) is acceptable. Using char and String op codes where an enum would fit is a small departure. Overall solid, with minor non-modern choices.",
+    "readability": "The recursive-descent methods parseExpression/parseTerm/parseUnary/parsePower/parsePrimary map one-to-one onto the grammar, and the names are clear. Tokenizer and parser are separate, and the helpers ok/error/checkedPow keep the code tidy. The tokenize method is a long if-else chain, and parsePrimary is somewhat dense. Few comments, though section separators help.",
+    "design": "There is a clean split into tokenizer, Parser, and Node hierarchy. Node extends the contract's AstNode and is private, and evaluate() guards against foreign nodes. The FUNCTIONS arity table validates calls at parse time. Weaknesses: operator and function semantics are stringly/char-typed, with duplicate unreachable default branches returning INVALID_OP, and CallNode uses an array and indexes. A functional-interface or enum-based operator table would improve extensibility."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "switch on operator char / function name string inside eval instead of polymorphic operator objects or enum with behavior",
-    "static HashMap initialised in static block rather than Map.of",
-    "Token carries op as String then converted to char via charAt(0)",
-    "runtime-checked arity after parsing arguments rather than encoded in function definitions"
+    "switch on char/String operator codes inside node classes instead of polymorphic operators or an enum",
+    "magic char/String operator representation rather than an enum",
+    "static initializer block populating a HashMap instead of Map.of",
+    "hand-written character class helpers instead of Character methods"
   ],
-  "justification": "The solution uses a clear tokenizer, a recursive-descent Parser class mirroring the grammar, and a polymorphic Node hierarchy where each node implements eval, which is good OO decomposition with private nested classes and encapsulated state. Weaknesses: BinaryNode and CallNode dispatch on a char/String via switch rather than using an operator/function enum with behavior, and the FUNCTIONS map is built in a static block. Overall it is clean, readable, and uses standard collections and a lightweight exception for parse failures, with minor departures from the most idiomatic modern Java.",
+  "justification": "The solution is a well-structured OO design with a recursive-descent parser mirroring the grammar and a polymorphic Node hierarchy whose eval methods propagate statuses. Encapsulation and separation of tokenizer, parser and AST are good. The main departures are switch-based operator and function dispatch inside BinaryNode, UnaryNode and CallNode, and char/String op codes where an enum or functional objects would be more idiomatic.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 7141,
-  "output_tokens": 350,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SFQFc6ANUwrFMqb3Mp",
+  "judge_s": 8.2,
+  "input_tokens": 7478,
+  "output_tokens": 943,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

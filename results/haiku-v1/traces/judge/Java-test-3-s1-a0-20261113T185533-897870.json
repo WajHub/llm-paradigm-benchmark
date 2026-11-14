@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:33+00:00",
+  "kind": "judge",
+  "label": "Java-test-3-s1-a0",
+  "request_id": "req_011Ch1SFJcn5U8ccSvkcS5nt",
+  "duration_s": 8.5,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\nImplement a Palindrome Tree (also known as Eertree) data structure in Java using the\ncontract in PalindromeTree.java. The Eertree is a linear-time data structure that\nimplicitly represents all distinct palindromic substrings of a string. It was introduced\nby Mikhail Rubinchik and Arseny M. Shur in 2014.\n\n- Implement `eertreeBuild`: Build the palindrome tree for a given string of length `len`\n  in O(n) time. The tree must include two imaginary root nodes at indices 0 and 1:\n  root 0 has len = -1 (the \"odd root\"), root 1 has len = 0 (the \"even root\").\n  After building, propagate occurrence counts from longer palindromes to shorter ones\n  by traversing nodes in decreasing order of `len` and adding each node's `cnt` to\n  its suffixLink's `cnt`. The final `cnt` of each node must equal the total number\n  of times that palindrome appears as a substring in the input.\n\n- Implement `eertreeCountDistinct`: Return the number of distinct palindromic\n  substrings (i.e., the number of real nodes, excluding the two imaginary roots).\n\n- Implement `eertreeCountOccurrences`: Find the node in the tree whose palindrome\n  matches `pattern` (using `endPos` to locate the substring in the stored string)\n  and return its propagated `cnt`. Return 0 if pattern is not found, not a palindrome,\n  or any argument is null.\n\n- Implement `eertreeLongestLength`: Return the maximum `len` among all real nodes.\n\nConstraints:\n  - Input strings contain only lowercase Latin letters ('a'..'z').\n  - `eertreeBuild(null, n)` with n > 0 must return null.\n  - `eertreeBuild(\"\", 0)` must return a valid Eertree with only the two imaginary roots.\n  - All query methods must return 0 on null input without throwing.\n  - Keep the contract in `PalindromeTree.java`, the concrete solution in\n    `PalindromeTreeImpl.java`.\n\n## Contract given to the author (PalindromeTree.java, not written by the author)\n```java\npublic abstract class PalindromeTree {\n    protected PalindromeTree() {\n    }\n\n    public static final int EERTREE_ALPHA = 26;\n\n    public static final class Node {\n        public int len;\n        public int suffixLink;\n        public int[] children;\n        public long cnt;\n        public int endPos;\n\n        public Node() {\n            this.children = new int[EERTREE_ALPHA];\n        }\n    }\n\n    public static final class Eertree {\n        public Node[] nodes;\n        public int size;\n        public int capacity;\n        public int last;\n        public String str;\n        public int strLen;\n    }\n\n    public abstract Eertree eertreeBuild(String s, int len);\n\n    public abstract int eertreeCountDistinct(Eertree t);\n\n    public abstract long eertreeCountOccurrences(Eertree t, String pattern, int plen);\n\n    public abstract int eertreeLongestLength(Eertree t);\n}\n\n```\n\n## Code to evaluate (PalindromeTreeImpl.java)\n```java\nimport java.util.Arrays;\n\npublic final class PalindromeTreeImpl extends PalindromeTree {\n\n    public PalindromeTreeImpl() {\n        super();\n    }\n\n    @Override\n    public Eertree eertreeBuild(String s, int len) {\n        if (s == null) {\n            if (len > 0) {\n                return null;\n            }\n            s = \"\";\n        }\n        int n = Math.max(0, Math.min(len, s.length()));\n\n        Eertree t = new Eertree();\n        t.capacity = n + 2;\n        t.nodes = new Node[t.capacity];\n        t.str = s.substring(0, n);\n        t.strLen = n;\n\n        Node oddRoot = new Node();\n        oddRoot.len = -1;\n        oddRoot.suffixLink = 0;\n        t.nodes[0] = oddRoot;\n\n        Node evenRoot = new Node();\n        evenRoot.len = 0;\n        evenRoot.suffixLink = 0;\n        t.nodes[1] = evenRoot;\n\n        t.size = 2;\n        t.last = 1;\n\n        for (int i = 0; i < n; i++) {\n            addCharacter(t, i);\n        }\n\n        propagateCounts(t, n);\n        return t;\n    }\n\n    private static void addCharacter(Eertree t, int i) {\n        int c = charIndex(t.str.charAt(i));\n        int cur = getLink(t, t.last, i);\n\n        if (t.nodes[cur].children[c] == 0) {\n            int w = t.size++;\n            Node node = new Node();\n            node.len = t.nodes[cur].len + 2;\n            node.endPos = i;\n\n            if (node.len == 1) {\n                node.suffixLink = 1;\n            } else {\n                int p = getLink(t, t.nodes[cur].suffixLink, i);\n                node.suffixLink = t.nodes[p].children[c];\n            }\n\n            t.nodes[w] = node;\n            t.nodes[cur].children[c] = w;\n            t.last = w;\n        } else {\n            t.last = t.nodes[cur].children[c];\n        }\n\n        t.nodes[t.last].cnt++;\n    }\n\n    private static int getLink(Eertree t, int v, int i) {\n        while (true) {\n            int l = t.nodes[v].len;\n            int j = i - 1 - l;\n            if (j >= 0 && t.str.charAt(j) == t.str.charAt(i)) {\n                return v;\n            }\n            v = t.nodes[v].suffixLink;\n        }\n    }\n\n    private static int charIndex(char ch) {\n        if (ch < 'a' || ch > 'z') {\n            throw new IllegalArgumentException(\"Only lowercase Latin letters are allowed: \" + ch);\n        }\n        return ch - 'a';\n    }\n\n    private static void propagateCounts(Eertree t, int n) {\n        int realCount = t.size - 2;\n        if (realCount <= 0) {\n            return;\n        }\n\n        // Counting sort of real nodes by len, descending.\n        int[] freq = new int[n + 2];\n        for (int v = 2; v < t.size; v++) {\n            freq[t.nodes[v].len]++;\n        }\n        int[] start = new int[n + 2];\n        int pos = 0;\n        for (int L = n; L >= 0; L--) {\n            start[L] = pos;\n            pos += freq[L];\n        }\n        int[] order = new int[realCount];\n        for (int v = 2; v < t.size; v++) {\n            order[start[t.nodes[v].len]++] = v;\n        }\n\n        for (int idx = 0; idx < realCount; idx++) {\n            int v = order[idx];\n            t.nodes[t.nodes[v].suffixLink].cnt += t.nodes[v].cnt;\n        }\n    }\n\n    @Override\n    public int eertreeCountDistinct(Eertree t) {\n        if (t == null || t.nodes == null) {\n            return 0;\n        }\n        return Math.max(0, t.size - 2);\n    }\n\n    @Override\n    public long eertreeCountOccurrences(Eertree t, String pattern, int plen) {\n        if (t == null || t.nodes == null || pattern == null || t.str == null) {\n            return 0;\n        }\n        if (plen <= 0 || plen > pattern.length()) {\n            return 0;\n        }\n        String p = pattern.substring(0, plen);\n        if (!isPalindrome(p)) {\n            return 0;\n        }\n        for (int v = 2; v < t.size; v++) {\n            Node node = t.nodes[v];\n            if (node.len == plen) {\n                int start = node.endPos - plen + 1;\n                if (start >= 0 && t.str.regionMatches(start, p, 0, plen)) {\n                    return node.cnt;\n                }\n            }\n        }\n        return 0;\n    }\n\n    @Override\n    public int eertreeLongestLength(Eertree t) {\n        if (t == null || t.nodes == null) {\n            return 0;\n        }\n        int best = 0;\n        for (int v = 2; v < t.size; v++) {\n            best = Math.max(best, t.nodes[v].len);\n        }\n        return best;\n    }\n\n    private static boolean isPalindrome(String s) {\n        int i = 0;\n        int j = s.length() - 1;\n        while (i < j) {\n            if (s.charAt(i) != s.charAt(j)) {\n                return false;\n            }\n            i++;\n            j--;\n        }\n        return true;\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SFJv8DmJ27vkkcghVJ",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The class extends the abstract contract with @Override and splits behaviour into private helpers (addCharacter, getLink, propagateCounts, isPalindrome, charIndex). All helpers are static and take the Eertree as a parameter, because the contract exposes public mutable fields and a stateless implementer. Encapsulation and polymorphism are therefore thin, and the code reads like procedural functions over a data struct. That is largely forced by the contract. A 5 would need logic placed on the tree or node, which the contract does not allow.\",\"language_idiomaticity\":\"It uses Math.max/min, String.regionMatches, substring, and an IllegalArgumentException for invalid characters. Naming is camelCase, except the loop variable `L`. The counting sort with manual int[] arrays is a C-style transplant. `Arrays` is imported but never used. `while (true)` in getLink is acceptable because the sentinel root guarantees termination. Reassigning the parameter `s` is a small smell. For a 5, drop the unused import, avoid parameter reassignment, and make the sorting less manual.\",\"readability\":\"Method names are clear, methods are short, and the algorithm is easy to follow. The 'Counting sort of real nodes by len, descending' comment helps. Single-letter names (c, w, p, l, j) are terse but conventional for Eertree code. The propagateCounts counting sort with its freq/start/order arrays takes some effort to read. A 5 would give more descriptive names and a simpler propagation step.\",\"design\":\"The responsibilities are separated: building, link lookup, propagation, queries, and palindrome check. Counting sort gives O(n) ordering, as the task requires. eertreeCountOccurrences scans all nodes linearly instead of walking the children transitions, which is simple but O(n) per query. The static helpers are not stored on a richer model, because the contract fixes that. Null and edge handling are consistent. A 5 would walk the trie from the root for the lookup and tidy the unused import and the parameter reassignment.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":4,\"design\":4,\"anti_patterns\":[\"static helper methods operating on a public-field data struct instead of behaviour on objects\",\"manual counting sort with parallel int arrays (C-style)\",\"unused import java.util.Arrays\",\"reassigning method parameter `s`\",\"linear scan over all nodes for occurrence lookup instead of trie traversal\"],\"justification\":\"The solution decomposes the build into small private helpers (addCharacter, getLink, propagateCounts) and has clean null handling, so it is easy to read. It is procedural in spirit, since static functions manipulate the contract's public-field structs, and that is mostly forced by the contract. Minor blemishes are the unused Arrays import, the parameter reassignment, the manual counting-sort arrays, and the O(n) node scan in eertreeCountOccurrences.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4761,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4761,
+          "model": null,
+          "output_tokens": 987,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 987,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

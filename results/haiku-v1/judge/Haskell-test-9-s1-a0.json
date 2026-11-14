@@ -1,0 +1,38 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Haskell",
+  "paradigm": "functional",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and persistent: the tree is rebuilt with `BNode` values, `foldl'` drives `insertAll` and `deleteAll`, and there is no mutable state. Remaining weaknesses: `setAt`/`take`/`drop` index surgery stands in for pattern matching or zipper-style splitting of children, and `!!` indexing is used heavily. Splitting lists with `splitAt` and pattern matching on the pieces would earn one more point.",
+    "language_idiomaticity": "Uses `foldl'`, guards, `where`, `span` and `takeWhile`, and returns `Maybe` for t < 2. But it leans on partial functions (`head`, `last`, `init`, `tail`, `!!`) in `maxKey`, `minKey`, `rotateRight`, `rotateLeft` and `splitChild`. It also uses `length . takeWhile` instead of `span` or `splitAt`, and `length` for counts. There are no signatures on the local `where` helpers (`rotateRight`, `mergeRight`, etc.), which is acceptable. Avoiding partial functions and using `splitAt` would earn one more point.",
+    "readability": "Top-level helpers are well named (`countLess`, `insertSorted`, `splitChild`, `shrink`) and the CLRS cases are easy to map (`deleteInternal`, `deleteDescend`, `rotate*`, `merge*`). However, `deleteFrom` is long with deeply nested if/else chains in `deleteInternal`. The `(ks', cs', j)` triples and index arithmetic like `i - 1` and `i + 2` are fiddly. There are almost no comments. Flattening the nested if-chain into guards and returning a small record instead of a triple would help.",
+    "design": "The decomposition is reasonable: separate `member`, `splitChild`, `insertNonFull`, `insertKey`, `deleteFrom` and `shrink`. Duplication remains: merge logic is repeated in `deleteInternal` (2c), `mergeRight` and `mergeLeft`, and the list-removal expression `take i ks ++ drop (i+1) ks` recurs. `splitChild` and `insertNonFull` take the node and index as separate arguments. `member` and `deleteFrom` repeatedly scan the same node. A shared `merge` helper and a `removeAt` helper would earn one more point."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "partial functions (head, last, init, tail, !!) throughout",
+    "index-based list surgery with take/drop/setAt instead of splitAt and pattern matching",
+    "duplicated merge logic in deleteInternal and mergeRight/mergeLeft",
+    "length . takeWhile instead of span/splitAt",
+    "tuple of (keys, children, index) returned from rotate/merge helpers",
+    "deeply nested if/else chain in deleteInternal instead of guards"
+  ],
+  "justification": "The solution is pure and persistent, with `foldl'` driving the operations and `Maybe` for invalid t, which fits the functional paradigm. However, it relies on `!!`, `head`, `last` and `init` and on index arithmetic with `take`/`drop`/`setAt`, which are non-idiomatic and fragile. `deleteFrom` is long and nested, and merge logic is duplicated between case 2c and `mergeRight`/`mergeLeft`, so structure and readability are middling.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RtemtUvNcGNf4je8XV",
+  "judge_s": 8.8,
+  "input_tokens": 6986,
+  "output_tokens": 1176,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

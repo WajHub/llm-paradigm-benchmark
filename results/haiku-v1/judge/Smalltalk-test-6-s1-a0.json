@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
-  "paradigm_idiomaticity": 4,
+  "rationale": {
+    "paradigm_idiomaticity": "The logic is split across small methods on SudokuImpl (peerIndicesOf:, candidatesFor:board:peers:, searchOn:board:peers:stop:) and uses a block as a stop-callback, which is a nice Smalltalk touch. However, the board and peers are passed around as raw Arrays instead of a domain object such as a Board/Grid class, so state and behaviour are not encapsulated. Wrapping the board, peer table and search in a collaborator object would earn a 5.",
+    "language_idiomaticity": "Uses collection protocols (do:, reject:, collect:, remove:ifAbsent:, between:and:), non-local ^ returns, and 1 to: 9 do:. The code is GNU Smalltalk bracket syntax with correct selectors. Minor departures: copying the board with an index loop instead of `grid copy`/`asArray copy`, `Array new: 9 withAll: false`, and `(1 to: 9) reject:` answers an Array, which is fine. Peers are recomputed per call in candidates:row:col: and isValid: (81 Set builds). `ifFalse: [^#()]` is slightly awkward.",
+    "readability": "Selectors are intention-revealing and each method is short, with helpful comments on the first three helpers. The search method has a flat structure with early returns. The `stop:` block semantics (answering true at a complete board) are somewhat subtle, and in searchOn the nested ifTrue inside to:do: is a little dense. Variables like best/bestCands are clear enough.",
+    "design": "Decomposition is reasonable: peers are computed once per solve and shared, and solve and countSolutions reuse a single search with a stop block, which avoids duplication. MRV is implemented as required, with early dead-end detection. Duplicated setup code (board copy and peers construction) appears in both solve: and countSolutions:limit:, and in solve: the board is mutated back to 0 only on failure. isValid: recomputes peers for each cell, which is wasteful. Extracting a `prepareBoard:` helper or a Board class would improve it."
+  },
+  "paradigm_idiomaticity": 3,
   "language_idiomaticity": 4,
   "readability": 4,
-  "design": 4,
+  "design": 3,
   "anti_patterns": [
-    "peer indices recomputed on every isValid: and candidates: call instead of cached",
-    "manual copy loop instead of `copy` / `asArray copy`",
-    "index-based to:do: scan in searchOn: for the MRV cell instead of collection protocols",
-    "mutating shared board in place with a stop block carrying side effects"
+    "raw Arrays passed around instead of a board object",
+    "duplicated copy-and-peers setup in solve: and countSolutions:limit:",
+    "index-loop copy instead of `copy`",
+    "peer indices recomputed per cell in isValid:"
   ],
-  "justification": "The code is decomposed into small helper methods (peerIndicesOf:, candidatesFor:board:peers:, searchOn:peers:stop:), and the stop-block makes one search routine serve both solve: and countSolutions:limit:, which is a neat object-oriented, block-based reuse. It uses collection protocols (`reject:`, `collect:`, `do:`, `between:and:`) and early returns with `^` idiomatically. Weaknesses are the hand-written copy loops instead of `copy`, recomputing peers in isValid:/candidates: via Sets, and the stateful stop block with a counter side effect. The board is mutated and restored in place, which works but is somewhat procedural.",
+  "justification": "The solution is a clean, compact MRV backtracker with small intention-revealing helper methods, and the stop-block trick shares one search between solve: and countSolutions:limit:. It keeps state in raw Arrays rather than domain objects, duplicates the setup code in the two public search methods, and uses an index loop to copy the grid. Overall it is idiomatic Smalltalk with modest design weaknesses.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4414,
-  "output_tokens": 384,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SKfuoeQes7giPcY4vX",
+  "judge_s": 7.9,
+  "input_tokens": 4751,
+  "output_tokens": 967,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

@@ -1,0 +1,35 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Scala",
+  "paradigm": "functional",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Parts A is written functionally: `lowerMedian` is a pure helper, `medianOfMedians` uses `grouped(5).map(lowerMedian)`, and `selectKth` uses an immutable `@tailrec loop(cur, kk, pivots)` with `filter`/`count` for the stable partition. Part B uses `var lo`/`var hi` with a `while` loop, which is local and justified for a binary search, but a tail-recursive helper would be more in the functional style. That would earn the 5.",
+    "language_idiomaticity": "Uses `Option`, `grouped`, `@annotation.tailrec`, and `Vector` combinators, all compatible with 2.11. Small departures: `medianOfMedians(cur).get` on an Option known to be non-empty, `cur.sorted.apply(kk)` instead of `cur.sorted(kk)`, and the `(a, b)` swap by tuple pattern is fine. The `Some(...)` branches at the end of `medianTwoSorted` could be a single `Some(if ... else ...)`. The `.get` and the `var` loop keep it at 4.",
+    "readability": "Names are clear (`lowerMedian`, `maxLeft`, `minRight`, `leftA`/`rightB`), and there is a helpful comment on the binary search invariant. The `medianTwoSorted` body is a long block with nested local defs and sentinel handling, but still easy to follow. Splitting the partition search into a named function would earn a 5.",
+    "design": "Good decomposition for Part A: shared `lowerMedian`, reuse of `medianOfMedians` in `selectKth`. Partition is stable and single-pass per filter (three traversals, minor inefficiency). `medianTwoSorted` puts the search, sentinel handling and mean computation in one function rather than separate helpers; it does use Long arithmetic and swaps to search the shorter source. Extracting the partition search and the result combination into private helpers would improve it."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 4,
+  "anti_patterns": [
+    "mutable var/while loop for binary search instead of tail recursion",
+    "Option.get on a known non-empty result",
+    "sentinel Long.MinValue/MaxValue instead of Option"
+  ],
+  "justification": "Part A is clean functional Scala: `grouped(5).map(lowerMedian)` and an immutable `@tailrec loop` with stable `filter` partitioning that reproduces the specified procedure. Part B is a correct-looking partition binary search with Long arithmetic but written with `var lo/hi` and a `while` loop, and everything lives in a single long function. Minor nits like `.get` and `.sorted.apply(kk)` keep it from a top score.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1Rw3Ry6jsbHBJQhVJAM",
+  "judge_s": 7.9,
+  "input_tokens": 5182,
+  "output_tokens": 932,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

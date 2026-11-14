@@ -1,0 +1,51 @@
+=== Running benchmark for folder: test-8 ===
+gst -g `ls test-8/*.st 2>/dev/null | grep -v Tests.st | sort`
+=== START ===
+
+--- Algorithm A: MST Double Tree ---
+[FAIL] Test A01 (Empty)
+[FAIL] Test A02 (Single Point)
+[FAIL] Test A03 (Two Points)
+[FAIL] Test A04 (Collinear Unsorted)
+[FAIL] Test A05 (Square)
+[FAIL] Test A06 (Parent Tie Breaking)
+[FAIL] Test A07 (Grid Ties)
+[FAIL] Test A08 (Duplicate Points)
+[FAIL] Test A09 (Clusters Two Approx)
+[FAIL] Test A10 (Stress)
+
+--- Algorithm B: Christofides ---
+[FAIL] Test B01 (Empty)
+[FAIL] Test B02 (Two Points Double Edge)
+[FAIL] Test B03 (Star Parallel Edges)
+[FAIL] Test B04 (Collinear)
+[FAIL] Test B05 (Grid)
+[FAIL] Test B06 (Beats Double Tree)
+[FAIL] Test B07 (Spiral Bound)
+[FAIL] Test B08 (Greedy Matching Trap)
+[FAIL] Test B09 (Duplicate Points)
+[FAIL] Test B10 (Stress)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Tests that failed (20):
+ - Test A01 (Empty)
+ - Test A02 (Single Point)
+ - Test A03 (Two Points)
+ - Test A04 (Collinear Unsorted)
+ - Test A05 (Square)
+ - Test A06 (Parent Tie Breaking)
+ - Test A07 (Grid Ties)
+ - Test A08 (Duplicate Points)
+ - Test A09 (Clusters Two Approx)
+ - Test A10 (Stress)
+ - Test B01 (Empty)
+ - Test B02 (Two Points Double Edge)
+ - Test B03 (Star Parallel Edges)
+ - Test B04 (Collinear)
+ - Test B05 (Grid)
+ - Test B06 (Beats Double Tree)
+ - Test B07 (Spiral Bound)
+ - Test B08 (Greedy Matching Trap)
+ - Test B09 (Duplicate Points)
+ - Test B10 (Stress)

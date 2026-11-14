@@ -6,21 +6,30 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is structured procedural Pascal with small helpers (HeapPush, HeapPop), explicit loops, early Exit guards, and in-place mutation of the result record. Dijkstra uses a lazy-deletion binary heap plus a Visited array, which is the standard imperative approach. It would reach 5 with minor tidying: the heap sizing is slightly awkward, and the two-pass path reconstruction could be a single pass that reverses in place.",
+    "language_idiomaticity": "It uses SetLength, High, Length, Inc/Dec, Exit, Infinity from Math, `out` parameters, and New/Dispose with dynamic arrays. There are small departures: the redundant `Result := nil` before New in CreateGraph and the redundant loop setting Adjacency[I] := nil (SetLength already zero-initialises). Setting dynamic arrays to nil before Dispose is acceptable but unneeded, and the code uses `Exit` rather than `Exit(value)`. Comparing `= Infinity` is fine. Fixing these would earn a 5.",
+    "readability": "Names are clear (HeapPush, HeapPop, Visited, Alt, TotalEdges), functions are short, and the control flow is easy to follow. There are no comments, and the single-letter variables in the heap code (I, P, L, R, M) are terse but conventional. A brief comment on the heap capacity bound and on the lazy-deletion approach would earn a 5.",
+    "design": "The heap is cleanly separated as private implementation-section helpers, public functions validate their inputs, and the graph and result are freed consistently. The heap is preallocated at TotalEdges+1, which is a correct bound, with the cost of an extra pass over all edges. Appending one edge at a time via SetLength is O(deg) per add, and the swap code is duplicated between push and pop. A heap abstraction (record with size) and geometric growth would improve it."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "Result := nil immediately before New(Result) in CreateGraph is redundant",
-    "Redundant loop initializing dynamic array elements to nil after SetLength",
-    "Edge array grows by one element per insertion (SetLength(Len+1)) rather than amortized capacity",
-    "Manual nil assignment of dynamic arrays before Dispose is unnecessary since Dispose finalizes managed fields"
+    "redundant initialisation of dynamic array elements to nil after SetLength",
+    "heap size passed as a separate var parameter instead of being bundled with the array in a record",
+    "SetLength by one per added edge (linear growth)"
   ],
-  "justification": "x",
+  "justification": "This is a clean procedural Dijkstra with a hand-written binary heap in private helpers, lazy deletion, and guard clauses with Exit. It uses the RTL appropriately (SetLength, High, Infinity, out parameter). Small blemishes are redundant nil assignments, the heap size travelling as a separate var parameter, one-at-a-time array growth, and the absence of comments.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 5776,
-  "output_tokens": 187,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SFwYHYpmKV7m8VbVbj",
+  "judge_s": 7.6,
+  "input_tokens": 6113,
+  "output_tokens": 902,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

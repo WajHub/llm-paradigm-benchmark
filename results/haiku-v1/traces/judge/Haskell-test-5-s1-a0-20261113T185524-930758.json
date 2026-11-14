@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:24+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-5-s1-a0",
+  "request_id": "req_011Ch1SEg3bLfKyajo3jbd8y",
+  "duration_s": 8.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\nImplement a mathematical expression parser and evaluator in Haskell in the module\nExpression (file Expression.hs). The parser turns a string into an abstract syntax\ntree (AstNode), and the evaluator computes the numeric value of that AST given a set\nof variables. The module already defines the data types; implement parseExpression\nand evaluate.\n\n- Implement `parseExpression :: String -> Maybe AstNode`: Parse the input string and\n  return `Just` the AST, or `Nothing` if the string is not a syntactically valid\n  expression. Whitespace is insignificant.\n\n  Grammar (highest precedence last; `^` is right-associative, everything else is\n  left-associative):\n\n      expr    := term   (('+' | '-') term)*\n      term    := unary  (('*' | '/' | '%') unary)*\n      unary   := ('+' | '-') unary | power\n      power   := primary ('^' unary)?\n      primary := NUMBER | IDENT | IDENT '(' args ')' | '(' expr ')'\n      args    := expr (',' expr)*\n\n  * NUMBER: a non-negative decimal literal, e.g. `42` or `3.14`, mapped to NumberNode.\n  * IDENT: a variable name matching `[A-Za-z_][A-Za-z0-9_]*`, mapped to VariableNode.\n  * A call `IDENT '(' args ')'` is only valid for these functions, with the exact\n    argument count shown: `sqrt`/1, `abs`/1, `sin`/1, `cos`/1, `min`/2, `max`/2,\n    `pow`/2, mapped to FunctionCall. Any other function name, or a wrong number of\n    arguments, is a parse error (Nothing).\n  * Precedence consequences: `-2^2` parses as `-(2^2)` and `2^3^2` as `2^(3^2)`.\n\n- Implement `evaluate :: AstNode -> [Variable] -> EvalResult`: Evaluate the AST using\n  the given variable bindings and return an `EvalResult { evalStatus, evalValue }`.\n  If any sub-expression produces a non-Ok status, propagate the first such status\n  upward (short-circuit) and leave evalValue at 0.0.\n\n  Semantics:\n  * NumberNode evaluates to its literal value with status Ok.\n  * VariableNode evaluates to its bound value, or UndefinedVar if no binding with\n    that name exists.\n  * UnaryOp \"-\" negates, UnaryOp \"+\" is identity.\n  * BinaryOp \"+\" \"-\" \"*\" are ordinary arithmetic.\n  * BinaryOp \"/\" and \"%\" return DivByZero when the divisor is 0. \"%\" is the\n    floating-point remainder.\n  * BinaryOp \"^\" and FunctionCall \"pow\" compute x raised to y; if the result is not a\n    finite real number (e.g. a negative base with a non-integer exponent), return\n    DomainError.\n  * FunctionCall \"sqrt\" returns DomainError when its argument is < 0.\n  * \"abs\", \"sin\", \"cos\", \"min\", \"max\" behave as usual (angles in radians).\n\nConstraints:\n  - parseExpression \"\" must return Nothing.\n  - Floating-point results are compared with a small epsilon tolerance.\n\n## Stub module given to the author (Expression.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule Expression\n  ( AstNode (..)\n  , Variable (..)\n  , EvalStatus (..)\n  , EvalResult (..)\n  , parseExpression\n  , evaluate\n  ) where\n\ndata AstNode\n  = NumberNode Double\n  | VariableNode String\n  | BinaryOp String AstNode AstNode\n  | UnaryOp String AstNode\n  | FunctionCall String [AstNode]\n  deriving (Eq, Show)\n\ndata Variable = Variable\n  { variableName  :: String\n  , variableValue :: Double\n  } deriving (Eq, Show)\n\ndata EvalStatus\n  = Ok\n  | DivByZero\n  | UndefinedVar\n  | InvalidOp\n  | DomainError\n  deriving (Eq, Show)\n\ndata EvalResult = EvalResult\n  { evalStatus :: EvalStatus\n  , evalValue  :: Double\n  } deriving (Eq, Show)\n\nparseExpression :: String -> Maybe AstNode\nparseExpression _ = error \"Expression.parseExpression not implemented\"\n\nevaluate :: AstNode -> [Variable] -> EvalResult\nevaluate _ _ = error \"Expression.evaluate not implemented\"\n\n```\n\n## Code to evaluate (Expression.hs)\n```haskell\nmodule Expression\n  ( AstNode (..)\n  , Variable (..)\n  , EvalStatus (..)\n  , EvalResult (..)\n  , parseExpression\n  , evaluate\n  ) where\n\nimport Data.Char (isAsciiLower, isAsciiUpper, isDigit, isSpace)\nimport Data.Fixed (mod')\n\ndata AstNode\n  = NumberNode Double\n  | VariableNode String\n  | BinaryOp String AstNode AstNode\n  | UnaryOp String AstNode\n  | FunctionCall String [AstNode]\n  deriving (Eq, Show)\n\ndata Variable = Variable\n  { variableName  :: String\n  , variableValue :: Double\n  } deriving (Eq, Show)\n\ndata EvalStatus\n  = Ok\n  | DivByZero\n  | UndefinedVar\n  | InvalidOp\n  | DomainError\n  deriving (Eq, Show)\n\ndata EvalResult = EvalResult\n  { evalStatus :: EvalStatus\n  , evalValue  :: Double\n  } deriving (Eq, Show)\n\n-- Parser -------------------------------------------------------------------\n\ntype Parser a = String -> Maybe (a, String)\n\nskipWs :: String -> String\nskipWs = dropWhile isSpace\n\nisIdentStart :: Char -> Bool\nisIdentStart c = isAsciiUpper c || isAsciiLower c || c == '_'\n\nisIdentChar :: Char -> Bool\nisIdentChar c = isIdentStart c || isDigit c\n\nparseExpression :: String -> Maybe AstNode\nparseExpression str = case parseExpr str of\n  Just (e, r) | all isSpace r -> Just e\n  _                           -> Nothing\n\nbinChain :: String -> Parser AstNode -> Parser AstNode\nbinChain ops sub s = sub s >>= uncurry loop\n  where\n    loop lhs r = case skipWs r of\n      (c:rest) | c `elem` ops -> do\n        (rhs, r') <- sub rest\n        loop (BinaryOp [c] lhs rhs) r'\n      _ -> Just (lhs, r)\n\nparseExpr :: Parser AstNode\nparseExpr = binChain \"+-\" parseTerm\n\nparseTerm :: Parser AstNode\nparseTerm = binChain \"*/%\" parseUnary\n\nparseUnary :: Parser AstNode\nparseUnary s = case skipWs s of\n  (c:rest) | c `elem` \"+-\" -> do\n    (e, r) <- parseUnary rest\n    Just (UnaryOp [c] e, r)\n  _ -> parsePower s\n\nparsePower :: Parser AstNode\nparsePower s = do\n  (p, r) <- parsePrimary s\n  case skipWs r of\n    ('^':rest) -> do\n      (e, r') <- parseUnary rest\n      Just (BinaryOp \"^\" p e, r')\n    _ -> Just (p, r)\n\nparsePrimary :: Parser AstNode\nparsePrimary s = case skipWs s of\n  [] -> Nothing\n  str@(c:_)\n    | isDigit c -> parseNumber str\n    | isIdentStart c -> parseIdent str\n    | c == '(' -> do\n        (e, r) <- parseExpr (tail str)\n        case skipWs r of\n          (')':r') -> Just (e, r')\n          _        -> Nothing\n    | otherwise -> Nothing\n\nparseNumber :: Parser AstNode\nparseNumber s =\n  let (ip, r1) = span isDigit s\n  in case r1 of\n       ('.':t) ->\n         let (fp, r2) = span isDigit t\n         in if null fp\n              then Nothing\n              else Just (NumberNode (read (ip ++ \".\" ++ fp)), r2)\n       _ -> Just (NumberNode (read ip), r1)\n\nparseIdent :: Parser AstNode\nparseIdent s =\n  let (name, r) = span isIdentChar s\n  in case skipWs r of\n       ('(':rest) -> do\n         (args, r') <- parseArgs rest\n         if arityOk name (length args)\n           then Just (FunctionCall name args, r')\n           else Nothing\n       _ -> Just (VariableNode name, r)\n\nparseArgs :: Parser [AstNode]\nparseArgs s = do\n  (e, r) <- parseExpr s\n  case skipWs r of\n    (',':rest) -> do\n      (es, r') <- parseArgs rest\n      Just (e : es, r')\n    (')':rest) -> Just ([e], rest)\n    _          -> Nothing\n\narityOk :: String -> Int -> Bool\narityOk name n = lookup name table == Just n\n  where\n    table =\n      [ (\"sqrt\", 1), (\"abs\", 1), (\"sin\", 1), (\"cos\", 1)\n      , (\"min\", 2), (\"max\", 2), (\"pow\", 2)\n      ]\n\n-- Evaluator ----------------------------------------------------------------\n\nevaluate :: AstNode -> [Variable] -> EvalResult\nevaluate node vars = case evalE vars node of\n  Left st -> EvalResult st 0\n  Right v -> EvalResult Ok v\n\nevalE :: [Variable] -> AstNode -> Either EvalStatus Double\nevalE _ (NumberNode n) = Right n\nevalE vars (VariableNode name) =\n  case lookup name [(variableName v, variableValue v) | v <- vars] of\n    Just x  -> Right x\n    Nothing -> Left UndefinedVar\nevalE vars (UnaryOp op e) = do\n  x <- evalE vars e\n  case op of\n    \"-\" -> Right (negate x)\n    \"+\" -> Right x\n    _   -> Left InvalidOp\nevalE vars (BinaryOp op a b) = do\n  x <- evalE vars a\n  y <- evalE vars b\n  binOp op x y\nevalE vars (FunctionCall name args) = do\n  vs <- mapM (evalE vars) args\n  callFn name vs\n\nbinOp :: String -> Double -> Double -> Either EvalStatus Double\nbinOp \"+\" x y = Right (x + y)\nbinOp \"-\" x y = Right (x - y)\nbinOp \"*\" x y = Right (x * y)\nbinOp \"/\" x y\n  | y == 0    = Left DivByZero\n  | otherwise = Right (x / y)\nbinOp \"%\" x y\n  | y == 0    = Left DivByZero\n  | otherwise = Right (fmod x y)\nbinOp \"^\" x y = powD x y\nbinOp _ _ _ = Left InvalidOp\n\n-- C-style fmod: result has the sign of the dividend.\nfmod :: Double -> Double -> Double\nfmod x y = signum x * (abs x `mod'` abs y)\n\npowD :: Double -> Double -> Either EvalStatus Double\npowD x y =\n  let r = x ** y\n  in if isNaN r || isInfinite r\n       then Left DomainError\n       else Right r\n\ncallFn :: String -> [Double] -> Either EvalStatus Double\ncallFn \"sqrt\" [a]\n  | a < 0     = Left DomainError\n  | otherwise = Right (sqrt a)\ncallFn \"abs\" [a] = Right (abs a)\ncallFn \"sin\" [a] = Right (sin a)\ncallFn \"cos\" [a] = Right (cos a)\ncallFn \"min\" [a, b] = Right (min a b)\ncallFn \"max\" [a, b] = Right (max a b)\ncallFn \"pow\" [a, b] = powD a b\ncallFn _ _ = Left InvalidOp\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SEgKy1iDJwF9oTiZbL",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Pure functional throughout: the parser is a set of functions of type `String -> Maybe (a, String)` composed via the Maybe monad, and the evaluator uses `Either EvalStatus` with `mapM` to short-circuit. Operators are folded left by `binChain` through a recursive `loop`. A 5 would need a proper Parser newtype with Functor/Applicative/Monad/Alternative instances, which would remove the manual threading of the remaining string.\",\"language_idiomaticity\":\"Uses `Maybe`/`Either` monads, `mapM`, `span`, `lookup`, `mod'`, guards and pattern matching on string literals in `binOp` and `callFn`. Weaknesses: the partial `tail str` in `parsePrimary` (safe only because of the preceding match), `read` for numbers, and an association-list rebuild in the `VariableNode` case with `lookup`. The `type Parser a = String -> Maybe (a, String)` alias is neat but a newtype with instances would be more idiomatic.\",\"readability\":\"Small, well-named functions (`binChain`, `parsePower`, `parseArgs`, `arityOk`, `powD`) that mirror the grammar one-to-one. Type signatures everywhere, and a helpful comment on `fmod`. Whitespace skipping is scattered and manual, which makes it slightly harder to confirm every place is covered. `parseIdent` also does the function-call logic, which is a little dense.\",\"design\":\"Clear separation of parsing, evaluation, binary operators and function dispatch. `binChain` removes duplication between the expr and term levels, and the arity table is data. Shortcomings: operators are Strings rather than an enumeration, as the contract forces, so `InvalidOp` fallbacks are needed. `callFn` repeats the arity checks the parser already did. There is no tokenizer stage, so whitespace handling is spread across the parsers.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"partial function `tail` in parsePrimary\",\"`read` used to convert numeric strings\",\"hand-threaded parser state instead of a Parser newtype with Monad/Alternative instances\",\"scattered `skipWs` calls instead of a lexing stage\"],\"justification\":\"The solution is a clean, pure functional design: a Maybe-based recursive descent parser mirroring the grammar, with `binChain` abstracting left-associative chains, and an Either-based evaluator with `mapM` for short-circuiting. Minor departures include the hand-threaded `String -> Maybe (a, String)` instead of a monadic Parser type, the `tail` call, and `read` for numbers. Overall it is idiomatic and well-structured, but not at a 5.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6057,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6057,
+          "model": null,
+          "output_tokens": 946,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 946,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

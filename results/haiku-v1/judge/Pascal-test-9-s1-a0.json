@@ -1,0 +1,36 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Pascal",
+  "paradigm": "imperative",
+  "test": "test-9",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code follows a structured procedural style: small mutating procedures such as SplitChild, InsertNonFull, DeleteFrom and FreeNode, with loops and clear control flow. InsertNonFull is iterative, which suits Pascal. DeleteFrom is a long procedure that mixes cases 1, 2, 3a and 3b inline; a 5 would extract those into RotateRight, RotateLeft and MergeChildren procedures.",
+    "language_idiomaticity": "It uses SetLength, Length, High, exit, New and Dispose correctly, and keeps helpers in the implementation section. It reinvents array insert, delete and append helpers by hand instead of using Insert/Delete/Move/Concat from the RTL (FPC has Insert and Delete for dynamic arrays). It also writes 'Result := x; exit;' instead of Exit(value). It keeps the awkward unused 'p: PBTreeNode' in NewNode. A hand-written LowerBound is fine. A 5 would use the RTL array routines and Exit(value).",
+    "readability": "Names are meaningful (SplitChild, InsertNonFull, LowerBound, MaxKey, MinKey) and brief comments mark each case. DeleteFrom is about 90 lines with many locals (j, i, n, m, idx, y, z, c, lft, rgt, kp), and j and i are redundant aliases. Moving the rotate and merge cases into named procedures would improve it.",
+    "design": "Helper separation is good: array utilities, Contains for the pre-check, BuildTree shared by both public routines, and FreeNode for recursion. Keys and Children get duplicated insert/delete/append helpers, and the merge logic appears three times (case 2c, 3b-right, 3b-left) with similar code. The root-shrink logic sits in BTreeDeleteAll. Extracting merge and rotate helpers would remove the duplication."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "monolithic DeleteFrom procedure with inline rotate/merge cases",
+    "duplicated merge code in three places",
+    "hand-rolled array insert/delete/append instead of RTL Insert/Delete/Concat",
+    "Result := ...; exit instead of Exit(value)"
+  ],
+  "justification": "The solution is a clean structured-procedural B-tree: iterative insertion, a Contains pre-check, shared BuildTree and recursive FreeNode with correct New/Dispose handling. Its weaknesses are the long DeleteFrom, which inlines rotations and three near-identical merges, and the hand-written array helpers that duplicate RTL routines. Extracting RotateLeft/RotateRight/Merge and using Exit(value) and RTL array routines would raise the scores.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RuwieVxWv2gBLAB61B",
+  "judge_s": 7.7,
+  "input_tokens": 9482,
+  "output_tokens": 953,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

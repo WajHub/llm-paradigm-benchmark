@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-8",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is procedural: static helpers (build_mst, odd_vertices, min_matching, preorder, tour_cost) pass data through arrays and out-pointers (parent, O, pairA/pairB, cnt). Control flow is plain loops, and Hierholzer uses an explicit stack with CSR adjacency and edge-used flags. This is what an experienced C programmer would write. Reaching 5 would need tsp_christofides split into smaller steps (Euler circuit, shortcut), since it is currently a long monolith.",
+    "language_idiomaticity": "It uses static helpers, const on read-only pointers, size_t casts for allocation sizes, calloc for zeroed arrays, and a local INF constant. Weaknesses: malloc/calloc results are never checked in the helpers (only make_result checks the struct, not r->tour). The casts on malloc are unnecessary in C. dist_pt hand-rolls abs instead of using abs. Recursive preorder does an O(n) scan per call, which is acceptable for n <= 40. On the n==1 early return the tour is fine, but a failed tour allocation is not handled. Checked allocation with a goto-cleanup error path would earn a higher score.",
+    "readability": "Names are clear (build_mst, odd_vertices, min_matching) and the doc comments are useful. The bitmask DP and matching reconstruction are easy to follow, and the Hierholzer section is commented. tsp_christofides is about 100 lines with many temporaries and a long free list at the end, which hurts readability. Names like eu/ev/deg2/E are terse. Splitting out the Euler circuit and the shortcut would make it a 5.",
+    "design": "There is good reuse: build_mst is shared by all four entry points, and min_matching serves both the weight query and pair reconstruction through optional out-parameters. tour_cost and make_result avoid duplication. The weaknesses are the monolithic tsp_christofides (edge list, CSR build, Hierholzer and shortcut inline), the duplicated n==1 handling in both tour functions, and the pair-reconstruction logic that repeats the DP transition. Extracting build_multigraph, euler_circuit and shortcut helpers would improve it."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 3,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "unchecked malloc/calloc results in helpers and for r->tour",
+    "one very long function (tsp_christofides) with a long manual free list",
+    "DP transition logic duplicated between table fill and reconstruction",
+    "hand-rolled abs in dist_pt",
+    "unnecessary casts of malloc results"
+  ],
+  "justification": "The solution is solid procedural C with static helpers, a shared build_mst, a bitmask DP matching and a CSR-based Hierholzer. It loses points mainly for tsp_christofides being a long monolithic function with many temporaries and a manual free list, and for mostly missing allocation checks. Duplicated n==1 handling and DP reconstruction logic are minor design blemishes.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RsJ5uiJipcLwdovDAh",
+  "judge_s": 9.9,
+  "input_tokens": 7672,
+  "output_tokens": 1027,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:34+00:00",
+  "kind": "judge",
+  "label": "Java-test-5-s1-a0",
+  "request_id": "req_011Ch1SFQFc6ANUwrFMqb3Mp",
+  "duration_s": 8.2,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\nImplement a mathematical expression parser and evaluator in Java in the class\nExpressionImpl (file ExpressionImpl.java), which extends the abstract class Expression.\nThe parser turns a string into an abstract syntax tree (Expression.AstNode), and the\nevaluator computes the numeric value of that AST given a set of variables. The base\nclass already defines the data types; implement parse and evaluate.\n\n- Implement `AstNode parse(String expression)`: Parse the input string and return the\n  root AST node, or null if the string is not a syntactically valid expression.\n  Whitespace is insignificant. You may define your own concrete AstNode subclasses.\n\n  Grammar (highest precedence last; `^` is right-associative, everything else is\n  left-associative):\n\n      expr    := term   (('+' | '-') term)*\n      term    := unary  (('*' | '/' | '%') unary)*\n      unary   := ('+' | '-') unary | power\n      power   := primary ('^' unary)?\n      primary := NUMBER | IDENT | IDENT '(' args ')' | '(' expr ')'\n      args    := expr (',' expr)*\n\n  * NUMBER: a non-negative decimal literal, e.g. `42` or `3.14`.\n  * IDENT: a variable name matching `[A-Za-z_][A-Za-z0-9_]*`.\n  * A call `IDENT '(' args ')'` is only valid for these functions, with the exact\n    argument count shown: `sqrt`/1, `abs`/1, `sin`/1, `cos`/1, `min`/2, `max`/2,\n    `pow`/2. Any other function name, or a wrong number of arguments, is a parse\n    error (null).\n  * Precedence consequences: `-2^2` parses as `-(2^2)` and `2^3^2` as `2^(3^2)`.\n\n- Implement `EvalResult evaluate(AstNode ast, List<Variable> vars)`: Evaluate the AST\n  using the given variable bindings and return an EvalResult(status, value). If any\n  sub-expression produces a non-OK status, propagate the first such status upward\n  (short-circuit) and leave value at 0.0.\n\n  Semantics:\n  * A number evaluates to its literal value with status OK.\n  * A variable evaluates to its bound value, or UNDEFINED_VAR if no binding with that\n    name exists.\n  * Unary '-' negates, unary '+' is identity.\n  * '+' '-' '*' are ordinary arithmetic.\n  * '/' and '%' return DIV_BY_ZERO when the divisor is 0. '%' is the floating-point\n    remainder.\n  * '^' and pow(x, y) compute x raised to y; if the result is not a finite real number\n    (e.g. a negative base with a non-integer exponent), return DOMAIN_ERROR.\n  * sqrt(x) returns DOMAIN_ERROR when x < 0.\n  * abs, sin, cos, min, max behave as usual (angles in radians).\n\nConstraints:\n  - parse(null) and parse(\"\") must return null.\n  - Floating-point results are compared with a small epsilon tolerance.\n\n## Contract given to the author (Expression.java, not written by the author)\n```java\nimport java.util.List;\n\npublic abstract class Expression {\n    protected Expression() {}\n\n    public abstract static class AstNode {}\n\n    public static final class Variable {\n        public final String name;\n        public final double value;\n        public Variable(String name, double value) {\n            this.name = name;\n            this.value = value;\n        }\n    }\n\n    public enum EvalStatus {\n        OK,\n        DIV_BY_ZERO,\n        UNDEFINED_VAR,\n        INVALID_OP,\n        DOMAIN_ERROR\n    }\n\n    public static final class EvalResult {\n        public final EvalStatus status;\n        public final double value;\n        public EvalResult(EvalStatus status, double value) {\n            this.status = status;\n            this.value = value;\n        }\n    }\n\n    public abstract AstNode parse(String expression);\n    public abstract EvalResult evaluate(AstNode ast, List<Variable> vars);\n}\n\n```\n\n## Code to evaluate (ExpressionImpl.java)\n```java\nimport java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\npublic class ExpressionImpl extends Expression {\n\n    private static final Map<String, Integer> FUNCTIONS = new HashMap<>();\n\n    static {\n        FUNCTIONS.put(\"sqrt\", 1);\n        FUNCTIONS.put(\"abs\", 1);\n        FUNCTIONS.put(\"sin\", 1);\n        FUNCTIONS.put(\"cos\", 1);\n        FUNCTIONS.put(\"min\", 2);\n        FUNCTIONS.put(\"max\", 2);\n        FUNCTIONS.put(\"pow\", 2);\n    }\n\n    @Override\n    public AstNode parse(String expression) {\n        if (expression == null || expression.isEmpty()) {\n            return null;\n        }\n        try {\n            List<Token> tokens = tokenize(expression);\n            Parser parser = new Parser(tokens);\n            Node root = parser.parseExpression();\n            if (!parser.atEnd()) {\n                return null;\n            }\n            return root;\n        } catch (ParseException e) {\n            return null;\n        }\n    }\n\n    @Override\n    public EvalResult evaluate(AstNode ast, List<Variable> vars) {\n        if (!(ast instanceof Node)) {\n            return new EvalResult(EvalStatus.INVALID_OP, 0.0);\n        }\n        List<Variable> bindings = vars == null ? Collections.<Variable>emptyList() : vars;\n        return ((Node) ast).eval(bindings);\n    }\n\n    // ---------------------------------------------------------------- helpers\n\n    private static EvalResult ok(double value) {\n        return new EvalResult(EvalStatus.OK, value);\n    }\n\n    private static EvalResult error(EvalStatus status) {\n        return new EvalResult(status, 0.0);\n    }\n\n    private static EvalResult checkedPow(double base, double exp) {\n        double v = Math.pow(base, exp);\n        if (Double.isNaN(v) || Double.isInfinite(v)) {\n            return error(EvalStatus.DOMAIN_ERROR);\n        }\n        return ok(v);\n    }\n\n    // ---------------------------------------------------------------- tokens\n\n    private enum Kind {\n        NUMBER, IDENT, OP, LPAREN, RPAREN, COMMA, END\n    }\n\n    private static final class Token {\n        final Kind kind;\n        final String text;\n\n        Token(Kind kind, String text) {\n            this.kind = kind;\n            this.text = text;\n        }\n    }\n\n    private static final class ParseException extends RuntimeException {\n        private static final long serialVersionUID = 1L;\n\n        ParseException() {\n            super(null, null, false, false);\n        }\n    }\n\n    private static boolean isIdentStart(char c) {\n        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';\n    }\n\n    private static boolean isIdentPart(char c) {\n        return isIdentStart(c) || (c >= '0' && c <= '9');\n    }\n\n    private static boolean isDigit(char c) {\n        return c >= '0' && c <= '9';\n    }\n\n    private static List<Token> tokenize(String s) {\n        List<Token> tokens = new ArrayList<>();\n        int n = s.length();\n        int i = 0;\n        while (i < n) {\n            char c = s.charAt(i);\n            if (Character.isWhitespace(c)) {\n                i++;\n            } else if (isDigit(c) || (c == '.' && i + 1 < n && isDigit(s.charAt(i + 1)))) {\n                int start = i;\n                while (i < n && isDigit(s.charAt(i))) {\n                    i++;\n                }\n                if (i < n && s.charAt(i) == '.') {\n                    i++;\n                    int fracStart = i;\n                    while (i < n && isDigit(s.charAt(i))) {\n                        i++;\n                    }\n                    if (i == fracStart) {\n                        throw new ParseException();\n                    }\n                }\n                tokens.add(new Token(Kind.NUMBER, s.substring(start, i)));\n            } else if (isIdentStart(c)) {\n                int start = i;\n                while (i < n && isIdentPart(s.charAt(i))) {\n                    i++;\n                }\n                tokens.add(new Token(Kind.IDENT, s.substring(start, i)));\n            } else if (\"+-*/%^\".indexOf(c) >= 0) {\n                tokens.add(new Token(Kind.OP, String.valueOf(c)));\n                i++;\n            } else if (c == '(') {\n                tokens.add(new Token(Kind.LPAREN, \"(\"));\n                i++;\n            } else if (c == ')') {\n                tokens.add(new Token(Kind.RPAREN, \")\"));\n                i++;\n            } else if (c == ',') {\n                tokens.add(new Token(Kind.COMMA, \",\"));\n                i++;\n            } else {\n                throw new ParseException();\n            }\n        }\n        tokens.add(new Token(Kind.END, \"\"));\n        return tokens;\n    }\n\n    // ---------------------------------------------------------------- parser\n\n    private static final class Parser {\n        private final List<Token> tokens;\n        private int pos = 0;\n\n        Parser(List<Token> tokens) {\n            this.tokens = tokens;\n        }\n\n        boolean atEnd() {\n            return peek().kind == Kind.END;\n        }\n\n        private Token peek() {\n            return tokens.get(pos);\n        }\n\n        private Token advance() {\n            return tokens.get(pos++);\n        }\n\n        private boolean isOp(String... ops) {\n            Token t = peek();\n            if (t.kind != Kind.OP) {\n                return false;\n            }\n            for (String op : ops) {\n                if (t.text.equals(op)) {\n                    return true;\n                }\n            }\n            return false;\n        }\n\n        private void expect(Kind kind) {\n            if (peek().kind != kind) {\n                throw new ParseException();\n            }\n            advance();\n        }\n\n        Node parseExpression() {\n            Node node = parseTerm();\n            while (isOp(\"+\", \"-\")) {\n                char op = advance().text.charAt(0);\n                Node right = parseTerm();\n                node = new BinaryNode(op, node, right);\n            }\n            return node;\n        }\n\n        private Node parseTerm() {\n            Node node = parseUnary();\n            while (isOp(\"*\", \"/\", \"%\")) {\n                char op = advance().text.charAt(0);\n                Node right = parseUnary();\n                node = new BinaryNode(op, node, right);\n            }\n            return node;\n        }\n\n        private Node parseUnary() {\n            if (isOp(\"+\", \"-\")) {\n                char op = advance().text.charAt(0);\n                Node operand = parseUnary();\n                return new UnaryNode(op, operand);\n            }\n            return parsePower();\n        }\n\n        private Node parsePower() {\n            Node base = parsePrimary();\n            if (isOp(\"^\")) {\n                advance();\n                Node exponent = parseUnary();\n                return new BinaryNode('^', base, exponent);\n            }\n            return base;\n        }\n\n        private Node parsePrimary() {\n            Token t = peek();\n            switch (t.kind) {\n                case NUMBER:\n                    advance();\n                    return new NumberNode(Double.parseDouble(t.text));\n                case IDENT: {\n                    advance();\n                    if (peek().kind == Kind.LPAREN) {\n                        Integer arity = FUNCTIONS.get(t.text);\n                        if (arity == null) {\n                            throw new ParseException();\n                        }\n                        advance();\n                        List<Node> args = new ArrayList<>();\n                        args.add(parseExpression());\n                        while (peek().kind == Kind.COMMA) {\n                            advance();\n                            args.add(parseExpression());\n                        }\n                        expect(Kind.RPAREN);\n                        if (args.size() != arity) {\n                            throw new ParseException();\n                        }\n                        return new CallNode(t.text, args);\n                    }\n                    return new VariableNode(t.text);\n                }\n                case LPAREN: {\n                    advance();\n                    Node inner = parseExpression();\n                    expect(Kind.RPAREN);\n                    return inner;\n                }\n                default:\n                    throw new ParseException();\n            }\n        }\n    }\n\n    // ---------------------------------------------------------------- AST\n\n    private abstract static class Node extends AstNode {\n        abstract EvalResult eval(List<Variable> vars);\n    }\n\n    private static final class NumberNode extends Node {\n        private final double value;\n\n        NumberNode(double value) {\n            this.value = value;\n        }\n\n        @Override\n        EvalResult eval(List<Variable> vars) {\n            return ok(value);\n        }\n    }\n\n    private static final class VariableNode extends Node {\n        private final String name;\n\n        VariableNode(String name) {\n            this.name = name;\n        }\n\n        @Override\n        EvalResult eval(List<Variable> vars) {\n            for (Variable v : vars) {\n                if (v.name.equals(name)) {\n                    return ok(v.value);\n                }\n            }\n            return error(EvalStatus.UNDEFINED_VAR);\n        }\n    }\n\n    private static final class UnaryNode extends Node {\n        private final char op;\n        private final Node operand;\n\n        UnaryNode(char op, Node operand) {\n            this.op = op;\n            this.operand = operand;\n        }\n\n        @Override\n        EvalResult eval(List<Variable> vars) {\n            EvalResult r = operand.eval(vars);\n            if (r.status != EvalStatus.OK) {\n                return r;\n            }\n            return ok(op == '-' ? -r.value : r.value);\n        }\n    }\n\n    private static final class BinaryNode extends Node {\n        private final char op;\n        private final Node left;\n        private final Node right;\n\n        BinaryNode(char op, Node left, Node right) {\n            this.op = op;\n            this.left = left;\n            this.right = right;\n        }\n\n        @Override\n        EvalResult eval(List<Variable> vars) {\n            EvalResult l = left.eval(vars);\n            if (l.status != EvalStatus.OK) {\n                return l;\n            }\n            EvalResult r = right.eval(vars);\n            if (r.status != EvalStatus.OK) {\n                return r;\n            }\n            double a = l.value;\n            double b = r.value;\n            switch (op) {\n                case '+':\n                    return ok(a + b);\n                case '-':\n                    return ok(a - b);\n                case '*':\n                    return ok(a * b);\n                case '/':\n                    if (b == 0.0) {\n                        return error(EvalStatus.DIV_BY_ZERO);\n                    }\n                    return ok(a / b);\n                case '%':\n                    if (b == 0.0) {\n                        return error(EvalStatus.DIV_BY_ZERO);\n                    }\n                    return ok(a % b);\n                case '^':\n                    return checkedPow(a, b);\n                default:\n                    return error(EvalStatus.INVALID_OP);\n            }\n        }\n    }\n\n    private static final class CallNode extends Node {\n        private final String name;\n        private final List<Node> args;\n\n        CallNode(String name, List<Node> args) {\n            this.name = name;\n            this.args = args;\n        }\n\n        @Override\n        EvalResult eval(List<Variable> vars) {\n            double[] values = new double[args.size()];\n            for (int i = 0; i < values.length; i++) {\n                EvalResult r = args.get(i).eval(vars);\n                if (r.status != EvalStatus.OK) {\n                    return r;\n                }\n                values[i] = r.value;\n            }\n            switch (name) {\n                case \"sqrt\":\n                    if (values[0] < 0) {\n                        return error(EvalStatus.DOMAIN_ERROR);\n                    }\n                    return ok(Math.sqrt(values[0]));\n                case \"abs\":\n                    return ok(Math.abs(values[0]));\n                case \"sin\":\n                    return ok(Math.sin(values[0]));\n                case \"cos\":\n                    return ok(Math.cos(values[0]));\n                case \"min\":\n                    return ok(Math.min(values[0], values[1]));\n                case \"max\":\n                    return ok(Math.max(values[0], values[1]));\n                case \"pow\":\n                    return checkedPow(values[0], values[1]);\n                default:\n                    return error(EvalStatus.INVALID_OP);\n            }\n        }\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SFQbwQu4awtyDcPM29",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The AST is polymorphic: an abstract Node with eval(), and NumberNode, VariableNode, UnaryNode, BinaryNode, CallNode each carry their own evaluation, so evaluate() just delegates. State is encapsulated in final fields. The loss of one point comes from BinaryNode and UnaryNode dispatching on a char op through a switch, and CallNode switching on a String name, instead of per-operator or per-function polymorphism (an enum with abstract apply, or lambdas). That would have earned a 5.\",\"language_idiomaticity\":\"The code uses an enum Kind, List/ArrayList/Map generics, a private static final ParseException with stack trace disabled, and string switch. The static initializer block for FUNCTIONS could be Map.of, and the hand-rolled isDigit/isIdentStart could use Character methods. The varargs isOp(String...) is acceptable. Using char and String op codes where an enum would fit is a small departure. Overall solid, with minor non-modern choices.\",\"readability\":\"The recursive-descent methods parseExpression/parseTerm/parseUnary/parsePower/parsePrimary map one-to-one onto the grammar, and the names are clear. Tokenizer and parser are separate, and the helpers ok/error/checkedPow keep the code tidy. The tokenize method is a long if-else chain, and parsePrimary is somewhat dense. Few comments, though section separators help.\",\"design\":\"There is a clean split into tokenizer, Parser, and Node hierarchy. Node extends the contract's AstNode and is private, and evaluate() guards against foreign nodes. The FUNCTIONS arity table validates calls at parse time. Weaknesses: operator and function semantics are stringly/char-typed, with duplicate unreachable default branches returning INVALID_OP, and CallNode uses an array and indexes. A functional-interface or enum-based operator table would improve extensibility.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"switch on char/String operator codes inside node classes instead of polymorphic operators or an enum\",\"magic char/String operator representation rather than an enum\",\"static initializer block populating a HashMap instead of Map.of\",\"hand-written character class helpers instead of Character methods\"],\"justification\":\"The solution is a well-structured OO design with a recursive-descent parser mirroring the grammar and a polymorphic Node hierarchy whose eval methods propagate statuses. Encapsulation and separation of tokenizer, parser and AST are good. The main departures are switch-based operator and function dispatch inside BinaryNode, UnaryNode and CallNode, and char/String op codes where an enum or functional objects would be more idiomatic.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7478,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7478,
+          "model": null,
+          "output_tokens": 943,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 943,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

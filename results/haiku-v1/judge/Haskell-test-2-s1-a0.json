@@ -6,23 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and immutable. Dijkstra threads a Set-based priority queue plus Map state through a recursive `go` and relaxes edges with a fold, which is a sound functional shape. Small blemishes: the lazy `foldl` with a 3-tuple accumulator, a hand-rolled `fuel` counter in `reconstructPath`, and `addEdge` rebuilding the list with `splitAt` and `++`. A strict `foldl'`, a small record or State-free helper for the relax step, and a cleaner list update would earn a 5.",
+    "language_idiomaticity": "It uses `Data.Map.Strict`, `Data.Set`, `S.minView`, `M.findWithDefault`, guards and `where` correctly. Less idiomatic are `foldl` instead of `foldl'`, the `-1` sentinel for predecessors (forced by the contract), `drop t xs` pattern-matching in place of `!!` or a safe index, and `ds !! t` after bounds checks. `length ds` is recomputed. Silently ignoring invalid edges in `addEdge` is acceptable. Using `foldl'`, `Data.Array` or `Data.Sequence` for O(1) indexing, and `M.adjust` or `zipWith` for the update, would give a 5.",
+    "readability": "Names are clear (`relax`, `go`, `initDist`, `adjM`). The nested `let` inside a guard branch in `go`, with a tuple accumulator, is dense. The fuel parameter in `reconstructPath` is not explained by a comment. Signatures are given on the local `go` functions. Extracting `relax` into a named top-level or where-bound function and adding a comment would improve it.",
+    "design": "The decomposition is reasonable: public API functions, an `infinity` constant, and a local `go` in each of `dijkstra` and `reconstructPath`. Using `Set (Double, Int)` as the priority queue with lazy deletion is efficient. Weaknesses: `dijkstra` is one large function with the relaxation inlined, `addEdge` is O(n + deg) because of list append and `splitAt`, `getShortestDistance` and `reconstructPath` do list-indexed O(n) lookups, and the fuel guard against cycles is clumsy. Separating a `relaxEdges` helper and building a distance array for lookups would raise it."
+  },
   "paradigm_idiomaticity": 4,
-  "language_idiomaticity": 3,
-  "readability": 3,
+  "language_idiomaticity": 4,
+  "readability": 4,
   "design": 3,
   "anti_patterns": [
-    "addEdge uses splitAt and list append (lst ++ [Edge v w]) which is O(n+deg) per insertion",
-    "list-based adjacency indexed via drop/!! instead of an array or Map",
-    "lazy foldl used for relaxation instead of foldl'",
-    "fuel counter in reconstructPath plus unchecked !! after a bounds check",
-    "relax is a nested tuple-threading let inside go, making it dense and hard to read",
-    "adjacency list rebuilt into a Map on each dijkstra call"
+    "lazy foldl with tuple accumulator instead of foldl'",
+    "fuel counter to guard recursion",
+    "O(n) list indexing via drop/!! for lookups",
+    "list append (++ [Edge v w]) to add an edge"
   ],
-  "justification": "Dijkstra uses Set as a priority queue with Map for distances and predecessors, a pure and idiomatic approach with lazy deletion, and absence is handled via Maybe. However, the code is awkward in places: addEdge does splitAt and append on lists, getShortestDistance and reconstructPath index lists with drop and !!, and the relax step threads a triple accumulator with lazy foldl inside a deeply nested go. The fuel parameter for cycle protection is a defensive, slightly clumsy design, and the helper functions could be split out for clarity.",
+  "justification": "The solution is pure and uses Set as a priority queue with Map-based state, so the Dijkstra core is idiomatic Haskell. It loses points for the lazy `foldl` on a tuple accumulator, list-based indexing with `drop` and `!!`, and the awkward fuel parameter in `reconstructPath`. `addEdge` using `splitAt` and `++` is workable but clumsy, and `dijkstra` inlines the relaxation logic instead of factoring it out.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4040,
-  "output_tokens": 404,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SE4aPyA5DRr2teSGpq",
+  "judge_s": 9.3,
+  "input_tokens": 4377,
+  "output_tokens": 1087,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

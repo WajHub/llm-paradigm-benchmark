@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:16+00:00",
+  "kind": "judge",
+  "label": "C-test-6-s1-a0",
+  "request_id": "req_011Ch1SDyACvHaCSfS4k8VTA",
+  "duration_s": 9.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\nImplement a 9x9 Sudoku validator and solver in C using the header file sudoku.h.\n\nBoard representation: a board is a flat `const int*` array of `n` ints in row-major\norder (index = row * 9 + col), where 0 means an empty cell. A well-formed board has\nexactly n == 81 cells. The nine 3x3 boxes start at rows/columns 0, 3 and 6.\n\n- Implement `sudoku_is_valid(grid, n)`: Return true iff\n  * n == 81,\n  * every cell value is in 0..9, and\n  * no digit 1..9 appears twice in any row, any column, or any 3x3 box.\n  Zeros are ignored (an empty board is valid; a complete correct board is valid).\n  Return false otherwise (wrong n, a value < 0 or > 9, or any duplicate). Check the\n  length and value range before using a value as an index. Validity does NOT imply\n  solvability.\n\n- Implement `sudoku_candidates(grid, row, col, out)`: Precondition: grid has 81 cells\n  and row, col are in 0..8 (0-based). If grid[row * 9 + col] != 0, return 0 and write\n  nothing. Otherwise write to `out` the digits 1..9 that do not appear in that row,\n  that column, or that cell's 3x3 box, in ascending order, and return how many were\n  written. `out` is a caller-provided buffer with room for 9 ints. Only the row,\n  column and box of that cell matter; the rest of the grid need not be valid.\n\n- Implement `sudoku_solve(grid, n)`: Return a pointer to a freshly malloc'd array of\n  81 ints containing a complete board (no zeros, valid, every non-zero input cell\n  unchanged). Return NULL if `sudoku_is_valid(grid, n)` is false or no completion\n  exists. If the input is already complete and valid, return an equal board (still a\n  new allocation). The input `grid` must NOT be modified. If several solutions exist,\n  any one is acceptable. The caller owns the result and releases it with\n  `free_sudoku_grid`.\n\n- Implement `sudoku_count_solutions(grid, n, limit)`: Return the number of distinct\n  complete valid boards extending `grid`, but stop searching as soon as `limit`\n  solutions have been found, so the result is min(total, limit). Return 0 if\n  limit <= 0 or the board is invalid. Example: the empty board with limit 2 gives 2\n  (the search must stop early; it must never try to enumerate all solutions).\n  Must not modify the input.\n\n- Implement `free_sudoku_grid`: Free a board returned by `sudoku_solve`.\n  `free_sudoku_grid(NULL)` is a no-op.\n\nSearch requirement (solve and count):\n  - Use recursive backtracking that always branches on the empty cell with the\n    FEWEST candidates (MRV heuristic). A cell with zero candidates is a dead end\n    (backtrack immediately).\n  - Naive backtracking that fills cells in row-major order is too slow for some of\n    the test puzzles (millions of nodes). Additional constraint propagation is\n    allowed but not required.\n\nConstraints:\n  - No memory leaks (verified by valgrind); free every temporary allocation.\n  - All functions must handle their edge cases without crashing.\n\n## Contract given to the author (sudoku.h, not written by the author)\n```c\n#ifndef SUDOKU_H\n#define SUDOKU_H\n\n#include <stdbool.h>\n\n/*\n * A board is a flat array of n ints in row-major order (index = row * 9 + col),\n * 0 = empty cell. A well-formed board has exactly n == 81 cells.\n */\n\n/* true iff n == 81, every cell is in 0..9 and no digit 1..9 repeats in any row,\n   column or 3x3 box (zeros ignored). */\nbool sudoku_is_valid(const int* grid, int n);\n\n/* grid has 81 cells, row/col in 0..8. Writes the candidate digits of cell (row, col)\n   in ascending order to out (caller buffer, capacity >= 9) and returns their count;\n   returns 0 if the cell is already filled. */\nint sudoku_candidates(const int* grid, int row, int col, int* out);\n\n/* Returns a fresh malloc'd array of 81 ints holding a complete solution, or NULL if\n   the board is invalid or has no solution. Does not modify grid.\n   Caller frees with free_sudoku_grid. */\nint* sudoku_solve(const int* grid, int n);\n\n/* Number of solutions, capped at limit (search stops after limit solutions).\n   0 if the board is invalid or limit <= 0. */\nint sudoku_count_solutions(const int* grid, int n, int limit);\n\n/* Frees a board returned by sudoku_solve. Accepts NULL. */\nvoid free_sudoku_grid(int* grid);\n\n#endif\n\n```\n\n## Code to evaluate (sudoku.c)\n```c\n#include \"sudoku.h\"\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int limit;\n    int count;\n    bool found;\n    int sol[81];\n} SearchCtx;\n\nstatic int popcount9(unsigned m) {\n    int c = 0;\n    while (m) {\n        m &= m - 1;\n        c++;\n    }\n    return c;\n}\n\nstatic bool check_valid(const int* grid, int n) {\n    unsigned rows[9] = {0}, cols[9] = {0}, boxes[9] = {0};\n    if (grid == NULL || n != 81) return false;\n    for (int i = 0; i < 81; i++) {\n        int v = grid[i];\n        if (v < 0 || v > 9) return false;\n        if (v == 0) continue;\n        int r = i / 9, c = i % 9, b = (r / 3) * 3 + (c / 3);\n        unsigned bit = 1u << v;\n        if (rows[r] & bit) return false;\n        if (cols[c] & bit) return false;\n        if (boxes[b] & bit) return false;\n        rows[r] |= bit;\n        cols[c] |= bit;\n        boxes[b] |= bit;\n    }\n    return true;\n}\n\nstatic void init_masks(const int* g, unsigned* rows, unsigned* cols, unsigned* boxes) {\n    for (int i = 0; i < 9; i++) {\n        rows[i] = 0;\n        cols[i] = 0;\n        boxes[i] = 0;\n    }\n    for (int i = 0; i < 81; i++) {\n        int v = g[i];\n        if (v == 0) continue;\n        int r = i / 9, c = i % 9, b = (r / 3) * 3 + (c / 3);\n        unsigned bit = 1u << v;\n        rows[r] |= bit;\n        cols[c] |= bit;\n        boxes[b] |= bit;\n    }\n}\n\nstatic void search(SearchCtx* ctx, int* g, unsigned* rows, unsigned* cols,\n                   unsigned* boxes, int empties) {\n    if (empties == 0) {\n        ctx->count++;\n        if (!ctx->found) {\n            memcpy(ctx->sol, g, sizeof(int) * 81);\n            ctx->found = true;\n        }\n        return;\n    }\n\n    int best = -1;\n    int bestc = 10;\n    unsigned bestmask = 0;\n    for (int i = 0; i < 81; i++) {\n        if (g[i] != 0) continue;\n        int r = i / 9, c = i % 9, b = (r / 3) * 3 + (c / 3);\n        unsigned avail = (~(rows[r] | cols[c] | boxes[b])) & 0x3FEu;\n        int pc = popcount9(avail);\n        if (pc == 0) return;\n        if (pc < bestc) {\n            bestc = pc;\n            best = i;\n            bestmask = avail;\n            if (pc == 1) break;\n        }\n    }\n    if (best < 0) return;\n\n    int r = best / 9, c = best % 9, b = (r / 3) * 3 + (c / 3);\n    for (int d = 1; d <= 9; d++) {\n        if (!(bestmask & (1u << d))) continue;\n        unsigned bit = 1u << d;\n        g[best] = d;\n        rows[r] |= bit;\n        cols[c] |= bit;\n        boxes[b] |= bit;\n\n        search(ctx, g, rows, cols, boxes, empties - 1);\n\n        g[best] = 0;\n        rows[r] &= ~bit;\n        cols[c] &= ~bit;\n        boxes[b] &= ~bit;\n\n        if (ctx->count >= ctx->limit) return;\n    }\n}\n\nbool sudoku_is_valid(const int* grid, int n) {\n    return check_valid(grid, n);\n}\n\nint sudoku_candidates(const int* grid, int row, int col, int* out) {\n    if (grid == NULL || out == NULL) return 0;\n    if (row < 0 || row > 8 || col < 0 || col > 8) return 0;\n    int idx = row * 9 + col;\n    if (grid[idx] != 0) return 0;\n\n    unsigned used = 0;\n    int b = (row / 3) * 3 + (col / 3);\n    int br = (row / 3) * 3, bc = (col / 3) * 3;\n    for (int k = 0; k < 9; k++) {\n        int v;\n        v = grid[row * 9 + k];\n        if (v >= 1 && v <= 9) used |= 1u << v;\n        v = grid[k * 9 + col];\n        if (v >= 1 && v <= 9) used |= 1u << v;\n        v = grid[(br + k / 3) * 9 + (bc + k % 3)];\n        if (v >= 1 && v <= 9) used |= 1u << v;\n    }\n    (void)b;\n\n    int cnt = 0;\n    for (int d = 1; d <= 9; d++) {\n        if (!(used & (1u << d))) out[cnt++] = d;\n    }\n    return cnt;\n}\n\nint* sudoku_solve(const int* grid, int n) {\n    if (!check_valid(grid, n)) return NULL;\n\n    int* g = (int*)malloc(sizeof(int) * 81);\n    if (!g) return NULL;\n    memcpy(g, grid, sizeof(int) * 81);\n\n    unsigned rows[9], cols[9], boxes[9];\n    init_masks(g, rows, cols, boxes);\n    int empties = 0;\n    for (int i = 0; i < 81; i++) if (g[i] == 0) empties++;\n\n    SearchCtx ctx;\n    ctx.limit = 1;\n    ctx.count = 0;\n    ctx.found = false;\n\n    search(&ctx, g, rows, cols, boxes, empties);\n    free(g);\n\n    if (!ctx.found) return NULL;\n\n    int* result = (int*)malloc(sizeof(int) * 81);\n    if (!result) return NULL;\n    memcpy(result, ctx.sol, sizeof(int) * 81);\n    return result;\n}\n\nint sudoku_count_solutions(const int* grid, int n, int limit) {\n    if (limit <= 0) return 0;\n    if (!check_valid(grid, n)) return 0;\n\n    int g[81];\n    memcpy(g, grid, sizeof(int) * 81);\n\n    unsigned rows[9], cols[9], boxes[9];\n    init_masks(g, rows, cols, boxes);\n    int empties = 0;\n    for (int i = 0; i < 81; i++) if (g[i] == 0) empties++;\n\n    SearchCtx ctx;\n    ctx.limit = limit;\n    ctx.count = 0;\n    ctx.found = false;\n\n    search(&ctx, g, rows, cols, boxes, empties);\n    return ctx.count;\n}\n\nvoid free_sudoku_grid(int* grid) {\n    free(grid);\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SDyUKJGG1HovgZH8wJ",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Procedural decomposition is clean: static helpers (check_valid, init_masks, search), a SearchCtx struct passed explicitly, no globals, and in-place mutate/undo backtracking on the working grid and bitmask arrays. The MRV scan with early exit on pc==1 and immediate dead-end on pc==0 is a classic imperative treatment. Small blemishes are that solve and count duplicate the setup code and that search takes five loose state parameters instead of one struct. Grouping them would be a 5.\",\"language_idiomaticity\":\"Uses static helpers, const on read-only parameters, memcpy, and unsigned bitmasks with 1u<<v and a 0x3FEu mask. The needless (int*) casts on malloc are a C++ habit. The dead variable b in sudoku_candidates is silenced with (void)b. The popcount9 loop is hand-rolled, and the three-statement-per-line `int r = ..., c = ..., b = ...` style is acceptable. The `int v; v = ...` split declaration is unidiomatic. Removing these would earn a 5.\",\"readability\":\"Names (rows, cols, boxes, bestmask, empties) are clear and functions are short. There are no comments explaining the bitmask layout (bit d for digit d, 0x3FE) or the MRV logic. The box index expression (r/3)*3+(c/3) is repeated inline many times, and the unused `b` plus `(void)b` in sudoku_candidates is noise. The `!(bestmask & (1u<<d))` check recomputes the bit, and the loop pattern is slightly redundant.\",\"design\":\"Bitmask state makes search efficient, and a single search routine serves both solve and count via limit. Ownership is clear: g freed after search, the result is a fresh allocation, and there are no leaks. Weaknesses: sudoku_is_valid is a pure wrapper of check_valid; the setup code (copy, init_masks, empties count) is duplicated across solve and count; the row/col/box index and the set/clear-bit logic are repeated rather than factored into helpers; solve mallocs twice (g then result) where it could reuse one allocation; and sudoku_candidates does not reuse the shared mask logic.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"duplicated setup code in sudoku_solve and sudoku_count_solutions\",\"dead variable b silenced with (void)b\",\"unnecessary casts on malloc\",\"trivial wrapper sudoku_is_valid around check_valid\",\"box index and bit set/clear logic repeated inline instead of helpers\",\"redundant second allocation in sudoku_solve\"],\"justification\":\"The solution is a sound procedural backtracker with bitmask state, MRV selection, and explicit context passing, and it manages memory correctly. It loses points for duplicated setup in solve and count, the unused variable hidden with (void)b, malloc casts, and a lack of helpers for repeated index and mask updates. Comments explaining the bit encoding are absent.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5865,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5865,
+          "model": null,
+          "output_tokens": 1041,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1041,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

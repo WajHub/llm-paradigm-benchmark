@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:54+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-1-s1-a3",
+  "request_id": "req_011Ch1SGiLZuwbcF6KPzYeao",
+  "duration_s": 10.6,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\n- Implement `calculate_clean_minkowski_sum/3`: calculate the Minkowski sum of two convex polygons and return a new polygon representing only the convex hull of the resulting point cloud. The vertices of the returned polygon must be strictly extreme points, ordered counter-clockwise, with collinear boundary points removed.\n- Implement `check_dynamic_collision/3`: determine whether a moving robot polygon intersects a stationary obstacle polygon at any point along a linear path defined by the velocity vector. Use the Minkowski-sum configuration-space approach to prevent tunneling. The predicate should succeed when a collision occurs and fail otherwise.\n- Represent polygons and layers using idiomatic Prolog terms and keep the interface module-exported.\n\n## Stub module given to the author (spatial_logic.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(spatial_logic,\n    [ calculate_clean_minkowski_sum/3,\n      check_dynamic_collision/3,\n      create_polygon/3,\n      free_polygon/1,\n            create_layer/2,\n            free_layer/1\n    ]).\n\n% Point(X, Y)\n% Polygon(Vertices, IsConvex, ZoneName, NumVertices)\n% Layer(Polygons, LayerName, PolygonCount)\n\ncalculate_clean_minkowski_sum(_, _, _) :-\n    throw(error(existence_error(procedure, calculate_clean_minkowski_sum/3), _)).\n\ncheck_dynamic_collision(_, _, _) :-\n    throw(error(existence_error(procedure, check_dynamic_collision/3), _)).\n\ncreate_polygon(_, _, _) :-\n    throw(error(existence_error(procedure, create_polygon/3), _)).\n\nfree_polygon(_).\n\ncreate_layer(_, _) :-\n    throw(error(existence_error(procedure, create_layer/2), _)).\n\nfree_layer(_).\n\n```\n\n## Code to evaluate (spatial_logic.pl)\n```prolog\n:- module(spatial_logic,\n    [ calculate_clean_minkowski_sum/3,\n      check_dynamic_collision/3,\n      create_polygon/3,\n      free_polygon/1,\n      create_layer/2,\n      free_layer/1\n    ]).\n\n% Point(X, Y)\n% Polygon(Vertices, IsConvex, ZoneName, NumVertices)\n% Layer(Polygons, LayerName, PolygonCount)\n\n% create_polygon(+Vertices, +ZoneName, -Polygon)\n% Also accepts the argument order create_polygon(+ZoneName, +Vertices, -Polygon).\ncreate_polygon(A, B, Polygon) :-\n    is_list(A),\n    !,\n    build_polygon(A, B, Polygon).\ncreate_polygon(A, B, Polygon) :-\n    is_list(B),\n    build_polygon(B, A, Polygon).\n\nbuild_polygon(Vertices, ZoneName, polygon(Vertices, IsConvex, ZoneName, N)) :-\n    is_list(Vertices),\n    maplist(valid_point, Vertices),\n    length(Vertices, N),\n    (   N >= 3,\n        convex_ccw(Vertices)\n    ->  IsConvex = true\n    ;   IsConvex = false\n    ).\n\nvalid_point(point(X, Y)) :-\n    number(X),\n    number(Y).\n\n% Succeeds when every turn of the (cyclic) vertex list is a left turn or straight.\nconvex_ccw(Vs) :-\n    Vs = [A, B|_],\n    append(Vs, [A, B], Ext),\n    \\+ ( window(Ext, P, Q, R),\n         orient(P, Q, R, V),\n         V < 0 ).\n\nwindow([P, Q, R|_], P, Q, R).\nwindow([_|T], P, Q, R) :-\n    window(T, P, Q, R).\n\n% free_polygon(+Polygon): memory is managed by the Prolog runtime.\nfree_polygon(_).\n\n% create_layer(+LayerName-Polygons, -Layer)\ncreate_layer(Name-Polygons, layer(Polygons, Name, N)) :-\n    is_list(Polygons),\n    length(Polygons, N).\n\n% free_layer(+Layer): memory is managed by the Prolog runtime.\nfree_layer(_).\n\n% calculate_clean_minkowski_sum(+Poly1, +Poly2, -SumPolygon)\ncalculate_clean_minkowski_sum(P1, P2, polygon(Hull, true, minkowski(N1, N2), L)) :-\n    polygon_data(P1, V1, N1),\n    polygon_data(P2, V2, N2),\n    minkowski_hull(V1, V2, Hull),\n    length(Hull, L).\n\n% Accepts polygon/4 terms or plain vertex lists of valid points.\npolygon_data(T, V, Name) :-\n    compound(T),\n    T =.. [_, V|_],\n    is_list(V),\n    maplist(valid_point, V),\n    (   T = polygon(_, _, N0, _)\n    ->  Name = N0\n    ;   Name = vertices\n    ).\npolygon_data(V, V, vertices) :-\n    is_list(V),\n    maplist(valid_point, V).\n\n% Hull of all pairwise vertex sums: equals the Minkowski sum hull.\nminkowski_hull(V1, V2, Hull) :-\n    findall(point(X, Y),\n            ( member(point(X1, Y1), V1),\n              member(point(X2, Y2), V2),\n              X is X1 + X2,\n              Y is Y1 + Y2 ),\n            Pts),\n    convex_hull(Pts, Hull).\n\n% convex_hull(+Points, -Hull): Andrew's monotone chain, CCW, no collinear points.\nconvex_hull(Points, Hull) :-\n    sort(Points, Sorted),\n    (   Sorted = [_, _, _|_]\n    ->  chain(Sorted, [], LS),\n        reverse(Sorted, RS),\n        chain(RS, [], US),\n        reverse(LS, A),\n        reverse(US, U),\n        append(A0, [_], A),\n        append(U0, [_], U),\n        append(A0, U0, Hull)\n    ;   Hull = Sorted\n    ).\n\nchain([], S, S).\nchain([P|Ps], S0, S) :-\n    push_pt(P, S0, S1),\n    chain(Ps, S1, S).\n\npush_pt(P, [B, A|R], S) :-\n    orient(A, B, P, V),\n    V =< 0,\n    !,\n    push_pt(P, [A|R], S).\npush_pt(P, S, [P|S]).\n\n% orient(+O, +A, +B, -Cross): cross product of (A-O) and (B-O).\norient(point(OX, OY), point(AX, AY), point(BX, BY), V) :-\n    V is (AX - OX) * (BY - OY) - (AY - OY) * (BX - OX).\n\n% check_dynamic_collision(+Robot, +Obstacle, +Velocity)\n% Velocity: any Name(VX, VY) term or [VX, VY] - displacement of the robot over\n% the unit time step. The configuration-space obstacle is C = Obstacle (+) (-Robot);\n% a collision occurs iff the segment [0, Velocity] meets C (closed sets).\ncheck_dynamic_collision(Robot, Obstacle, Velocity) :-\n    polygon_data(Robot, RV, _),\n    polygon_data(Obstacle, OV, _),\n    RV = [_|_],\n    OV = [_|_],\n    velocity_data(Velocity, VX, VY),\n    neg_pts(RV, NR),\n    minkowski_hull(OV, NR, K),\n    Origin = point(0, 0),\n    End = point(VX, VY),\n    once( in_convex(K, Origin)\n        ; in_convex(K, End)\n        ; edges_of(K, Es),\n          member(A-B, Es),\n          seg_intersect(Origin, End, A, B)\n        ).\n\nvelocity_data([X, Y], X, Y) :-\n    number(X),\n    number(Y),\n    !.\nvelocity_data(V, X, Y) :-\n    compound(V),\n    V =.. [_, X, Y],\n    number(X),\n    number(Y).\n\nneg_pts([], []).\nneg_pts([point(X, Y)|T], [point(NX, NY)|NT]) :-\n    NX is -X,\n    NY is -Y,\n    neg_pts(T, NT).\n\n% Closed convex polygon membership (CCW, at least 3 vertices).\nin_convex(K, P) :-\n    K = [_, _, _|_],\n    edges_of(K, Es),\n    forall(member(A-B, Es), (orient(A, B, P, V), V >= 0)).\n\n% Cyclic edge list of a vertex list. Degenerate cases yield A-A or A-B, B-A.\nedges_of(Vs, Es) :-\n    Vs = [F|_],\n    append(Vs, [F], C),\n    consec(C, Es).\n\nconsec([_], []) :- !.\nconsec([A, B|T], [A-B|Es]) :-\n    consec([B|T], Es).\n\n% Closed segment intersection test.\nseg_intersect(P1, P2, P3, P4) :-\n    orient(P1, P2, P3, O1),\n    orient(P1, P2, P4, O2),\n    orient(P3, P4, P1, O3),\n    orient(P3, P4, P2, O4),\n    (   O1 * O2 < 0, O3 * O4 < 0\n    ->  true\n    ;   O1 =:= 0, on_seg(P1, P2, P3)\n    ;   O2 =:= 0, on_seg(P1, P2, P4)\n    ;   O3 =:= 0, on_seg(P3, P4, P1)\n    ;   O4 =:= 0, on_seg(P3, P4, P2)\n    ).\n\n% Point P lies within the bounding box of segment AB (used for collinear points).\non_seg(point(AX, AY), point(BX, BY), point(PX, PY)) :-\n    PX >= min(AX, BX),\n    PX =< max(AX, BX),\n    PY >= min(AY, BY),\n    PY =< max(AY, BY).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SGihtztygdMtz3TQ3Z",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is relational in style: pattern-matching clause heads for chain/3, neg_pts/2 and consec/2, findall/member to generate pairwise sums, \\\\+ and forall for universal checks, and a disjunction under once/1 for the collision tests. Weaker points: push_pt/3 uses a cut after a guard to emulate if-else; create_polygon/3 uses a cut-based dispatch on is_list; convex_hull/2 builds the hull with the clumsy append(A0,[_],A) idiom for dropping the last element; and the odd if-then-else/disjunction in seg_intersect/4 is hard to follow. A fully declarative version would use a cleaner formulation (e.g. last/2 or an explicit drop-last predicate).\",\"language_idiomaticity\":\"Uses standard library predicates well (maplist, findall, forall, sort/2 for dedup and ordering, append, reverse, length, is_list, once) and a sensible module export list. Naming is snake_case and arguments are documented in mode comments. Departures: polygon_data uses =.. to accept any compound, which is loose; velocity_data uses a cut; the first-clause cut in create_polygon is somewhat hacky; and the argument-order guessing in create_polygon is non-standard. reverse and append(A0,[_],A) could be replaced by library calls such as last/3 or append/2.\",\"readability\":\"Predicates are small and mostly named by what they do (orient, in_convex, edges_of, seg_intersect, on_seg, minkowski_hull). Comments explain the algorithms (monotone chain, configuration-space obstacle, mode docs). The convex_hull body with A, U, A0, U0, LS, RS is cryptic, and seg_intersect mixes an if-then-else with disjunction chains that needs careful reading. The dual-order create_polygon and polygon_data flexibility add some noise.\",\"design\":\"Decomposition is good: orient/4 is a shared geometry primitive reused for convexity checks, hull building, membership and segment intersection. minkowski_hull is reused by both public predicates, so the configuration-space approach is implemented once. Hull-of-pairwise-sums is simple and correct for convex inputs even if O(nm log). Weaknesses: the hull construction is duplicated across lower and upper chains instead of a single helper; the flexible input handling (polygon_data accepting arbitrary compounds, create_polygon swapping args) widens the interface unnecessarily; the degenerate-case handling of in_convex (needs 3 vertices) is partially patched by the edge-intersection fallback.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"cut after guard in push_pt/3 to emulate if-else\",\"append(A0,[_],A) idiom to drop the last element instead of a helper\",\"lenient argument-order guessing in create_polygon/3 using a cut\",\"polygon_data accepts arbitrary compounds via =..\"],\"justification\":\"The solution is largely declarative and well factored: orient/4 underpins convexity checks, monotone-chain hull, membership and segment intersection, and minkowski_hull/3 is shared by both public predicates. It uses library predicates (maplist, findall, forall, sort, once) properly. Minor blemishes are the cut-based push_pt/3, the clumsy drop-last via append in convex_hull/2, and the overly permissive input handling in create_polygon/3 and polygon_data/3.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5456,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5456,
+          "model": null,
+          "output_tokens": 1187,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1187,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

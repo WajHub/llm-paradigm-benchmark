@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:20+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-9-s1-a1",
+  "request_id": "req_011Ch1RvX4bUm8ixA4mJ1WAu",
+  "duration_s": 10.5,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\nImplement a B-tree index (CLRS, minimum degree T) with top-down insertion and\ntop-down deletion in SWI-Prolog in the module btree (file btree.pl).\nImplement btree_insert_all/3 and btree_delete_all/4.\n\nTree representation: node(Keys, Children)\n  * Keys is a proper list of integers in strictly ascending order.\n  * Children is [] for a leaf; for an internal node with k keys it is a list of\n    exactly k+1 node/2 terms (Children[i] holds the keys between Keys[i-1] and\n    Keys[i]).\n  * The empty tree is node([], []) - a root leaf without keys (NOT none).\n  * Every node holds at most 2T-1 keys; every non-root node at least T-1 keys.\nThe tests compare the EXACT shape of the resulting tree (every node's keys and\nchildren), so the algorithms below must be followed precisely. Indices are 0-based.\n\n- Implement `btree_insert_all(+T, +Keys, -Tree)`: start from the empty tree and\n  insert the integers of Keys one by one, in order. Tree = none if T < 2.\n  * Duplicates: if the key is already in the tree, do nothing. Check membership\n    BEFORE any splitting (a pre-emptive split caused by a duplicate would change\n    the shape).\n  * Insert (CLRS B-TREE-INSERT, single pass, top-down): if the root is full (2T-1\n    keys), create a new root with no keys whose only child is the old root and split\n    that child. Then descend from the root: at an internal node let i be the first\n    index with K < Keys[i] (or the last child if there is none); if Children[i] is\n    full (2T-1 keys), split it first, and then continue into the right half if K is\n    greater than the key that moved up, otherwise into the left half. Finally insert\n    K into the leaf at its sorted position.\n  * Split of a full node Y (2T-1 keys) that is child i of X: the median key\n    Y.Keys[T-1] moves up into X at key position i; Y keeps keys 0..T-2 (and, if\n    internal, children 0..T-1); a new right sibling, inserted as child i+1 of X, gets\n    keys T..2T-2 (and children T..2T-1).\n  * Nodes are split on the way down even if the insertion would not overflow them.\n    This is NOT the bottom-up \"split after overflow\" variant (it gives different\n    trees).\n\n- Implement `btree_delete_all(+T, +Keys, +Deletions, -Tree)`: build the tree exactly\n  like btree_insert_all(T, Keys, _), then delete the keys of Deletions one by one,\n  in order. Tree = none if T < 2.\n  * If the key is not in the tree, the tree is left UNCHANGED (check membership\n    first - a CLRS descent for an absent key would still rebalance nodes).\n  * Otherwise run delete(Root, K):\n    1. K is in node X and X is a leaf: remove K from X.\n    2. K = X.Keys[i] in an internal node X; let Y = Children[i] (left) and\n       Z = Children[i+1] (right):\n       (2a) if Y has >= T keys: let K' be the predecessor of K (the maximum key in\n            Y's subtree); recursively delete(Y, K'), then replace X.Keys[i] by K'.\n            The predecessor is preferred whenever Y has >= T keys, even if Z also has.\n       (2b) else if Z has >= T keys: symmetric with the successor K'' (the minimum key\n            in Z's subtree): recursively delete(Z, K''), replace X.Keys[i] by K''.\n       (2c) else (both have T-1 keys): merge Y, K and Z into one node (Y's keys, K,\n            Z's keys; Y's children followed by Z's children) at position i, remove\n            K and Z from X, then recursively delete K from the merged node.\n    3. K is not in the internal node X: let C = Children[i] be the child whose\n       subtree must contain K (i = first index with K < Keys[i], or the last child).\n       If C has exactly T-1 keys, fix it BEFORE descending:\n       (3a) if the LEFT sibling Children[i-1] exists and has >= T keys, rotate right:\n            the separator X.Keys[i-1] moves down to the front of C, the left\n            sibling's last key moves up to replace it, and the left sibling's last\n            child (if it is internal) becomes C's first child. Otherwise, if the\n            RIGHT sibling Children[i+1] exists and has >= T keys, rotate left\n            (symmetric: separator X.Keys[i] moves to the end of C, the right\n            sibling's first key replaces it, its first child becomes C's last child).\n            The left sibling is always tried first.\n       (3b) otherwise (no sibling with >= T keys) merge C with its RIGHT sibling (C's\n            keys, separator X.Keys[i], right sibling's keys) if C has a right\n            sibling; only if C is the last child, merge it into its LEFT sibling\n            (left sibling's keys, separator X.Keys[i-1], C's keys).\n       Then continue the deletion in the (possibly merged) child that now contains\n       the range of K.\n  * After each deletion, if the root has no keys but has a child, that child becomes\n    the new root (the height shrinks). Deleting the last key gives the empty tree\n    node([], []).\n\nConstraints:\n  - Both predicates are deterministic (a single answer).\n  - Results are compared with ==: keys are integers in plain lists, leaves have\n    Children = [].\n  - Tests insert up to 2000 keys; each operation must be O(T log n) (no rebuilding\n    of the whole tree per operation).\n\n## Stub module given to the author (btree.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(btree, [\n    btree_insert_all/3,\n    btree_delete_all/4\n]).\n\n% CLRS B-tree with minimum degree T (T >= 2).\n%\n% Tree representation:\n%   node(Keys, Children)\n%     Keys     - proper list of integers in strictly ascending order\n%     Children - [] for a leaf; otherwise a list of exactly length(Keys) + 1\n%                node/2 terms\n%   The empty tree is node([], []) (a root leaf without keys).\n%   Every node holds at most 2T-1 keys, every non-root node at least T-1.\n%\n% btree_insert_all(+T, +Keys, -Tree)\n%   Tree is obtained by inserting Keys one by one, in order, into the empty\n%   tree with CLRS top-down insertion (pre-emptive splitting, median index T-1).\n%   Keys already present are ignored (tree unchanged). Tree = none if T < 2.\n%\n% btree_delete_all(+T, +Keys, +Deletions, -Tree)\n%   Builds the tree exactly like btree_insert_all(T, Keys, _), then deletes\n%   every key of Deletions in order with CLRS single-pass top-down deletion.\n%   Keys that are not in the tree leave it unchanged. Tree = none if T < 2.\n\nbtree_insert_all(_, _, _) :-\n    throw(error(existence_error(procedure, btree_insert_all/3), _)).\n\nbtree_delete_all(_, _, _, _) :-\n    throw(error(existence_error(procedure, btree_delete_all/4), _)).\n\n```\n\n## Code to evaluate (btree.pl)\n```prolog\n:- module(btree, [\n    btree_insert_all/3,\n    btree_delete_all/4\n]).\n\n% CLRS B-tree with minimum degree T (T >= 2).\n%\n% Tree representation:\n%   node(Keys, Children)\n%     Keys     - proper list of integers in strictly ascending order\n%     Children - [] for a leaf; otherwise a list of exactly length(Keys) + 1\n%                node/2 terms\n%   The empty tree is node([], []) (a root leaf without keys).\n%   Every node holds at most 2T-1 keys, every non-root node at least T-1.\n%\n% btree_insert_all(+T, +Keys, -Tree)\n%   Tree is obtained by inserting Keys one by one, in order, into the empty\n%   tree with CLRS top-down insertion (pre-emptive splitting, median index T-1).\n%   Keys already present are ignored (tree unchanged). Tree = none if T < 2.\n%\n% btree_delete_all(+T, +Keys, +Deletions, -Tree)\n%   Builds the tree exactly like btree_insert_all(T, Keys, _), then deletes\n%   every key of Deletions in order with CLRS single-pass top-down deletion.\n%   Keys that are not in the tree leave it unchanged. Tree = none if T < 2.\n\nbtree_insert_all(T, Keys, Tree) :-\n    (   T < 2\n    ->  Tree = none\n    ;   foldl(insert_key(T), Keys, node([], []), Tree)\n    ).\n\nbtree_delete_all(T, Keys, Deletions, Tree) :-\n    (   T < 2\n    ->  Tree = none\n    ;   foldl(insert_key(T), Keys, node([], []), Tree0),\n        foldl(delete_key(T), Deletions, Tree0, Tree)\n    ).\n\n% ---------------------------------------------------------------- helpers\n\nreplace_nth(I, L, E, L2) :-\n    nth0(I, L, _, R),\n    nth0(I, L2, E, R).\n\n% count_less(+K, +SortedKeys, -N): number of keys strictly less than K\ncount_less(_, [], 0).\ncount_less(K, [X|Xs], N) :-\n    (   X < K\n    ->  count_less(K, Xs, N0),\n        N is N0 + 1\n    ;   N = 0\n    ).\n\nmember_key(K, node(Ks, Cs)) :-\n    (   memberchk(K, Ks)\n    ->  true\n    ;   Cs \\== [],\n        count_less(K, Ks, I),\n        nth0(I, Cs, C),\n        member_key(K, C)\n    ).\n\nmax_key(node(Ks, Cs), K) :-\n    (   Cs == []\n    ->  last(Ks, K)\n    ;   last(Cs, C),\n        max_key(C, K)\n    ).\n\nmin_key(node(Ks, Cs), K) :-\n    (   Cs == []\n    ->  Ks = [K|_]\n    ;   Cs = [C|_],\n        min_key(C, K)\n    ).\n\n% ---------------------------------------------------------------- insertion\n\ninsert_key(T, K, R0, R) :-\n    (   member_key(K, R0)\n    ->  R = R0\n    ;   R0 = node(Ks, _),\n        length(Ks, N),\n        (   N =:= 2*T - 1\n        ->  split_child(T, [], [R0], 0, SKs, SCs, _),\n            ins_nonfull(T, node(SKs, SCs), K, R)\n        ;   ins_nonfull(T, R0, K, R)\n        )\n    ).\n\n% split_child(+T, +ParentKeys, +ParentChildren, +I, -NewKeys, -NewChildren, -Median)\nsplit_child(T, Ks, Cs, I, SKs, SCs, M) :-\n    nth0(I, Cs, node(YKs, YCs)),\n    LN is T - 1,\n    length(LKs, LN),\n    append(LKs, [M|RKs], YKs),\n    (   YCs == []\n    ->  LCs = [], RCs = []\n    ;   length(LCs, T),\n        append(LCs, RCs, YCs)\n    ),\n    length(PKs, I),\n    append(PKs, KSuf, Ks),\n    append(PKs, [M|KSuf], SKs),\n    length(PCs, I),\n    append(PCs, [_|CSuf], Cs),\n    append(PCs, [node(LKs, LCs), node(RKs, RCs)|CSuf], SCs).\n\ninsert_sorted(K, Ks, NKs) :-\n    count_less(K, Ks, I),\n    length(P, I),\n    append(P, S, Ks),\n    append(P, [K|S], NKs).\n\nins_nonfull(_, node(Ks, []), K, node(NKs, [])) :-\n    insert_sorted(K, Ks, NKs).\nins_nonfull(T, node(Ks, Cs), K, node(NKs, NCs)) :-\n    Cs \\== [],\n    count_less(K, Ks, I),\n    nth0(I, Cs, node(CKs, _)),\n    length(CKs, N),\n    (   N =:= 2*T - 1\n    ->  split_child(T, Ks, Cs, I, SKs, SCs, M),\n        (   K < M\n        ->  J = I\n        ;   J is I + 1\n        )\n    ;   SKs = Ks, SCs = Cs, J = I\n    ),\n    nth0(J, SCs, Child),\n    ins_nonfull(T, Child, K, NewChild),\n    replace_nth(J, SCs, NewChild, NCs),\n    NKs = SKs.\n\n% ---------------------------------------------------------------- deletion\n\ndelete_key(T, K, R0, R) :-\n    (   member_key(K, R0)\n    ->  del(T, K, R0, R1),\n        shrink_root(R1, R)\n    ;   R = R0\n    ).\n\nshrink_root(node([], [C]), C) :- !.\nshrink_root(R, R).\n\n% del(+T, +K, +Node, -NewNode): K is known to be in the subtree of Node.\ndel(_, K, node(Ks, []), node(Ks2, [])) :-\n    !,\n    select(K, Ks, Ks2).\ndel(T, K, node(Ks, Cs), New) :-\n    nth0(I, Ks, K),\n    !,\n    del_internal(T, K, I, Ks, Cs, NKs, NCs),\n    New = node(NKs, NCs).\ndel(T, K, node(Ks, Cs), node(NKs, NCs)) :-\n    count_less(K, Ks, I),\n    nth0(I, Cs, node(CKs, _)),\n    length(CKs, N),\n    (   N =:= T - 1\n    ->  fix_child(T, Ks, Cs, I, Ks1, Cs1, I1)\n    ;   Ks1 = Ks, Cs1 = Cs, I1 = I\n    ),\n    nth0(I1, Cs1, C1),\n    del(T, K, C1, C2),\n    replace_nth(I1, Cs1, C2, NCs),\n    NKs = Ks1.\n\n% K = Ks[I] in internal node.\ndel_internal(T, K, I, Ks, Cs, NKs, NCs) :-\n    nth0(I, Cs, Y),\n    I1 is I + 1,\n    nth0(I1, Cs, Z),\n    Y = node(YKs, _),\n    Z = node(ZKs, _),\n    length(YKs, NY),\n    length(ZKs, NZ),\n    (   NY >= T\n    ->  max_key(Y, KP),\n        del(T, KP, Y, Y2),\n        replace_nth(I, Ks, KP, NKs),\n        replace_nth(I, Cs, Y2, NCs)\n    ;   NZ >= T\n    ->  min_key(Z, KS),\n        del(T, KS, Z, Z2),\n        replace_nth(I, Ks, KS, NKs),\n        replace_nth(I1, Cs, Z2, NCs)\n    ;   Y = node(_, YCs),\n        Z = node(_, ZCs),\n        nth0(I, Ks, K, NKs),\n        nth0(I1, Cs, _, Cs1),\n        append(YKs, [K|ZKs], MKs),\n        append(YCs, ZCs, MCs),\n        replace_nth(I, Cs1, node(MKs, MCs), Cs2),\n        del(T, K, node(MKs, MCs), M2),\n        replace_nth(I, Cs2, M2, NCs)\n    ).\n\n% fix_child(+T, +Ks, +Cs, +I, -NKs, -NCs, -NI)\n% Ensures child I has at least T keys (rotations or merge); NI is the index\n% of the (possibly merged) child that contains the range of the deleted key.\nfix_child(T, Ks, Cs, I, NKs, NCs, NI) :-\n    length(Ks, NK),\n    (   I > 0,\n        I1 is I - 1,\n        nth0(I1, Cs, node(LKs, _)),\n        length(LKs, NL),\n        NL >= T\n    ->  rot_right(I, Ks, Cs, NKs, NCs),\n        NI = I\n    ;   I < NK,\n        I2 is I + 1,\n        nth0(I2, Cs, node(RKs, _)),\n        length(RKs, NR),\n        NR >= T\n    ->  rot_left(I, Ks, Cs, NKs, NCs),\n        NI = I\n    ;   I < NK\n    ->  merge_right(I, Ks, Cs, NKs, NCs),\n        NI = I\n    ;   I1 is I - 1,\n        merge_left(I, Ks, Cs, NKs, NCs),\n        NI = I1\n    ).\n\nrot_right(I, Ks, Cs, NKs, NCs) :-\n    I1 is I - 1,\n    nth0(I1, Cs, node(LKs, LCs)),\n    append(LKs0, [LKm], LKs),\n    (   LCs == []\n    ->  LCs0 = [], Move = []\n    ;   append(LCs0, [LCm], LCs),\n        Move = [LCm]\n    ),\n    nth0(I, Cs, node(CKs, CCs)),\n    nth0(I1, Ks, S),\n    replace_nth(I1, Ks, LKm, NKs),\n    replace_nth(I1, Cs, node(LKs0, LCs0), Cs1),\n    append(Move, CCs, NCCs),\n    replace_nth(I, Cs1, node([S|CKs], NCCs), NCs).\n\nrot_left(I, Ks, Cs, NKs, NCs) :-\n    I2 is I + 1,\n    nth0(I, Ks, S),\n    nth0(I, Cs, node(CKs, CCs)),\n    nth0(I2, Cs, node(RKs, RCs)),\n    RKs = [RK1|RKs0],\n    (   RCs == []\n    ->  RCs0 = [], Move = []\n    ;   RCs = [RC1|RCs0],\n        Move = [RC1]\n    ),\n    replace_nth(I, Ks, RK1, NKs),\n    append(CKs, [S], CKs2),\n    append(CCs, Move, CCs2),\n    replace_nth(I, Cs, node(CKs2, CCs2), Cs1),\n    replace_nth(I2, Cs1, node(RKs0, RCs0), NCs).\n\nmerge_right(I, Ks, Cs, NKs, NCs) :-\n    nth0(I, Ks, S, NKs),\n    I2 is I + 1,\n    nth0(I, Cs, node(CKs, CCs)),\n    nth0(I2, Cs, node(RKs, RCs), Cs1),\n    append(CKs, [S|RKs], MKs),\n    append(CCs, RCs, MCs),\n    replace_nth(I, Cs1, node(MKs, MCs), NCs).\n\nmerge_left(I, Ks, Cs, NKs, NCs) :-\n    I1 is I - 1,\n    nth0(I1, Ks, S, NKs),\n    nth0(I1, Cs, node(LKs, LCs)),\n    nth0(I, Cs, node(CKs, CCs), Cs1),\n    append(LKs, [S|CKs], MKs),\n    append(LCs, CCs, MCs),\n    replace_nth(I1, Cs1, node(MKs, MCs), NCs).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RvXQvYf1sgW7GECujx",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"State is threaded through pure predicates and foldl/4 drives the insert and delete sequences; there is no assert/retract. Dispatch uses if-then-else inside single clauses (insert_key, ins_nonfull, del_internal, fix_child) rather than clause-head matching. The first clause of del/4 uses a red cut with select/3. In del/4 the clause order and the cut in clause 2 make leaf versus internal dispatch depend on ordering. Predicates are mostly deterministic and functional, but they follow an imperative 'compute indices, then replace_nth' style. Clause-head pattern matching on key position, and splitting the nodes into separate clauses, would earn one more point.\",\"language_idiomaticity\":\"The code uses nth0/4 in both insert and delete modes, foldl/4, append/3, select/3, memberchk, last/2 and length/2 as generators. It reimplements a few things: count_less is a hand-written recursion, which is not tail-recursive, and replace_nth is a thin wrapper over nth0/4. Naming is conventional (snake_case) and the comments are in the expected form. One departure is rot_right, which uses append(LKs0,[LKm],LKs) to take the last element where last/2 or append would be more explicit. Overall it is solid SWI-Prolog.\",\"readability\":\"Predicates are small and named after CLRS operations (split_child, fix_child, rot_right, merge_left). Mode comments appear on some predicates but not all, and the index arithmetic (I1, I2, NI) is dense. del_internal and ins_nonfull are long, with nested if-then-else. The insert_key comment on the root split is missing; split_child is used with parent keys [] and children [R0], a trick that needs explanation. A decent comment block exists at the top. Splitting the long predicates and adding mode docs would improve it.\",\"design\":\"The decomposition is sensible: membership check, split, insertion into a non-full node, and deletion split into del, del_internal and fix_child, with four small rotation and merge helpers. split_child is shared by root and child splitting. Structural duplication remains: rot_left and rot_right, and merge_left and merge_right, are near-mirror copies, and the membership check is repeated at each level. Data are plain lists with nth0 index access (O(T) per node), which meets the complexity bound. A cleaner design would use list-splitting helpers or a view of the node as left/separator/right.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":4,\"readability\":3,\"design\":3,\"anti_patterns\":[\"if-then-else chains inside single clauses instead of clause-head pattern matching\",\"index-based access with nth0/replace_nth throughout, in an imperative style\",\"red cut in del/4 to separate leaf, key-present and descend cases\",\"hand-rolled count_less instead of a library predicate (partition or take_while style)\",\"near-duplicate mirrored predicates (rot_left/rot_right, merge_left/merge_right)\"],\"justification\":\"The solution is pure, uses foldl/4 for the key sequences, and passes state explicitly with no assert. It is organised around the CLRS operations. However, much of the control flow is if-then-else inside single clauses, and the index-driven nth0/replace_nth style makes it feel imperative. A red cut orders the clauses of del/4, and the mirrored rotation and merge predicates duplicate logic, so it lands in the middle of the range.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 8698,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 8698,
+          "model": null,
+          "output_tokens": 1153,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1153,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -1,0 +1,55 @@
+=== Running benchmark for folder: test-7 ===
+rm -rf test-7/test_runner test-7/*.class test-7/*.log
+mkdir -p test-7/test_runner
+scalac -deprecation -feature -unchecked -d test-7/test_runner test-7/SequenceAlignment.scala test-7/Tests.scala
+=== START ===
+
+--- Algorithm A: Alignment Score ---
+[FAIL] Test A01 (Both Empty)
+[FAIL] Test A02 (One Empty)
+[FAIL] Test A03 (Identical)
+[FAIL] Test A04 (Mismatch Beats Gaps)
+[FAIL] Test A05 (Textbook)
+[FAIL] Test A06 (One Long Gap)
+[FAIL] Test A07 (Zero Extend)
+[FAIL] Test A08 (Adjacent Gaps Beat Mismatch)
+[FAIL] Test A09 (Terminal Gaps Penalized)
+[FAIL] Test A10 (Stress)
+
+--- Algorithm B: Alignment Reconstruction ---
+[FAIL] Test B01 (Both Empty)
+[FAIL] Test B02 (Second Empty)
+[FAIL] Test B03 (Identical)
+[FAIL] Test B04 (Unique Long Gap)
+[FAIL] Test B05 (Adjacent Gaps)
+[FAIL] Test B06 (Textbook Unique)
+[FAIL] Test B07 (Gap Merging)
+[FAIL] Test B08 (Gaps In Both Rows)
+[FAIL] Test B09 (Tied Gap Positions)
+[FAIL] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+Passed: 0
+Failed: 20
+Tests that failed:
+ - Test A01 (Both Empty)
+ - Test A02 (One Empty)
+ - Test A03 (Identical)
+ - Test A04 (Mismatch Beats Gaps)
+ - Test A05 (Textbook)
+ - Test A06 (One Long Gap)
+ - Test A07 (Zero Extend)
+ - Test A08 (Adjacent Gaps Beat Mismatch)
+ - Test A09 (Terminal Gaps Penalized)
+ - Test A10 (Stress)
+ - Test B01 (Both Empty)
+ - Test B02 (Second Empty)
+ - Test B03 (Identical)
+ - Test B04 (Unique Long Gap)
+ - Test B05 (Adjacent Gaps)
+ - Test B06 (Textbook Unique)
+ - Test B07 (Gap Merging)
+ - Test B08 (Gaps In Both Rows)
+ - Test B09 (Tied Gap Positions)
+ - Test B10 (Stress Invariants)

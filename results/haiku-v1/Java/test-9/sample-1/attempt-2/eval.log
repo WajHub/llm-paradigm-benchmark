@@ -1,0 +1,32 @@
+=== Running benchmark for folder: test-9 ===
+rm -f test-9/*.class *.class
+javac -g -d test-9 test-9/BTreeImpl.java test-9/BTree.java test-9/Tests.java
+=== START ===
+
+--- Algorithm A: Insertion ---
+[PASS] Test A01 (Empty)
+[PASS] Test A02 (Invalid Degree)
+[PASS] Test A03 (Single Leaf)
+[PASS] Test A04 (Root Split)
+[PASS] Test A05 (Duplicate On Full Root)
+[PASS] Test A06 (Ascending)
+[PASS] Test A07 (Proactive Split)
+[PASS] Test A08 (Textbook t3)
+[PASS] Test A09 (Invariants)
+[PASS] Test A10 (Stress)
+
+--- Algorithm B: Deletion ---
+[PASS] Test B01 (Delete From Leaf)
+[PASS] Test B02 (Absent Key Unchanged)
+[PASS] Test B03 (Delete All)
+[PASS] Test B04 (Predecessor Preferred)
+[PASS] Test B05 (Successor)
+[PASS] Test B06 (Merge Children)
+[PASS] Test B07 (Borrow Left First)
+[PASS] Test B08 (Merge Right First)
+[PASS] Test B09 (Root Shrink)
+[PASS] Test B10 (Stress Invariants)
+
+=== BENCHMARK RESULTS ===
+Completed 20 tests.
+All tests passed!

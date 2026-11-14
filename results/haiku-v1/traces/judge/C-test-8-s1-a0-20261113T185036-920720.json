@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:36+00:00",
+  "kind": "judge",
+  "label": "C-test-8-s1-a0",
+  "request_id": "req_011Ch1RsJ5uiJipcLwdovDAh",
+  "duration_s": 9.9,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\nImplement two approximation algorithms for the metric Travelling Salesman Problem\n(MST double tree and Christofides) in C using the header file tsp_approx.h.\n\nInput: an array `pts` of `n` points (`TspPoint {int x; int y;}`), 0 <= n <= 40,\n|coordinate| < 10^4. When n == 0, `pts` may be NULL. Vertex i is pts[i] (0-based,\ninput order). Points may coincide (distance 0). The input is never modified.\nDistance is Manhattan: d(p, q) = |p.x - q.x| + |p.y - q.y| (an integer metric).\n\nTour: a TourResult whose `tour` is a permutation of all vertex indices 0..n-1\nstarting with vertex 0, `n` is its length, and `cost` is the closed-tour cost\n  d(tour[0], tour[1]) + ... + d(tour[n-2], tour[n-1]) + d(tour[n-1], tour[0]).\nFor n == 1 the tour is [0] with cost 0; for n == 2 the cost is 2 * d(0, 1).\n\nThe MST (unique by these rules) - Prim's algorithm starting from vertex 0:\n  repeat n-1 times: among the non-tree vertices v choose the one with the smallest\n  key(v) = min over tree vertices u of d(u, v); ties -> the smallest index v.\n  Its parent is the tree vertex u with d(u, v) == key(v); ties -> the SMALLEST\n  index u (not the first one found, not the most recently added one).\n  Add v to the tree with the edge (parent, v).\n\n- Implement `tsp_mst_weight`: Return the sum of the weights of that MST's edges.\n  Return 0 for n <= 1.\n\n- Implement `tsp_double_tree`: Return the preorder (DFS) sequence of that MST\n  rooted at vertex 0, visiting the children of every vertex in ASCENDING index\n  order, together with its closed-tour cost. The answer is unique and compared\n  exactly. Return NULL for n == 0; for n == 1 return tour [0], cost 0.\n\n- Implement `tsp_matching_weight`: Let O be the set of vertices with odd degree in\n  that MST (|O| is even). Return the MINIMUM total weight (distance d) of a perfect\n  matching of O (pairs of distinct vertices of O, every vertex of O in exactly one\n  pair). It must be exact - greedy nearest-pair matching is wrong. |O| <= 16 in all\n  tests, so an exact bitmask DP over subsets is fine (blossom not required).\n  Return 0 for n <= 1.\n\n- Implement `tsp_christofides`: Build the multigraph consisting of the MST edges\n  plus the edges of a minimum-weight perfect matching of O. If an edge is both an\n  MST edge and a matching edge it is a DOUBLE edge - keep both copies (parallel\n  edges). Find an Eulerian circuit of this multigraph starting at vertex 0\n  (Hierholzer), then shortcut it: keep only the first occurrence of every vertex.\n  The resulting tour starts with 0. Its cost never exceeds\n  tsp_mst_weight + tsp_matching_weight. Any minimum matching and any Eulerian\n  circuit are accepted. Return NULL for n == 0; for n == 1 return tour [0], cost 0.\n\n- Implement `free_tour_result`: Free the result and its `tour` array.\n  `free_tour_result(NULL)` is a no-op.\n\nOwnership: every returned TourResult and its `tour` array are fresh heap\nallocations owned by the caller (released with `free_tour_result`).\n\nConstraints:\n  - No memory leaks (verified by valgrind); free every temporary allocation.\n  - All functions must handle their edge cases (n == 0, 1, 2, coinciding points)\n    without crashing.\n\n## Contract given to the author (tsp_approx.h, not written by the author)\n```c\n#ifndef TSP_APPROX_H\n#define TSP_APPROX_H\n\n/*\n * Metric TSP approximation on points with Manhattan distance\n * d(p, q) = |p.x - q.x| + |p.y - q.y|.\n * Vertices are the indices 0..n-1 of pts in input order. Points may coincide.\n */\n\ntypedef struct {\n    int x;\n    int y;\n} TspPoint;\n\ntypedef struct {\n    int* tour;   /* length n; permutation of 0..n-1 starting with 0; heap */\n    int n;\n    int cost;    /* closed-tour cost, including the edge back to tour[0] */\n} TourResult;\n\n/* Total weight of the MST built by the tie-broken Prim's algorithm; 0 if n <= 1. */\nint tsp_mst_weight(const TspPoint* pts, int n);\n\n/* Preorder walk of that MST (root 0, children in ascending index order).\n   NULL if n == 0. Caller frees with free_tour_result. */\nTourResult* tsp_double_tree(const TspPoint* pts, int n);\n\n/* Minimum-weight perfect matching on the odd-degree vertices of that MST; 0 if n <= 1. */\nint tsp_matching_weight(const TspPoint* pts, int n);\n\n/* Christofides tour (MST + min matching, Eulerian circuit from 0, shortcut).\n   NULL if n == 0. Caller frees with free_tour_result. */\nTourResult* tsp_christofides(const TspPoint* pts, int n);\n\n/* Frees the result and its tour array. Accepts NULL. */\nvoid free_tour_result(TourResult* result);\n\n#endif\n\n```\n\n## Code to evaluate (tsp_approx.c)\n```c\n#include <stdlib.h>\n#include <limits.h>\n#include \"tsp_approx.h\"\n\nstatic int dist_pt(const TspPoint* a, const TspPoint* b) {\n    int dx = a->x - b->x;\n    int dy = a->y - b->y;\n    if (dx < 0) dx = -dx;\n    if (dy < 0) dy = -dy;\n    return dx + dy;\n}\n\n/* Tie-broken Prim's algorithm from vertex 0. Fills parent[] (parent[0] = -1).\n   Requires n >= 1 and parent allocated with n entries. Returns total weight. */\nstatic int build_mst(const TspPoint* pts, int n, int* parent) {\n    int total = 0;\n    parent[0] = -1;\n    if (n <= 1) return 0;\n\n    char* in = (char*)calloc((size_t)n, 1);\n    int* key = (int*)malloc((size_t)n * sizeof(int));\n    in[0] = 1;\n    for (int v = 1; v < n; v++) {\n        key[v] = dist_pt(&pts[0], &pts[v]);\n        parent[v] = 0;\n    }\n\n    for (int step = 1; step < n; step++) {\n        int best = -1;\n        for (int v = 0; v < n; v++) {\n            if (!in[v] && (best < 0 || key[v] < key[best])) best = v;\n        }\n        in[best] = 1;\n        total += key[best];\n        for (int v = 0; v < n; v++) {\n            if (in[v]) continue;\n            int d = dist_pt(&pts[best], &pts[v]);\n            if (d < key[v] || (d == key[v] && best < parent[v])) {\n                key[v] = d;\n                parent[v] = best;\n            }\n        }\n    }\n\n    free(in);\n    free(key);\n    return total;\n}\n\nstatic int tour_cost(const TspPoint* pts, const int* tour, int n) {\n    if (n <= 1) return 0;\n    int c = 0;\n    for (int i = 0; i < n; i++) {\n        int j = (i + 1 == n) ? 0 : i + 1;\n        c += dist_pt(&pts[tour[i]], &pts[tour[j]]);\n    }\n    return c;\n}\n\nstatic TourResult* make_result(int n) {\n    TourResult* r = (TourResult*)malloc(sizeof(TourResult));\n    if (!r) return NULL;\n    r->tour = (int*)malloc((size_t)(n > 0 ? n : 1) * sizeof(int));\n    r->n = n;\n    r->cost = 0;\n    return r;\n}\n\nstatic void preorder(int u, const int* parent, int n, int* out, int* cnt) {\n    out[(*cnt)++] = u;\n    for (int v = 1; v < n; v++) {\n        if (parent[v] == u) preorder(v, parent, n, out, cnt);\n    }\n}\n\n/* Exact minimum perfect matching on k points (k even, k <= ~20) via bitmask DP.\n   If outA/outB are non-NULL, the matched pairs (as vertex indices) are stored. */\nstatic int min_matching(const TspPoint* pts, const int* O, int k,\n                        int* outA, int* outB) {\n    if (k == 0) return 0;\n    int full = 1 << k;\n    int* dp = (int*)malloc((size_t)full * sizeof(int));\n    const int INF = INT_MAX / 2;\n    dp[0] = 0;\n    for (int mask = 1; mask < full; mask++) {\n        int i = 0;\n        while (!((mask >> i) & 1)) i++;\n        int best = INF;\n        for (int j = i + 1; j < k; j++) {\n            if (!((mask >> j) & 1)) continue;\n            int sub = mask ^ (1 << i) ^ (1 << j);\n            if (dp[sub] >= INF) continue;\n            int c = dp[sub] + dist_pt(&pts[O[i]], &pts[O[j]]);\n            if (c < best) best = c;\n        }\n        dp[mask] = best;\n    }\n\n    int result = dp[full - 1];\n\n    if (outA && outB) {\n        int mask = full - 1;\n        int np = 0;\n        while (mask) {\n            int i = 0;\n            while (!((mask >> i) & 1)) i++;\n            int found = 0;\n            for (int j = i + 1; j < k && !found; j++) {\n                if (!((mask >> j) & 1)) continue;\n                int sub = mask ^ (1 << i) ^ (1 << j);\n                if (dp[sub] >= INF) continue;\n                if (dp[sub] + dist_pt(&pts[O[i]], &pts[O[j]]) == dp[mask]) {\n                    outA[np] = O[i];\n                    outB[np] = O[j];\n                    np++;\n                    mask = sub;\n                    found = 1;\n                }\n            }\n            if (!found) break; /* should not happen */\n        }\n    }\n\n    free(dp);\n    return result;\n}\n\n/* Collects odd-degree vertices of the tree given by parent[]. Returns count k. */\nstatic int odd_vertices(const int* parent, int n, int* O) {\n    int* deg = (int*)calloc((size_t)n, sizeof(int));\n    for (int v = 1; v < n; v++) {\n        deg[v]++;\n        deg[parent[v]]++;\n    }\n    int k = 0;\n    for (int v = 0; v < n; v++) {\n        if (deg[v] & 1) O[k++] = v;\n    }\n    free(deg);\n    return k;\n}\n\nint tsp_mst_weight(const TspPoint* pts, int n) {\n    if (n <= 1) return 0;\n    int* parent = (int*)malloc((size_t)n * sizeof(int));\n    int w = build_mst(pts, n, parent);\n    free(parent);\n    return w;\n}\n\nTourResult* tsp_double_tree(const TspPoint* pts, int n) {\n    if (n == 0) return NULL;\n    TourResult* r = make_result(n);\n    if (!r) return NULL;\n    if (n == 1) {\n        r->tour[0] = 0;\n        r->cost = 0;\n        return r;\n    }\n    int* parent = (int*)malloc((size_t)n * sizeof(int));\n    build_mst(pts, n, parent);\n    int cnt = 0;\n    preorder(0, parent, n, r->tour, &cnt);\n    r->cost = tour_cost(pts, r->tour, n);\n    free(parent);\n    return r;\n}\n\nint tsp_matching_weight(const TspPoint* pts, int n) {\n    if (n <= 1) return 0;\n    int* parent = (int*)malloc((size_t)n * sizeof(int));\n    build_mst(pts, n, parent);\n    int* O = (int*)malloc((size_t)n * sizeof(int));\n    int k = odd_vertices(parent, n, O);\n    int w = min_matching(pts, O, k, NULL, NULL);\n    free(O);\n    free(parent);\n    return w;\n}\n\nTourResult* tsp_christofides(const TspPoint* pts, int n) {\n    if (n == 0) return NULL;\n    TourResult* r = make_result(n);\n    if (!r) return NULL;\n    if (n == 1) {\n        r->tour[0] = 0;\n        r->cost = 0;\n        return r;\n    }\n\n    int* parent = (int*)malloc((size_t)n * sizeof(int));\n    build_mst(pts, n, parent);\n\n    int* O = (int*)malloc((size_t)n * sizeof(int));\n    int k = odd_vertices(parent, n, O);\n    int np = k / 2;\n    int* pairA = (int*)malloc((size_t)(np > 0 ? np : 1) * sizeof(int));\n    int* pairB = (int*)malloc((size_t)(np > 0 ? np : 1) * sizeof(int));\n    min_matching(pts, O, k, pairA, pairB);\n\n    int E = (n - 1) + np;\n    int* eu = (int*)malloc((size_t)E * sizeof(int));\n    int* ev = (int*)malloc((size_t)E * sizeof(int));\n    for (int v = 1; v < n; v++) {\n        eu[v - 1] = v;\n        ev[v - 1] = parent[v];\n    }\n    for (int p = 0; p < np; p++) {\n        eu[n - 1 + p] = pairA[p];\n        ev[n - 1 + p] = pairB[p];\n    }\n\n    /* Multigraph adjacency in CSR form. */\n    int* deg2 = (int*)calloc((size_t)n, sizeof(int));\n    for (int e = 0; e < E; e++) {\n        deg2[eu[e]]++;\n        deg2[ev[e]]++;\n    }\n    int* start = (int*)malloc((size_t)(n + 1) * sizeof(int));\n    start[0] = 0;\n    for (int v = 0; v < n; v++) start[v + 1] = start[v] + deg2[v];\n    int* fill = (int*)calloc((size_t)n, sizeof(int));\n    int* adj = (int*)malloc((size_t)(2 * E) * sizeof(int));\n    for (int e = 0; e < E; e++) {\n        adj[start[eu[e]] + fill[eu[e]]++] = e;\n        adj[start[ev[e]] + fill[ev[e]]++] = e;\n    }\n\n    /* Hierholzer's algorithm starting at vertex 0. */\n    char* used = (char*)calloc((size_t)E, 1);\n    int* ptr = (int*)calloc((size_t)n, sizeof(int));\n    int* stack = (int*)malloc((size_t)(E + 2) * sizeof(int));\n    int* circuit = (int*)malloc((size_t)(E + 2) * sizeof(int));\n    int sp = 0, cn = 0;\n    stack[sp++] = 0;\n    while (sp > 0) {\n        int v = stack[sp - 1];\n        while (ptr[v] < deg2[v] && used[adj[start[v] + ptr[v]]]) ptr[v]++;\n        if (ptr[v] < deg2[v]) {\n            int e = adj[start[v] + ptr[v]];\n            used[e] = 1;\n            int w = (eu[e] == v) ? ev[e] : eu[e];\n            stack[sp++] = w;\n        } else {\n            circuit[cn++] = v;\n            sp--;\n        }\n    }\n\n    /* Shortcut: keep first occurrence of each vertex. */\n    char* visited = (char*)calloc((size_t)n, 1);\n    int cnt = 0;\n    for (int i = 0; i < cn && cnt < n; i++) {\n        int v = circuit[i];\n        if (!visited[v]) {\n            visited[v] = 1;\n            r->tour[cnt++] = v;\n        }\n    }\n    /* Ensure the tour starts with 0 (it does by construction). */\n    r->cost = tour_cost(pts, r->tour, n);\n\n    free(visited);\n    free(circuit);\n    free(stack);\n    free(ptr);\n    free(used);\n    free(adj);\n    free(fill);\n    free(start);\n    free(deg2);\n    free(ev);\n    free(eu);\n    free(pairB);\n    free(pairA);\n    free(O);\n    free(parent);\n    return r;\n}\n\nvoid free_tour_result(TourResult* result) {\n    if (!result) return;\n    free(result->tour);\n    free(result);\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RsJTj4sCYdHPK5cA3T",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is procedural: static helpers (build_mst, odd_vertices, min_matching, preorder, tour_cost) pass data through arrays and out-pointers (parent, O, pairA/pairB, cnt). Control flow is plain loops, and Hierholzer uses an explicit stack with CSR adjacency and edge-used flags. This is what an experienced C programmer would write. Reaching 5 would need tsp_christofides split into smaller steps (Euler circuit, shortcut), since it is currently a long monolith.\",\"language_idiomaticity\":\"It uses static helpers, const on read-only pointers, size_t casts for allocation sizes, calloc for zeroed arrays, and a local INF constant. Weaknesses: malloc/calloc results are never checked in the helpers (only make_result checks the struct, not r->tour). The casts on malloc are unnecessary in C. dist_pt hand-rolls abs instead of using abs. Recursive preorder does an O(n) scan per call, which is acceptable for n <= 40. On the n==1 early return the tour is fine, but a failed tour allocation is not handled. Checked allocation with a goto-cleanup error path would earn a higher score.\",\"readability\":\"Names are clear (build_mst, odd_vertices, min_matching) and the doc comments are useful. The bitmask DP and matching reconstruction are easy to follow, and the Hierholzer section is commented. tsp_christofides is about 100 lines with many temporaries and a long free list at the end, which hurts readability. Names like eu/ev/deg2/E are terse. Splitting out the Euler circuit and the shortcut would make it a 5.\",\"design\":\"There is good reuse: build_mst is shared by all four entry points, and min_matching serves both the weight query and pair reconstruction through optional out-parameters. tour_cost and make_result avoid duplication. The weaknesses are the monolithic tsp_christofides (edge list, CSR build, Hierholzer and shortcut inline), the duplicated n==1 handling in both tour functions, and the pair-reconstruction logic that repeats the DP transition. Extracting build_multigraph, euler_circuit and shortcut helpers would improve it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":4,\"design\":3,\"anti_patterns\":[\"unchecked malloc/calloc results in helpers and for r->tour\",\"one very long function (tsp_christofides) with a long manual free list\",\"DP transition logic duplicated between table fill and reconstruction\",\"hand-rolled abs in dist_pt\",\"unnecessary casts of malloc results\"],\"justification\":\"The solution is solid procedural C with static helpers, a shared build_mst, a bitmask DP matching and a CSR-based Hierholzer. It loses points mainly for tsp_christofides being a long monolithic function with many temporaries and a manual free list, and for mostly missing allocation checks. Duplicated n==1 handling and DP reconstruction logic are minor design blemishes.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7672,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7672,
+          "model": null,
+          "output_tokens": 1027,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1027,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

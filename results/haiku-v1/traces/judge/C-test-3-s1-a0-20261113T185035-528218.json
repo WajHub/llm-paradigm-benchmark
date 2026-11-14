@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:35+00:00",
+  "kind": "judge",
+  "label": "C-test-3-s1-a0",
+  "request_id": "req_011Ch1RsJB7tAMgXLDSMRVLo",
+  "duration_s": 9.1,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\nImplement a Palindrome Tree (also known as Eertree) data structure in C using the header\nfile palindrome_tree.h. The Eertree is a linear-time data structure that implicitly\nrepresents all distinct palindromic substrings of a string. It was introduced by\nMikhail Rubinchik and Arseny M. Shur in 2014.\n\n- Implement `eertree_build`: Build the palindrome tree for a given string of length `len`\n  in O(n) time. The tree must include two imaginary root nodes at indices 0 and 1:\n  root 0 has len = -1 (the \"odd root\"), root 1 has len = 0 (the \"even root\").\n  After building, propagate occurrence counts from longer palindromes to shorter ones\n  by traversing nodes in decreasing order of `len` and adding each node's `cnt` to\n  its suffix_link's `cnt`. The final `cnt` of each node must equal the total number\n  of times that palindrome appears as a substring in the input.\n\n- Implement `eertree_count_distinct`: Return the number of distinct palindromic\n  substrings (i.e., the number of real nodes, excluding the two imaginary roots).\n\n- Implement `eertree_count_occurrences`: Find the node in the tree whose palindrome\n  matches `pattern` (using `end_pos` to locate the substring in the stored string)\n  and return its propagated `cnt`. Return 0 if pattern is not found, not a palindrome,\n  or any argument is NULL.\n\n- Implement `eertree_longest_length`: Return the maximum `len` among all real nodes.\n\n- Implement `eertree_free`: Free all dynamically allocated memory (nodes array, str).\n  Must not leak memory (verified by valgrind).\n\nConstraints:\n  - Input strings contain only lowercase Latin letters ('a'..'z').\n  - `eertree_build(NULL, n)` must return NULL.\n  - `eertree_build(s, 0)` must return a valid Eertree with only the two imaginary roots.\n  - All query functions must return 0 (or NULL) on NULL input without crashing.\n\n## Contract given to the author (palindrome_tree.h, not written by the author)\n```c\n#ifndef PALINDROME_TREE_H\n#define PALINDROME_TREE_H\n\n#define EERTREE_ALPHA 26\n\ntypedef struct {\n    int len;\n    int suffix_link;\n    int children[EERTREE_ALPHA];\n    long long cnt;\n    int end_pos;\n} EertreeNode;\n\ntypedef struct {\n    EertreeNode* nodes;\n    int size;\n    int capacity;\n    int last;\n    char* str;\n    int str_len;\n} Eertree;\n\nEertree*  eertree_build(const char* s, int len);\nint       eertree_count_distinct(const Eertree* t);\nlong long eertree_count_occurrences(const Eertree* t, const char* pattern, int plen);\nint       eertree_longest_length(const Eertree* t);\nvoid      eertree_free(Eertree* t);\n\n#endif\n\n```\n\n## Code to evaluate (palindrome_tree.c)\n```c\n#include \"palindrome_tree.h\"\n#include <stdlib.h>\n#include <string.h>\n\nstatic int eertree_get_link(const Eertree* t, int cur, int i)\n{\n    const char* s = t->str;\n    while (1) {\n        int l = t->nodes[cur].len;\n        int p = i - l - 1;\n        if (p >= 0 && s[p] == s[i])\n            return cur;\n        cur = t->nodes[cur].suffix_link;\n    }\n}\n\nEertree* eertree_build(const char* s, int len)\n{\n    if (s == NULL || len < 0)\n        return NULL;\n\n    for (int k = 0; k < len; k++) {\n        if (s[k] < 'a' || s[k] > 'z')\n            return NULL;\n    }\n\n    Eertree* t = (Eertree*)calloc(1, sizeof(Eertree));\n    if (t == NULL)\n        return NULL;\n\n    t->capacity = len + 3;\n    t->nodes = (EertreeNode*)calloc((size_t)t->capacity, sizeof(EertreeNode));\n    t->str = (char*)malloc((size_t)len + 1);\n    if (t->nodes == NULL || t->str == NULL) {\n        free(t->nodes);\n        free(t->str);\n        free(t);\n        return NULL;\n    }\n\n    memcpy(t->str, s, (size_t)len);\n    t->str[len] = '\\0';\n    t->str_len = len;\n\n    /* imaginary roots */\n    t->nodes[0].len = -1;\n    t->nodes[0].suffix_link = 0;\n    t->nodes[1].len = 0;\n    t->nodes[1].suffix_link = 0;\n    t->size = 2;\n    t->last = 1;\n\n    for (int i = 0; i < len; i++) {\n        int c = s[i] - 'a';\n        int cur = eertree_get_link(t, t->last, i);\n\n        if (t->nodes[cur].children[c] != 0) {\n            t->last = t->nodes[cur].children[c];\n        } else {\n            int idx = t->size++;\n            t->nodes[idx].len = t->nodes[cur].len + 2;\n            t->nodes[idx].end_pos = i;\n\n            if (t->nodes[idx].len == 1) {\n                t->nodes[idx].suffix_link = 1;\n            } else {\n                int w = eertree_get_link(t, t->nodes[cur].suffix_link, i);\n                t->nodes[idx].suffix_link = t->nodes[w].children[c];\n            }\n\n            t->nodes[cur].children[c] = idx;\n            t->last = idx;\n        }\n\n        t->nodes[t->last].cnt++;\n    }\n\n    /*\n     * Propagate counts. A node's suffix link is always created before the\n     * node itself (and has strictly smaller len), so processing nodes in\n     * decreasing creation index is a valid decreasing-len order.\n     */\n    for (int v = t->size - 1; v >= 2; v--) {\n        t->nodes[t->nodes[v].suffix_link].cnt += t->nodes[v].cnt;\n    }\n\n    return t;\n}\n\nint eertree_count_distinct(const Eertree* t)\n{\n    if (t == NULL)\n        return 0;\n    return t->size - 2;\n}\n\nlong long eertree_count_occurrences(const Eertree* t, const char* pattern, int plen)\n{\n    if (t == NULL || pattern == NULL || plen <= 0)\n        return 0;\n\n    /* pattern must be a palindrome */\n    for (int i = 0, j = plen - 1; i < j; i++, j--) {\n        if (pattern[i] != pattern[j])\n            return 0;\n    }\n\n    for (int v = 2; v < t->size; v++) {\n        const EertreeNode* nd = &t->nodes[v];\n        if (nd->len != plen)\n            continue;\n        int start = nd->end_pos - nd->len + 1;\n        if (start < 0 || start + plen > t->str_len)\n            continue;\n        if (memcmp(t->str + start, pattern, (size_t)plen) == 0)\n            return nd->cnt;\n    }\n    return 0;\n}\n\nint eertree_longest_length(const Eertree* t)\n{\n    if (t == NULL)\n        return 0;\n    int best = 0;\n    for (int v = 2; v < t->size; v++) {\n        if (t->nodes[v].len > best)\n            best = t->nodes[v].len;\n    }\n    return best;\n}\n\nvoid eertree_free(Eertree* t)\n{\n    if (t == NULL)\n        return;\n    free(t->nodes);\n    free(t->str);\n    free(t);\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RsJYT7fk9qZhPUZRcm",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is straightforward procedural C. It uses an opaque struct built by one function, static helper functions, explicit loops, and in-place mutation of the arrays. Data flow is clear: build, then count propagation, then queries. The `eertree_get_link` helper is a clean procedural extraction. One more point would need nothing significant; this is close to what an experienced C programmer would write.\",\"language_idiomaticity\":\"It uses `static` for the helper, `const` on read-only pointers, `calloc` with a NULL check, a single cleanup path for partial allocation failure, `memcpy` and `memcmp` from the standard library, and `size_t` casts for allocation sizes. Small departures: `while (1)` with the return inside, and `(Eertree*)` casts on malloc/calloc results, which are unnecessary in C. The count propagation loop over creation index is justified in a comment. A 5 would drop the redundant casts.\",\"readability\":\"Names are clear (`eertree_get_link`, `cur`, `w`, `idx`). The build function is moderately long, but each phase is delimited by short comments: imaginary roots, the main loop, count propagation. The comment explaining why decreasing creation index is a valid order is useful. Locals `c`, `l`, `p` are short but conventional. The 'new node' branch is inlined in `eertree_build` and could be a helper, which would earn a 5.\",\"design\":\"Responsibilities are well divided: the link-walking helper, build, and small, focused query functions, with each function owning one task. The capacity `len + 3` is exact for the maximum node count. Input validation, including the lowercase check, is done upfront, and the cleanup on allocation failure is correct. Ownership is simple, with a single `eertree_free`. Weaknesses: the node-creation logic is embedded in the build loop, and `count_occurrences` does a linear scan over the nodes rather than walking the tree from the root, which is acceptable under the contract's `end_pos` hint.\"},\"paradigm_idiomaticity\":5,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"unnecessary casts of calloc/malloc results\",\"node-creation logic inlined in the build loop rather than a helper\"],\"justification\":\"The solution is clean procedural C. `eertree_get_link` is a `static` helper, parameters are `const`-correct, the allocation-failure path frees everything, and the standard `memcpy`/`memcmp` are used. Small blemishes are the redundant malloc casts, the long-ish `eertree_build` with inline node creation, and the linear scan in `eertree_count_occurrences`. Overall it is idiomatic and easy to follow.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4455,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4455,
+          "model": null,
+          "output_tokens": 906,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 906,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

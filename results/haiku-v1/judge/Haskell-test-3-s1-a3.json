@@ -6,21 +6,30 @@
   "sample": 1,
   "attempt": 3,
   "category": "test_failures",
+  "rationale": {
+    "paradigm_idiomaticity": "The build is a pure `foldl'` over `zip [0 ..] s` with an immutable `BState`, and `stepBuild` returns a new state by record update. Count propagation is a second fold over nodes sorted by `Down . nodeLen`, and children are derived afterwards with `IM.fromListWith`. There is no IO, IORef or State monad. Two things keep it from a 5: `findLink` is a hand-written local recursion that is partial in spirit (it relies on the roots terminating it), and the state-record threading is slightly imperative in flavour.",
+    "language_idiomaticity": "It uses `Data.IntMap.Strict`, `Data.Map.Strict`, `Data.Array`, `foldl'`, `comparing`/`Down`, record update syntax, list comprehensions and guards. Both `IM.!` and `arr !` are partial, but they are safe by construction. The `Maybe` handling follows the contract. `buildTree \"\"` makes `listArray (0,-1)` an empty array, which is fine. Imports are tidy. Minor blemishes are the `drop 2 (eertreeNodes t)` assumption and the `eertreeBuild Nothing 0` case, which the spec did not require.",
+    "readability": "Names are clear (`stepBuild`, `findLink`, `propagate`, `childMap`, `finalNodes`). The `where` blocks are organised logically and the BState comment helps. `stepBuild` packs a lot into one `let` and `buildTree` has a long `where`, but both stay followable. Neither is split into smaller named helpers such as `addNode` or `propagateCounts`.",
+    "design": "A separate internal `BState` keeps the build apart from the exported `Eertree`. Transitions live in a `Map (Int, Char)`, and the exported `nodeChildren` is derived once at the end. The build is O(n log n) rather than O(n), because of the sort and the Map, which is a minor departure. `eertreeCountOccurrences` scans the node list linearly, so it is O(nodes) rather than using a lookup. `buildTree` is a large function that could be split. The result is sound overall, with some duplication of `lenOf`/`linkOf` against the node accessors."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "eertreeCountOccurrences does a linear scan over all nodes and uses list take/drop on the string instead of a lookup",
-    "eertreeBuild Nothing 0 is special-cased and length s is recomputed, minor redundancy",
-    "local findLink is a partial recursive loop that relies on the root sentinel to terminate",
-    "String indexing via take/drop is O(n) per match"
+    "linear scan of node list for pattern lookup instead of a keyed structure",
+    "buildTree is a large function with a long where block that could be split into helpers",
+    "partial IM.! / array ! lookups relied on as invariants"
   ],
-  "justification": "The build is a pure foldl' over the input with an explicit BState record. It uses IntMap for nodes and Map (Int, Char) for transitions, and it propagates counts with a fold over nodes sorted by decreasing length. The children lists required by the contract are derived at the end from the transition map, which keeps the algorithm clean and separate from the contract. Weaknesses: the query for occurrences scans every node with list take/drop instead of using a faster lookup, the sort is O(n log n) rather than the requested linear order, and findLink is a local recursion that depends on the roots for termination. Overall the code is idiomatic, well decomposed, and reads well.",
+  "justification": "The solution is a pure fold-based build over immutable `BState`, using IntMap/Map and `foldl'`, with propagation as a second sorted fold and children derived at the end. It reads well, with clear names and sensible helpers. It loses points for linear node scans in the queries, partial lookups, and a monolithic `buildTree`/`stepBuild`.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 5180,
-  "output_tokens": 391,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SE5C6ciFGX3VFvjmkt",
+  "judge_s": 8.6,
+  "input_tokens": 5517,
+  "output_tokens": 990,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

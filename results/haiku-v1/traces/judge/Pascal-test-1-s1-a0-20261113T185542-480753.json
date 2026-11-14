@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:42+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-1-s1-a0",
+  "request_id": "req_011Ch1SFvr7fweRpQC7kfbcB",
+  "duration_s": 8.8,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\n- Implement `calculate_clean_minkowski_sum`: Calculate the Minkowski sum of two convex polygons (poly1 and poly2), and return a new polygon representing ONLY the convex hull of the resulting point cloud. The vertices of the returned polygon must be strictly extreme points (collinear points on the edges must be removed) and ordered counter-clockwise.\n- Implement `check_dynamic_collision`: Determine if a moving robot polygon intersects with a stationary obstacle polygon at any point along a linear path defined by the velocity vector. Use the Minkowski sum Configuration Space approach to prevent tunneling (continuous collision detection). Return true if a collision occurs, false otherwise.\n- Implement `create_polygon` & `create_layer`: Properly allocate memory for the structures and safely copy the provided strings.\n\n## Stub module given to the author (spatial_logic.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit spatial_logic;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TPoint = record\n    X: Double;\n    Y: Double;\n  end;\n\n  TPointArray = array of TPoint;\n\n  PPolygon = ^TPolygon;\n  TPolygon = record\n    Vertices: TPointArray;\n    NumVertices: LongInt;\n    IsConvex: Boolean;\n    ZoneName: AnsiString;\n  end;\n\n  TPolygonPtrArray = array of PPolygon;\n\n  PSpatialLayer = ^TSpatialLayer;\n  TSpatialLayer = record\n    Polygons: TPolygonPtrArray;\n    PolygonCount: LongInt;\n    LayerName: AnsiString;\n  end;\n\nfunction calculate_clean_minkowski_sum(const Poly1, Poly2: PPolygon): PPolygon;\nfunction check_dynamic_collision(const Obstacle, Robot: PPolygon; const Velocity: TPoint): Boolean;\n\nfunction create_polygon(NumVertices: LongInt; const Name: AnsiString): PPolygon;\nprocedure free_polygon(Poly: PPolygon);\nfunction create_layer(const Name: AnsiString): PSpatialLayer;\nprocedure free_layer(Layer: PSpatialLayer);\n\nimplementation\n\nfunction calculate_clean_minkowski_sum(const Poly1, Poly2: PPolygon): PPolygon;\nbegin\n  raise Exception.Create('calculate_clean_minkowski_sum not implemented');\n  Result := nil;\nend;\n\nfunction check_dynamic_collision(const Obstacle, Robot: PPolygon; const Velocity: TPoint): Boolean;\nbegin\n  raise Exception.Create('check_dynamic_collision not implemented');\n  Result := False;\nend;\n\nfunction create_polygon(NumVertices: LongInt; const Name: AnsiString): PPolygon;\nbegin\n  raise Exception.Create('create_polygon not implemented');\n  Result := nil;\nend;\n\nprocedure free_polygon(Poly: PPolygon);\nbegin\n  if Poly <> nil then\n    Dispose(Poly);\nend;\n\nfunction create_layer(const Name: AnsiString): PSpatialLayer;\nbegin\n  raise Exception.Create('create_layer not implemented');\n  Result := nil;\nend;\n\nprocedure free_layer(Layer: PSpatialLayer);\nbegin\n  if Layer <> nil then\n    Dispose(Layer);\nend;\n\nend.\n\n```\n\n## Code to evaluate (spatial_logic.pas)\n```pascal\nunit spatial_logic;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  Math, SysUtils;\n\ntype\n  TPoint = record\n    X: Double;\n    Y: Double;\n  end;\n\n  TPointArray = array of TPoint;\n\n  PPolygon = ^TPolygon;\n  TPolygon = record\n    Vertices: TPointArray;\n    NumVertices: LongInt;\n    IsConvex: Boolean;\n    ZoneName: AnsiString;\n  end;\n\n  TPolygonPtrArray = array of PPolygon;\n\n  PSpatialLayer = ^TSpatialLayer;\n  TSpatialLayer = record\n    Polygons: TPolygonPtrArray;\n    PolygonCount: LongInt;\n    LayerName: AnsiString;\n  end;\n\nfunction calculate_clean_minkowski_sum(const Poly1, Poly2: PPolygon): PPolygon;\nfunction check_dynamic_collision(const Obstacle, Robot: PPolygon; const Velocity: TPoint): Boolean;\n\nfunction create_polygon(NumVertices: LongInt; const Name: AnsiString): PPolygon;\nprocedure free_polygon(Poly: PPolygon);\nfunction create_layer(const Name: AnsiString): PSpatialLayer;\nprocedure free_layer(Layer: PSpatialLayer);\n\nimplementation\n\nconst\n  GEOM_EPS = 1e-9;\n\nfunction PointLess(const P, Q: TPoint): Boolean;\nbegin\n  Result := (P.X < Q.X) or ((P.X = Q.X) and (P.Y < Q.Y));\nend;\n\nfunction Cross(const O, A, B: TPoint): Double;\nbegin\n  Result := (A.X - O.X) * (B.Y - O.Y) - (A.Y - O.Y) * (B.X - O.X);\nend;\n\nprocedure QuickSortPoints(var A: TPointArray; L, R: LongInt);\nvar\n  I, J: LongInt;\n  Pivot, Tmp: TPoint;\nbegin\n  I := L;\n  J := R;\n  Pivot := A[(L + R) div 2];\n  while I <= J do\n  begin\n    while PointLess(A[I], Pivot) do\n      Inc(I);\n    while PointLess(Pivot, A[J]) do\n      Dec(J);\n    if I <= J then\n    begin\n      Tmp := A[I];\n      A[I] := A[J];\n      A[J] := Tmp;\n      Inc(I);\n      Dec(J);\n    end;\n  end;\n  if L < J then\n    QuickSortPoints(A, L, J);\n  if I < R then\n    QuickSortPoints(A, I, R);\nend;\n\n// Returns the strict convex hull (CCW, no collinear points, no duplicates)\nfunction ConvexHull(const Pts: TPointArray): TPointArray;\nvar\n  P, H: TPointArray;\n  N, M, K, T, I: LongInt;\nbegin\n  SetLength(Result, 0);\n  N := Length(Pts);\n  if N = 0 then\n    Exit;\n\n  P := Copy(Pts);\n  QuickSortPoints(P, 0, N - 1);\n\n  // Remove duplicates\n  M := 1;\n  for I := 1 to N - 1 do\n    if (P[I].X <> P[M - 1].X) or (P[I].Y <> P[M - 1].Y) then\n    begin\n      P[M] := P[I];\n      Inc(M);\n    end;\n\n  if M = 1 then\n  begin\n    SetLength(Result, 1);\n    Result[0] := P[0];\n    Exit;\n  end;\n\n  SetLength(H, 2 * M);\n  K := 0;\n  for I := 0 to M - 1 do\n  begin\n    while (K >= 2) and (Cross(H[K - 2], H[K - 1], P[I]) <= 0) do\n      Dec(K);\n    H[K] := P[I];\n    Inc(K);\n  end;\n\n  T := K + 1;\n  for I := M - 2 downto 0 do\n  begin\n    while (K >= T) and (Cross(H[K - 2], H[K - 1], P[I]) <= 0) do\n      Dec(K);\n    H[K] := P[I];\n    Inc(K);\n  end;\n\n  // Last point repeats the first one\n  Dec(K);\n  SetLength(Result, K);\n  for I := 0 to K - 1 do\n    Result[I] := H[I];\nend;\n\n// Minkowski sum of two convex point sets, reduced to its strict convex hull\nfunction MinkowskiPoints(const A, B: TPointArray): TPointArray;\nvar\n  S: TPointArray;\n  I, J, K: LongInt;\nbegin\n  SetLength(Result, 0);\n  if (Length(A) = 0) or (Length(B) = 0) then\n    Exit;\n\n  SetLength(S, Length(A) * Length(B));\n  K := 0;\n  for I := 0 to High(A) do\n    for J := 0 to High(B) do\n    begin\n      S[K].X := A[I].X + B[J].X;\n      S[K].Y := A[I].Y + B[J].Y;\n      Inc(K);\n    end;\n\n  Result := ConvexHull(S);\nend;\n\nfunction OnSegment(const A, B, P: TPoint): Boolean;\nbegin\n  Result := (Abs(Cross(A, B, P)) <= GEOM_EPS) and\n            (P.X >= Min(A.X, B.X) - GEOM_EPS) and (P.X <= Max(A.X, B.X) + GEOM_EPS) and\n            (P.Y >= Min(A.Y, B.Y) - GEOM_EPS) and (P.Y <= Max(A.Y, B.Y) + GEOM_EPS);\nend;\n\n// Closed segment intersection test (touching counts as intersecting)\nfunction SegmentsIntersect(const P1, P2, Q1, Q2: TPoint): Boolean;\nvar\n  D1, D2, D3, D4: Double;\nbegin\n  D1 := Cross(Q1, Q2, P1);\n  D2 := Cross(Q1, Q2, P2);\n  D3 := Cross(P1, P2, Q1);\n  D4 := Cross(P1, P2, Q2);\n\n  if (((D1 > GEOM_EPS) and (D2 < -GEOM_EPS)) or ((D1 < -GEOM_EPS) and (D2 > GEOM_EPS))) and\n     (((D3 > GEOM_EPS) and (D4 < -GEOM_EPS)) or ((D3 < -GEOM_EPS) and (D4 > GEOM_EPS))) then\n  begin\n    Result := True;\n    Exit;\n  end;\n\n  Result := OnSegment(Q1, Q2, P1) or OnSegment(Q1, Q2, P2) or\n            OnSegment(P1, P2, Q1) or OnSegment(P1, P2, Q2);\nend;\n\n// Closed point-in-convex-polygon test for a CCW polygon with at least 3 vertices\nfunction PointInConvex(const H: TPointArray; const P: TPoint): Boolean;\nvar\n  I, N: LongInt;\nbegin\n  N := Length(H);\n  Result := False;\n  if N < 3 then\n    Exit;\n  for I := 0 to N - 1 do\n    if Cross(H[I], H[(I + 1) mod N], P) < -GEOM_EPS then\n      Exit;\n  Result := True;\nend;\n\nfunction calculate_clean_minkowski_sum(const Poly1, Poly2: PPolygon): PPolygon;\nvar\n  H: TPointArray;\nbegin\n  Result := nil;\n  if (Poly1 = nil) or (Poly2 = nil) then\n    Exit;\n\n  H := MinkowskiPoints(Poly1^.Vertices, Poly2^.Vertices);\n\n  Result := create_polygon(Length(H), Poly1^.ZoneName + '+' + Poly2^.ZoneName);\n  Result^.Vertices := H;\n  Result^.NumVertices := Length(H);\n  Result^.IsConvex := True;\nend;\n\nfunction check_dynamic_collision(const Obstacle, Robot: PPolygon; const Velocity: TPoint): Boolean;\nvar\n  NegRobot, C: TPointArray;\n  Origin, Target: TPoint;\n  I, J, N: LongInt;\nbegin\n  Result := False;\n  if (Obstacle = nil) or (Robot = nil) then\n    Exit;\n  if (Length(Obstacle^.Vertices) = 0) or (Length(Robot^.Vertices) = 0) then\n    Exit;\n\n  // Configuration space obstacle: Obstacle (+) (-Robot)\n  SetLength(NegRobot, Length(Robot^.Vertices));\n  for I := 0 to High(Robot^.Vertices) do\n  begin\n    NegRobot[I].X := -Robot^.Vertices[I].X;\n    NegRobot[I].Y := -Robot^.Vertices[I].Y;\n  end;\n\n  C := MinkowskiPoints(Obstacle^.Vertices, NegRobot);\n  N := Length(C);\n  if N = 0 then\n    Exit;\n\n  // Robot reference point at origin sweeps along segment [0, Velocity].\n  // Collision occurs iff this segment touches the configuration space obstacle.\n  Origin.X := 0.0;\n  Origin.Y := 0.0;\n  Target := Velocity;\n\n  for I := 0 to N - 1 do\n  begin\n    J := (I + 1) mod N;\n    if SegmentsIntersect(Origin, Target, C[I], C[J]) then\n    begin\n      Result := True;\n      Exit;\n    end;\n  end;\n\n  if (N >= 3) and (PointInConvex(C, Origin) or PointInConvex(C, Target)) then\n    Result := True;\nend;\n\nfunction create_polygon(NumVertices: LongInt; const Name: AnsiString): PPolygon;\nvar\n  Count: LongInt;\nbegin\n  New(Result);\n  Result^.Vertices := nil;\n\n  Count := NumVertices;\n  if Count < 0 then\n    Count := 0;\n\n  SetLength(Result^.Vertices, Count);\n  Result^.NumVertices := Count;\n  Result^.IsConvex := False;\n  Result^.ZoneName := Name;\nend;\n\nprocedure free_polygon(Poly: PPolygon);\nbegin\n  if Poly <> nil then\n  begin\n    Poly^.Vertices := nil;\n    Poly^.ZoneName := '';\n    Dispose(Poly);\n  end;\nend;\n\nfunction create_layer(const Name: AnsiString): PSpatialLayer;\nbegin\n  New(Result);\n  Result^.Polygons := nil;\n  Result^.PolygonCount := 0;\n  Result^.LayerName := Name;\nend;\n\n// The layer owns the polygons it references and frees them.\nprocedure free_layer(Layer: PSpatialLayer);\nvar\n  I: LongInt;\nbegin\n  if Layer <> nil then\n  begin\n    for I := 0 to High(Layer^.Polygons) do\n    begin\n      free_polygon(Layer^.Polygons[I]);\n      Layer^.Polygons[I] := nil;\n    end;\n    Layer^.Polygons := nil;\n    Layer^.PolygonCount := 0;\n    Layer^.LayerName := '';\n    Dispose(Layer);\n  end;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SFw9y2qPjb79QKEFB1",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The solution is structured procedural code: small helper routines (Cross, PointLess, ConvexHull, MinkowskiPoints, SegmentsIntersect, PointInConvex) with explicit data flow and plain loops. Const parameters are used deliberately and early Exit keeps control flow simple. For a 5 it would need to drop the hand-rolled quicksort and the redundant Result/Exit flags, but the paradigm fit is strong.\",\"language_idiomaticity\":\"It uses SetLength, Copy, High, Min/Max from Math, Exit, dynamic arrays and {$mode objfpc}, and keeps helpers in the implementation section. Weak points: a hand-written QuickSortPoints where the RTL or a generic sort would do. free_polygon manually nils the dynamic array and string before Dispose, which is unnecessary because Dispose finalizes managed fields. `Result^.Vertices := nil` before SetLength is also redundant, and `Exit` is used where `Exit(value)` could have been. Naming mixes snake_case from the contract with PascalCase helpers, which is fine.\",\"readability\":\"Names are clear (ConvexHull, MinkowskiPoints, OnSegment, PointInConvex), functions are short, and the comments are useful and not excessive ('Configuration space obstacle: Obstacle (+) (-Robot)', 'Closed segment intersection test'). SegmentsIntersect has a dense boolean condition, and the monotone chain's T := K + 1 is a bit cryptic. Otherwise it reads easily.\",\"design\":\"The decomposition is good. MinkowskiPoints is shared between calculate_clean_minkowski_sum and check_dynamic_collision, and the CSpace reduction to segment-versus-polygon is sound. Memory ownership is documented (the layer owns its polygons). Weaknesses: the O(n*m) point cloud plus hull rather than an edge merge, an inconsistent GEOM_EPS (exact comparisons in the hull versus epsilon elsewhere), and the two-step create-then-overwrite Vertices in calculate_clean_minkowski_sum, which allocates an array and then replaces it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"hand-rolled quicksort instead of an RTL or generic sort\",\"redundant manual clearing of managed fields before Dispose\",\"create_polygon allocates a vertex array that is immediately replaced in calculate_clean_minkowski_sum\",\"mixed exact and epsilon floating-point comparisons\"],\"justification\":\"This is a clean structured-procedural solution that reuses MinkowskiPoints and ConvexHull (monotone chain) for both required operations, and the CSpace segment test in check_dynamic_collision is clearly expressed. It makes good use of Free Pascal facilities such as SetLength, Copy, High and Math.Min/Max. Small blemishes include the custom QuickSortPoints, the redundant nil/empty assignments in free_polygon, and the extra allocation in create_polygon followed by overwrite.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7016,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7016,
+          "model": null,
+          "output_tokens": 1070,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1070,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

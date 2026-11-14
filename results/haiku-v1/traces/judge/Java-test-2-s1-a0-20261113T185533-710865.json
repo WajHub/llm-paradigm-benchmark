@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:33+00:00",
+  "kind": "judge",
+  "label": "Java-test-2-s1-a0",
+  "request_id": "req_011Ch1SFHLPAFeMD8yCvAo9V",
+  "duration_s": 8.8,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\n- Implement `createGraph`: Create a directed weighted graph with the given number of vertices (0-indexed).\n- Implement `addEdge`: Add a directed edge from vertex `from` to vertex `to` with the given non-negative weight. Support multiple edges between the same pair.\n- Implement `dijkstra`: Run Dijkstra's algorithm from the given source vertex. Return a PathResult with shortest distances and predecessor array. Unreachable vertices must have distance Double.POSITIVE_INFINITY. Return null if graph is null or source out of bounds.\n- Implement `getShortestDistance`: Return shortest distance to target. Return Double.POSITIVE_INFINITY if target out of bounds or result is null.\n- Implement `reconstructPath`: Return int[] of vertex indices from source to target. Return null if unreachable, out of bounds, or result is null.\n- Use a priority queue for O((V+E) log V) time complexity.\n- Keep the contract in `ShortestPath.java`, the concrete solution in `ShortestPathImpl.java`.\n- Return only raw Java code.\n\n## Contract given to the author (ShortestPath.java, not written by the author)\n```java\nimport java.util.List;\nimport java.util.ArrayList;\n\npublic abstract class ShortestPath {\n    protected ShortestPath() {}\n\n    public static final class Edge {\n        public int to;\n        public double weight;\n        public Edge(int to, double weight) { this.to = to; this.weight = weight; }\n    }\n\n    public static final class Graph {\n        public List<List<Edge>> adjacency;\n        public int numVertices;\n        public Graph(int numVertices) {\n            this.numVertices = Math.max(numVertices, 0);\n            this.adjacency = new ArrayList<>();\n            for (int i = 0; i < this.numVertices; i++)\n                this.adjacency.add(new ArrayList<>());\n        }\n    }\n\n    public static final class PathResult {\n        public double[] distances;\n        public int[] predecessors;\n        public int source;\n        public PathResult(int numVertices, int source) {\n            this.distances = new double[numVertices];\n            this.predecessors = new int[numVertices];\n            this.source = source;\n        }\n    }\n\n    public abstract Graph createGraph(int numVertices);\n    public abstract void addEdge(Graph graph, int from, int to, double weight);\n    public abstract PathResult dijkstra(Graph graph, int source);\n    public abstract double getShortestDistance(PathResult result, int target);\n    public abstract int[] reconstructPath(PathResult result, int target);\n}\n\n```\n\n## Code to evaluate (ShortestPathImpl.java)\n```java\nimport java.util.ArrayDeque;\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.Deque;\nimport java.util.List;\nimport java.util.PriorityQueue;\n\npublic final class ShortestPathImpl extends ShortestPath {\n\n    private static final class QueueEntry {\n        private final int vertex;\n        private final double distance;\n\n        private QueueEntry(int vertex, double distance) {\n            this.vertex = vertex;\n            this.distance = distance;\n        }\n    }\n\n    public ShortestPathImpl() {\n        super();\n    }\n\n    @Override\n    public Graph createGraph(int numVertices) {\n        return new Graph(numVertices);\n    }\n\n    @Override\n    public void addEdge(Graph graph, int from, int to, double weight) {\n        if (graph == null) {\n            throw new IllegalArgumentException(\"Graph must not be null\");\n        }\n        if (from < 0 || from >= graph.numVertices) {\n            throw new IllegalArgumentException(\"Invalid 'from' vertex: \" + from);\n        }\n        if (to < 0 || to >= graph.numVertices) {\n            throw new IllegalArgumentException(\"Invalid 'to' vertex: \" + to);\n        }\n        if (Double.isNaN(weight) || weight < 0) {\n            throw new IllegalArgumentException(\"Edge weight must be non-negative: \" + weight);\n        }\n        graph.adjacency.get(from).add(new Edge(to, weight));\n    }\n\n    @Override\n    public PathResult dijkstra(Graph graph, int source) {\n        if (graph == null || source < 0 || source >= graph.numVertices) {\n            return null;\n        }\n\n        int n = graph.numVertices;\n        PathResult result = new PathResult(n, source);\n        Arrays.fill(result.distances, Double.POSITIVE_INFINITY);\n        Arrays.fill(result.predecessors, -1);\n        result.distances[source] = 0.0;\n\n        PriorityQueue<QueueEntry> queue = new PriorityQueue<>(\n                (a, b) -> Double.compare(a.distance, b.distance));\n        queue.offer(new QueueEntry(source, 0.0));\n\n        while (!queue.isEmpty()) {\n            QueueEntry current = queue.poll();\n            int u = current.vertex;\n\n            if (current.distance > result.distances[u]) {\n                continue;\n            }\n\n            for (Edge edge : graph.adjacency.get(u)) {\n                int v = edge.to;\n                double candidate = result.distances[u] + edge.weight;\n                if (candidate < result.distances[v]) {\n                    result.distances[v] = candidate;\n                    result.predecessors[v] = u;\n                    queue.offer(new QueueEntry(v, candidate));\n                }\n            }\n        }\n\n        return result;\n    }\n\n    @Override\n    public double getShortestDistance(PathResult result, int target) {\n        if (result == null || result.distances == null\n                || target < 0 || target >= result.distances.length) {\n            return Double.POSITIVE_INFINITY;\n        }\n        return result.distances[target];\n    }\n\n    @Override\n    public int[] reconstructPath(PathResult result, int target) {\n        if (result == null || result.distances == null || result.predecessors == null\n                || target < 0 || target >= result.distances.length\n                || target >= result.predecessors.length) {\n            return null;\n        }\n        if (Double.isInfinite(result.distances[target])) {\n            return null;\n        }\n\n        Deque<Integer> path = new ArrayDeque<>();\n        int current = target;\n        int steps = 0;\n        int limit = result.predecessors.length;\n\n        while (current != -1) {\n            if (steps++ > limit) {\n                return null;\n            }\n            path.addFirst(current);\n            if (current == result.source) {\n                break;\n            }\n            current = result.predecessors[current];\n        }\n\n        if (path.isEmpty() || path.peekFirst() != result.source) {\n            return null;\n        }\n\n        List<Integer> list = new ArrayList<>(path);\n        int[] output = new int[list.size()];\n        for (int i = 0; i < output.length; i++) {\n            output[i] = list.get(i);\n        }\n        return output;\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SFHqPY1us8Vizw5LKs",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The solution extends the abstract contract and overrides every method. It has a private nested QueueEntry class and keeps the algorithm in the instance methods. Because the contract's Graph and PathResult have public fields and no behaviour, the logic necessarily sits in the impl. That is acceptable, though little real object modelling is possible. A 5 would need more encapsulation, e.g. dijkstra split into private helpers such as relax or initResult.\",\"language_idiomaticity\":\"It uses PriorityQueue with a lambda comparator, ArrayDeque, Arrays.fill, Double.compare, @Override and a private static final nested class. Weaknesses: the comparator could be Comparator.comparingDouble(...), or QueueEntry could be a record. Path reconstruction copies Deque to List to int[] by hand, where a stream (mapToInt) or a direct loop would be tighter. `path.peekFirst() != result.source` compares an Integer with an int, which unboxes correctly but is subtle. addEdge throws IllegalArgumentException, which the task did not specify but is reasonable.\",\"readability\":\"The names are clear: QueueEntry, candidate, current, limit, steps. Dijkstra's loop is compact and reads well, with the stale-entry skip clearly placed. reconstructPath is longer, with a defensive steps/limit counter and several redundant checks (path.isEmpty, a null distances check) that add noise. There are no comments, but the code is mostly self-explanatory.\",\"design\":\"Responsibilities are separated sensibly: validation in addEdge, the algorithm in dijkstra, and bounds-safe accessors. The lazy-deletion priority queue gives the required complexity. The dijkstra method is a single block of moderate size and could be factored. reconstructPath has a convoluted flow: while(current != -1) with an inner break, then a re-check afterwards, and a double conversion from Deque to List to array. The cycle guard is over-defensive for a well-formed result.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"redundant Deque -> List -> int[] copying in reconstructPath\",\"over-defensive loop guard and redundant post-loop checks\",\"anonymous-style lambda comparator instead of Comparator.comparingDouble\"],\"justification\":\"The solution correctly implements the abstract contract and uses standard collections (PriorityQueue, ArrayDeque, Arrays.fill) with a private nested QueueEntry. dijkstra is clean and uses lazy deletion. reconstructPath is clumsy, with a double conversion to an array, a defensive step counter and redundant checks. The code is idiomatic overall, with minor room for polish through helper extraction, Comparator.comparingDouble and simpler path building.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4208,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4208,
+          "model": null,
+          "output_tokens": 956,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 956,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

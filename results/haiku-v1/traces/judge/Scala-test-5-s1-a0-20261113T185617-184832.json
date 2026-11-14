@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:17+00:00",
+  "kind": "judge",
+  "label": "Scala-test-5-s1-a0",
+  "request_id": "req_011Ch1SJbbohYYaehJPyLTuE",
+  "duration_s": 8.3,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement a mathematical expression parser and evaluator in Scala in the object\nExpression (file Expression.scala). The parser turns a string into an abstract\nsyntax tree (AstNode), and the evaluator computes the numeric value of that AST\ngiven a set of variables. The object already defines the data types; implement\nparseExpression and evaluate.\n\n- Implement `parseExpression(expression: String): Option[AstNode]`: Parse the input\n  string and return `Some` of the AST, or `None` if the string is not a syntactically\n  valid expression. Whitespace is insignificant.\n\n  Grammar (highest precedence last; `^` is right-associative, everything else is\n  left-associative):\n\n      expr    := term   (('+' | '-') term)*\n      term    := unary  (('*' | '/' | '%') unary)*\n      unary   := ('+' | '-') unary | power\n      power   := primary ('^' unary)?\n      primary := NUMBER | IDENT | IDENT '(' args ')' | '(' expr ')'\n      args    := expr (',' expr)*\n\n  * NUMBER: a non-negative decimal literal, e.g. `42` or `3.14`, mapped to NumberNode.\n  * IDENT: a variable name matching `[A-Za-z_][A-Za-z0-9_]*`, mapped to VariableNode.\n  * A call `IDENT '(' args ')'` is only valid for these functions, with the exact\n    argument count shown: `sqrt`/1, `abs`/1, `sin`/1, `cos`/1, `min`/2, `max`/2,\n    `pow`/2, mapped to FunctionCall. Any other function name, or a wrong number of\n    arguments, is a parse error (None).\n  * Precedence consequences: `-2^2` parses as `-(2^2)` and `2^3^2` as `2^(3^2)`.\n\n- Implement `evaluate(ast: AstNode, vars: List[Variable]): EvalResult`: Evaluate the\n  AST using the given variable bindings and return an `EvalResult(status, value)`.\n  If any sub-expression produces a non-Ok status, propagate the first such status\n  upward (short-circuit) and leave value at 0.0.\n\n  Semantics:\n  * NumberNode evaluates to its literal value with status Ok.\n  * VariableNode evaluates to its bound value, or UndefinedVar if no binding with\n    that name exists.\n  * UnaryOp \"-\" negates, UnaryOp \"+\" is identity.\n  * BinaryOp \"+\" \"-\" \"*\" are ordinary arithmetic.\n  * BinaryOp \"/\" and \"%\" return DivByZero when the divisor is 0. \"%\" is the\n    floating-point remainder.\n  * BinaryOp \"^\" and FunctionCall \"pow\" compute x raised to y; if the result is not a\n    finite real number (e.g. a negative base with a non-integer exponent), return\n    DomainError.\n  * FunctionCall \"sqrt\" returns DomainError when its argument is < 0.\n  * \"abs\", \"sin\", \"cos\", \"min\", \"max\" behave as usual (angles in radians).\n\nConstraints:\n  - parseExpression(\"\") must return None.\n  - Floating-point results are compared with a small epsilon tolerance.\n\n## Stub module given to the author (Expression.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject Expression {\n  sealed trait AstNode\n  case class NumberNode(value: Double) extends AstNode\n  case class VariableNode(name: String) extends AstNode\n  case class BinaryOp(op: String, left: AstNode, right: AstNode) extends AstNode\n  case class UnaryOp(op: String, operand: AstNode) extends AstNode\n  case class FunctionCall(name: String, args: List[AstNode]) extends AstNode\n\n  case class Variable(name: String, value: Double)\n\n  sealed trait EvalStatus\n  case object Ok extends EvalStatus\n  case object DivByZero extends EvalStatus\n  case object UndefinedVar extends EvalStatus\n  case object InvalidOp extends EvalStatus\n  case object DomainError extends EvalStatus\n\n  case class EvalResult(status: EvalStatus, value: Double)\n\n  def parseExpression(expression: String): Option[AstNode] =\n    sys.error(\"Expression.parseExpression not implemented\")\n\n  def evaluate(ast: AstNode, vars: List[Variable]): EvalResult =\n    sys.error(\"Expression.evaluate not implemented\")\n}\n\n```\n\n## Code to evaluate (Expression.scala)\n```scala\nobject Expression {\n  sealed trait AstNode\n  case class NumberNode(value: Double) extends AstNode\n  case class VariableNode(name: String) extends AstNode\n  case class BinaryOp(op: String, left: AstNode, right: AstNode) extends AstNode\n  case class UnaryOp(op: String, operand: AstNode) extends AstNode\n  case class FunctionCall(name: String, args: List[AstNode]) extends AstNode\n\n  case class Variable(name: String, value: Double)\n\n  sealed trait EvalStatus\n  case object Ok extends EvalStatus\n  case object DivByZero extends EvalStatus\n  case object UndefinedVar extends EvalStatus\n  case object InvalidOp extends EvalStatus\n  case object DomainError extends EvalStatus\n\n  case class EvalResult(status: EvalStatus, value: Double)\n\n  private sealed trait Token\n  private case class NumTok(text: String) extends Token\n  private case class IdentTok(name: String) extends Token\n  private case class OpTok(c: Char) extends Token\n\n  private type Parsed = Option[(AstNode, List[Token])]\n\n  private val arities: Map[String, Int] =\n    Map(\"sqrt\" -> 1, \"abs\" -> 1, \"sin\" -> 1, \"cos\" -> 1, \"min\" -> 2, \"max\" -> 2, \"pow\" -> 2)\n\n  private val operatorChars = \"+-*/%^(),\"\n\n  private def isDigit(c: Char): Boolean = c >= '0' && c <= '9'\n  private def isIdentStart(c: Char): Boolean = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'\n  private def isIdentChar(c: Char): Boolean = isIdentStart(c) || isDigit(c)\n\n  private def tokenize(s: String): Option[List[Token]] = {\n    @scala.annotation.tailrec\n    def go(cs: List[Char], acc: List[Token]): Option[List[Token]] = cs match {\n      case Nil => Some(acc.reverse)\n      case c :: tail if c.isWhitespace => go(tail, acc)\n      case c :: _ if operatorChars.indexOf(c) >= 0 => go(cs.tail, OpTok(c) :: acc)\n      case c :: _ if isDigit(c) =>\n        val (num, rest) = cs.span(ch => isDigit(ch) || ch == '.')\n        val text = num.mkString\n        if (text.matches(\"\\\\d+(\\\\.\\\\d+)?\")) go(rest, NumTok(text) :: acc) else None\n      case c :: _ if isIdentStart(c) =>\n        val (ident, rest) = cs.span(isIdentChar)\n        go(rest, IdentTok(ident.mkString) :: acc)\n      case _ => None\n    }\n    go(s.toList, Nil)\n  }\n\n  private def leftAssoc(ops: Set[Char], operand: List[Token] => Parsed)(ts: List[Token]): Parsed = {\n    def go(left: AstNode, rest: List[Token]): Parsed = rest match {\n      case OpTok(c) :: tail if ops.contains(c) =>\n        operand(tail).flatMap { case (right, rest2) => go(BinaryOp(c.toString, left, right), rest2) }\n      case _ => Some((left, rest))\n    }\n    operand(ts).flatMap { case (first, rest) => go(first, rest) }\n  }\n\n  private def parseExpr(ts: List[Token]): Parsed =\n    leftAssoc(Set('+', '-'), parseTerm)(ts)\n\n  private def parseTerm(ts: List[Token]): Parsed =\n    leftAssoc(Set('*', '/', '%'), parseUnary)(ts)\n\n  private def parseUnary(ts: List[Token]): Parsed = ts match {\n    case OpTok(c) :: rest if c == '+' || c == '-' =>\n      parseUnary(rest).map { case (e, r) => (UnaryOp(c.toString, e), r) }\n    case _ => parsePower(ts)\n  }\n\n  private def parsePower(ts: List[Token]): Parsed =\n    parsePrimary(ts).flatMap { case (base, rest) =>\n      rest match {\n        case OpTok('^') :: tail =>\n          parseUnary(tail).map { case (e, r) => (BinaryOp(\"^\", base, e), r) }\n        case _ => Some((base, rest))\n      }\n    }\n\n  private def parsePrimary(ts: List[Token]): Parsed = ts match {\n    case NumTok(text) :: rest => Some((NumberNode(text.toDouble), rest))\n    case IdentTok(name) :: OpTok('(') :: rest =>\n      parseArgs(rest).flatMap {\n        case (args, OpTok(')') :: rest2) if arities.get(name).contains(args.length) =>\n          Some((FunctionCall(name, args), rest2))\n        case _ => None\n      }\n    case IdentTok(name) :: rest => Some((VariableNode(name), rest))\n    case OpTok('(') :: rest =>\n      parseExpr(rest).flatMap {\n        case (e, OpTok(')') :: rest2) => Some((e, rest2))\n        case _ => None\n      }\n    case _ => None\n  }\n\n  private def parseArgs(ts: List[Token]): Option[(List[AstNode], List[Token])] =\n    parseExpr(ts).flatMap { case (e, rest) =>\n      rest match {\n        case OpTok(',') :: tail => parseArgs(tail).map { case (es, r) => (e :: es, r) }\n        case _ => Some((List(e), rest))\n      }\n    }\n\n  def parseExpression(expression: String): Option[AstNode] =\n    tokenize(expression).flatMap { ts =>\n      parseExpr(ts) match {\n        case Some((ast, Nil)) => Some(ast)\n        case _ => None\n      }\n    }\n\n  private def ok(v: Double): EvalResult = EvalResult(Ok, v)\n  private def fail(s: EvalStatus): EvalResult = EvalResult(s, 0.0)\n\n  private def power(a: Double, b: Double): EvalResult = {\n    val r = math.pow(a, b)\n    if (r.isNaN || r.isInfinite) fail(DomainError) else ok(r)\n  }\n\n  private def applyFunction(name: String, args: List[Double]): EvalResult = (name, args) match {\n    case (\"sqrt\", x :: Nil) => if (x < 0) fail(DomainError) else ok(math.sqrt(x))\n    case (\"abs\", x :: Nil) => ok(math.abs(x))\n    case (\"sin\", x :: Nil) => ok(math.sin(x))\n    case (\"cos\", x :: Nil) => ok(math.cos(x))\n    case (\"min\", x :: y :: Nil) => ok(math.min(x, y))\n    case (\"max\", x :: y :: Nil) => ok(math.max(x, y))\n    case (\"pow\", x :: y :: Nil) => power(x, y)\n    case _ => fail(InvalidOp)\n  }\n\n  private def applyBinary(op: String, a: Double, b: Double): EvalResult = op match {\n    case \"+\" => ok(a + b)\n    case \"-\" => ok(a - b)\n    case \"*\" => ok(a * b)\n    case \"/\" => if (b == 0) fail(DivByZero) else ok(a / b)\n    case \"%\" => if (b == 0) fail(DivByZero) else ok(a % b)\n    case \"^\" => power(a, b)\n    case _ => fail(InvalidOp)\n  }\n\n  def evaluate(ast: AstNode, vars: List[Variable]): EvalResult = ast match {\n    case NumberNode(v) => ok(v)\n\n    case VariableNode(name) =>\n      vars.find(_.name == name) match {\n        case Some(v) => ok(v.value)\n        case None => fail(UndefinedVar)\n      }\n\n    case UnaryOp(op, operand) =>\n      val r = evaluate(operand, vars)\n      if (r.status != Ok) fail(r.status)\n      else op match {\n        case \"-\" => ok(-r.value)\n        case \"+\" => ok(r.value)\n        case _ => fail(InvalidOp)\n      }\n\n    case BinaryOp(op, left, right) =>\n      val lr = evaluate(left, vars)\n      if (lr.status != Ok) fail(lr.status)\n      else {\n        val rr = evaluate(right, vars)\n        if (rr.status != Ok) fail(rr.status)\n        else applyBinary(op, lr.value, rr.value)\n      }\n\n    case FunctionCall(name, args) =>\n      val results = args.map(evaluate(_, vars))\n      results.find(_.status != Ok) match {\n        case Some(bad) => fail(bad.status)\n        case None => applyFunction(name, results.map(_.value))\n      }\n  }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SJbx9TLpZiu7h47grq",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Fully functional: immutable tokens and AST, tail-recursive tokenizer `go` with an accumulator, parsers as pure functions returning `Option[(AstNode, List[Token])]`, and no vars or mutation. The `leftAssoc` higher-order helper is a good functional abstraction. A 5 would also remove the manual status-checking `if` chains in `evaluate` and use a monadic style such as Either or for-comprehensions for short-circuiting.\",\"language_idiomaticity\":\"Uses sealed traits, case classes, pattern matching with guards, `Option.flatMap`, `span`, `find`, and `arities.get(name).contains(...)`. It uses a type alias `Parsed`, and the `@tailrec` annotation is applied correctly. Minor departures: `operatorChars.indexOf(c) >= 0` instead of `contains`, a regex check on the number text, the odd `go(cs.tail, ...)` where `tail` is already bound, hand-written `isDigit`/`isIdentStart` instead of `Char.isDigit`, `r.status != Ok` comparisons instead of matching, and `Option.contains`, which needs Scala 2.11+. Operators are Strings and Chars, which the contract mandates.\",\"readability\":\"Names are clear (`parseUnary`, `parsePower`, `applyBinary`, `ok`/`fail`), functions are short, and the grammar maps directly to the parser functions. The structure is easy to follow. There are no comments, and the nested flatMap/case lambdas in `parsePrimary` are slightly dense. The nested if/else in `evaluate` for BinaryOp is a bit clunky.\",\"design\":\"Clean separation of tokenizer, parser, and evaluator, with the evaluation primitives split into `applyFunction`, `applyBinary`, and `power`. `leftAssoc` removes duplication between expr and term. The arity table is data-driven. Weaknesses: `evaluate` repeats the short-circuit propagation logic in three places instead of a helper like `flatMap` on EvalResult or an Either. The `applyFunction` fallback duplicates the arity knowledge that the parser already enforces.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"repeated manual status-check if/else chains in evaluate instead of a combinator for short-circuiting\",\"hand-rolled character predicates and regex validation instead of standard Char methods\"],\"justification\":\"The solution is a pure, immutable functional parser with a tokenizer, `leftAssoc` higher-order helper, and Option-based error handling, and the evaluator is cleanly pattern matched. The main blemishes are the duplicated status propagation in `evaluate` (UnaryOp, BinaryOp, FunctionCall) and a few small library-usage choices such as `indexOf`, a regex, and custom digit tests. Overall it is idiomatic and well structured, just short of ideal.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6468,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6468,
+          "model": null,
+          "output_tokens": 1021,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1021,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-8",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is relational in places: Prim runs by recursion with accumulators, `pre/pre_children` use difference lists, and the matching DP threads the assoc state explicitly with no assert. Against that, `mst/3` has overlapping clauses (the third relies on its `Pts = [_,_|_]` guard), and `pick_min`, `upd_front` and `best_pair` are chains of if-then-else on comparisons. `hier` and `take_edge` also use if-then-else where head pattern matching would be more declarative. One point more would need cleaner clause-head dispatch, with min-selection and edge removal done via `select/3` or `foldl`.",
+    "language_idiomaticity": "Standard libraries are used: `assoc`, `maplist`, `exclude`, `selectchk`, `aggregate_all`, `numlist`, `nth0`, `findall`, `sort`. The `sum_edges` predicate has a red cut that is only correct because the clause order is fixed; `sum_list` over `maplist` would be better. `dist/4` uses `nth0` on every call, which is O(n) per lookup, and `bits_of` has a cut and is not tail-recursive. The `nth0` calls inside the DP, `odd_vertices` using an `aggregate_all` count per vertex, and `member` plus `=:=` for edge lookup all show list-based handling where better structures exist. `none` is handled with `==` checks inside the public predicates instead of via clause heads.",
+    "readability": "Names are mostly meaningful (`pick_min`, `upd_front`, `odd_vertices`, `shortcut`, `min_match`) and the section comments help. Terms like `V-K-P` and `Cost-Pairs` are positional and a little cryptic. The 9-argument `best_pair` and the 6-argument `min_match` with threaded memo state are dense, and `hier` has no comment explaining what its stack means.",
+    "design": "The decomposition is clear: MST, tree walk, cost, odd vertices, matching DP, Euler circuit and shortcut are separate predicates, and the `tour_cost` and `matching` helpers are reused by both public predicates. The matching DP is exact and memoised on bitmasks. Weaknesses are the repeated O(n) `nth0` distance lookups with no precomputed matrix or array, the Euler edge list that is scanned linearly, and the way `none` is handled separately in each public predicate. The `mst/3` clauses are not mutually exclusive, so a choicepoint may be left on `mst([_],...)`, which is relevant to the determinism requirement."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 3,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "red cut in sum_edges relying on clause order",
+    "overlapping mst/3 clauses leaving choicepoints",
+    "if-then-else chains instead of clause-head dispatch (take_edge, upd_front, pick_min)",
+    "repeated nth0 index lookups instead of a precomputed distance structure",
+    "manual recursion where sum_list/foldl would do",
+    "many-argument state-threading predicates (best_pair/9)"
+  ],
+  "justification": "The solution is a working, well-sectioned decomposition that uses assoc-based memoisation and accumulator recursion without assert. Several stretches are imperative-flavoured: if-then-else chains in `take_edge`, `upd_front` and `best_pair`, and the red cut in `sum_edges`. Positional `V-K-P` triples and the 9-argument `best_pair` hurt readability. The O(n) `nth0` distance lookups and the overlapping `mst/3` clauses also keep it from the higher scores.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RvK3nc7KhcQC9NrHEX",
+  "judge_s": 11.4,
+  "input_tokens": 7109,
+  "output_tokens": 1232,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

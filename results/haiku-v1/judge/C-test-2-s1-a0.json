@@ -6,21 +6,32 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is procedural: a MinHeap struct operated on by static functions (heap_init, heap_push, heap_pop, heap_free), explicit state mutation, and a clear loop in dijkstra. It uses lazy deletion with a visited array and the heap's capacity is pre-sized to E+1 so no resizing occurs. A 5 would break the long dijkstra into smaller steps (allocation/init helper, relaxation) and use a sift-up/sift-down abstraction instead of inlined loops.",
+    "language_idiomaticity": "It uses static helpers, size_t casts, calloc, realloc with a temporary pointer, const on the graph and result parameters, and isinf/INFINITY. Minor departures: needless casts of malloc results (a C++ habit), a redundant per-element re-initialisation loop after calloc in create_graph, a `long total_edges` that is cast to int, and the `visited[u]` check duplicates the `item.dist > distances[u]` check. A silent defensive return in heap_push hides errors.",
+    "readability": "Names are clear (HeapItem, MinHeap, heap_push, visited, nd) and the heap functions are short and understandable. dijkstra is long (about 60 lines) with repeated cleanup blocks, and the reconstruct_path two-pass logic with a cycle guard takes some reading. Comments are sparse and used where helpful (e.g. the NaN rejection). Splitting dijkstra would earn a 5.",
+    "design": "The min-heap is a separate encapsulated component and the result and graph have matched free functions. The error cleanup in dijkstra is duplicated twice rather than using a single goto cleanup. The heap is sized from the total edge count, which is correct but requires a pass over the edges. heap_push silently ignores overflow rather than being provably safe. The path is computed in two passes (count, then fill), which is sensible. A single cleanup label and a smaller dijkstra would improve it."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "redundant re-initialization of calloc'd adjacency fields in create_graph",
-    "silent failure in heap_push when capacity is exceeded and in graph_add_edge on realloc failure",
-    "mixed C89 declarations with C99 inline declarations (for int i, mid-block HeapItem tmp)",
-    "heap sized to total edges + 1 up front rather than growing dynamically"
+    "duplicated manual cleanup blocks instead of a single goto cleanup label",
+    "redundant re-initialisation loop after calloc in create_graph",
+    "needless casts of malloc/calloc results",
+    "silent no-op in heap_push when the capacity is exceeded",
+    "long dijkstra function mixing allocation, init and the main loop"
   ],
-  "justification": "The code is cleanly procedural: static heap helpers with a single responsibility, a lazy-deletion Dijkstra, and allocation failure handled with cleanup on each path. It uses size_t casts, calloc, and static for internals, and the ownership of each allocation is clear. Small blemishes include the redundant field zeroing after calloc, silent drops on heap overflow or realloc failure, the repeated cleanup block in dijkstra instead of a goto-cleanup, and the inconsistent declaration style. Missing `const` on a few spots is not an issue, and the heap is correctly sized so the defensive guard never fires.",
+  "justification": "A solid procedural C implementation with a well-encapsulated static min-heap, proper NULL and bounds checks, const-correct parameters, and a safe realloc pattern. Weaknesses are the long dijkstra with duplicated error cleanup, the redundant initialisation loop after calloc, unnecessary malloc casts, and the silently ignoring defensive guard in heap_push.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 5123,
-  "output_tokens": 383,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SDRDqapRFte8jZg2f3",
+  "judge_s": 8.6,
+  "input_tokens": 5460,
+  "output_tokens": 945,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

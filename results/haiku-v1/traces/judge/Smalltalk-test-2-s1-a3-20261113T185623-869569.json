@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:23+00:00",
+  "kind": "judge",
+  "label": "Smalltalk-test-2-s1-a3",
+  "request_id": "req_011Ch1SK1j8URn7We98xxX4p",
+  "duration_s": 8.8,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Smalltalk code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Smalltalk\n\n- Message passing and polymorphism; small methods with intention-revealing selectors.\n- Collection protocols instead of index loops: `do:`, `collect:`, `select:`, `reject:`, `detect:ifNone:`,\n  `inject:into:`, `with:collect:`; `to:do:` only where indices are really needed.\n- Blocks used idiomatically (`ifTrue:ifFalse:`, `ifNil:`, `and:`/`or:` with blocks), early returns with `^`.\n- Domain logic in objects rather than long procedural methods; no redefinition of built-in classes.\n- GNU Smalltalk bracket syntax used cleanly; temporaries declared where used.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Smalltalk (object-oriented paradigm)\n\n## Task specification given to the author\n- Implement `createGraph: numVertices`: Create a DijkstraGraph with given vertices (0-indexed internally, but Smalltalk arrays are 1-indexed — handle the mapping).\n- Implement `addEdge: graph from: from to: to weight: weight`: Add a directed edge. Mutate the graph's adjacency list.\n- Implement `dijkstra: graph source: source`: Run Dijkstra's algorithm. Return a DijkstraResult with distances and predecessors arrays. Unreachable vertices get Float infinity. Return nil if graph is nil or source out of bounds.\n- Implement `getShortestDistance: result target: target`: Return distance. Return Float infinity if nil or out of bounds.\n- Implement `reconstructPath: result target: target`: Return an OrderedCollection of vertex indices (0-based) from source to target. Return nil if unreachable.\n- Use the built-in Edge, DijkstraGraph, DijkstraResult classes defined in ShortestPath.st.\n- Use idiomatic GNU Smalltalk.\n\n## Contract given to the author (ShortestPath.st, not written by the author)\n```smalltalk\nObject subclass: Edge [\n    | eTo weight |\n\n    Edge class >> to: t weight: w [\n        ^self new initTo: t weight: w\n    ]\n\n    initTo: t weight: w [\n        eTo := t.\n        weight := w.\n    ]\n\n    eTo [ ^eTo ]\n    eTo: t [ eTo := t ]\n    weight [ ^weight ]\n    weight: w [ weight := w ]\n]\n\nObject subclass: DijkstraGraph [\n    | adjacency numVertices |\n\n    DijkstraGraph class >> numVertices: n [\n        ^self new initNumVertices: n\n    ]\n\n    initNumVertices: n [\n        numVertices := n max: 0.\n        adjacency := Array new: numVertices withAll: OrderedCollection new.\n        1 to: numVertices do: [:i | adjacency at: i put: OrderedCollection new].\n    ]\n\n    adjacency [ ^adjacency ]\n    adjacency: a [ adjacency := a ]\n    numVertices [ ^numVertices ]\n    numVertices: n [ numVertices := n ]\n]\n\nObject subclass: DijkstraResult [\n    | distances predecessors source |\n\n    DijkstraResult class >> distances: d predecessors: p source: s [\n        ^self new initDistances: d predecessors: p source: s\n    ]\n\n    initDistances: d predecessors: p source: s [\n        distances := d.\n        predecessors := p.\n        source := s.\n    ]\n\n    distances [ ^distances ]\n    distances: d [ distances := d ]\n    predecessors [ ^predecessors ]\n    predecessors: p [ predecessors := p ]\n    source [ ^source ]\n    source: s [ source := s ]\n]\n\nObject subclass: ShortestPath [\n    createGraph: numVertices [\n        self subclassResponsibility\n    ]\n\n    addEdge: graph from: from to: to weight: weight [\n        self subclassResponsibility\n    ]\n\n    dijkstra: graph source: source [\n        self subclassResponsibility\n    ]\n\n    getShortestDistance: result target: target [\n        self subclassResponsibility\n    ]\n\n    reconstructPath: result target: target [\n        self subclassResponsibility\n    ]\n]\n\n```\n\n## Code to evaluate (ShortestPathImpl.st)\n```smalltalk\nShortestPath subclass: ShortestPathImpl [\n\n    infinity [\n        ^FloatD infinity\n    ]\n\n    createGraph: numVertices [\n        | n |\n        n := (numVertices isInteger) ifTrue: [numVertices] ifFalse: [0].\n        ^DijkstraGraph numVertices: n\n    ]\n\n    addEdge: graph from: from to: to weight: weight [\n        | n |\n        graph isNil ifTrue: [^nil].\n        n := graph numVertices.\n        ((from isInteger and: [from >= 0 and: [from < n]]) and:\n            [to isInteger and: [to >= 0 and: [to < n]]])\n                ifFalse: [^nil].\n        (graph adjacency at: from + 1)\n            add: (Edge to: to weight: weight asFloat).\n        ^graph\n    ]\n\n    dijkstra: graph source: source [\n        | n distances predecessors visited current currentDist |\n        graph isNil ifTrue: [^nil].\n        n := graph numVertices.\n        (source isInteger and: [source >= 0 and: [source < n]])\n            ifFalse: [^nil].\n        distances := Array new: n withAll: self infinity.\n        predecessors := Array new: n withAll: nil.\n        visited := Array new: n withAll: false.\n        distances at: source + 1 put: 0.0.\n        [\n            current := nil.\n            currentDist := self infinity.\n            1 to: n do: [:i |\n                ((visited at: i) not and: [(distances at: i) < currentDist])\n                    ifTrue: [\n                        current := i.\n                        currentDist := distances at: i]].\n            current notNil\n        ] whileTrue: [\n            visited at: current put: true.\n            (graph adjacency at: current) do: [:edge |\n                | v alt |\n                v := edge eTo + 1.\n                alt := currentDist + edge weight.\n                alt < (distances at: v) ifTrue: [\n                    distances at: v put: alt.\n                    predecessors at: v put: current - 1]]].\n        ^DijkstraResult distances: distances predecessors: predecessors source: source\n    ]\n\n    getShortestDistance: result target: target [\n        | d |\n        result isNil ifTrue: [^self infinity].\n        d := result distances.\n        (target isInteger and: [target >= 0 and: [target < d size]])\n            ifFalse: [^self infinity].\n        ^d at: target + 1\n    ]\n\n    reconstructPath: result target: target [\n        | d preds path current |\n        result isNil ifTrue: [^nil].\n        d := result distances.\n        (target isInteger and: [target >= 0 and: [target < d size]])\n            ifFalse: [^nil].\n        (d at: target + 1) = self infinity ifTrue: [^nil].\n        preds := result predecessors.\n        path := OrderedCollection new.\n        current := target.\n        [current notNil] whileTrue: [\n            path addFirst: current.\n            current := preds at: current + 1].\n        (path first = result source) ifFalse: [^nil].\n        ^path\n    ]\n]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SK24xyMLT4dpapMMUw",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The logic sits in a ShortestPath subclass and uses the provided Edge, DijkstraGraph and DijkstraResult objects with message passing, so it is OO in form. But dijkstra:source: is one long procedural method: a manual min-selection scan over `visited` and `distances` arrays inside a whileTrue: loop, with mutable `current` and `currentDist` temporaries. A 5 would extract helpers such as `nextUnvisitedVertex` and `relaxEdgesFrom:`, or use a priority queue (SortedCollection), and put vertex validation on the graph object.\",\"language_idiomaticity\":\"The code uses `isNil ifTrue: [^nil]` early returns, `and:` with blocks, `Array new:withAll:`, `addFirst:` and `FloatD infinity`, all of which are valid GNU Smalltalk. Weaker points: `isNil ifTrue:` where `ifNil:` fits, `to:do:` with a manual scan instead of a collection protocol, `notNil` as the loop condition, and `Array new: n withAll: nil` where plain `Array new: n` would do. The `isInteger` checks are defensive and not very Smalltalk-like, and the `infinity` method wraps `FloatD infinity` instead of using `Float infinity` directly.\",\"readability\":\"Names are clear (`distances`, `predecessors`, `visited`, `current`) and the code is short. The whileTrue: receiver block mixes the scan with the loop condition, which makes it harder to follow. The `+ 1` and `- 1` index mapping is scattered through the code, and the repeated target-bounds check is not named. There are no comments.\",\"design\":\"The five required methods are implemented, and a small `infinity` helper is the only extra. Duplication remains: the bounds check on a vertex appears in addEdge:, dijkstra: and getShortestDistance:/reconstructPath:. The index conversion is not centralised, and the Dijkstra core is not decomposed. The O(V^2) scan is acceptable but unextracted. reconstructPath: checks that the first path vertex equals the source, which is a reasonable guard.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"monolithic dijkstra:source: method with a manual min-scan inside a whileTrue: loop\",\"mutable current/currentDist temporaries used to emulate a priority queue\",\"bounds validation duplicated across methods instead of a helper\",\"unnecessary isInteger defensive checks\",\"visited tracked in a parallel boolean Array, not a Set or Bag\"],\"justification\":\"The solution is correct in structure and uses the provided classes via message sends, but dijkstra:source: is a long procedural method with an inline linear scan and mutable temporaries. The duplicated bounds checks and the lack of helper methods such as `relaxEdgesFrom:` or `isValidVertex:` reduce the design score. Language use is acceptable, with early returns and block conditionals, but it relies on index loops and `isNil ifTrue:` where more idiomatic forms exist.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4139,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 4139,
+          "model": null,
+          "output_tokens": 1060,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1060,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:08+00:00",
+  "kind": "judge",
+  "label": "C-test-1-s1-a0",
+  "request_id": "req_011Ch1SDRGK6LaA72C2WhcxA",
+  "duration_s": 9.1,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\n- Implement `calculate_clean_minkowski_sum`: Calculate the Minkowski sum of two convex polygons (poly1 and poly2), and return a new polygon representing ONLY the convex hull of the resulting point cloud. The vertices of the returned polygon must be strictly extreme points (collinear points on the edges must be removed) and ordered counter-clockwise.\n- Implement `check_dynamic_collision`: Determine if a moving robot polygon intersects with a stationary obstacle polygon at any point along a linear path defined by the velocity vector. Use the Minkowski sum Configuration Space approach to prevent tunneling (continuous collision detection). Return true if a collision occurs, false otherwise.\n- Implement `create_polygon` & `create_layer`: Properly allocate memory for the structures and safely copy the provided strings into zone_name and layer_name.\n\n## Contract given to the author (spatial_logic.h, not written by the author)\n```c\n#ifndef SPATIAL_LOGIC_H\n#define SPATIAL_LOGIC_H\n\n#include <stdbool.h>\n\ntypedef struct {\n    double x;\n    double y;\n} Point;\n\ntypedef struct {\n    Point* vertices;\n    int num_vertices;\n    bool is_convex;\n    char zone_name[32];\n} Polygon;\n\ntypedef struct {\n    Polygon** polygons;\n    int polygon_count;\n    char layer_name[64];\n} SpatialLayer;\n\nPolygon* calculate_clean_minkowski_sum(const Polygon* poly1, const Polygon* poly2);\n\nbool check_dynamic_collision(const Polygon* obstacle, const Polygon* robot, Point velocity);\n\nPolygon* create_polygon(int num_vertices, const char* name);\nvoid free_polygon(Polygon* poly);\nSpatialLayer* create_layer(const char* name);\nvoid free_layer(SpatialLayer* layer);\n\n#endif\n```\n\n## Code to evaluate (spatial_logic.c)\n```c\n#include <stdlib.h>\n#include <string.h>\n#include \"spatial_logic.h\"\n\n#define GEO_EPS 1e-9\n\nstatic double geo_abs(double v)\n{\n    return v < 0.0 ? -v : v;\n}\n\nstatic double geo_cross(Point o, Point a, Point b)\n{\n    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);\n}\n\nstatic void geo_copy_name(char* dst, size_t cap, const char* src)\n{\n    if (!dst || cap == 0) {\n        return;\n    }\n    dst[0] = '\\0';\n    if (src) {\n        strncpy(dst, src, cap - 1);\n        dst[cap - 1] = '\\0';\n    }\n}\n\nstatic int geo_cmp_points(const void* a, const void* b)\n{\n    const Point* p = (const Point*)a;\n    const Point* q = (const Point*)b;\n    if (p->x < q->x) return -1;\n    if (p->x > q->x) return 1;\n    if (p->y < q->y) return -1;\n    if (p->y > q->y) return 1;\n    return 0;\n}\n\nstatic bool geo_on_segment(Point a, Point b, Point p)\n{\n    double minx = a.x < b.x ? a.x : b.x;\n    double maxx = a.x > b.x ? a.x : b.x;\n    double miny = a.y < b.y ? a.y : b.y;\n    double maxy = a.y > b.y ? a.y : b.y;\n    return (p.x >= minx - GEO_EPS) && (p.x <= maxx + GEO_EPS) &&\n           (p.y >= miny - GEO_EPS) && (p.y <= maxy + GEO_EPS);\n}\n\nstatic bool geo_segments_intersect(Point p1, Point p2, Point q1, Point q2)\n{\n    double d1 = geo_cross(q1, q2, p1);\n    double d2 = geo_cross(q1, q2, p2);\n    double d3 = geo_cross(p1, p2, q1);\n    double d4 = geo_cross(p1, p2, q2);\n\n    if (((d1 > GEO_EPS && d2 < -GEO_EPS) || (d1 < -GEO_EPS && d2 > GEO_EPS)) &&\n        ((d3 > GEO_EPS && d4 < -GEO_EPS) || (d3 < -GEO_EPS && d4 > GEO_EPS))) {\n        return true;\n    }\n\n    if (geo_abs(d1) <= GEO_EPS && geo_on_segment(q1, q2, p1)) return true;\n    if (geo_abs(d2) <= GEO_EPS && geo_on_segment(q1, q2, p2)) return true;\n    if (geo_abs(d3) <= GEO_EPS && geo_on_segment(p1, p2, q1)) return true;\n    if (geo_abs(d4) <= GEO_EPS && geo_on_segment(p1, p2, q2)) return true;\n\n    return false;\n}\n\nPolygon* create_polygon(int num_vertices, const char* name)\n{\n    Polygon* poly = (Polygon*)calloc(1, sizeof(Polygon));\n    if (!poly) {\n        return NULL;\n    }\n\n    if (num_vertices < 0) {\n        num_vertices = 0;\n    }\n\n    poly->num_vertices = num_vertices;\n    poly->is_convex = true;\n    poly->vertices = NULL;\n\n    if (num_vertices > 0) {\n        poly->vertices = (Point*)calloc((size_t)num_vertices, sizeof(Point));\n        if (!poly->vertices) {\n            free(poly);\n            return NULL;\n        }\n    }\n\n    geo_copy_name(poly->zone_name, sizeof(poly->zone_name), name);\n    return poly;\n}\n\nvoid free_polygon(Polygon* poly)\n{\n    if (!poly) {\n        return;\n    }\n    free(poly->vertices);\n    poly->vertices = NULL;\n    free(poly);\n}\n\nSpatialLayer* create_layer(const char* name)\n{\n    SpatialLayer* layer = (SpatialLayer*)calloc(1, sizeof(SpatialLayer));\n    if (!layer) {\n        return NULL;\n    }\n    layer->polygons = NULL;\n    layer->polygon_count = 0;\n    geo_copy_name(layer->layer_name, sizeof(layer->layer_name), name);\n    return layer;\n}\n\nvoid free_layer(SpatialLayer* layer)\n{\n    if (!layer) {\n        return;\n    }\n    if (layer->polygons) {\n        for (int i = 0; i < layer->polygon_count; i++) {\n            free_polygon(layer->polygons[i]);\n            layer->polygons[i] = NULL;\n        }\n        free(layer->polygons);\n        layer->polygons = NULL;\n    }\n    layer->polygon_count = 0;\n    free(layer);\n}\n\nPolygon* calculate_clean_minkowski_sum(const Polygon* poly1, const Polygon* poly2)\n{\n    if (!poly1 || !poly2) {\n        return NULL;\n    }\n\n    int n = poly1->num_vertices;\n    int m = poly2->num_vertices;\n\n    if (n <= 0 || m <= 0 || !poly1->vertices || !poly2->vertices) {\n        return create_polygon(0, \"MinkowskiSum\");\n    }\n\n    size_t total = (size_t)n * (size_t)m;\n    Point* pts = (Point*)malloc(sizeof(Point) * total);\n    if (!pts) {\n        return NULL;\n    }\n\n    size_t idx = 0;\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < m; j++) {\n            pts[idx].x = poly1->vertices[i].x + poly2->vertices[j].x;\n            pts[idx].y = poly1->vertices[i].y + poly2->vertices[j].y;\n            idx++;\n        }\n    }\n\n    qsort(pts, total, sizeof(Point), geo_cmp_points);\n\n    /* Remove duplicate points */\n    size_t u = 0;\n    for (size_t i = 0; i < total; i++) {\n        if (u == 0 ||\n            geo_abs(pts[i].x - pts[u - 1].x) > GEO_EPS ||\n            geo_abs(pts[i].y - pts[u - 1].y) > GEO_EPS) {\n            pts[u++] = pts[i];\n        }\n    }\n\n    Point* hull = (Point*)malloc(sizeof(Point) * (2 * u + 2));\n    if (!hull) {\n        free(pts);\n        return NULL;\n    }\n\n    size_t k = 0;\n    if (u <= 2) {\n        for (size_t i = 0; i < u; i++) {\n            hull[k++] = pts[i];\n        }\n    } else {\n        /* Lower hull */\n        for (size_t i = 0; i < u; i++) {\n            while (k >= 2 && geo_cross(hull[k - 2], hull[k - 1], pts[i]) <= GEO_EPS) {\n                k--;\n            }\n            hull[k++] = pts[i];\n        }\n        /* Upper hull */\n        size_t t = k + 1;\n        for (size_t i = u - 1; i-- > 0; ) {\n            while (k >= t && geo_cross(hull[k - 2], hull[k - 1], pts[i]) <= GEO_EPS) {\n                k--;\n            }\n            hull[k++] = pts[i];\n        }\n        /* Last point equals first point */\n        k--;\n    }\n\n    Polygon* result = create_polygon((int)k, \"MinkowskiSum\");\n    if (result) {\n        for (size_t i = 0; i < k; i++) {\n            result->vertices[i] = hull[i];\n        }\n        result->is_convex = true;\n    }\n\n    free(hull);\n    free(pts);\n    return result;\n}\n\nbool check_dynamic_collision(const Polygon* obstacle, const Polygon* robot, Point velocity)\n{\n    if (!obstacle || !robot) {\n        return false;\n    }\n    if (obstacle->num_vertices <= 0 || robot->num_vertices <= 0 ||\n        !obstacle->vertices || !robot->vertices) {\n        return false;\n    }\n\n    /* Negate robot (180-degree rotation keeps CCW ordering) */\n    Polygon* neg = create_polygon(robot->num_vertices, \"NegRobot\");\n    if (!neg) {\n        return false;\n    }\n    for (int i = 0; i < robot->num_vertices; i++) {\n        neg->vertices[i].x = -robot->vertices[i].x;\n        neg->vertices[i].y = -robot->vertices[i].y;\n    }\n\n    /* Configuration space obstacle: C = O (+) (-R) */\n    Polygon* cspace = calculate_clean_minkowski_sum(obstacle, neg);\n    free_polygon(neg);\n    if (!cspace) {\n        return false;\n    }\n\n    int k = cspace->num_vertices;\n    if (k <= 0) {\n        free_polygon(cspace);\n        return false;\n    }\n\n    Point origin = {0.0, 0.0};\n    Point tip = velocity;\n    bool hit = false;\n\n    /* Robot already overlapping at t = 0 */\n    if (k >= 3) {\n        bool inside = true;\n        for (int i = 0; i < k; i++) {\n            Point a = cspace->vertices[i];\n            Point b = cspace->vertices[(i + 1) % k];\n            if (geo_cross(a, b, origin) < -GEO_EPS) {\n                inside = false;\n                break;\n            }\n        }\n        if (inside) {\n            hit = true;\n        }\n    }\n\n    /* Path segment [0, v] intersects boundary of C */\n    if (!hit) {\n        for (int i = 0; i < k; i++) {\n            Point a = cspace->vertices[i];\n            Point b = cspace->vertices[(i + 1) % k];\n            if (geo_segments_intersect(origin, tip, a, b)) {\n                hit = true;\n                break;\n            }\n        }\n    }\n\n    free_polygon(cspace);\n    return hit;\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SDS3SbND7Ba7eG4uz8",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is clean procedural C: small static helpers (geo_cross, geo_on_segment, geo_segments_intersect), explicit loops, data passed through structs, and straightforward control flow with early returns. Monotone-chain hull built on qsort is the standard imperative approach. Cleanup uses a single exit path in places, with early-break loops. A 5 would require fewer inline loops in the big functions, e.g. extracting hull construction and the 'inside' test into helpers.\",\"language_idiomaticity\":\"Uses static helpers, qsort with a comparator, size_t for sizes, calloc/malloc checks, and a bounded strncpy wrapper that guarantees termination. Naming is consistent with a geo_ prefix. Minor departures: the contract has const pointers but geo_cmp_points casts properly; the cast of calloc/malloc results is unnecessary in C; geo_abs reimplements fabs from <math.h>; the `for (size_t i = u - 1; i-- > 0; )` idiom is a bit cryptic; the dedupe uses per-axis epsilon after sorting. Mixing int num_vertices with size_t requires casts but they are handled.\",\"readability\":\"Names are clear and comments mark the hull phases and the collision steps. Functions are mostly short, but calculate_clean_minkowski_sum is long, mixing point generation, dedupe, hull and result copy. The reverse upper-hull loop and the `k--` trailing comment need a moment to follow. Splitting it into helpers would earn a 5.\",\"design\":\"Good separation: geometry primitives, name copy, allocation/free pairs, and collision implemented via the Minkowski sum of obstacle and negated robot, as the spec requires. Ownership is clear and error paths free pts/hull/neg/cspace. Weaknesses: the Minkowski sum is computed as O(nm log nm) brute-force hull of all pairwise sums rather than an edge-merge, which is acceptable; hull construction is not factored into a reusable convex_hull function; the temporary Polygon allocation for the negated robot is heavier than needed; the final copy from hull to result could be a memcpy.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"reimplementing fabs (geo_abs) instead of using math.h\",\"long function mixing point generation, dedupe, hull building and result copy\",\"manual loop copy instead of memcpy for hull to result vertices\",\"unnecessary casts on malloc/calloc results\"],\"justification\":\"The code is solid procedural C with static helpers, qsort, checked allocations and consistent cleanup, and the collision check follows the C-space approach via the Minkowski sum with the negated robot. Small deductions come from the long calculate_clean_minkowski_sum, the hand-rolled geo_abs and copy loop, and the lack of a separate convex-hull helper. Overall it is idiomatic and easy to follow.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5998,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5998,
+          "model": null,
+          "output_tokens": 1011,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1011,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

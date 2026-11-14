@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:43+00:00",
+  "kind": "judge",
+  "label": "Pascal-test-3-s1-a0",
+  "request_id": "req_011Ch1SG22egr6tgB1xQeBRp",
+  "duration_s": 9.4,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Pascal code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Pascal\n\n- Structured procedural style: procedures/functions with clear parameters (`const`/`var` used deliberately),\n  records and dynamic arrays from the unit.\n- Memory managed with `New`/`Dispose` or `SetLength` consistently; matching free procedures; no leaks.\n- Uses Free Pascal RTL facilities (`SetLength`, `Length`, `High`, `Exit(value)`, `Math`/`SysUtils` routines)\n  instead of reinventing them; helpers kept in the `implementation` section.\n- Readable control flow (`for`/`while`/`repeat`, `case`), meaningful identifiers, no `goto`.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Pascal (imperative paradigm)\n\n## Task specification given to the author\nImplement a Palindrome Tree (also known as Eertree) data structure in Pascal (Free\nPascal, {$mode objfpc}) using the unit palindrome_tree. The Eertree is a linear-time\ndata structure that implicitly represents all distinct palindromic substrings of a\nstring. It was introduced by Mikhail Rubinchik and Arseny M. Shur in 2014.\n\n- Implement `EertreeBuild(S: PChar; Len: LongInt): PEertree`: Build the palindrome tree\n  for a given string of length `Len` in O(n) time. The tree must include two imaginary\n  root nodes at indices 0 and 1: root 0 has Len = -1 (the \"odd root\"), root 1 has Len = 0\n  (the \"even root\"). After building, propagate occurrence counts from longer palindromes\n  to shorter ones by traversing nodes in decreasing order of `Len` and adding each node's\n  `Cnt` to its `SuffixLink`'s `Cnt`. The final `Cnt` of each node must equal the total\n  number of times that palindrome appears as a substring in the input.\n\n- Implement `EertreeCountDistinct(const T: PEertree): LongInt`: Return the number of\n  distinct palindromic substrings (i.e., the number of real nodes, excluding the two\n  imaginary roots).\n\n- Implement `EertreeCountOccurrences(const T: PEertree; Pattern: PChar; PLen: LongInt):\n  Int64`: Find the node in the tree whose palindrome matches `Pattern` (using `EndPos` to\n  locate the substring in the stored string) and return its propagated `Cnt`. Return 0 if\n  the pattern is not found, not a palindrome, or any argument is nil.\n\n- Implement `EertreeLongestLength(const T: PEertree): LongInt`: Return the maximum `Len`\n  among all real nodes.\n\n- Implement `EertreeFree(var T: PEertree)`: Free all dynamically allocated memory and set\n  T to nil. Must not leak memory (verified by valgrind).\n\nConstraints:\n  - Input strings contain only lowercase Latin letters ('a'..'z').\n  - `EertreeBuild(nil, n)` with n > 0 must return nil.\n  - `EertreeBuild(PChar(''), 0)` must return a valid Eertree with only the two imaginary\n    roots.\n  - All query functions must return 0 on nil input without raising.\n  - Keep the contract (type declarations and signatures) in the `interface` section of\n    `palindrome_tree.pas`.\n\n## Stub module given to the author (palindrome_tree.pas)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```pascal\nunit palindrome_tree;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  SysUtils;\n\nconst\n  EERTREE_ALPHA = 26;\n\ntype\n  TEertreeNode = record\n    Len: LongInt;\n    SuffixLink: LongInt;\n    Children: array[0..EERTREE_ALPHA - 1] of LongInt;\n    Cnt: Int64;\n    EndPos: LongInt;\n  end;\n\n  TEertreeNodeArray = array of TEertreeNode;\n\n  PEertree = ^TEertree;\n  TEertree = record\n    Nodes: TEertreeNodeArray;\n    Size: LongInt;\n    Capacity: LongInt;\n    Last: LongInt;\n    Str: AnsiString;\n    StrLen: LongInt;\n  end;\n\nfunction EertreeBuild(S: PChar; Len: LongInt): PEertree;\nfunction EertreeCountDistinct(const T: PEertree): LongInt;\nfunction EertreeCountOccurrences(const T: PEertree; Pattern: PChar; PLen: LongInt): Int64;\nfunction EertreeLongestLength(const T: PEertree): LongInt;\nprocedure EertreeFree(var T: PEertree);\n\nimplementation\n\nfunction EertreeBuild(S: PChar; Len: LongInt): PEertree;\nbegin\n  raise Exception.Create('EertreeBuild not implemented');\n  Result := nil;\nend;\n\nfunction EertreeCountDistinct(const T: PEertree): LongInt;\nbegin\n  raise Exception.Create('EertreeCountDistinct not implemented');\n  Result := 0;\nend;\n\nfunction EertreeCountOccurrences(const T: PEertree; Pattern: PChar; PLen: LongInt): Int64;\nbegin\n  raise Exception.Create('EertreeCountOccurrences not implemented');\n  Result := 0;\nend;\n\nfunction EertreeLongestLength(const T: PEertree): LongInt;\nbegin\n  raise Exception.Create('EertreeLongestLength not implemented');\n  Result := 0;\nend;\n\nprocedure EertreeFree(var T: PEertree);\nbegin\n  if T <> nil then\n  begin\n    Dispose(T);\n    T := nil;\n  end;\nend;\n\nend.\n\n```\n\n## Code to evaluate (palindrome_tree.pas)\n```pascal\nunit palindrome_tree;\n\n{$mode objfpc}{$H+}\n\ninterface\n\nuses\n  SysUtils;\n\nconst\n  EERTREE_ALPHA = 26;\n\ntype\n  TEertreeNode = record\n    Len: LongInt;\n    SuffixLink: LongInt;\n    Children: array[0..EERTREE_ALPHA - 1] of LongInt;\n    Cnt: Int64;\n    EndPos: LongInt;\n  end;\n\n  TEertreeNodeArray = array of TEertreeNode;\n\n  PEertree = ^TEertree;\n  TEertree = record\n    Nodes: TEertreeNodeArray;\n    Size: LongInt;\n    Capacity: LongInt;\n    Last: LongInt;\n    Str: AnsiString;\n    StrLen: LongInt;\n  end;\n\nfunction EertreeBuild(S: PChar; Len: LongInt): PEertree;\nfunction EertreeCountDistinct(const T: PEertree): LongInt;\nfunction EertreeCountOccurrences(const T: PEertree; Pattern: PChar; PLen: LongInt): Int64;\nfunction EertreeLongestLength(const T: PEertree): LongInt;\nprocedure EertreeFree(var T: PEertree);\n\nimplementation\n\nfunction EertreeCanExtend(S: PChar; Pos, NodeLen: LongInt): Boolean;\nbegin\n  Result := (Pos - NodeLen - 1 >= 0) and (S[Pos - NodeLen - 1] = S[Pos]);\nend;\n\nfunction EertreeBuild(S: PChar; Len: LongInt): PEertree;\nvar\n  T: PEertree;\n  i, c, cur, w, v, link, child: LongInt;\n  L, pos, tmp, k, maxIdx: LongInt;\n  bucket, order: array of LongInt;\nbegin\n  Result := nil;\n  if Len < 0 then\n    Exit;\n  if (S = nil) and (Len > 0) then\n    Exit;\n  for i := 0 to Len - 1 do\n    if (S[i] < 'a') or (S[i] > 'z') then\n      Exit;\n\n  New(T);\n  T^.Nodes := nil;\n  T^.Str := '';\n  SetLength(T^.Nodes, Len + 2);\n  FillChar(T^.Nodes[0], (Len + 2) * SizeOf(TEertreeNode), 0);\n\n  T^.Nodes[0].Len := -1;\n  T^.Nodes[0].SuffixLink := 0;\n  T^.Nodes[1].Len := 0;\n  T^.Nodes[1].SuffixLink := 0;\n\n  T^.Size := 2;\n  T^.Capacity := Len + 2;\n  T^.Last := 1;\n  T^.StrLen := Len;\n  SetLength(T^.Str, Len);\n  if Len > 0 then\n    Move(S^, T^.Str[1], Len);\n\n  for i := 0 to Len - 1 do\n  begin\n    c := Ord(S[i]) - Ord('a');\n    cur := T^.Last;\n    while not EertreeCanExtend(S, i, T^.Nodes[cur].Len) do\n      cur := T^.Nodes[cur].SuffixLink;\n\n    child := T^.Nodes[cur].Children[c];\n    if child <> 0 then\n      T^.Last := child\n    else\n    begin\n      v := T^.Size;\n      Inc(T^.Size);\n      T^.Nodes[v].Len := T^.Nodes[cur].Len + 2;\n      T^.Nodes[v].EndPos := i;\n      T^.Nodes[v].Cnt := 0;\n      FillChar(T^.Nodes[v].Children, SizeOf(T^.Nodes[v].Children), 0);\n\n      if T^.Nodes[v].Len = 1 then\n        link := 1\n      else\n      begin\n        w := T^.Nodes[cur].SuffixLink;\n        while not EertreeCanExtend(S, i, T^.Nodes[w].Len) do\n          w := T^.Nodes[w].SuffixLink;\n        link := T^.Nodes[w].Children[c];\n      end;\n\n      T^.Nodes[v].SuffixLink := link;\n      T^.Nodes[cur].Children[c] := v;\n      T^.Last := v;\n    end;\n\n    T^.Nodes[T^.Last].Cnt := T^.Nodes[T^.Last].Cnt + 1;\n  end;\n\n  // Propagate counts in decreasing order of Len (counting sort by Len)\n  SetLength(bucket, Len + 2);\n  FillChar(bucket[0], (Len + 2) * SizeOf(LongInt), 0);\n  for v := 2 to T^.Size - 1 do\n    Inc(bucket[T^.Nodes[v].Len]);\n\n  pos := 0;\n  for L := Len downto 0 do\n  begin\n    tmp := bucket[L];\n    bucket[L] := pos;\n    Inc(pos, tmp);\n  end;\n\n  SetLength(order, T^.Size);\n  for v := 2 to T^.Size - 1 do\n  begin\n    maxIdx := T^.Nodes[v].Len;\n    order[bucket[maxIdx]] := v;\n    Inc(bucket[maxIdx]);\n  end;\n\n  for k := 0 to T^.Size - 3 do\n  begin\n    v := order[k];\n    T^.Nodes[T^.Nodes[v].SuffixLink].Cnt :=\n      T^.Nodes[T^.Nodes[v].SuffixLink].Cnt + T^.Nodes[v].Cnt;\n  end;\n\n  Result := T;\nend;\n\nfunction EertreeCountDistinct(const T: PEertree): LongInt;\nbegin\n  if T = nil then\n    Result := 0\n  else\n    Result := T^.Size - 2;\nend;\n\nfunction EertreeCountOccurrences(const T: PEertree; Pattern: PChar; PLen: LongInt): Int64;\nvar\n  v, k, start: LongInt;\n  match: Boolean;\nbegin\n  Result := 0;\n  if (T = nil) or (Pattern = nil) or (PLen <= 0) or (PLen > T^.StrLen) then\n    Exit;\n\n  for v := 2 to T^.Size - 1 do\n  begin\n    if T^.Nodes[v].Len = PLen then\n    begin\n      start := T^.Nodes[v].EndPos - PLen + 1;\n      match := True;\n      for k := 0 to PLen - 1 do\n        if T^.Str[start + k + 1] <> Pattern[k] then\n        begin\n          match := False;\n          Break;\n        end;\n      if match then\n      begin\n        Result := T^.Nodes[v].Cnt;\n        Exit;\n      end;\n    end;\n  end;\nend;\n\nfunction EertreeLongestLength(const T: PEertree): LongInt;\nvar\n  v: LongInt;\nbegin\n  Result := 0;\n  if T = nil then\n    Exit;\n  for v := 2 to T^.Size - 1 do\n    if T^.Nodes[v].Len > Result then\n      Result := T^.Nodes[v].Len;\nend;\n\nprocedure EertreeFree(var T: PEertree);\nbegin\n  if T <> nil then\n  begin\n    T^.Nodes := nil;\n    T^.Str := '';\n    Dispose(T);\n    T := nil;\n  end;\nend;\n\nend.\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SG2Lzy6jtnKVCCnXUC",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is structured procedural: a single pass builds the tree with while loops following suffix links, a counting sort by Len gives the propagation order, and the query functions are plain loops with early Exit. Data flow is explicit and the control structures are simple. EertreeBuild is long, though, and its stages (validation, init, construction, propagation) are not split into procedures. Extracting those stages would earn a 5.\",\"language_idiomaticity\":\"Uses Result/Exit, New/Dispose, SetLength, FillChar, Move, Break and an AnsiString copy, all fine in Free Pascal. Weaknesses: the repeated T^.Nodes[...] chains are not simplified with a local pointer or `with`; `Cnt := Cnt + 1` is used where Inc would do; the local `maxIdx` is a misnomer for a Len bucket key; the `Capacity` field is set but unused; and the local `L` clashes in style with the other lowercase names. Nodes := nil in EertreeFree is redundant but harmless. Cleaning these up would earn a 5.\",\"readability\":\"The algorithm is recognisable, and EertreeCanExtend is a well-named helper. The comment on the counting sort helps. However, the nested T^.Nodes[T^.Nodes[v].SuffixLink].Cnt expressions are dense, the build routine has many single-letter variables (w, v, c, L, k), and `maxIdx` is misleadingly named. Local aliases such as a node pointer or index variables would earn a 5.\",\"design\":\"The helper EertreeCanExtend removes duplication of the bounds-and-compare check. Counting sort keeps propagation O(n). Input validation is done upfront. Weaknesses: the monolithic EertreeBuild; EertreeCountOccurrences scans every node linearly and compares strings instead of walking the tree or using a lookup; the counting-sort propagation could be its own procedure; and there is no helper for node creation. Splitting those out would raise the score.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"monolithic build function mixing validation, construction and propagation\",\"repeated T^.Nodes[...] indexing instead of local aliases\",\"linear scan over all nodes for occurrence lookup\",\"misleading variable name maxIdx\",\"Capacity field set but unused\"],\"justification\":\"The solution is competent structured Pascal with correct use of Exit, SetLength, FillChar and Move, and a clean counting-sort propagation. EertreeCanExtend avoids duplication, but EertreeBuild is long and heavy with T^.Nodes[...] chains. EertreeCountOccurrences is an O(n·m) scan over every node rather than a targeted lookup, which weakens the design, and a few naming and style slips (maxIdx, Cnt := Cnt + 1) cost readability.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6127,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6127,
+          "model": null,
+          "output_tokens": 982,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 982,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

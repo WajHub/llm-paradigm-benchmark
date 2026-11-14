@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "Prolog",
+  "paradigm": "logic",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "Recursion with an accumulator (select_loop carries a reversed pivot list, kth threads the remaining ranges) and maplist/include are used well. But select_loop and kth are nested if-then-else chains inside a single clause, not clause-head pattern matching, so control flow reads imperatively. chunks5 and take use red cuts (`take(_, [], [], []) :- !.`) where length/append, or a clause with first-argument indexing, would be cleaner. A 4 would need multi-clause dispatch on the La=0, Lb=0 and K=0 cases and no red cuts.",
+    "language_idiomaticity": "The code uses msort/2, nth0/3, maplist/3, include/3, reverse/2 and `is` correctly, and returns `none` as the task specifies. Weaker points: `select_kth` has an unparenthesised `(K<0 ; K>=Len) -> ... ; ...` whose precedence is correct but hard to see; partition/4 or a single pass could replace the three include/3 traversals; and the hand-written take/4 reimplements what length/append/append/3 give. A 5 would drop the hand-rolled chunking and clarify the condition structure.",
+    "readability": "Predicate names (chunks5, lower_median, select_loop, kth, lt_pivot) are clear, and the kth predicate has a mode/semantics comment. The module header comments are kept. The long nested if-then-else blocks in select_loop and kth, and the ambiguous top-level condition in select_kth, cost some clarity. Short helper predicates keep each piece small.",
+    "design": "The decomposition is reasonable: separate chunking, median, selection loop and the kth-by-halving search, with median_of_medians reused inside select_loop. The kth search is a clean O(log) algorithm over (getter, offset, length) triples. Weaknesses: the even-total case runs kth twice, repeating reads and work instead of fetching both middle elements together; three include/3 passes recompute the partition; and the six-to-eight argument kth signature would benefit from a source/offset term."
+  },
+  "paradigm_idiomaticity": 3,
+  "language_idiomaticity": 4,
+  "readability": 4,
+  "design": 3,
+  "anti_patterns": [
+    "red cuts in take/4 and chunks5 instead of declarative clauses or library predicates",
+    "nested if-then-else chains in select_loop and kth instead of clause-head dispatch",
+    "reimplementing list splitting (take/4) instead of using library predicates",
+    "multiple traversals (three include/3 calls) for one partition",
+    "two separate kth runs for the even-total median"
+  ],
+  "justification": "The solution follows the specified algorithms and uses library predicates (maplist, include, msort, nth0) and an accumulator-plus-reverse for the pivot trace. It loses points for hand-rolled take/4 and chunks5 with red cuts, and for expressing the main loops as big nested if-then-else blocks instead of pattern-matching clauses. The two kth calls for even totals duplicate work, and the three include passes over the same list could be one partition, so the design is sound but not polished.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "I'm checking the `select_kth` clause, where the if-then-else has no outer parentheses. Reading it through, the body still parses as intended, so the logic is fine; it just reads awkwardly.\n\nI'm going through the rest of the clauses now: the cuts in median_of_medians and chunks5 look harmless, and the kth recursion stays well under the step limit. The main critique is design rather than correctness, with the nested if-then-else and repeated kth calls standing out as more imperative than they need to be. Scores are coming out around 3 to 4 for paradigm and design, and 4 for language and readability.\n\n",
+  "request_id": "req_011Ch1Rv4HHkoWrJuGi6Hx17",
+  "judge_s": 14.1,
+  "input_tokens": 6313,
+  "output_tokens": 1567,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

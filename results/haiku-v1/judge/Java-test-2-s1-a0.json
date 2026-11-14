@@ -6,20 +6,30 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The solution extends the abstract contract and overrides every method. It has a private nested QueueEntry class and keeps the algorithm in the instance methods. Because the contract's Graph and PathResult have public fields and no behaviour, the logic necessarily sits in the impl. That is acceptable, though little real object modelling is possible. A 5 would need more encapsulation, e.g. dijkstra split into private helpers such as relax or initResult.",
+    "language_idiomaticity": "It uses PriorityQueue with a lambda comparator, ArrayDeque, Arrays.fill, Double.compare, @Override and a private static final nested class. Weaknesses: the comparator could be Comparator.comparingDouble(...), or QueueEntry could be a record. Path reconstruction copies Deque to List to int[] by hand, where a stream (mapToInt) or a direct loop would be tighter. `path.peekFirst() != result.source` compares an Integer with an int, which unboxes correctly but is subtle. addEdge throws IllegalArgumentException, which the task did not specify but is reasonable.",
+    "readability": "The names are clear: QueueEntry, candidate, current, limit, steps. Dijkstra's loop is compact and reads well, with the stale-entry skip clearly placed. reconstructPath is longer, with a defensive steps/limit counter and several redundant checks (path.isEmpty, a null distances check) that add noise. There are no comments, but the code is mostly self-explanatory.",
+    "design": "Responsibilities are separated sensibly: validation in addEdge, the algorithm in dijkstra, and bounds-safe accessors. The lazy-deletion priority queue gives the required complexity. The dijkstra method is a single block of moderate size and could be factored. reconstructPath has a convoluted flow: while(current != -1) with an inner break, then a re-check afterwards, and a double conversion from Deque to List to array. The cycle guard is over-defensive for a well-formed result."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "redundant intermediate ArrayList copy and manual loop to convert Deque<Integer> to int[] (could use stream or direct fill)",
-    "path.peekFirst() != result.source compares Integer to int via unboxing, subtle but works; overly defensive null checks on array fields",
-    "addEdge throws exceptions on invalid input although the contract does not specify error behavior"
+    "redundant Deque -> List -> int[] copying in reconstructPath",
+    "over-defensive loop guard and redundant post-loop checks",
+    "anonymous-style lambda comparator instead of Comparator.comparingDouble"
   ],
-  "justification": "The solution uses a private static nested QueueEntry class, a PriorityQueue with a comparator, and the lazy-deletion Dijkstra pattern, all of which are idiomatic Java and OO-consistent. Input validation is clear and methods are small. Weaknesses are the unnecessary conversion through an intermediate ArrayList in reconstructPath, the manual step-limit loop with defensive checks, and the excess null checks on result fields that the constructor always initialises. The comparator could use Comparator.comparingDouble, and reconstructPath could be split into helpers, but overall the design is clean.",
+  "justification": "The solution correctly implements the abstract contract and uses standard collections (PriorityQueue, ArrayDeque, Arrays.fill) with a private nested QueueEntry. dijkstra is clean and uses lazy deletion. reconstructPath is clumsy, with a double conversion to an array, a defensive step counter and redundant checks. The code is idiomatic overall, with minor room for polish through helper extraction, Comparator.comparingDouble and simpler path building.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3871,
-  "output_tokens": 372,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SFHLPAFeMD8yCvAo9V",
+  "judge_s": 8.8,
+  "input_tokens": 4208,
+  "output_tokens": 956,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

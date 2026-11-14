@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:33+00:00",
+  "kind": "judge",
+  "label": "Smalltalk-test-10-s1-a0",
+  "request_id": "req_011Ch1RwdzbASpBS1o3ba7ce",
+  "duration_s": 8.6,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Smalltalk code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Smalltalk\n\n- Message passing and polymorphism; small methods with intention-revealing selectors.\n- Collection protocols instead of index loops: `do:`, `collect:`, `select:`, `reject:`, `detect:ifNone:`,\n  `inject:into:`, `with:collect:`; `to:do:` only where indices are really needed.\n- Blocks used idiomatically (`ifTrue:ifFalse:`, `ifNil:`, `and:`/`or:` with blocks), early returns with `^`.\n- Domain logic in objects rather than long procedural methods; no redefinition of built-in classes.\n- GNU Smalltalk bracket syntax used cleanly; temporaries declared where used.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Smalltalk (object-oriented paradigm)\n\n## Task specification given to the author\nImplement order statistics in GNU Smalltalk in the class OrderStatsImpl (file\nOrderStatsImpl.st), which subclasses the abstract class OrderStats: deterministic BFPRT\nselection (median of medians) that also reports the trace of pivots, and the median of\ntwo sorted sequences that may only be read through a counting probe with a logarithmic\nread budget. The result class SelectResult (class-side constructor\n`SelectResult value: anInteger pivots: anArray`, accessors value and pivots) is already\ndefined. Implement medianOfMedians:, selectKth:from: and medianOf:and:.\nPut the solution in OrderStatsImpl.st.\n\nPart A - median of medians (xs is an Array of Integers, duplicates allowed; do NOT\nmodify xs):\n  * Lower median of a non-empty group g = the element at 1-based position\n    ((g size - 1) // 2) + 1 of g sorted ascending (for an even size, the smaller of the\n    two middle elements).\n\n- Implement `medianOfMedians: xs`: answer nil if xs is empty. Otherwise split xs IN ITS\n  CURRENT ORDER into consecutive groups of 5 (positions 1..5, 6..10, ...; the last group\n  may have 1 to 4 elements), take the lower median of each group, and answer the lower\n  median of the collection of group medians (in group order). How that final lower\n  median is computed does not matter, only its value.\n\n- Implement `selectKth: k from: xs`: k is 1-BASED (k = 1 is the minimum, k = xs size the\n  maximum). Answer nil if k < 1 or k > xs size (in particular for an empty xs).\n  Otherwise answer a SelectResult whose value is the k-th smallest element and whose\n  pivots is an Array (empty Array if no pivot was recorded) produced by EXACTLY this\n  procedure, starting with cur = xs, rank = k, pivots = empty:\n    1. If cur size <= 5: value = the element at position rank of cur sorted ascending;\n       stop (no pivot is recorded at this level).\n    2. p := medianOfMedians: cur; append p to pivots.\n    3. Stable three-way partition: L = the elements < p IN THEIR ORDER IN cur,\n       E = the number of elements = p, G = the elements > p in their order in cur.\n    4. If rank <= L size: cur := L, go to 1.\n       Else if rank <= L size + E: value = p; stop.\n       Else rank := rank - L size - E, cur := G, go to 1.\n  pivots lists the pivots of the top-level steps in order (first step first) and is\n  compared exactly. Pivots used internally while computing a median of medians are NOT\n  recorded. An in-place / Dutch-flag partition that reorders elements produces a\n  different trace and is wrong; sorting xs gives the right value but not the trace.\n\nPart B - median of two sorted sources:\n  * A source is a read-only object that answers ONLY two messages: `size` (its length,\n    >= 0, up to 2000000000; reading the size is free) and `at: i` (1-BASED: at: 1 is the\n    first element; i must be an Integer with 1 <= i <= size). Its elements are Integers\n    in non-decreasing order. Do not send any other message to a source (no isEmpty,\n    first, last, do:, asArray, copy...) - they are not understood.\n  * Every `at:` call is counted, repeated reads of the same index count again. The total\n    number of reads over BOTH sources must not exceed 16 * (bitlen(a size + b size) + 1),\n    where bitlen(x) is the number of binary digits of x (bitlen(0) = 0, bitlen(7) = 3;\n    for 2000000000 elements the budget is 512). Reading an index outside 1..size or\n    exceeding the budget signals an Error that aborts the call: do NOT catch or suppress\n    errors coming from a source (a swallowed violation is detected anyway), and do not\n    copy a source into a collection. Index arithmetic must use Integers (use //, never /).\n\n- Implement `medianOf: a and: b`: answer the median of the merged multiset of both\n  sources as a Float: for an odd total, the middle element (as a Float, e.g. 3.0); for\n  an even total, the arithmetic mean of the two middle elements (e.g. 1 and 2 -> 1.5).\n  Answer nil if both sources are empty. Either source alone may be empty.\n  Use binary search: a partition search on the shorter source (O(log min(m, n)) reads)\n  or k-th element search by halving k (O(log(m + n)) reads). A linear merge exceeds the\n  budget and fails.\n\nConstraints:\n  - Integer values fit in 32 bits, but sizes up to 2*10^9 are used, so never build\n    collections of the sources' size.\n  - Floating-point results are compared with a 1e-9 tolerance.\n\n## Contract given to the author (OrderStats.st, not written by the author)\n```smalltalk\nObject subclass: SelectResult [\n    | value pivots |\n\n    SelectResult class >> value: v pivots: p [\n        ^self new initValue: v pivots: p\n    ]\n\n    initValue: v pivots: p [\n        value := v.\n        pivots := p.\n        ^self\n    ]\n\n    value [ ^value ]\n    pivots [ ^pivots ]\n]\n\nObject subclass: OrderStats [\n    medianOfMedians: xs [\n        ^self subclassResponsibility\n    ]\n\n    selectKth: k from: xs [\n        ^self subclassResponsibility\n    ]\n\n    medianOf: a and: b [\n        ^self subclassResponsibility\n    ]\n]\n\n```\n\n## Code to evaluate (OrderStatsImpl.st)\n```smalltalk\nObject subclass: OrderStats [\n    medianOfMedians: xs [\n        ^self subclassResponsibility\n    ]\n\n    selectKth: k from: xs [\n        ^self subclassResponsibility\n    ]\n\n    medianOf: a and: b [\n        ^self subclassResponsibility\n    ]\n]\n\nOrderStats subclass: OrderStatsImpl [\n\n    lowerMedianOf: arr [\n        | sorted |\n        sorted := arr asSortedCollection asArray.\n        ^sorted at: ((sorted size - 1) // 2) + 1\n    ]\n\n    medianOfMedians: xs [\n        | groupMedians |\n        xs isEmpty ifTrue: [^nil].\n        groupMedians := OrderedCollection new.\n        1 to: xs size by: 5 do: [:start |\n            | end group |\n            end := (start + 4) min: xs size.\n            group := (xs copyFrom: start to: end) asSortedCollection asArray.\n            groupMedians add: (group at: ((group size - 1) // 2) + 1)].\n        ^self lowerMedianOf: groupMedians asArray\n    ]\n\n    selectKth: k from: xs [\n        | cur rank pivots p lessPart equalCount greaterPart |\n        (k < 1 or: [k > xs size]) ifTrue: [^nil].\n        cur := xs.\n        rank := k.\n        pivots := OrderedCollection new.\n        [cur size <= 5 ifTrue: [\n            ^SelectResult\n                value: (cur asSortedCollection asArray at: rank)\n                pivots: pivots asArray].\n         p := self medianOfMedians: cur.\n         pivots add: p.\n         lessPart := (cur select: [:e | e < p]) asArray.\n         equalCount := (cur select: [:e | e = p]) size.\n         greaterPart := (cur select: [:e | e > p]) asArray.\n         rank <= lessPart size\n            ifTrue: [cur := lessPart]\n            ifFalse: [\n                rank <= (lessPart size + equalCount)\n                    ifTrue: [^SelectResult value: p pivots: pivots asArray].\n                rank := rank - lessPart size - equalCount.\n                cur := greaterPart]\n        ] repeat\n    ]\n\n    kthOf: k in: a and: b [\n        | m n offA offB kk |\n        m := a size.\n        n := b size.\n        offA := 0.\n        offB := 0.\n        kk := k.\n        [| remA remB ia ib |\n         remA := m - offA.\n         remB := n - offB.\n         remA = 0 ifTrue: [^b at: offB + kk].\n         remB = 0 ifTrue: [^a at: offA + kk].\n         kk = 1 ifTrue: [^(a at: offA + 1) min: (b at: offB + 1)].\n         ia := (kk // 2) min: remA.\n         ib := (kk // 2) min: remB.\n         (a at: offA + ia) <= (b at: offB + ib)\n            ifTrue: [\n                offA := offA + ia.\n                kk := kk - ia]\n            ifFalse: [\n                offB := offB + ib.\n                kk := kk - ib]\n        ] repeat\n    ]\n\n    medianOf: a and: b [\n        | total lo hi |\n        total := a size + b size.\n        total = 0 ifTrue: [^nil].\n        (total \\\\ 2) = 1\n            ifTrue: [^(self kthOf: (total + 1) // 2 in: a and: b) asFloat].\n        lo := self kthOf: total // 2 in: a and: b.\n        hi := self kthOf: (total // 2) + 1 in: a and: b.\n        ^(lo + hi) asFloat / 2.0\n    ]\n]\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RweHTgJJ12vguPSqYi",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The work is spread over small methods on the OrderStatsImpl object (lowerMedianOf:, kthOf:in:and:, medianOf:and:), and the abstract class is overridden polymorphically. The algorithm bodies are still procedural: selectKth: keeps mutable cur/rank/pivots state in a `repeat` loop, and kthOf:in:and: does the same with offsets. There is no domain object such as a source wrapper or a partition result. A score of 5 would need a more object-centred decomposition, for example a partition helper or a source-view object.\",\"language_idiomaticity\":\"The code uses select:, asSortedCollection, copyFrom:to:, min:, `^` early returns inside blocks, and `repeat` for loops. It also uses `1 to:by:do:` with block temporaries, which is reasonable here. Weak spots: OrderStats is redefined at the top of the file even though the contract already supplies it, and `asSortedCollection asArray` is a clumsy way to sort (`asArray sort` or `asSortedCollection` alone would do). There are three select: passes where a single pass or `count:` would be cleaner. Calling `^` inside a `repeat` block as the only exit is acceptable but a little awkward.\",\"readability\":\"Names are clear (lessPart, equalCount, greaterPart, remA, remB, offA, offB). Methods are short and the logic is easy to follow. There are no comments explaining the k-th search by halving k, which is the non-obvious part. Block-local temporaries are declared where they are used.\",\"design\":\"Part A and Part B are separated, and the helper kthOf:in:and: is reused for both the odd and even medians. The median computation duplicates lowerMedianOf: logic inside medianOfMedians: instead of calling the helper for each group. The redefinition of OrderStats in the solution file is a duplication of the contract. The even case does two full k-th searches, which is acceptable within the read budget but doubles the reads. The partition is done in three passes over cur.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":4,\"design\":3,\"anti_patterns\":[\"redefinition of the provided OrderStats abstract class in the solution file\",\"duplicated lower-median logic instead of reusing lowerMedianOf: for each group\",\"three separate select: passes where one would do (count: for the equal elements)\",\"asSortedCollection asArray used just to sort\",\"mutable-state loops with `repeat` and `^` as the only exit\"],\"justification\":\"The solution is split into sensible helper methods and uses collection messages such as select: and copyFrom:to:. It still reads as procedural: selectKth: and kthOf:in:and: are mutable-state loops with `repeat`. The file also redefines OrderStats, which the contract already provides, and the lower-median logic is copied inline in medianOfMedians: rather than reusing lowerMedianOf:. Names are clear, so readability is good, but the code is only moderately idiomatic overall.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5127,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5127,
+          "model": null,
+          "output_tokens": 1006,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1006,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

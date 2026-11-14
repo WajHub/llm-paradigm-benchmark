@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:37+00:00",
+  "kind": "judge",
+  "label": "C-test-10-s1-a0",
+  "request_id": "req_011Ch1RsJ7taBk2a7keVEMfq",
+  "duration_s": 10.9,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\nImplement two order-statistics algorithms in C using the header file order_stats.h:\ndeterministic BFPRT selection that reports its pivot trace, and the median of two\nsorted sequences that can only be read through a counting probe with a strict read\nbudget.\n\nAlgorithm A - median of medians / selection with trace\n------------------------------------------------------\nValues are 32-bit signed ints, duplicates allowed. The input array `xs` (n ints;\n`xs` may be NULL when n == 0) must NOT be modified - work on copies.\n\n  * Lower median of a non-empty group g: the element at 0-based index\n    (len(g) - 1) / 2 (integer division) of g sorted ascending.\n\n- Implement `median_of_medians(xs, n, out)`: Return false if n == 0 (leave *out\n  alone). Otherwise split xs IN ITS CURRENT ORDER into consecutive groups of 5\n  (xs[0..4], xs[5..9], ...; the last group may have 1-4 elements), take the lower\n  median of each group, then write the lower median of the list of group medians to\n  *out and return true. (How you compute that median of the medians does not\n  matter, only its value.)\n\n- Implement `select_kth(xs, n, k)`: Return NULL if k < 0 or k >= n. Otherwise\n  return a freshly malloc'd SelectResult defined by this exact procedure, starting\n  with cur = copy of xs, pivots = empty, k as given (0-based):\n    1. If len(cur) <= 5: value = (cur sorted ascending)[k]; stop (no pivot is\n       recorded at this level).\n    2. p = median_of_medians(cur); append p to pivots.\n    3. Stable three-way partition of cur: L = the elements < p IN THEIR ORDER in\n       cur, E = the number of elements == p, G = the elements > p IN THEIR ORDER in\n       cur.\n    4. If k < len(L): cur = L, go to 1.\n       Else if k < len(L) + E: value = p; stop.\n       Else: k = k - len(L) - E, cur = G, go to 1.\n  `value` is the k-th smallest element and `pivots` / `num_pivots` hold the pivots\n  in the order they were chosen (top level first). Only these top-level pivots are\n  recorded - not any pivots used internally while computing a median of medians.\n  The pivot list is checked EXACTLY, so an in-place / Dutch-national-flag partition\n  that reorders elements (and thus the groups of 5) gives a wrong trace, and so\n  does sorting the input. `pivots` is a fresh heap array (it may be NULL when\n  num_pivots == 0). The caller releases the result with `free_select_result`.\n\n- Implement `free_select_result`: Free the result and its pivots array.\n  `free_select_result(NULL)` is a no-op.\n\nAlgorithm B - median of two sorted sources under a read budget\n--------------------------------------------------------------\nA SortedSource is a read-only sorted (non-decreasing) sequence of 32-bit ints of\nlength `src->length` >= 0. Lengths can be up to 2*10^9 and\na->length + b->length <= 2147483647. Element i (0 <= i < length) can ONLY be read by\ncalling `src->get(src, i)`; reading `length` is free. Do not touch `ctx`.\n\n- Implement `median_two_sorted(a, b, out)`: the median of the merged multiset of\n  both sequences. Return false if both are empty. Otherwise write to *out:\n    * odd total length: the middle element (as a double);\n    * even total length: the arithmetic mean of the two middle elements as a\n      double, e.g. (1 + 2) / 2 = 1.5. Compute it without 32-bit overflow:\n      2147483647 and 2147483647 give 2147483647.0; -2147483648 and 2147483647 give\n      -0.5.\n  and return true.\n\n  Read budget: every get call counts, including repeated reads of the same index.\n  The total number of reads over both sources must be at most\n      16 * (bitlen(len(a) + len(b)) + 1)\n  where bitlen(x) is the number of binary digits of x (bitlen(0) = 0,\n  bitlen(7) = 3, bitlen(2*10^9) = 31 -> budget 512). Reading an index outside\n  0..length-1 is an error. When the budget is exceeded or an out-of-range index is\n  read, the test's probe aborts your call immediately with longjmp (so do not\n  allocate heap memory in this function - it would leak; none is needed). Do not\n  copy the sources into arrays and do not access the data in any other way.\n\n  Use binary search: partition search on the shorter source (O(log min(m, n))\n  reads) or the k-th element by halving k (O(log(m + n)) reads). A linear merge\n  exceeds the budget. Use 64-bit arithmetic (long long) for index computations -\n  indices and sums of lengths come close to 2^31.\n\nConstraints:\n  - No memory leaks (verified by valgrind); free every temporary allocation.\n  - All functions must handle their edge cases (empty inputs, one empty source,\n    k out of range) without crashing.\n\n## Contract given to the author (order_stats.h, not written by the author)\n```c\n#ifndef ORDER_STATS_H\n#define ORDER_STATS_H\n\n#include <stdbool.h>\n\ntypedef struct {\n    int value;      /* the k-th smallest element */\n    int* pivots;    /* top-level BFPRT pivots, outermost first; heap; may be NULL if num_pivots == 0 */\n    int num_pivots;\n} SelectResult;\n\n/*\n * Read-only sorted (non-decreasing) sequence of `length` ints (length >= 0, up to\n * 2*10^9). Element i (0 <= i < length) is read ONLY as src->get(src, i).\n * Every call counts against a read budget; reading past the budget or outside\n * 0..length-1 aborts the call (the probe longjmps out of it).\n */\ntypedef struct SortedSource {\n    int length;\n    int (*get)(const struct SortedSource* src, int index);\n    void* ctx;      /* private data of the probe; do not touch */\n} SortedSource;\n\n/* Writes the BFPRT pivot (lower median of the lower medians of consecutive groups\n   of 5) to *out and returns true; returns false if n == 0. xs is not modified. */\nbool median_of_medians(const int* xs, int n, int* out);\n\n/* k-th smallest (0-based) of xs with the trace of top-level pivots.\n   NULL if k < 0 or k >= n. xs is not modified. Caller frees with free_select_result. */\nSelectResult* select_kth(const int* xs, int n, int k);\n\n/* Frees the result and its pivots array. Accepts NULL. */\nvoid free_select_result(SelectResult* result);\n\n/* Writes the median of the merged sequences a and b to *out and returns true;\n   returns false if both are empty. */\nbool median_two_sorted(const SortedSource* a, const SortedSource* b, double* out);\n\n#endif\n\n```\n\n## Code to evaluate (order_stats.c)\n```c\n#include <stdlib.h>\n#include <string.h>\n#include \"order_stats.h\"\n\nstatic int cmp_int(const void* a, const void* b)\n{\n    int x = *(const int*)a;\n    int y = *(const int*)b;\n    return (x > y) - (x < y);\n}\n\nstatic void insertion_sort(int* a, int len)\n{\n    for (int i = 1; i < len; i++) {\n        int v = a[i];\n        int j = i - 1;\n        while (j >= 0 && a[j] > v) {\n            a[j + 1] = a[j];\n            j--;\n        }\n        a[j + 1] = v;\n    }\n}\n\nbool median_of_medians(const int* xs, int n, int* out)\n{\n    if (n <= 0) {\n        return false;\n    }\n    int g = (n + 4) / 5;\n    int* meds = (int*)malloc(sizeof(int) * (size_t)g);\n    if (!meds) {\n        return false;\n    }\n    for (int i = 0; i < g; i++) {\n        int start = 5 * i;\n        int len = (n - start < 5) ? (n - start) : 5;\n        int buf[5];\n        memcpy(buf, xs + start, sizeof(int) * (size_t)len);\n        insertion_sort(buf, len);\n        meds[i] = buf[(len - 1) / 2];\n    }\n    qsort(meds, (size_t)g, sizeof(int), cmp_int);\n    *out = meds[(g - 1) / 2];\n    free(meds);\n    return true;\n}\n\nstatic void append_pivot(int** piv, int* np, int* cap, int p, bool* ok)\n{\n    if (!*ok) {\n        return;\n    }\n    if (*np == *cap) {\n        int newcap = (*cap == 0) ? 8 : (*cap * 2);\n        int* tmp = (int*)realloc(*piv, sizeof(int) * (size_t)newcap);\n        if (!tmp) {\n            *ok = false;\n            return;\n        }\n        *piv = tmp;\n        *cap = newcap;\n    }\n    (*piv)[(*np)++] = p;\n}\n\nSelectResult* select_kth(const int* xs, int n, int k)\n{\n    if (n <= 0 || k < 0 || k >= n || xs == NULL) {\n        return NULL;\n    }\n\n    SelectResult* res = (SelectResult*)malloc(sizeof(SelectResult));\n    if (!res) {\n        return NULL;\n    }\n    res->value = 0;\n    res->pivots = NULL;\n    res->num_pivots = 0;\n\n    int* work = (int*)malloc(sizeof(int) * (size_t)n);\n    int* lbuf = (int*)malloc(sizeof(int) * (size_t)n);\n    int* gbuf = (int*)malloc(sizeof(int) * (size_t)n);\n    if (!work || !lbuf || !gbuf) {\n        free(work);\n        free(lbuf);\n        free(gbuf);\n        free(res);\n        return NULL;\n    }\n\n    memcpy(work, xs, sizeof(int) * (size_t)n);\n    int curlen = n;\n    int kk = k;\n    int value = 0;\n    int* piv = NULL;\n    int np = 0;\n    int cap = 0;\n    bool ok = true;\n\n    while (1) {\n        if (curlen <= 5) {\n            int small[5];\n            memcpy(small, work, sizeof(int) * (size_t)curlen);\n            insertion_sort(small, curlen);\n            value = small[kk];\n            break;\n        }\n\n        int p = 0;\n        if (!median_of_medians(work, curlen, &p)) {\n            ok = false;\n            break;\n        }\n        append_pivot(&piv, &np, &cap, p, &ok);\n        if (!ok) {\n            break;\n        }\n\n        int nl = 0, ne = 0, ng = 0;\n        for (int i = 0; i < curlen; i++) {\n            int v = work[i];\n            if (v < p) {\n                lbuf[nl++] = v;\n            } else if (v == p) {\n                ne++;\n            } else {\n                gbuf[ng++] = v;\n            }\n        }\n\n        if (kk < nl) {\n            memcpy(work, lbuf, sizeof(int) * (size_t)nl);\n            curlen = nl;\n        } else if (kk < nl + ne) {\n            value = p;\n            break;\n        } else {\n            kk = kk - nl - ne;\n            memcpy(work, gbuf, sizeof(int) * (size_t)ng);\n            curlen = ng;\n        }\n    }\n\n    free(work);\n    free(lbuf);\n    free(gbuf);\n\n    if (!ok) {\n        free(piv);\n        free(res);\n        return NULL;\n    }\n\n    res->value = value;\n    if (np == 0) {\n        free(piv);\n        res->pivots = NULL;\n    } else {\n        res->pivots = piv;\n    }\n    res->num_pivots = np;\n    return res;\n}\n\nvoid free_select_result(SelectResult* result)\n{\n    if (!result) {\n        return;\n    }\n    free(result->pivots);\n    free(result);\n}\n\nstatic int get_at(const SortedSource* s, long long i)\n{\n    return s->get(s, (int)i);\n}\n\nbool median_two_sorted(const SortedSource* a, const SortedSource* b, double* out)\n{\n    long long la = a->length;\n    long long lb = b->length;\n    long long N = la + lb;\n    if (N == 0) {\n        return false;\n    }\n\n    const SortedSource* A = a;\n    const SortedSource* B = b;\n    if (la > lb) {\n        A = b;\n        B = a;\n    }\n    long long m = A->length;\n    long long n = B->length;\n\n    long long half = (N + 1) / 2;\n    long long lo = half - n > 0 ? half - n : 0;\n    long long hi = m < half ? m : half;\n\n    /* Find smallest i in [lo,hi] such that taking i from A and half-i from B\n       gives a valid left part (B[j-1] <= A[i] when relevant). */\n    while (lo < hi) {\n        long long mid = lo + (hi - lo) / 2;\n        long long j = half - mid;\n        if (mid < m && j > 0 && get_at(B, j - 1) > get_at(A, mid)) {\n            lo = mid + 1;\n        } else {\n            hi = mid;\n        }\n    }\n\n    long long i = lo;\n    long long j = half - i;\n\n    /* left maximum */\n    int lm = 0;\n    bool have = false;\n    if (i > 0) {\n        lm = get_at(A, i - 1);\n        have = true;\n    }\n    if (j > 0) {\n        int v = get_at(B, j - 1);\n        if (!have || v > lm) {\n            lm = v;\n        }\n        have = true;\n    }\n\n    if (N % 2 == 1) {\n        *out = (double)lm;\n    } else {\n        int rm = 0;\n        bool hr = false;\n        if (i < m) {\n            rm = get_at(A, i);\n            hr = true;\n        }\n        if (j < n) {\n            int w = get_at(B, j);\n            if (!hr || w < rm) {\n                rm = w;\n            }\n            hr = true;\n        }\n        *out = ((double)lm + (double)rm) / 2.0;\n    }\n    return true;\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RsJeeCdpWdk1r56CEi",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is plain procedural C. It uses explicit loops, a stable partition into scratch buffers `lbuf`/`gbuf`, and a `while (1)` loop that carries state (`work`, `curlen`, `kk`). The binary search in `median_two_sorted` is cleanly iterative. Flags such as `ok` and `bool* ok` passed into `append_pivot` carry error state and are slightly clunky. Setting `ok` and then checking it twice, and the `while(1)`/`break` control flow, are a bit awkward. Splitting out a partition step and using goto-style cleanup or early returns would earn one more point.\",\"language_idiomaticity\":\"The code uses `static` helpers, `size_t` casts on allocation sizes, `memcpy`, `qsort` with a safe comparator `(x>y)-(x<y)`, and `long long` for index arithmetic. It checks `malloc`/`realloc` results and frees on error paths. Small blemishes: the unneeded `(int*)` casts on `malloc`, `while (1)` instead of `for (;;)`, the output parameter `bool* ok`, and the unneeded `xs == NULL` check with `n <= 0`. It also uses the hand-rolled `insertion_sort` for 5 elements, which is reasonable. `median_of_medians` returns false on an allocation failure, conflating that with n == 0.\",\"readability\":\"Names like `median_of_medians`, `append_pivot`, `lm` and `rm` are reasonable, and the comments in the binary search explain the invariant. However, `select_kth` is a long function that mixes allocation, the loop, partitioning and cleanup. `median_two_sorted` has terse names (`lm`, `hr`, `have`) and uppercase `N`, `A`, `B`. The left-max/right-min logic is repeated inline. Extracting helpers would improve it.\",\"design\":\"The design is mostly decomposed: `cmp_int`, `insertion_sort`, `append_pivot` and `get_at` are `static`. But `select_kth` is monolithic, with partitioning inline, and it allocates three full-size buffers (`work`, `lbuf`, `gbuf`) even though it needs fewer. `append_pivot` carries a three-pointer growth interface plus an `ok` flag, which is clunky. `median_two_sorted` is a single function whose max/min selection could be helper functions. It does swap to search the shorter source, uses no heap, and has the right complexity. Cleanup is repeated across several paths.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":3,\"design\":3,\"anti_patterns\":[\"long monolithic select_kth mixing allocation, partitioning and cleanup\",\"ok-flag out-parameter threaded through append_pivot instead of returning status\",\"redundant (int*) casts on malloc\",\"repeated inline left-max/right-min logic instead of a helper\",\"three full-size scratch buffers allocated up front\"],\"justification\":\"The solution is solid procedural C with correct use of `static` helpers, `memcpy`, `qsort`, `size_t` casts and 64-bit index arithmetic. The binary-search median uses no heap and the allocation failures are handled. Its weaknesses are the long `select_kth`, the clunky `append_pivot`/`ok` error handling, terse names in `median_two_sorted`, and the inline partition and max/min logic that could be extracted.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6697,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 6697,
+          "model": null,
+          "output_tokens": 1161,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1161,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

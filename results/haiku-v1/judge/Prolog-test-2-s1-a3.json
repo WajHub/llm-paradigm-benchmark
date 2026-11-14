@@ -6,21 +6,31 @@
   "sample": 1,
   "attempt": 3,
   "category": "test_failures",
+  "rationale": {
+    "paradigm_idiomaticity": "Pure state-threading with no assert/retract. Uses foldl/4 over edges and neighbours, and a recursive run_dijkstra with immutable assoc and heap state. Weaknesses: run_dijkstra and relax are written as nested if-then-else blocks rather than clause-head dispatch, and the foldl state is packed in a Heap-Dist-Pred triple. The cut in dijkstra/3 is a red cut used as an if-else guard before the fallback `dijkstra(_,_,none)`. A 5 would use clause-head pattern matching and a cleaner state structure.",
+    "language_idiomaticity": "Uses library(assoc), library(heaps), foldl, numlist, nth0, list_to_assoc, assoc_to_values and findall appropriately. But the findall with member for building lists is clumsy where maplist or pairs_keys_values would do, and `V-(-1)` is awkward. Using `inf` as an atom requires `Old == inf` special cases instead of arithmetic with a sentinel. The `Old == inf ; NewD < Old` disjunction inside a condition is slightly awkward. Declarative modes are respected overall.",
+    "readability": "Predicate names (init_dist_pred, build_adjacency, add_adj, relax, walk_back) are clear and each predicate is short. Nested if-then-else in run_dijkstra is a bit dense, and there are almost no comments beyond the header. A reader can still follow the algorithm easily.",
+    "design": "Good decomposition: adjacency building, initialisation, main loop, relax step, and path reconstruction are separate. Using assoc for the adjacency map and heaps for the priority queue is a sound data-structure choice. Minor issues: init_dist_pred builds two assocs via findall, the redundant `use_module(library(lists))`, walk_back uses nth0 on lists (O(n) per step), and the final result converts assocs back to lists. get_shortest_distance and reconstruct_path are reasonable; reconstruct_path could loop on malformed predecessors but that is not a design concern here."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "findall used to build lists where maplist/pairs_keys_values would be simpler",
-    "nested if-then-else for control flow in run_dijkstra and relax instead of clause-head matching",
-    "Heap1-Dist0-Pred0 tuple state threaded through foldl",
-    "nth0 on a list for repeated Target lookups, which is O(n)"
+    "cut in dijkstra/3 used as if-else guard before catch-all fallback clause",
+    "nested if-then-else chains in run_dijkstra instead of clause-head dispatch",
+    "state packed in Heap-Dist-Pred triple for foldl",
+    "findall+member used where maplist/pairs would be simpler"
   ],
-  "justification": "The solution uses library(assoc), library(heaps), foldl/4, and numlist/3 rather than reimplementing them. It threads state explicitly with no assert/retract. The first dijkstra clause uses a cut after its guards to pick the success case, with a catch-all clause returning `none`; this is an acceptable red cut. Some parts could be cleaner: init_dist_pred uses findall with member where maplist would do, run_dijkstra and relax rely on nested if-then-else, and the foldl state is packed into a `H-D-P` term. The decomposition into small predicates (build_adjacency, relax, walk_back) is clear.}",
+  "justification": "The solution is functional-relational in style: no global state, foldl over edges, library heaps and assoc for Dijkstra with immutable threading. The main departures are the red cut and catch-all clause in dijkstra/3, the nested if-then-else in run_dijkstra/relax, and the triple-packed foldl accumulator. Decomposition into init_dist_pred, build_adjacency, relax and walk_back is clean and readable.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4106,
-  "output_tokens": 376,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SH5QawhKNRg6MihhSF",
+  "judge_s": 8.7,
+  "input_tokens": 4443,
+  "output_tokens": 999,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

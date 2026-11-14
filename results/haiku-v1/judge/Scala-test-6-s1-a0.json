@@ -6,20 +6,30 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
-  "paradigm_idiomaticity": 5,
+  "rationale": {
+    "paradigm_idiomaticity": "The code is pure and immutable: boards are Vector values, and `g.updated(idx, d)` creates new states for the search. Backtracking is expressed as recursion over `Option`, with `cands.iterator.map(...).collectFirst { case Some(s) => s }` giving lazy short-circuiting. `countSolutions` uses `foldLeft` with the remaining budget passed down. There are no vars or mutation. One point is lost for the awkward early-exit fold (`if (acc >= remaining) acc` still traverses the rest of the candidates) and because `mrv` recomputes candidates for every empty cell by scanning from scratch instead of threading propagation state. That is acceptable but not elegant.",
+    "language_idiomaticity": "The code uses `Option`, pattern matching on `Option[(Int, List[Int])]`, `collectFirst`, `minBy`, for-comprehension generators with `by`, and `unit.map(grid)` (a Vector used as a function). The private `units` val is precomputed. It is Scala 2.11 compatible. Small blemishes: the tuple `Option[(Int, List[Int])]` is less expressive than a small case class, `(0 until 81).iterator.filter.map.toList` mixes iterator and list needlessly, `flatMap` over `List(...)` allocates, and `candidates` ignores the precomputed `units`.",
+    "readability": "Names are clear (`units`, `mrv`, `search`, `count`, `remaining`), the functions are short, and the comment above `mrv` explains the tri-state result. The `search` and `count` nested functions are easy to follow. It would reach 5 if the tuple result were named, or if the index arithmetic `(br + k / 3) * 9 + bc + k % 3` were not duplicated between `units` and `candidates`.",
+    "design": "The decomposition is clean: `units`, `isValid`, `candidates`, a shared `mrv` used by both `solve` and `countSolutions`, and nested search functions. The validity check is done once at the entry point. Weaknesses: the box index arithmetic is duplicated, `candidates` does not reuse `units` or peers, `mrv` recomputes candidates for all empty cells at each node with no early exit when a cell has 0 or 1 candidates, and the search structure is duplicated across `solve` and `countSolutions` (though their results differ). A case class or ADT for the MRV result would improve clarity."
+  },
+  "paradigm_idiomaticity": 4,
   "language_idiomaticity": 4,
   "readability": 4,
   "design": 4,
   "anti_patterns": [
-    "mrv recomputes candidates for every empty cell at each step, which is inefficient",
-    "mrv returns an Option of tuple with overloaded meaning (Some((idx, Nil)) as dead end) instead of a dedicated ADT",
-    "foldLeft with an acc >= remaining guard to emulate early exit"
+    "Option[(Int, List[Int])] tuple encoding three states instead of a small ADT",
+    "duplicated box index arithmetic between units and candidates",
+    "fold that keeps iterating after the limit is reached instead of short-circuiting"
   ],
-  "justification": "The code is purely functional: immutable Vectors, a recursive search that returns Option, `collectFirst` over a lazy iterator for short-circuiting, and pattern matching on the `mrv` result. The precomputed `units` table keeps `isValid` concise, and `countSolutions` threads the remaining limit through the recursion without mutable state. Minor weaknesses: the tuple-in-Option encoding of MRV results is a bit implicit, `candidates` is recomputed for every empty cell on each step, and the `foldLeft` with a guard is a slightly awkward early-exit idiom. `candidates` also builds the set with `flatMap` over lists, which is slightly clumsy but clear.",
+  "justification": "The solution is pure and immutable, uses Option, pattern matching, collectFirst and foldLeft naturally, and shares an `mrv` helper between `solve` and `countSolutions`. Minor issues are the tuple-based MRV result, duplicated box index arithmetic with `candidates` not reusing `units`, and a fold that continues iterating after the limit instead of short-circuiting. Overall it is idiomatic and readable with small design refinements possible.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 4012,
-  "output_tokens": 386,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SJgN3kq3hy5xKfQY24",
+  "judge_s": 8.7,
+  "input_tokens": 4349,
+  "output_tokens": 1099,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

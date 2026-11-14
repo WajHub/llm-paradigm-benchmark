@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:45+00:00",
+  "kind": "judge",
+  "label": "Haskell-test-10-s1-a0",
+  "request_id": "req_011Ch1Rt21JQLiKTBWtWFUP1",
+  "duration_s": 9.2,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Haskell code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Haskell\n\n- Pure functions, total where practical; absence and errors modelled with `Maybe`/`Either`/ADTs,\n  not `error` or partial functions (`head`, `fromJust`, `!!` on unchecked indices).\n- Pattern matching, guards, `where`/`let`, higher-order functions and folds instead of manual recursion\n  that re-implements library functions.\n- Appropriate data structures (`Data.Map`, `Data.Set`, `Data.Array`) instead of association lists for\n  lookups; strictness where it matters (e.g. `foldl'`).\n- Small composable functions with type signatures; no imperative emulation (e.g. `IORef`/`State` where pure\n  code suffices).",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Haskell (functional paradigm)\n\n## Task specification given to the author\nImplement order-statistics algorithms in Haskell in the module OrderStats\n(file OrderStats.hs): deterministic BFPRT selection that also reports its\npivot trace, and the median of two sorted sequences under a strict read\nbudget. The module already defines SelectResult and Source; implement\nmedianOfMedians, selectKth and medianTwoSorted.\n\nPart A -- Median of Medians (values are Ints in the 32-bit range, duplicates\nallowed).\n\n  * Lower median of a non-empty group g: the element at 0-based index\n    (length g - 1) `div` 2 of g sorted ascending.\n\n- Implement `medianOfMedians :: [Int] -> Maybe Int`: Nothing for []. Otherwise\n  split xs IN ITS CURRENT ORDER into consecutive groups of 5 (xs[0..4],\n  xs[5..9], ...; the last group may have 1-4 elements), take the lower median\n  of each group, and return the lower median of the list of these group\n  medians. (How that last lower median is computed -- recursively with BFPRT or\n  by sorting -- does not matter, only its value.)\n\n- Implement `selectKth :: [Int] -> Int -> Maybe SelectResult`\n  (`selectKth xs k`, k is 0-based): Nothing if k < 0 or k >= length xs.\n  Otherwise the result is defined by EXACTLY this procedure, starting with\n  cur = xs, pivots = []:\n    1. If length cur <= 5: return selValue = (sort cur) !! k\n       (no pivot is recorded at this level).\n    2. p = medianOfMedians cur; append p to pivots.\n    3. Stable three-way partition of cur: L = the elements < p in their order\n       in cur, E = the number of elements == p, G = the elements > p in their\n       order in cur.\n    4. If k < length L: cur = L, go to 1.\n       Else if k < length L + E: return selValue = p.\n       Else: k = k - length L - E, cur = G, go to 1.\n  selPivots is the list of pivots in the order they were chosen (top level\n  first). Only these top-level pivots are recorded, not pivots used\n  internally while computing a median of medians. The tests compare\n  selPivots exactly; a partition that reorders elements (e.g. in-place /\n  Dutch-flag partitioning) produces a different trace and is wrong. Sorting\n  the whole input gives the right value but not the right trace.\n\nPart B -- Median of two sorted sources.\n\n  data Source m = Source { srcLength :: Int, srcGet :: Int -> m Int }\n\n  A Source is a read-only sorted (non-decreasing) sequence of Ints in the\n  32-bit range, of length srcLength >= 0 (up to 2*10^9; the sum of both\n  lengths is <= 2147483647). Its elements can ONLY be read through the\n  monadic probe `srcGet src i` with a 0-based index 0 <= i < srcLength.\n  Reading srcLength is free.\n\n- Implement `medianTwoSorted :: Monad m => Source m -> Source m -> m (Maybe Double)`:\n  return the median of the merged multiset of both sequences:\n  * odd total length: the middle element (as a Double);\n  * even total length: the arithmetic mean of the two middle elements as a\n    Double, e.g. 1 and 2 -> 1.5, 2147483647 and 2147483647 -> 2147483647.0,\n    -2147483648 and 2147483647 -> -0.5;\n  * both sources empty: Nothing.\n\n  Read budget:\n  * Every srcGet call counts (reading the same index again counts again).\n    The total number of reads over both sources must be at most\n      16 * (bitlen (len a + len b) + 1)\n    where bitlen x = number of binary digits of x (bitlen 0 = 0,\n    bitlen 7 = 3, bitlen (2*10^9) = 31 -> budget 512).\n  * The tests run medianTwoSorted in IO with a probe that throws an exception\n    as soon as the budget is exceeded or an index outside 0..len-1 is read;\n    the test then fails. Do not catch or suppress such errors, do not copy\n    the sources into lists/arrays, and do not access the data in any other\n    way. The sources are virtual and can be huge, so a linear merge is far\n    over budget.\n  * Use binary search: a partition search on the shorter source\n    (O(log (min m n)) reads) or the k-th element by halving k\n    (O(log (m + n)) reads). Index arithmetic near 2^31 must not overflow.\n\nConstraints:\n  - Floating-point results are compared with a tolerance of 1e-9.\n  - Only the libraries shipped with GHC (base, containers, array).\n\n## Stub module given to the author (OrderStats.hs)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```haskell\nmodule OrderStats\n  ( SelectResult (..)\n  , Source (..)\n  , medianOfMedians\n  , selectKth\n  , medianTwoSorted\n  ) where\n\n-- The k-th smallest value and the BFPRT pivots chosen at each top-level step.\ndata SelectResult = SelectResult\n  { selValue  :: Int\n  , selPivots :: [Int]\n  } deriving (Eq, Show)\n\n-- A read-only sorted (non-decreasing) sequence that can only be read through\n-- the monadic probe srcGet (0-based index, 0 <= index < srcLength).\n-- Reading the length is free; every srcGet call is counted.\ndata Source m = Source\n  { srcLength :: Int\n  , srcGet    :: Int -> m Int\n  }\n\nmedianOfMedians :: [Int] -> Maybe Int\nmedianOfMedians _ = error \"OrderStats.medianOfMedians not implemented\"\n\n-- selectKth xs k  (k is 0-based)\nselectKth :: [Int] -> Int -> Maybe SelectResult\nselectKth _ _ = error \"OrderStats.selectKth not implemented\"\n\nmedianTwoSorted :: Monad m => Source m -> Source m -> m (Maybe Double)\nmedianTwoSorted _ _ = error \"OrderStats.medianTwoSorted not implemented\"\n\n```\n\n## Code to evaluate (OrderStats.hs)\n```haskell\nmodule OrderStats\n  ( SelectResult (..)\n  , Source (..)\n  , medianOfMedians\n  , selectKth\n  , medianTwoSorted\n  ) where\n\nimport Data.List (sort)\n\n-- The k-th smallest value and the BFPRT pivots chosen at each top-level step.\ndata SelectResult = SelectResult\n  { selValue  :: Int\n  , selPivots :: [Int]\n  } deriving (Eq, Show)\n\n-- A read-only sorted (non-decreasing) sequence that can only be read through\n-- the monadic probe srcGet (0-based index, 0 <= index < srcLength).\n-- Reading the length is free; every srcGet call is counted.\ndata Source m = Source\n  { srcLength :: Int\n  , srcGet    :: Int -> m Int\n  }\n\n-- Lower median of a non-empty list: index (length - 1) `div` 2 after sorting.\nlowerMedian :: [Int] -> Int\nlowerMedian g = sort g !! ((length g - 1) `div` 2)\n\n-- Split into consecutive chunks of at most 5 elements (order preserved).\nchunks5 :: [Int] -> [[Int]]\nchunks5 [] = []\nchunks5 ys = let (a, b) = splitAt 5 ys in a : chunks5 b\n\nmedianOfMedians :: [Int] -> Maybe Int\nmedianOfMedians [] = Nothing\nmedianOfMedians xs = Just (lowerMedian (map lowerMedian (chunks5 xs)))\n\n-- selectKth xs k  (k is 0-based)\nselectKth :: [Int] -> Int -> Maybe SelectResult\nselectKth xs k\n  | k < 0 || k >= length xs = Nothing\n  | otherwise = go xs k []\n  where\n    go cur i acc\n      | length cur <= 5 = Just (SelectResult (sort cur !! i) (reverse acc))\n      | otherwise = case medianOfMedians cur of\n          Nothing -> Nothing\n          Just p ->\n            let l     = filter (< p) cur\n                g     = filter (> p) cur\n                nl    = length l\n                e     = length cur - nl - length g\n                acc'  = p : acc\n            in if i < nl\n                 then go l i acc'\n                 else if i < nl + e\n                   then Just (SelectResult p (reverse acc'))\n                   else go g (i - nl - e) acc'\n\n-- Median of two sorted sources via binary search for a partition.\n-- The shorter source is searched; each probe step reads at most 2 values.\nmedianTwoSorted :: Monad m => Source m -> Source m -> m (Maybe Double)\nmedianTwoSorted sa sb\n  | total == 0 = return Nothing\n  | otherwise = do\n      i <- search lo' hi'\n      let j = half - i\n      leftVals <- sequence $\n        [ srcGet a (i - 1) | i > 0 ] ++ [ srcGet b (j - 1) | j > 0 ]\n      let leftMax = maximum leftVals\n      if odd total\n        then return (Just (fromIntegral leftMax))\n        else do\n          rightVals <- sequence $\n            [ srcGet a i | i < m ] ++ [ srcGet b j | j < n ]\n          let rightMin = minimum rightVals\n          return (Just ((fromIntegral leftMax + fromIntegral rightMin) / 2))\n  where\n    -- a is the shorter source, b the longer one\n    (a, b) = if srcLength sa <= srcLength sb then (sa, sb) else (sb, sa)\n    m = srcLength a\n    n = srcLength b\n    total = m + n\n    odd' = odd total\n    half = (total + 1) `div` 2\n    lo' = max 0 (half - n)\n    hi' = min m half\n\n    -- Predicate: taking i elements from a on the left is acceptable,\n    -- i.e. a[i] >= b[j-1] (monotone in i).\n    ok i = do\n      let j = half - i\n      if i == m || j == 0\n        then return True\n        else do\n          bv <- srcGet b (j - 1)\n          av <- srcGet a i\n          return (av >= bv)\n\n    -- Smallest i in [l, h] satisfying ok; h always satisfies it.\n    search l h\n      | l >= h = return l\n      | otherwise = do\n          let mid = l + (h - l) `div` 2\n          good <- ok mid\n          if good then search l mid else search (mid + 1) h\n\n    _unused = odd'\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1Rt2L9bYifzizj4m6MB",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is pure and functional: medianOfMedians composes `lowerMedian . map lowerMedian . chunks5`, and selectKth uses a recursive `go` with an accumulator, filters for the stable partition, and `reverse acc` at the end. The monadic binary search in `search` and `ok` is a clean recursive formulation without mutable state. Small blemishes are the unreachable `Nothing` branch inside `go` and the explicit accumulator-and-reverse pattern. Both are fine but not perfectly tidy. A 5 would remove the impossible Nothing case, for instance with a non-partial helper.\",\"language_idiomaticity\":\"It uses Maybe, guards, `where`, `splitAt`, `filter` and `sequence` with list comprehensions as conditional reads, which is clever but slightly unusual. It also uses `!!` and `maximum`/`minimum` on lists that are non-empty only by reasoning, and these are partial functions. There is dead code: `odd'` and `_unused = odd'` only silence a warning. The `case medianOfMedians cur of Nothing -> Nothing` branch is a code smell. Using `fromIntegral` on Int before dividing avoids overflow, which is good. A 5 would drop the dead code, the partial `maximum`/`minimum`, and the impossible branch.\",\"readability\":\"Names are mostly clear (`lowerMedian`, `chunks5`, `leftMax`, `ok`, `search`), and the comments explain the partition predicate. However, the nested if/else in `go` is a bit dense. The `_unused`/`odd'` leftovers confuse the reader, and the shadowed `i` in `sequence [... | i > 0]` makes the list-comprehension guards cryptic. A 5 would need cleaner structure and no leftovers.\",\"design\":\"The decomposition is sensible: helper functions for median and chunking, and a binary search on the shorter source with a monotone predicate `ok`. Reads stay within the O(log) budget. `ok` reads two values per step and the final step reads up to 4 more, which is fine. Weak points: `go` computes `length cur` repeatedly, `lowerMedian` sorts, the leftover dead binding is poor design, and the final-phase code is not factored into a helper such as `leftMax`/`rightMin`. A 5 would factor these helpers and remove the leftover code.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":3,\"design\":4,\"anti_patterns\":[\"dead code: `odd'` and `_unused` binding only to silence warnings\",\"unreachable `Nothing` branch from medianOfMedians inside `go`\",\"partial `maximum`/`minimum`/`!!` relying on implicit non-emptiness\",\"nested if/else chain instead of guards in `go`\"],\"justification\":\"The solution is pure and functional, with a clear composition for medianOfMedians, a stable filter-based partition in selectKth, and a monadic recursive binary search for the two-source median. Dead code (`odd'`, `_unused`), an impossible `Nothing` branch and reliance on partial functions (`maximum`, `minimum`, `!!`) lower the language-idiomaticity and readability scores. The structure is otherwise sound, but the final read step could be factored into helpers.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5558,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5558,
+          "model": null,
+          "output_tokens": 1118,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1118,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

@@ -6,24 +6,32 @@
   "sample": 1,
   "attempt": 3,
   "category": "test_failures",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is structured procedural recursive descent. ParseExpr, ParseTerm, ParseUnary, ParsePower and ParsePrimary map one-to-one onto the grammar, using while loops for left-associative levels. Evaluate recurses over the AST with a `case` on Kind and early-exit status propagation. Parser state sits in unit globals (GSrc, GPos), which is a common procedural shortcut but makes the parser non-reentrant. A parser record or object passed by var parameter would earn a 5.",
+    "language_idiomaticity": "Uses New/Dispose, SetLength, High, Exit, Val, Copy, `in` sets, `out` parameter in FindVar, Math's Min/Max/IsNan/IsInfinite, and forward declarations. Weaknesses: the unit header puts `{$mode objfpc}` before `unit`, which is acceptable; string-comparison chains (`if Op = '+' ... else if`) in ApplyBinary and function dispatch where `case` on a char or enum would be better; a hand-rolled PowerChecked with square-and-multiply instead of Math.Power; `Result.Value := X - Y*Int(X/Y)` instead of Math.FMod or a similar routine. The repeated `GPos <= Length(GSrc)` checks could be wrapped in a helper.",
+    "readability": "Names are meaningful and the functions are short, except ParsePrimary, which is long with many locals and deep nesting. It handles numbers, identifiers, function calls and parentheses inline. Many repeated `if X = nil then FreeAst... Exit` blocks add noise. Evaluate's ankFunction branch is a little awkward: it dummy-initializes R and evaluates the second arg conditionally on child count. There are no comments, but the code is mostly self-explanatory. Splitting ParsePrimary into ParseNumber, ParseIdentOrCall and so on would earn a 5.",
+    "design": "Decomposition is decent: NewNode, MakeBinary, MakeUnary, FreeArgs, FunctionArity, FindVar, PowerChecked and ApplyBinary are separate helpers kept in the implementation section. Memory handling is careful, freeing partial results on failure and handing Args ownership to the node. Weaknesses: global mutable parser state; ParsePrimary does too much; operator and function dispatch uses string compares rather than a case or table; PowerChecked reinvents Power; ankFunction evaluation evaluates children generically but dispatches by name in one block."
+  },
   "paradigm_idiomaticity": 4,
   "language_idiomaticity": 3,
-  "readability": 4,
+  "readability": 3,
   "design": 3,
   "anti_patterns": [
-    "global mutable parser state (GSrc, GPos) instead of passing a parser context or record",
-    "string comparison chains (if Op = '+' ... else if) instead of case on a char/enum",
-    "ParsePrimary is long, with deeply nested logic and many Exit calls",
-    "hand-rolled power by squaring and Exp/Ln instead of using Math.Power",
-    "manual fmod emulation instead of Math.FMod or a remainder routine",
-    "repeated pre-checks of status with early Exit duplicated across node kinds",
-    "unit header places {$mode} before the unit keyword (minor deviation from the stub)"
+    "global mutable parser state (GSrc, GPos)",
+    "long monolithic ParsePrimary with many responsibilities",
+    "string-comparison if/else chains for operator and function dispatch instead of case",
+    "reimplementing power and remainder instead of using Math routines",
+    "repeated manual free-on-failure boilerplate"
   ],
-  "justification": "The solution is a clean procedural recursive-descent parser with one function per grammar rule, careful memory cleanup on every failure path, and a short-circuiting Evaluate. However, it relies on unit-level global state (GSrc/GPos), which makes it non-reentrant. It reimplements power-by-squaring and the remainder instead of using Math.Power/FMod, and dispatches operators and function names through long if/else string-comparison chains rather than a case on a char. ParsePrimary is oversized and mixes number lexing, identifier lexing, and argument parsing, which would be better split into helper routines.",
+  "justification": "The solution is a clean procedural recursive-descent parser whose routines mirror the grammar, with careful manual memory management and early-exit error propagation in Evaluate. It is held back by global parser state, an overlong ParsePrimary, and string if-chains for dispatch. PowerChecked and the manual `%` formula reinvent RTL facilities, which lowers language idiomaticity.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 8790,
-  "output_tokens": 445,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SGWALB22RqdNVhZTwn",
+  "judge_s": 10.9,
+  "input_tokens": 9127,
+  "output_tokens": 1138,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

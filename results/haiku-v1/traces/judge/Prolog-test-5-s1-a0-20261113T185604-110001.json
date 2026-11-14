@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:56:04+00:00",
+  "kind": "judge",
+  "label": "Prolog-test-5-s1-a0",
+  "request_id": "req_011Ch1SHWL2watLfPVWsYFAD",
+  "duration_s": 9.7,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Prolog code and of the logic programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Prolog\n\n- Relational, declarative predicates; clause heads with pattern matching instead of explicit\n  if-then-else chains; meaningful predicate names with modes respected.\n- Recursion with accumulators, or library predicates (`foldl/4`, `maplist/N`, `aggregate_all/3`, `sum_list/2`,\n  `nth0/3`, `assoc`/`pairs` libraries) instead of reimplementing them.\n- Cuts only as green cuts or clearly justified red cuts; no `assert`/`retract` for ordinary state\n  (tabling or explicit state passing instead).\n- Failure vs. `none`/status atoms used as the task specifies; no exceptions for control flow.\n- Arithmetic with `is`/comparison operators used correctly; no imperative simulation via global variables.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Prolog (logic paradigm)\n\n## Task specification given to the author\nImplement a mathematical expression parser and evaluator in SWI-Prolog in the module\nexpression (file expression.pl). The parser turns a string into an abstract syntax\ntree, and the evaluator computes the numeric value of that AST given a set of\nvariables. Implement parse_expression/2 and evaluate/3.\n\n- Implement `parse_expression(+Expr, -Ast)`: Parse the atom Expr and unify Ast with\n  the parse tree, or with the atom `none` if Expr is not a syntactically valid\n  expression. Whitespace is insignificant.\n\n  AST representation:\n      number(Value)\n      variable(Name)                      % Name is an atom\n      binary_op(Op, Left, Right)          % Op: '+' '-' '*' '/' '%' '^'\n      unary_op(Op, Operand)               % Op: '+' '-'\n      function_call(Name, ArgsList)       % Name: sqrt abs sin cos min max pow\n\n  Grammar (highest precedence last; `^` is right-associative, everything else is\n  left-associative):\n\n      expr    := term   (('+' | '-') term)*\n      term    := unary  (('*' | '/' | '%') unary)*\n      unary   := ('+' | '-') unary | power\n      power   := primary ('^' unary)?\n      primary := NUMBER | IDENT | IDENT '(' args ')' | '(' expr ')'\n      args    := expr (',' expr)*\n\n  * NUMBER: a non-negative decimal literal, e.g. 42 or 3.14.\n  * IDENT: a name matching [A-Za-z_][A-Za-z0-9_]*.\n  * A call IDENT '(' args ')' is only valid for these functions, with the exact arity\n    shown: sqrt/1, abs/1, sin/1, cos/1, min/2, max/2, pow/2. Any other function name,\n    or a wrong number of arguments, is a parse error (none).\n  * Precedence consequences: -2^2 parses as -(2^2) and 2^3^2 as 2^(3^2).\n\n- Implement `evaluate(+Ast, +Vars, -Result)`: Evaluate the AST and unify Result with a\n  term `result(Status, Value)`. Vars is a list of `Name-Value` pairs (e.g. [x-3.0,\n  y-4.0]). If any sub-expression produces a non-ok status, propagate the first such\n  status (short-circuit) with Value 0.0.\n\n  Statuses and semantics:\n  * number(V) evaluates to result(ok, V).\n  * variable(Name) evaluates to its bound value, or result(undefined_var, 0.0) if it\n    is not in Vars.\n  * unary_op('-', X) negates; unary_op('+', X) is identity.\n  * '+' '-' '*' are ordinary arithmetic.\n  * '/' and '%' give result(div_by_zero, 0.0) when the divisor is 0. '%' is the\n    floating-point remainder.\n  * '^' and pow(X, Y) compute X raised to Y; if the result is not a finite real number\n    (e.g. a negative base with a non-integer exponent), give result(domain_error, 0.0).\n  * sqrt(X) gives result(domain_error, 0.0) when X < 0.\n  * abs, sin, cos, min, max behave as usual (angles in radians).\n\nConstraints:\n  - parse_expression('', Ast) must unify Ast with none.\n  - Floating-point results are compared with a small epsilon tolerance.\n\n## Stub module given to the author (expression.pl)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```prolog\n:- module(expression, [\n    parse_expression/2,\n    evaluate/3\n]).\n\n% AST representation (suggestion; implementation may use its own):\n%   number(Value)\n%   variable(Name)\n%   binary_op(Op, Left, Right)         % Op: '+' '-' '*' '/' '%' '^'\n%   unary_op(Op, Operand)              % Op: '+' '-'\n%   function_call(Name, ArgsList)      % Name: sqrt, abs, min, max, pow, sin, cos\n%\n% Eval result representation:\n%   result(ok, Value)\n%   result(div_by_zero, 0.0)\n%   result(undefined_var, 0.0)\n%   result(invalid_op, 0.0)\n%   result(domain_error, 0.0)\n%\n% Parse failure: parse_expression(+ExprString, -Ast) unifies Ast with `none`.\n\nparse_expression(_, _) :-\n    throw(error(existence_error(procedure, parse_expression/2), _)).\n\nevaluate(_, _, _) :-\n    throw(error(existence_error(procedure, evaluate/3), _)).\n\n```\n\n## Code to evaluate (expression.pl)\n```prolog\n:- module(expression, [\n    parse_expression/2,\n    evaluate/3\n]).\n\n% AST representation:\n%   number(Value)\n%   variable(Name)\n%   binary_op(Op, Left, Right)         % Op: '+' '-' '*' '/' '%' '^'\n%   unary_op(Op, Operand)              % Op: '+' '-'\n%   function_call(Name, ArgsList)      % Name: sqrt, abs, min, max, pow, sin, cos\n%\n% Eval result representation:\n%   result(ok, Value)\n%   result(div_by_zero, 0.0)\n%   result(undefined_var, 0.0)\n%   result(invalid_op, 0.0)\n%   result(domain_error, 0.0)\n%\n% Parse failure: parse_expression(+ExprString, -Ast) unifies Ast with `none`.\n\n%% ---------------------------------------------------------------\n%% Parsing\n%% ---------------------------------------------------------------\n\nparse_expression(Expr, Ast) :-\n    atom_codes(Expr, Cs),\n    (   tokenize(Cs, Ts),\n        parse_expr(Ts, A, [])\n    ->  Ast = A\n    ;   Ast = none\n    ).\n\n% Tokenizer ------------------------------------------------------\n\ntokenize([], []).\ntokenize([C|Cs], Ts) :-\n    code_type(C, space), !,\n    tokenize(Cs, Ts).\ntokenize([C|Cs], [num(V)|Ts]) :-\n    between(0'0, 0'9, C), !,\n    take_number([C|Cs], NumCs, Rest),\n    number_codes(V0, NumCs),\n    V is V0 + 0.0,\n    tokenize(Rest, Ts).\ntokenize([C|Cs], [id(A)|Ts]) :-\n    ident_start(C), !,\n    take_ident(Cs, IdCs, Rest),\n    atom_codes(A, [C|IdCs]),\n    tokenize(Rest, Ts).\ntokenize([C|Cs], [op(O)|Ts]) :-\n    memberchk(C, [0'+, 0'-, 0'*, 0'/, 0'%, 0'^, 0'(, 0'), 0',]), !,\n    atom_codes(O, [C]),\n    tokenize(Cs, Ts).\n\nident_start(C) :- C =:= 0'_ ; between(0'A, 0'Z, C) ; between(0'a, 0'z, C).\nident_char(C)  :- ident_start(C) ; between(0'0, 0'9, C).\n\ntake_ident([C|Cs], [C|Ids], Rest) :-\n    ident_char(C), !,\n    take_ident(Cs, Ids, Rest).\ntake_ident(Cs, [], Cs).\n\ntake_digits([C|Cs], [C|Ds], Rest) :-\n    between(0'0, 0'9, C), !,\n    take_digits(Cs, Ds, Rest).\ntake_digits(Cs, [], Cs).\n\ntake_number(Cs, NumCs, Rest) :-\n    take_digits(Cs, I, R1),\n    (   R1 = [0'.|R2],\n        take_digits(R2, F, R3),\n        F \\== []\n    ->  append(I, [0'.|F], NumCs),\n        Rest = R3\n    ;   NumCs = I,\n        Rest = R1\n    ).\n\n% Recursive descent parser ---------------------------------------\n\nparse_expr(Ts0, Ast, Ts) :-\n    parse_term(Ts0, L, Ts1),\n    expr_rest(Ts1, L, Ast, Ts).\n\nexpr_rest([op(O)|Ts0], Acc, Ast, Ts) :-\n    memberchk(O, ['+', '-']), !,\n    parse_term(Ts0, R, Ts1),\n    expr_rest(Ts1, binary_op(O, Acc, R), Ast, Ts).\nexpr_rest(Ts, Acc, Acc, Ts).\n\nparse_term(Ts0, Ast, Ts) :-\n    parse_unary(Ts0, L, Ts1),\n    term_rest(Ts1, L, Ast, Ts).\n\nterm_rest([op(O)|Ts0], Acc, Ast, Ts) :-\n    memberchk(O, ['*', '/', '%']), !,\n    parse_unary(Ts0, R, Ts1),\n    term_rest(Ts1, binary_op(O, Acc, R), Ast, Ts).\nterm_rest(Ts, Acc, Acc, Ts).\n\nparse_unary([op(O)|Ts0], unary_op(O, X), Ts) :-\n    memberchk(O, ['+', '-']), !,\n    parse_unary(Ts0, X, Ts).\nparse_unary(Ts0, Ast, Ts) :-\n    parse_power(Ts0, Ast, Ts).\n\nparse_power(Ts0, Ast, Ts) :-\n    parse_primary(Ts0, P, Ts1),\n    (   Ts1 = [op('^')|Ts2]\n    ->  parse_unary(Ts2, R, Ts),\n        Ast = binary_op('^', P, R)\n    ;   Ast = P,\n        Ts = Ts1\n    ).\n\nparse_primary([num(V)|Ts], number(V), Ts).\nparse_primary([id(N)|Ts0], Ast, Ts) :-\n    (   Ts0 = [op('(')|Ts1]\n    ->  parse_args(Ts1, Args, Ts2),\n        valid_call(N, Args),\n        Ast = function_call(N, Args),\n        Ts = Ts2\n    ;   Ast = variable(N),\n        Ts = Ts0\n    ).\nparse_primary([op('(')|Ts0], E, Ts) :-\n    parse_expr(Ts0, E, [op(')')|Ts]).\n\nparse_args(Ts0, [A|As], Ts) :-\n    parse_expr(Ts0, A, Ts1),\n    args_rest(Ts1, As, Ts).\n\nargs_rest([op(',')|Ts0], [A|As], Ts) :- !,\n    parse_expr(Ts0, A, Ts1),\n    args_rest(Ts1, As, Ts).\nargs_rest([op(')')|Ts], [], Ts).\n\nvalid_call(sqrt, [_]).\nvalid_call(abs,  [_]).\nvalid_call(sin,  [_]).\nvalid_call(cos,  [_]).\nvalid_call(min,  [_, _]).\nvalid_call(max,  [_, _]).\nvalid_call(pow,  [_, _]).\n\n%% ---------------------------------------------------------------\n%% Evaluation\n%% ---------------------------------------------------------------\n\nevaluate(number(V), _, result(ok, V)).\nevaluate(variable(N), Vars, R) :-\n    (   memberchk(N-V, Vars)\n    ->  R = result(ok, V)\n    ;   R = result(undefined_var, 0.0)\n    ).\nevaluate(unary_op(Op, X), Vars, R) :-\n    evaluate(X, Vars, RX),\n    (   RX = result(ok, V)\n    ->  unary_apply(Op, V, R)\n    ;   R = RX\n    ).\nevaluate(binary_op(Op, L, Rt), Vars, R) :-\n    evaluate(L, Vars, RL),\n    evaluate(Rt, Vars, RR),\n    combine(Op, RL, RR, R).\nevaluate(function_call(F, Args), Vars, R) :-\n    eval_all(Args, Vars, Rs),\n    (   member(result(S, _), Rs), S \\== ok\n    ->  R = result(S, 0.0)\n    ;   maplist(result_value, Rs, Vs),\n        call_func(F, Vs, R)\n    ).\n\neval_all([], _, []).\neval_all([A|As], Vars, [R|Rs]) :-\n    evaluate(A, Vars, R),\n    eval_all(As, Vars, Rs).\n\nresult_value(result(ok, V), V).\n\nunary_apply('-', V, result(ok, W)) :- W is -V.\nunary_apply('+', V, result(ok, V)).\n\ncombine(_, result(S, _), _, result(S, 0.0)) :- S \\== ok, !.\ncombine(_, result(ok, _), result(S, _), result(S, 0.0)) :- S \\== ok, !.\ncombine(Op, result(ok, A), result(ok, B), R) :-\n    binop(Op, A, B, R).\n\nbinop('+', A, B, result(ok, C)) :- C is A + B.\nbinop('-', A, B, result(ok, C)) :- C is A - B.\nbinop('*', A, B, result(ok, C)) :- C is A * B.\nbinop('/', A, B, R) :-\n    (   B =:= 0\n    ->  R = result(div_by_zero, 0.0)\n    ;   C is A / B,\n        R = result(ok, C)\n    ).\nbinop('%', A, B, R) :-\n    (   B =:= 0\n    ->  R = result(div_by_zero, 0.0)\n    ;   C is A - B * truncate(A / B),\n        R = result(ok, C)\n    ).\nbinop('^', A, B, R) :-\n    power(A, B, R).\nbinop(_, _, _, result(invalid_op, 0.0)).\n\npower(A, B, R) :-\n    (   catch(Z is float(A) ** float(B), _, fail),\n        float_class(Z, C),\n        memberchk(C, [normal, subnormal, zero])\n    ->  R = result(ok, Z)\n    ;   R = result(domain_error, 0.0)\n    ).\n\ncall_func(sqrt, [X], R) :-\n    (   X < 0\n    ->  R = result(domain_error, 0.0)\n    ;   Y is sqrt(X),\n        R = result(ok, Y)\n    ).\ncall_func(abs, [X], result(ok, Y)) :- Y is abs(X).\ncall_func(sin, [X], result(ok, Y)) :- Y is sin(X).\ncall_func(cos, [X], result(ok, Y)) :- Y is cos(X).\ncall_func(min, [X, Y], result(ok, Z)) :- Z is min(X, Y).\ncall_func(max, [X, Y], result(ok, Z)) :- Z is max(X, Y).\ncall_func(pow, [X, Y], R) :- power(X, Y, R).\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SHWgcBq3iVp4vpN9Eb",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The parser is a recursive-descent parser over token lists with an explicit remainder argument (parse_expr/parse_term/parse_unary/parse_power/parse_primary), which is the classic Prolog style, and the evaluator pattern-matches on AST constructors in clause heads. Departures: it uses explicit difference-list threading instead of DCG notation, leans on if-then-else and cuts (tokenizer, expr_rest, combine), and `binop/4` has a catch-all last clause with no cut, so it leaves choicepoints and gives spurious invalid_op alternatives on backtracking. Using DCGs (phrase/2) and clean first-argument indexing would earn a 5.\",\"language_idiomaticity\":\"Uses code_type/2, memberchk, maplist, number_codes, float_class and 0'c character literals sensibly, and catch for arithmetic errors. However, tokenizing with hand-written take_digits/take_ident instead of DCG basics or char_type, and `between(0'0,0'9,C)` instead of code_type(C, digit), are less idiomatic. The `member(result(S,_),Rs), S \\\\== ok` check inside a condition and the non-exclusive `binop` fallback are minor smells. `valid_call/2` as facts is nice. DCG with string_codes would give a 5.\",\"readability\":\"Names are clear (parse_term, expr_rest, take_ident, unary_apply, combine), and the section headers help. Predicates are short and the grammar is easy to map to the code. Few comments explain choices such as why `%` uses truncate or why float_class is checked. Some heads like `evaluate(binary_op(Op, L, Rt), Vars, R)` mix R and Rt confusingly.\",\"design\":\"There is a good separation between tokenizer, parser, validity table (valid_call), and evaluator, with shared `power/3` used by both `^` and pow and a `combine` for status propagation. Weaknesses: binary_op evaluates both sides before short-circuiting, which is acceptable but not lazy; `combine` and `binop` duplicate status handling; and the function-call path repeats the status propagation logic rather than sharing a helper with combine. The failure-driven tokenizer lacks an explicit error clause but fails naturally. A common status-propagation helper would raise it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":3,\"readability\":4,\"design\":4,\"anti_patterns\":[\"catch-all binop clause without cut leaves choicepoints and alternative invalid_op solutions on backtracking\",\"hand-threaded token lists instead of DCG notation\",\"cuts used to emulate if-else in tokenizer and combine\",\"duplicated status-propagation logic in function_call and combine\"],\"justification\":\"The solution is a clean recursive-descent parser with pattern-matching evaluator, split into tokenizer, parser, and evaluator, with a shared power/3 predicate. It loses points for not using DCGs, hand-rolled digit/ident scanning, a non-exclusive `binop/4` fallback that leaves choicepoints, and some duplicated status-propagation code. Overall it is solid, readable Prolog with a few non-idiomatic stretches.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 7119,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 7119,
+          "model": null,
+          "output_tokens": 1082,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1082,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

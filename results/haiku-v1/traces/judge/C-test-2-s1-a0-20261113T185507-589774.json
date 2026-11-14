@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:55:07+00:00",
+  "kind": "judge",
+  "label": "C-test-2-s1-a0",
+  "request_id": "req_011Ch1SDRDqapRFte8jZg2f3",
+  "duration_s": 8.6,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of C code and of the imperative programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## C\n\n- Clear ownership: every allocation has an obvious owner and a matching `free_*`; no leaks on error paths.\n- Checks `malloc`/`calloc` results and NULL arguments where the contract requires it.\n- `static` helpers for internal functions, `const` on read-only pointer parameters, `size_t`/`int` used sensibly.\n- Small functions with a single responsibility rather than one long function; no needless global state.\n- Standard library where it fits (`qsort`, `memcpy`, `strncpy`/`snprintf`) instead of hand-rolled equivalents.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: C (imperative paradigm)\n\n## Task specification given to the author\n- Implement `create_graph`: Allocate a directed weighted graph with the given number of vertices (0-indexed). Use adjacency lists internally.\n- Implement `graph_add_edge`: Add a directed edge from vertex `from` to vertex `to` with the given non-negative weight. Support multiple edges between the same pair of vertices.\n- Implement `dijkstra`: Run Dijkstra's algorithm from the given source vertex. Return a DijkstraResult containing shortest distances to all vertices and predecessor array for path reconstruction. Unreachable vertices must have distance INFINITY (from math.h). Return NULL if graph is NULL or source is out of bounds.\n- Implement `get_shortest_distance`: Return the shortest distance from the source to the target vertex. Return INFINITY if target is out of bounds or result is NULL.\n- Implement `reconstruct_path`: Reconstruct the shortest path from source to target as a dynamically allocated array of vertex indices. Set *path_length to the number of vertices in the path. Return NULL if target is unreachable, out of bounds, or result is NULL.\n- Implement `free_graph`, `free_result`: Safely free all allocated memory, including nested structures.\n- Use a priority queue (min-heap) for O((V+E) log V) time complexity.\n\n## Contract given to the author (dijkstra.h, not written by the author)\n```c\n#ifndef DIJKSTRA_H\n#define DIJKSTRA_H\n\n#include <stdbool.h>\n\ntypedef struct {\n    int to;\n    double weight;\n} Edge;\n\ntypedef struct {\n    Edge* edges;\n    int count;\n    int capacity;\n} AdjList;\n\ntypedef struct {\n    AdjList* adjacency;\n    int num_vertices;\n} Graph;\n\ntypedef struct {\n    double* distances;\n    int* predecessors;\n    int num_vertices;\n    int source;\n} DijkstraResult;\n\nGraph* create_graph(int num_vertices);\nvoid graph_add_edge(Graph* graph, int from, int to, double weight);\nvoid free_graph(Graph* graph);\n\nDijkstraResult* dijkstra(const Graph* graph, int source);\ndouble get_shortest_distance(const DijkstraResult* result, int target);\nint* reconstruct_path(const DijkstraResult* result, int target, int* path_length);\nvoid free_result(DijkstraResult* result);\n\n#endif\n\n```\n\n## Code to evaluate (dijkstra.c)\n```c\n#include \"dijkstra.h\"\n#include <stdlib.h>\n#include <math.h>\n\ntypedef struct {\n    double dist;\n    int vertex;\n} HeapItem;\n\ntypedef struct {\n    HeapItem* items;\n    int size;\n    int capacity;\n} MinHeap;\n\nstatic int heap_init(MinHeap* h, int capacity) {\n    if (capacity < 1) capacity = 1;\n    h->items = (HeapItem*)malloc(sizeof(HeapItem) * (size_t)capacity);\n    h->size = 0;\n    h->capacity = capacity;\n    return h->items != NULL;\n}\n\nstatic void heap_free(MinHeap* h) {\n    free(h->items);\n    h->items = NULL;\n    h->size = 0;\n    h->capacity = 0;\n}\n\nstatic void heap_push(MinHeap* h, double dist, int vertex) {\n    int i;\n    if (h->size >= h->capacity) {\n        return; /* capacity is sized to be sufficient; defensive guard */\n    }\n    i = h->size++;\n    h->items[i].dist = dist;\n    h->items[i].vertex = vertex;\n    while (i > 0) {\n        int parent = (i - 1) / 2;\n        if (h->items[parent].dist <= h->items[i].dist) break;\n        HeapItem tmp = h->items[parent];\n        h->items[parent] = h->items[i];\n        h->items[i] = tmp;\n        i = parent;\n    }\n}\n\nstatic HeapItem heap_pop(MinHeap* h) {\n    HeapItem top = h->items[0];\n    int i = 0;\n    h->size--;\n    if (h->size > 0) {\n        h->items[0] = h->items[h->size];\n        for (;;) {\n            int l = 2 * i + 1;\n            int r = 2 * i + 2;\n            int smallest = i;\n            if (l < h->size && h->items[l].dist < h->items[smallest].dist) smallest = l;\n            if (r < h->size && h->items[r].dist < h->items[smallest].dist) smallest = r;\n            if (smallest == i) break;\n            HeapItem tmp = h->items[smallest];\n            h->items[smallest] = h->items[i];\n            h->items[i] = tmp;\n            i = smallest;\n        }\n    }\n    return top;\n}\n\nGraph* create_graph(int num_vertices) {\n    Graph* graph;\n    int i;\n\n    if (num_vertices < 0) return NULL;\n\n    graph = (Graph*)malloc(sizeof(Graph));\n    if (!graph) return NULL;\n\n    graph->num_vertices = num_vertices;\n    graph->adjacency = (AdjList*)calloc(num_vertices > 0 ? (size_t)num_vertices : 1, sizeof(AdjList));\n    if (!graph->adjacency) {\n        free(graph);\n        return NULL;\n    }\n\n    for (i = 0; i < num_vertices; i++) {\n        graph->adjacency[i].edges = NULL;\n        graph->adjacency[i].count = 0;\n        graph->adjacency[i].capacity = 0;\n    }\n\n    return graph;\n}\n\nvoid graph_add_edge(Graph* graph, int from, int to, double weight) {\n    AdjList* list;\n\n    if (!graph || !graph->adjacency) return;\n    if (from < 0 || from >= graph->num_vertices) return;\n    if (to < 0 || to >= graph->num_vertices) return;\n    if (!(weight >= 0.0)) return; /* rejects negative and NaN */\n\n    list = &graph->adjacency[from];\n    if (list->count >= list->capacity) {\n        int new_cap = list->capacity == 0 ? 4 : list->capacity * 2;\n        Edge* new_edges = (Edge*)realloc(list->edges, sizeof(Edge) * (size_t)new_cap);\n        if (!new_edges) return;\n        list->edges = new_edges;\n        list->capacity = new_cap;\n    }\n\n    list->edges[list->count].to = to;\n    list->edges[list->count].weight = weight;\n    list->count++;\n}\n\nvoid free_graph(Graph* graph) {\n    int i;\n    if (!graph) return;\n\n    if (graph->adjacency) {\n        for (i = 0; i < graph->num_vertices; i++) {\n            free(graph->adjacency[i].edges);\n        }\n        free(graph->adjacency);\n    }\n    free(graph);\n}\n\nDijkstraResult* dijkstra(const Graph* graph, int source) {\n    DijkstraResult* result;\n    MinHeap heap;\n    bool* visited;\n    long total_edges = 0;\n    int i;\n    int n;\n\n    if (!graph || !graph->adjacency) return NULL;\n    n = graph->num_vertices;\n    if (source < 0 || source >= n) return NULL;\n\n    result = (DijkstraResult*)malloc(sizeof(DijkstraResult));\n    if (!result) return NULL;\n\n    result->num_vertices = n;\n    result->source = source;\n    result->distances = (double*)malloc(sizeof(double) * (size_t)n);\n    result->predecessors = (int*)malloc(sizeof(int) * (size_t)n);\n    visited = (bool*)calloc((size_t)n, sizeof(bool));\n\n    if (!result->distances || !result->predecessors || !visited) {\n        free(result->distances);\n        free(result->predecessors);\n        free(visited);\n        free(result);\n        return NULL;\n    }\n\n    for (i = 0; i < n; i++) {\n        result->distances[i] = INFINITY;\n        result->predecessors[i] = -1;\n        total_edges += graph->adjacency[i].count;\n    }\n\n    if (!heap_init(&heap, (int)(total_edges + 1))) {\n        free(result->distances);\n        free(result->predecessors);\n        free(visited);\n        free(result);\n        return NULL;\n    }\n\n    result->distances[source] = 0.0;\n    heap_push(&heap, 0.0, source);\n\n    while (heap.size > 0) {\n        HeapItem item = heap_pop(&heap);\n        int u = item.vertex;\n        const AdjList* list;\n        int e;\n\n        if (visited[u]) continue;\n        if (item.dist > result->distances[u]) continue;\n        visited[u] = true;\n\n        list = &graph->adjacency[u];\n        for (e = 0; e < list->count; e++) {\n            int v = list->edges[e].to;\n            double nd = result->distances[u] + list->edges[e].weight;\n            if (!visited[v] && nd < result->distances[v]) {\n                result->distances[v] = nd;\n                result->predecessors[v] = u;\n                heap_push(&heap, nd, v);\n            }\n        }\n    }\n\n    heap_free(&heap);\n    free(visited);\n    return result;\n}\n\ndouble get_shortest_distance(const DijkstraResult* result, int target) {\n    if (!result || !result->distances) return INFINITY;\n    if (target < 0 || target >= result->num_vertices) return INFINITY;\n    return result->distances[target];\n}\n\nint* reconstruct_path(const DijkstraResult* result, int target, int* path_length) {\n    int len = 0;\n    int v;\n    int* path;\n\n    if (path_length) *path_length = 0;\n    if (!result || !result->distances || !result->predecessors) return NULL;\n    if (!path_length) return NULL;\n    if (target < 0 || target >= result->num_vertices) return NULL;\n    if (isinf(result->distances[target])) return NULL;\n\n    v = target;\n    while (v != -1) {\n        len++;\n        if (len > result->num_vertices) return NULL; /* cycle guard */\n        v = result->predecessors[v];\n    }\n\n    path = (int*)malloc(sizeof(int) * (size_t)len);\n    if (!path) return NULL;\n\n    v = target;\n    for (int i = len - 1; i >= 0; i--) {\n        path[i] = v;\n        v = result->predecessors[v];\n    }\n\n    *path_length = len;\n    return path;\n}\n\nvoid free_result(DijkstraResult* result) {\n    if (!result) return;\n    free(result->distances);\n    free(result->predecessors);\n    free(result);\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1SDS1DBY5NdSDAE6UbW",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The code is procedural: a MinHeap struct operated on by static functions (heap_init, heap_push, heap_pop, heap_free), explicit state mutation, and a clear loop in dijkstra. It uses lazy deletion with a visited array and the heap's capacity is pre-sized to E+1 so no resizing occurs. A 5 would break the long dijkstra into smaller steps (allocation/init helper, relaxation) and use a sift-up/sift-down abstraction instead of inlined loops.\",\"language_idiomaticity\":\"It uses static helpers, size_t casts, calloc, realloc with a temporary pointer, const on the graph and result parameters, and isinf/INFINITY. Minor departures: needless casts of malloc results (a C++ habit), a redundant per-element re-initialisation loop after calloc in create_graph, a `long total_edges` that is cast to int, and the `visited[u]` check duplicates the `item.dist > distances[u]` check. A silent defensive return in heap_push hides errors.\",\"readability\":\"Names are clear (HeapItem, MinHeap, heap_push, visited, nd) and the heap functions are short and understandable. dijkstra is long (about 60 lines) with repeated cleanup blocks, and the reconstruct_path two-pass logic with a cycle guard takes some reading. Comments are sparse and used where helpful (e.g. the NaN rejection). Splitting dijkstra would earn a 5.\",\"design\":\"The min-heap is a separate encapsulated component and the result and graph have matched free functions. The error cleanup in dijkstra is duplicated twice rather than using a single goto cleanup. The heap is sized from the total edge count, which is correct but requires a pass over the edges. heap_push silently ignores overflow rather than being provably safe. The path is computed in two passes (count, then fill), which is sensible. A single cleanup label and a smaller dijkstra would improve it.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":4,\"anti_patterns\":[\"duplicated manual cleanup blocks instead of a single goto cleanup label\",\"redundant re-initialisation loop after calloc in create_graph\",\"needless casts of malloc/calloc results\",\"silent no-op in heap_push when the capacity is exceeded\",\"long dijkstra function mixing allocation, init and the main loop\"],\"justification\":\"A solid procedural C implementation with a well-encapsulated static min-heap, proper NULL and bounds checks, const-correct parameters, and a safe realloc pattern. Weaknesses are the long dijkstra with duplicated error cleanup, the redundant initialisation loop after calloc, unnecessary malloc casts, and the silently ignoring defensive guard in heap_push.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5460,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5460,
+          "model": null,
+          "output_tokens": 945,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 945,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

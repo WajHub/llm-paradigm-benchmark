@@ -6,20 +6,31 @@
   "sample": 1,
   "attempt": 0,
   "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is structured procedural style: a 1D rolling dp array in KnapsackMaxValue and a 2D table with backtracking in KnapsackSolve, using for/downto loops and early Exit. Control flow is clear and uses the right DP shape. One more point would need less ad-hoc state, such as dropping the redundant zero-fill loops and the double initialisation of res^ fields.",
+    "language_idiomaticity": "It uses Min from Math, SetLength with 2D dimensions, New/Dispose, Exit and Continue, and the free procedure handles nil. Weaknesses: SetLength already zero-fills, so the explicit `dp[j] := 0` and `Selected[i] := 0` loops are redundant. `SetLength(res^.Selected, 0)` followed by another SetLength is redundant. Result is assigned from `res` rather than directly. `Exit(value)` is not used. The `if ... then dp[j] := ...` could be written with Max.",
+    "readability": "Names (dp, w, v, total, res) are short but conventional for DP. The functions are moderately sized and the backtracking is easy to follow. The single long condition in the table-fill loop packs four checks together, and there are no comments explaining the guard for invalid weights/values. Adding a brief comment and using Max would earn the extra point.",
+    "design": "The code is split into the three required routines. The dp logic is duplicated in two forms: a 1D version for the value and a 2D version for the selection. This is partly justified by memory use but means invalid-input handling is written twice with slightly different forms. A local helper or reusing KnapsackSolve's table would avoid the duplication. The 2D table is O(n*C) memory, which is necessary for backtracking. FreeKnapsackResult is correct and handles nil."
+  },
   "paradigm_idiomaticity": 4,
-  "language_idiomaticity": 4,
+  "language_idiomaticity": 3,
   "readability": 4,
   "design": 3,
   "anti_patterns": [
-    "duplicated DP recurrence logic between KnapsackMaxValue and KnapsackSolve instead of sharing a helper",
-    "redundant initialization (SetLength then zero-fill; dynamic arrays are already zero-initialized; double initialization of res^.N and Selected)",
-    "single-letter variable names w and v, and lowercase `res` alongside Result"
+    "redundant manual zero-initialisation after SetLength",
+    "duplicated DP logic and validity guards across two routines",
+    "redundant double initialisation of res^.Selected",
+    "long combined condition inside the inner loop"
   ],
-  "justification": "The code uses a standard procedural DP: a 1D rolling array for the value-only version and a 2D table with backtracking for the selection. It makes good use of Free Pascal facilities such as Min, SetLength with two dimensions, Exit, Continue, and New/Dispose with a nil-safe free routine. Weaknesses are the redundant zero-filling after SetLength, the repeated initialization of res fields, and duplicated recurrence logic across the two functions. The early-exit paths and the backtracking are clear and well structured.",
+  "justification": "The solution is a correct-looking procedural DP with a rolling 1D array for the value and a 2D table with backtracking for the selection, and memory is handled properly through New/SetLength/Dispose. It is somewhat undermined by redundant initialisation (SetLength already zero-fills, Selected is set twice) and by not using Max or Exit(value). The two DP routines duplicate the item-validity guard and recurrence rather than sharing code, which lowers the design score slightly.",
   "judge_model": "claude-sonnet-5-5",
   "judge_effort": "high",
-  "input_tokens": 3834,
-  "output_tokens": 346,
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1SGS7VbSNnUPFRiXKra",
+  "judge_s": 8.5,
+  "input_tokens": 4171,
+  "output_tokens": 879,
   "cache_read_input_tokens": 0,
   "cache_creation_input_tokens": 0
 }

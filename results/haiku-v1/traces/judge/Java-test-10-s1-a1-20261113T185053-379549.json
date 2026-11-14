@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:50:53+00:00",
+  "kind": "judge",
+  "label": "Java-test-10-s1-a1",
+  "request_id": "req_011Ch1Rti45ojUXMpZBW2nbp",
+  "duration_s": 8.2,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Java code and of the object-oriented programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Java\n\n- Object-oriented decomposition: behaviour in well-named methods/classes, private helpers, encapsulated state.\n- Uses the collections framework and standard APIs (`List`, `Map`, `Deque`, `PriorityQueue`, `Arrays`,\n  `Collections`, streams where they read naturally) instead of manual array juggling.\n- Proper use of `final`, generics, enums and immutability where sensible; no raw types.\n- Absence/error handling as the contract defines (null or status enum); no swallowed exceptions.\n- No static utility dumping ground replacing the object model; no C-style code transplanted into Java.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Java (object-oriented paradigm)\n\n## Task specification given to the author\nImplement order-statistics algorithms in Java in the class OrderStatsImpl (file\nOrderStatsImpl.java), which extends the abstract class OrderStats: deterministic BFPRT\nselection (median of medians) that reports its pivot trace, and the median of two sorted\nsequences that may only be read through a counting probe with a logarithmic read budget.\nThe base class already defines OrderStats.SelectResult and the interface\nOrderStats.SortedSource; implement medianOfMedians, selectKth and medianTwoSorted.\n\nPart A - median of medians (values are ints, duplicates allowed). The input array must\nNOT be modified.\n\n  * Lower median of a non-empty group g = the element at 0-based index (g.length - 1) / 2\n    (integer division) of g sorted ascending. E.g. lower median of [4, 1, 3, 2] is 2.\n\n- Implement `Integer medianOfMedians(int[] xs)`: split xs IN ITS CURRENT ORDER into\n  consecutive groups of 5 (xs[0..4], xs[5..9], ...; the last group may have 1-4\n  elements), take the lower median of each group, and return the lower median of the\n  list of these group medians. Return null if xs is empty. (How you compute the median of\n  the group medians does not matter, only its value.)\n\n- Implement `SelectResult selectKth(int[] xs, int k)`: k is 0-based (k = 0 is the\n  minimum). Return null if k < 0 or k >= xs.length. Otherwise run EXACTLY this procedure,\n  starting with cur = xs (a copy) and an empty pivot list:\n    1. If cur.length <= 5: the answer is sorted(cur)[k]; stop (no pivot is recorded at\n       this level).\n    2. p = medianOfMedians(cur); append p to the pivot list.\n    3. Stable three-way partition: L = the elements of cur that are < p, in their order\n       in cur; E = the number of elements == p; G = the elements > p, in their order in cur.\n    4. If k < L.length: cur = L, go to 1.\n       Else if k < L.length + E: the answer is p; stop.\n       Else: k = k - L.length - E, cur = G, go to 1.\n  Return new SelectResult(answer, pivots) where pivots holds the recorded pivots in order\n  (top level first; an empty int[] when none). Only these top-level pivots are recorded,\n  not pivots used internally while computing a median of medians. The pivot list is\n  compared exactly: an in-place / Dutch-national-flag partition that reorders elements\n  produces a different trace and is wrong; so is simply sorting the input.\n\nPart B - median of two sorted sources.\n\n  * A SortedSource is a read-only non-decreasing sequence of ints. length() (free to call)\n    can be up to 2_000_000_000 and a.length() + b.length() <= Integer.MAX_VALUE.\n    Elements are read only through get(index) with 0 <= index < length().\n\n- Implement `Double medianTwoSorted(SortedSource a, SortedSource b)`: the median of the\n  merged multiset of both sequences. Odd total -> the middle element; even total -> the\n  arithmetic mean of the two middle elements as a double, e.g. (1 + 2) / 2 = 1.5.\n  Compute the mean without int overflow (2147483647 and 2147483647 -> 2147483647.0).\n  Return null if both sources are empty. The result is a Double even for odd totals.\n\n  Read budget (enforced by the tests): every get call counts, including repeated reads of\n  the same index. The total number of get calls on both sources must be at most\n  16 * (bitlen(a.length() + b.length()) + 1), where bitlen(x) is the number of binary\n  digits of x (bitlen(0) = 0, bitlen(7) = 3, bitlen(2_000_000_000) = 31 -> budget 512).\n  Reading an index outside 0..length()-1 is an error. The tests' sources throw a\n  RuntimeException when the budget is exceeded or an index is out of range, which fails\n  the test. Do NOT catch or suppress exceptions thrown by get, do NOT copy the sources into\n  arrays or collections, and do not access the data in any other way.\n  Use a binary search: partition search on the shorter source (O(log min(m, n)) reads) or\n  k-th element by halving k (O(log(m + n)) reads). A linear merge exceeds the budget.\n  Lengths are close to 2^31, so do index arithmetic (sums, midpoints) in long or otherwise\n  overflow-safe.\n\nKeep the contract in OrderStats.java; put the solution in OrderStatsImpl.java.\n\n## Contract given to the author (OrderStats.java, not written by the author)\n```java\npublic abstract class OrderStats {\n    protected OrderStats() {}\n\n    public static final class SelectResult {\n        public final int value;       // the k-th smallest element\n        public final int[] pivots;    // top-level BFPRT pivots, in the order they were chosen\n        public SelectResult(int value, int[] pivots) {\n            this.value = value;\n            this.pivots = pivots;\n        }\n    }\n\n    /** Read-only sorted (non-decreasing) sequence; get(index) is valid for 0 <= index < length(). */\n    public interface SortedSource {\n        int length();\n        int get(int index);\n    }\n\n    public abstract Integer medianOfMedians(int[] xs);\n    public abstract SelectResult selectKth(int[] xs, int k);\n    public abstract Double medianTwoSorted(SortedSource a, SortedSource b);\n}\n\n```\n\n## Code to evaluate (OrderStatsImpl.java)\n```java\nimport java.util.Arrays;\n\npublic final class OrderStatsImpl extends OrderStats {\n\n    public OrderStatsImpl() {\n        super();\n    }\n\n    @Override\n    public Integer medianOfMedians(int[] xs) {\n        if (xs == null || xs.length == 0) {\n            return null;\n        }\n        int groupCount = (xs.length + 4) / 5;\n        int[] medians = new int[groupCount];\n        int idx = 0;\n        for (int start = 0; start < xs.length; start += 5) {\n            int end = Math.min(start + 5, xs.length);\n            int[] group = Arrays.copyOfRange(xs, start, end);\n            Arrays.sort(group);\n            medians[idx++] = group[(group.length - 1) / 2];\n        }\n        Arrays.sort(medians);\n        return medians[(medians.length - 1) / 2];\n    }\n\n    @Override\n    public SelectResult selectKth(int[] xs, int k) {\n        if (xs == null || k < 0 || k >= xs.length) {\n            return null;\n        }\n        int[] cur = xs.clone();\n        int[] pivotBuffer = new int[64];\n        int pivotCount = 0;\n\n        while (true) {\n            if (cur.length <= 5) {\n                int[] sorted = cur.clone();\n                Arrays.sort(sorted);\n                return new SelectResult(sorted[k], Arrays.copyOf(pivotBuffer, pivotCount));\n            }\n\n            int p = medianOfMedians(cur);\n            if (pivotCount == pivotBuffer.length) {\n                pivotBuffer = Arrays.copyOf(pivotBuffer, pivotCount * 2);\n            }\n            pivotBuffer[pivotCount++] = p;\n\n            int lessCount = 0;\n            int equalCount = 0;\n            for (int v : cur) {\n                if (v < p) {\n                    lessCount++;\n                } else if (v == p) {\n                    equalCount++;\n                }\n            }\n            int greaterCount = cur.length - lessCount - equalCount;\n\n            int[] less = new int[lessCount];\n            int[] greater = new int[greaterCount];\n            int li = 0;\n            int gi = 0;\n            for (int v : cur) {\n                if (v < p) {\n                    less[li++] = v;\n                } else if (v > p) {\n                    greater[gi++] = v;\n                }\n            }\n\n            if (k < lessCount) {\n                cur = less;\n            } else if (k < lessCount + equalCount) {\n                return new SelectResult(p, Arrays.copyOf(pivotBuffer, pivotCount));\n            } else {\n                k = k - lessCount - equalCount;\n                cur = greater;\n            }\n        }\n    }\n\n    @Override\n    public Double medianTwoSorted(SortedSource a, SortedSource b) {\n        long lenA = a.length();\n        long lenB = b.length();\n        long total = lenA + lenB;\n        if (total == 0) {\n            return null;\n        }\n\n        SortedSource src1 = a;\n        SortedSource src2 = b;\n        long m = lenA;\n        long n = lenB;\n        if (m > n) {\n            src1 = b;\n            src2 = a;\n            m = lenB;\n            n = lenA;\n        }\n\n        long half = (total + 1) / 2;\n        long lo = Math.max(0L, half - n);\n        long hi = Math.min(m, half);\n\n        while (lo < hi) {\n            long mid = (lo + hi) >>> 1;\n            long j = half - mid;\n            boolean ok;\n            if (mid >= m) {\n                ok = true;\n            } else if (j <= 0) {\n                ok = true;\n            } else {\n                int aRight = src1.get((int) mid);\n                int bLeft = src2.get((int) (j - 1));\n                ok = aRight >= bLeft;\n            }\n            if (ok) {\n                hi = mid;\n            } else {\n                lo = mid + 1;\n            }\n        }\n\n        long i = lo;\n        long j = half - i;\n\n        boolean hasALeft = i > 0;\n        boolean hasARight = i < m;\n        boolean hasBLeft = j > 0;\n        boolean hasBRight = j < n;\n\n        long leftMax = Long.MIN_VALUE;\n        if (hasALeft) {\n            leftMax = Math.max(leftMax, src1.get((int) (i - 1)));\n        }\n        if (hasBLeft) {\n            leftMax = Math.max(leftMax, src2.get((int) (j - 1)));\n        }\n\n        if (total % 2 == 1) {\n            return (double) leftMax;\n        }\n\n        long rightMin = Long.MAX_VALUE;\n        if (hasARight) {\n            rightMin = Math.min(rightMin, src1.get((int) i));\n        }\n        if (hasBRight) {\n            rightMin = Math.min(rightMin, src2.get((int) j));\n        }\n\n        return ((double) leftMax + (double) rightMin) / 2.0;\n    }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RtiPBLrzUpLgwymf8L",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"The class extends OrderStats and overrides the three abstract methods, but all logic sits inside those long methods. There are no private helpers or small objects, and state is local to each call. selectKth is a procedural while(true) loop with counters and manual arrays. A 4 would need helper methods (e.g. partition, lowerMedian) that give the OO design finer behavioural units.\",\"language_idiomaticity\":\"It uses Arrays.copyOfRange, Arrays.sort, clone and Math.min/max, and it uses long arithmetic for the large indices. It also maintains a hand-managed pivotBuffer int[64] with manual doubling instead of a growable list or IntStream collection, which is C-style array juggling. Counting and filling passes build the partitions by hand, where a stream or list would be shorter. The `(int)` casts on long indices are fine. More idiomatic structures would earn another point.\",\"readability\":\"Names such as lessCount, equalCount, medians and half are clear, and the algorithm follows the spec step by step. selectKth and medianTwoSorted are long with many flags (hasALeft, hasARight), and there are no comments explaining the partition invariant or the `ok` predicate. The binary-search condition is somewhat opaque, with redundant branches (mid >= m, j <= 0). Extracting helpers and adding a brief comment would earn a 4.\",\"design\":\"Group-median calculation is inlined, and medianOfMedians is reused by selectKth, which is good. The three-way partition is inlined with two passes and duplicated `v < p` tests. The pivot buffer is manually resized. medianTwoSorted mixes swap logic, binary search and result computation in one method. The design is workable but not well decomposed. Private methods for partition, lower median and the partition search would improve it.\"},\"paradigm_idiomaticity\":3,\"language_idiomaticity\":3,\"readability\":3,\"design\":3,\"anti_patterns\":[\"manual growable int[] pivotBuffer with doubling instead of a List or other collection\",\"long monolithic methods with no private helpers\",\"while(true) loop with manual counting passes for partitioning\",\"a magic initial capacity of 64\"],\"justification\":\"The solution follows the spec and reuses medianOfMedians inside selectKth, and it handles large lengths safely with long arithmetic. However, the logic is crammed into three long methods, with a hand-rolled pivotBuffer and manual two-pass partition. The binary search in medianTwoSorted has several boolean flags and no explanatory comments, so decomposition into private helpers would be needed to reach a higher score.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5475,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5475,
+          "model": null,
+          "output_tokens": 869,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 869,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}

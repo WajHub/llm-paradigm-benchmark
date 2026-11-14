@@ -1,0 +1,37 @@
+{
+  "run_id": "haiku-v1",
+  "lang": "C",
+  "paradigm": "imperative",
+  "test": "test-10",
+  "sample": 1,
+  "attempt": 0,
+  "category": "pass",
+  "rationale": {
+    "paradigm_idiomaticity": "The code is plain procedural C. It uses explicit loops, a stable partition into scratch buffers `lbuf`/`gbuf`, and a `while (1)` loop that carries state (`work`, `curlen`, `kk`). The binary search in `median_two_sorted` is cleanly iterative. Flags such as `ok` and `bool* ok` passed into `append_pivot` carry error state and are slightly clunky. Setting `ok` and then checking it twice, and the `while(1)`/`break` control flow, are a bit awkward. Splitting out a partition step and using goto-style cleanup or early returns would earn one more point.",
+    "language_idiomaticity": "The code uses `static` helpers, `size_t` casts on allocation sizes, `memcpy`, `qsort` with a safe comparator `(x>y)-(x<y)`, and `long long` for index arithmetic. It checks `malloc`/`realloc` results and frees on error paths. Small blemishes: the unneeded `(int*)` casts on `malloc`, `while (1)` instead of `for (;;)`, the output parameter `bool* ok`, and the unneeded `xs == NULL` check with `n <= 0`. It also uses the hand-rolled `insertion_sort` for 5 elements, which is reasonable. `median_of_medians` returns false on an allocation failure, conflating that with n == 0.",
+    "readability": "Names like `median_of_medians`, `append_pivot`, `lm` and `rm` are reasonable, and the comments in the binary search explain the invariant. However, `select_kth` is a long function that mixes allocation, the loop, partitioning and cleanup. `median_two_sorted` has terse names (`lm`, `hr`, `have`) and uppercase `N`, `A`, `B`. The left-max/right-min logic is repeated inline. Extracting helpers would improve it.",
+    "design": "The design is mostly decomposed: `cmp_int`, `insertion_sort`, `append_pivot` and `get_at` are `static`. But `select_kth` is monolithic, with partitioning inline, and it allocates three full-size buffers (`work`, `lbuf`, `gbuf`) even though it needs fewer. `append_pivot` carries a three-pointer growth interface plus an `ok` flag, which is clunky. `median_two_sorted` is a single function whose max/min selection could be helper functions. It does swap to search the shorter source, uses no heap, and has the right complexity. Cleanup is repeated across several paths."
+  },
+  "paradigm_idiomaticity": 4,
+  "language_idiomaticity": 4,
+  "readability": 3,
+  "design": 3,
+  "anti_patterns": [
+    "long monolithic select_kth mixing allocation, partitioning and cleanup",
+    "ok-flag out-parameter threaded through append_pivot instead of returning status",
+    "redundant (int*) casts on malloc",
+    "repeated inline left-max/right-min logic instead of a helper",
+    "three full-size scratch buffers allocated up front"
+  ],
+  "justification": "The solution is solid procedural C with correct use of `static` helpers, `memcpy`, `qsort`, `size_t` casts and 64-bit index arithmetic. The binary-search median uses no heap and the allocation failures are handled. Its weaknesses are the long `select_kth`, the clunky `append_pivot`/`ok` error handling, terse names in `median_two_sorted`, and the inline partition and max/min logic that could be extracted.",
+  "judge_model": "claude-sonnet-5-5",
+  "judge_effort": "high",
+  "judge_version": 2,
+  "judge_reasoning": "",
+  "request_id": "req_011Ch1RsJ7taBk2a7keVEMfq",
+  "judge_s": 10.9,
+  "input_tokens": 6697,
+  "output_tokens": 1161,
+  "cache_read_input_tokens": 0,
+  "cache_creation_input_tokens": 0
+}

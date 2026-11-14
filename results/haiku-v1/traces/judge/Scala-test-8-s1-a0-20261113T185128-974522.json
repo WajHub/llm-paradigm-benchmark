@@ -1,0 +1,176 @@
+{
+  "time": "2026-11-13T18:51:28+00:00",
+  "kind": "judge",
+  "label": "Scala-test-8-s1-a0",
+  "request_id": "req_011Ch1RwAUdfc52dboZumuoT",
+  "duration_s": 9.9,
+  "error": null,
+  "reasoning": "",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "adaptive",
+      "display": "summarized"
+    },
+    "output_config": {
+      "effort": "high",
+      "format": {
+        "type": "json_schema",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "rationale": {
+              "type": "object",
+              "description": "Per criterion: the concrete code (names, constructs) behind the score and what would earn one point more, or why it already deserves a 5.",
+              "properties": {
+                "paradigm_idiomaticity": {
+                  "type": "string"
+                },
+                "language_idiomaticity": {
+                  "type": "string"
+                },
+                "readability": {
+                  "type": "string"
+                },
+                "design": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paradigm_idiomaticity",
+                "language_idiomaticity",
+                "readability",
+                "design"
+              ],
+              "additionalProperties": false
+            },
+            "paradigm_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "language_idiomaticity": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "readability": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "design": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "anti_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "justification": {
+              "type": "string",
+              "description": "Overall summary of the assessment."
+            }
+          },
+          "required": [
+            "rationale",
+            "paradigm_idiomaticity",
+            "language_idiomaticity",
+            "readability",
+            "design",
+            "anti_patterns",
+            "justification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "system": "You are an expert reviewer of Scala code and of the functional programming paradigm. You assess how idiomatic a solution to a programming task is. Apply the rubric below and answer only with the requested JSON.\n\nBefore the scores, write a rationale for each criterion: point to the concrete code that decided the score (function, type or predicate names, specific constructs) and say what would have earned one point more, or why the code already deserves a 5. A reader must be able to check every score against the code from its rationale alone.\n\n# Idiomaticity rubric\n\nUsed by `judge.py`. The judge receives the general sections below plus the section of the\nlanguage being evaluated.\n\n## Scale\n\n- **5**: what an experienced practitioner of this language and paradigm would write; nothing to change.\n- **4**: idiomatic overall, a few small departures from common practice.\n- **3**: works in the language's style in places, but with clear non-idiomatic stretches.\n- **2**: mostly written as if in another language or paradigm; idioms of this one are largely ignored.\n- **1**: fights the language: constructs foreign to it throughout, or misuses its core features.\n\n## Criteria\n\n- **paradigm_idiomaticity**: how well the code expresses the solution in the language's paradigm\n  (procedural, object-oriented, functional, logic): the decomposition, data flow and control structures\n  that paradigm favours.\n- **language_idiomaticity**: use of this particular language's features, standard library and conventions\n  (naming, error/absence representation, collections, formatting).\n- **readability**: how easily a competent reader of this language follows the code: names, function size,\n  structure, comments where they help (not everywhere).\n- **design**: decomposition into functions/types/classes/predicates, choice of data structures, separation\n  of concerns, avoidance of duplication. This is about structure, not about whether the result is correct.\n\n## Rules\n\n- Do not judge correctness: you do not see test results, and a correct but non-idiomatic solution should\n  score low, while an idiomatic solution with a bug can still score high.\n- Judge only what the author wrote. Type declarations, signatures and data classes copied from the provided\n  contract are given; evaluate how the author used them and what they added.\n- Do not reward length or extra features beyond the task, and do not penalise a short solution for being short.\n- Requirements that come from the task (fixed signatures, C-style result structs, status enums, `none` atoms,\n  1-based Smalltalk collections) are not anti-patterns.\n- `anti_patterns`: short concrete labels of non-idiomatic constructs actually present, e.g.\n  \"index-based loops instead of folds\", \"mutable var accumulators\", \"cut used to emulate if-else\".\n  Empty list when there are none. Do not list style nitpicks.\n- `justification`: 2–4 sentences pointing at specific parts of the code.\n\n## Scala\n\n- Immutable values (`val`, immutable collections) and expressions over statements; `var` and mutable\n  collections only where clearly justified and local.\n- `Option`/`Either`/sealed traits and case classes for absence, errors and data; pattern matching.\n- Collection combinators (`map`, `flatMap`, `foldLeft`, `collect`, `groupBy`, for-comprehensions) instead of\n  index loops; tail recursion (`@tailrec`) where recursion is needed.\n- No Java-style null handling or `return` statements; code compatible with Scala 2.11 used naturally.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Language: Scala (functional paradigm)\n\n## Task specification given to the author\nImplement two approximation algorithms for the metric Travelling Salesman\nProblem in Scala 2.11 in the object TspApprox (file TspApprox.scala): the MST\ndouble-tree 2-approximation and Christofides' 1.5-approximation. The object\nalready defines TourResult(tour: Vector[Int], cost: Int); implement mstWeight,\ndoubleTree, matchingWeight and christofides.\n\nInput and common definitions:\n  * points: Vector[(Int, Int)] of (x, y) integer coordinates, n = points.length,\n    0 <= n <= 40, |coordinate| < 10000. Points may coincide (distance 0).\n  * Vertex i is points(i); vertices are numbered 0..n-1 in input order.\n  * Distance is the Manhattan distance d(p, q) = |px - qx| + |py - qy| (Int).\n  * A tour is a Vector[Int] that is a permutation of 0..n-1 and STARTS WITH 0.\n    It is a closed cycle: its cost is the sum of d(tour(i), tour(i+1)) for\n    i = 0..n-2 plus d(tour(n-1), tour(0)).\n    n = 1: tour Vector(0), cost 0. n = 2: cost = 2 * d(0, 1).\n  * TourResult.cost must equal the cost of TourResult.tour by this definition.\n  * The input must not be modified.\n\nThe MST (unique by these rules) - Prim's algorithm started at vertex 0:\n  Repeat n-1 times: among the vertices v not yet in the tree, choose the one\n  with the smallest key(v) = min over tree vertices u of d(u, v); on ties choose\n  the SMALLEST index v. Its parent is the tree vertex u with d(u, v) = key(v);\n  if several tree vertices are at that distance, the parent is the one with the\n  SMALLEST index u (not the first one reached, not the most recently added).\n  The MST edges are (v, parent(v)) for every v != 0.\n\n- Implement `mstWeight(points): Int`: the sum of the MST edge weights.\n  Return 0 for n = 0 or n = 1.\n\n- Implement `doubleTree(points): Option[TourResult]`:\n  * None for n = 0.\n  * Otherwise the tour is the preorder DFS sequence of the MST above, rooted at\n    vertex 0, where the children of every vertex are visited in ASCENDING index\n    order. The tour is unique and the tests compare it exactly.\n\n- Implement `matchingWeight(points): Int`:\n  * Let O be the set of vertices with odd degree in the MST above (|O| is\n    always even; |O| <= 16 in all tests).\n  * Return the MINIMUM total weight (distance d) of a perfect matching of O:\n    pairs of distinct vertices of O, every vertex of O in exactly one pair.\n    The result must be exact; greedy nearest-pair matching is wrong. An exact\n    exponential algorithm over subsets (bitmask DP) is fine; blossom is not\n    required.\n  * Return 0 for n = 0 or n = 1.\n\n- Implement `christofides(points): Option[TourResult]`:\n  * None for n = 0; n = 1 gives TourResult(Vector(0), 0).\n  * Build a multigraph from the MST edges plus the edges of a minimum-weight\n    perfect matching of O. An edge present in both is a DOUBLE edge: keep both\n    copies (parallel edges).\n  * Find an Eulerian circuit of that multigraph starting at vertex 0\n    (Hierholzer's algorithm; every edge copy is used exactly once).\n  * Shortcut: walk the circuit and keep only the first occurrence of every\n    vertex. The resulting tour starts with 0.\n  * Any minimum matching and any Eulerian circuit are accepted. The tests check\n    that the tour is valid (permutation of 0..n-1 starting with 0), that cost\n    equals the recomputed tour cost, and that\n    cost <= mstWeight(points) + matchingWeight(points)\n    (guaranteed by the triangle inequality), plus the 1.5 * OPT bound.\n\nNotes:\n  - All sums fit in Int.\n  - Use Scala 2.11 syntax and standard library only (no Scala 3 syntax, no\n    2.12/2.13-only APIs such as LazyList or .to(List)).\n\n## Stub module given to the author (TspApprox.scala)\nThe author replaced the stub bodies; type declarations and signatures come from it.\n```scala\nobject TspApprox {\n  case class TourResult(tour: Vector[Int], cost: Int)\n\n  def mstWeight(points: Vector[(Int, Int)]): Int =\n    sys.error(\"TspApprox.mstWeight not implemented\")\n\n  def doubleTree(points: Vector[(Int, Int)]): Option[TourResult] =\n    sys.error(\"TspApprox.doubleTree not implemented\")\n\n  def matchingWeight(points: Vector[(Int, Int)]): Int =\n    sys.error(\"TspApprox.matchingWeight not implemented\")\n\n  def christofides(points: Vector[(Int, Int)]): Option[TourResult] =\n    sys.error(\"TspApprox.christofides not implemented\")\n}\n\n```\n\n## Code to evaluate (TspApprox.scala)\n```scala\nimport scala.collection.mutable\n\nobject TspApprox {\n  case class TourResult(tour: Vector[Int], cost: Int)\n\n  private def dist(p: (Int, Int), q: (Int, Int)): Int =\n    math.abs(p._1 - q._1) + math.abs(p._2 - q._2)\n\n  // Prim's algorithm from vertex 0; returns map v -> parent(v) for every v != 0.\n  private def mstParents(points: Vector[(Int, Int)]): Map[Int, Int] = {\n    val n = points.length\n\n    @annotation.tailrec\n    def loop(tree: Vector[Int], parent: Map[Int, Int]): Map[Int, Int] =\n      if (tree.length == n) parent\n      else {\n        val (_, v, u) = (0 until n).filterNot(tree.contains).map { v =>\n          val (k, u) = tree.map(w => (dist(points(w), points(v)), w)).min\n          (k, v, u)\n        }.min\n        loop(tree :+ v, parent + (v -> u))\n      }\n\n    if (n <= 1) Map.empty[Int, Int] else loop(Vector(0), Map.empty[Int, Int])\n  }\n\n  private def tourCost(points: Vector[(Int, Int)], tour: Vector[Int]): Int = {\n    val n = tour.length\n    (0 until n).map(i => dist(points(tour(i)), points(tour((i + 1) % n)))).sum\n  }\n\n  private def oddVertices(n: Int, parents: Map[Int, Int]): Vector[Int] = {\n    val deg = parents.foldLeft(Vector.fill(n)(0)) {\n      case (acc, (v, p)) => acc.updated(v, acc(v) + 1).updated(p, acc(p) + 1)\n    }\n    (0 until n).filter(v => deg(v) % 2 == 1).toVector\n  }\n\n  // Exact minimum-weight perfect matching on the vertices in `odd` (bitmask memo DP).\n  private def matchingPairs(points: Vector[(Int, Int)], odd: Vector[Int]): (Int, List[(Int, Int)]) = {\n    val m = odd.length\n    val memo = mutable.HashMap.empty[Int, (Int, List[(Int, Int)])]\n\n    def best(mask: Int): (Int, List[(Int, Int)]) =\n      if (mask == 0) (0, Nil)\n      else memo.get(mask) match {\n        case Some(r) => r\n        case None =>\n          val i = Integer.numberOfTrailingZeros(mask)\n          val rest = mask & ~(1 << i)\n          val r = (0 until m).filter(j => (rest & (1 << j)) != 0)\n            .foldLeft((Int.MaxValue, List.empty[(Int, Int)])) {\n              case (acc, j) =>\n                val (c, ps) = best(rest & ~(1 << j))\n                val cand = c + dist(points(odd(i)), points(odd(j)))\n                if (cand < acc._1) (cand, (odd(i), odd(j)) :: ps) else acc\n            }\n          memo += (mask -> r)\n          r\n      }\n\n    best((1 << m) - 1)\n  }\n\n  def mstWeight(points: Vector[(Int, Int)]): Int =\n    mstParents(points).foldLeft(0) {\n      case (acc, (v, p)) => acc + dist(points(v), points(p))\n    }\n\n  def doubleTree(points: Vector[(Int, Int)]): Option[TourResult] = {\n    val n = points.length\n    if (n == 0) None\n    else {\n      val parents = mstParents(points)\n      val children: Map[Int, Vector[Int]] =\n        parents.toVector.groupBy(_._2).map { case (p, vs) => p -> vs.map(_._1).sorted }\n\n      def pre(v: Int): Vector[Int] =\n        v +: children.getOrElse(v, Vector.empty[Int]).flatMap(pre)\n\n      val tour = pre(0)\n      Some(TourResult(tour, tourCost(points, tour)))\n    }\n  }\n\n  def matchingWeight(points: Vector[(Int, Int)]): Int = {\n    val n = points.length\n    if (n <= 1) 0\n    else {\n      val parents = mstParents(points)\n      matchingPairs(points, oddVertices(n, parents))._1\n    }\n  }\n\n  def christofides(points: Vector[(Int, Int)]): Option[TourResult] = {\n    val n = points.length\n    if (n == 0) None\n    else if (n == 1) Some(TourResult(Vector(0), 0))\n    else {\n      val parents = mstParents(points)\n      val mst: Vector[(Int, Int)] = parents.toVector\n      val odd = oddVertices(n, parents)\n      val (_, matched) = matchingPairs(points, odd)\n      val edges: Vector[(Int, Int)] = mst ++ matched.toVector\n\n      val adj: Vector[Vector[(Int, Int)]] = (0 until n).map { v =>\n        edges.zipWithIndex.collect {\n          case ((a, b), e) if a == v => (e, b)\n          case ((a, b), e) if b == v => (e, a)\n        }.toVector\n      }.toVector\n\n      // Hierholzer's algorithm on the multigraph\n      val used = Array.fill(edges.length)(false)\n      val ptr = Array.fill(n)(0)\n      val stack = mutable.Stack[Int](0)\n      val circuit = mutable.ListBuffer[Int]()\n\n      while (stack.nonEmpty) {\n        val v = stack.top\n        while (ptr(v) < adj(v).length && used(adj(v)(ptr(v))._1)) ptr(v) += 1\n        if (ptr(v) < adj(v).length) {\n          val (e, w) = adj(v)(ptr(v))\n          used(e) = true\n          stack.push(w)\n        } else {\n          circuit += stack.pop()\n        }\n      }\n\n      // Shortcut: keep first occurrence of each vertex\n      val tour = circuit.toVector.foldLeft((Vector.empty[Int], Set.empty[Int])) {\n        case ((acc, seen), v) =>\n          if (seen(v)) (acc, seen) else (acc :+ v, seen + v)\n      }._1\n\n      Some(TourResult(tour, tourCost(points, tour)))\n    }\n  }\n}\n\n```"
+      }
+    ],
+    "betas": [
+      "server-side-fallback-2026-07-01"
+    ],
+    "fallbacks": "default"
+  },
+  "response": {
+    "id": "msg_011Ch1RwAsgPyGWMBsDvmQaG",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "{\"rationale\":{\"paradigm_idiomaticity\":\"Most of the code is functional. `mstParents` uses a `@tailrec loop` with immutable `Vector` and `Map`. `doubleTree` builds the preorder with a recursive `pre` and `flatMap`. `oddVertices`, `mstWeight` and the shortcut are folds over immutable values. `matchingPairs` mutates a `HashMap` memo, which is defensible for DP. The Hierholzer step in `christofides` is a `while` loop with `Array` and `mutable.Stack` and a `ListBuffer`. It is local but imperative, and a tail-recursive version over an immutable adjacency structure would earn another point. The Prim tie-breaking relies on lexicographic tuple `.min`, which is neat.\",\"language_idiomaticity\":\"The code uses tuple pattern matching in folds, `collect` with guards, `Option` for the empty input, `getOrElse`, `groupBy` and `@annotation.tailrec`. It stays within Scala 2.11. Minor departures: `tree.contains` on a Vector inside `filterNot` is O(n); `(0 until n).map {...}.toVector` mixes ranges and vectors; `mutable.Stack` is used; `acc._1` access sits next to tuple destructuring; `tour.length` is shadowed as `n` in `tourCost`. Overall it is natural Scala.\",\"readability\":\"Names such as `mstParents`, `oddVertices`, `matchingPairs`, `tourCost` and `adj` are clear, and short comments mark Prim, the matching DP and Hierholzer. The `val (_, v, u) = ... .min` Prim step is dense and relies on tuple ordering for the tie-breaks without a comment explaining it. `matchingPairs` has a nested fold with a memo match and returns a tuple of cost and list, which takes some effort to read. The `christofides` body is long and mixes graph construction, Euler circuit and shortcut, which hurts a little.\",\"design\":\"Shared helpers (`dist`, `mstParents`, `tourCost`, `oddVertices`, `matchingPairs`) are reused across the four public functions, so there is no duplication. The memoised bitmask DP returns both cost and pairs, so `matchingWeight` and `christofides` share it. Weaknesses: `christofides` is a monolith and the Euler circuit is not extracted into its own function; the adjacency construction is O(n·E); Prim is O(n^3) (harmless for n<=40); the parent map is converted to edge vectors ad hoc rather than through a small graph type.\"},\"paradigm_idiomaticity\":4,\"language_idiomaticity\":4,\"readability\":4,\"design\":3,\"anti_patterns\":[\"imperative while loops with mutable Array/Stack/ListBuffer for Hierholzer instead of a tail-recursive version\",\"mutable HashMap memo in matchingPairs\",\"Euler circuit logic inlined in christofides rather than extracted into a helper\",\"tree.contains on a Vector inside the Prim loop (O(n) membership test)\"],\"justification\":\"The solution is largely functional: Prim runs as a `@tailrec` loop over immutable collections, the DFS preorder is a recursive `flatMap`, and the shortcut is a `foldLeft` with a `Set`. The weakest part is the Hierholzer implementation in `christofides`, which uses `while` loops, mutable arrays and a stack, and which sits inside a long function instead of its own helper. Decomposition into shared helpers is good, and naming is clear, but the dense Prim step and the monolithic `christofides` keep the scores at 4 and 3.\"}",
+        "type": "text"
+      }
+    ],
+    "context_management": null,
+    "diagnostics": null,
+    "model": "claude-sonnet-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 5851,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 5851,
+          "model": null,
+          "output_tokens": 1227,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1227,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "input_transformations": null
+  }
+}
